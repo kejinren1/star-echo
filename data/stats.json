@@ -1,0 +1,57 @@
+{
+  "stats": {
+    "basic": [
+      { "id": "max_hp", "name": "最大生命值", "name_en": "Max HP", "base": 100, "max": null, "description": "玩家生命上限" },
+      { "id": "hp_regen", "name": "生命回复", "name_en": "HP Regen", "base": 0, "max": null, "description": "每秒回复生命值" },
+      { "id": "armor", "name": "护甲", "name_en": "Armor", "base": 0, "max": 20, "description": "减免物理伤害, 上限75%减伤" },
+      { "id": "dodge", "name": "闪避", "name_en": "Dodge", "base": 0, "max": 60, "description": "概率完全躲避攻击, 上限60%", "unit": "percent" },
+      { "id": "speed", "name": "移动速度", "name_en": "Speed", "base": 300, "max": null, "description": "移动速度(像素/秒)" },
+      { "id": "pickup_range", "name": "拾取范围", "name_en": "Pickup Range", "base": 80, "max": null, "description": "自动拾取半径" }
+    ],
+    "offensive": [
+      { "id": "melee_damage", "name": "近战伤害", "name_en": "Melee Damage", "base": 0, "max": null },
+      { "id": "ranged_damage", "name": "远程伤害", "name_en": "Ranged Damage", "base": 0, "max": null },
+      { "id": "elemental_damage", "name": "元素伤害", "name_en": "Elemental Damage", "base": 0, "max": null },
+      { "id": "attack_speed", "name": "攻击速度", "name_en": "Attack Speed", "base": 0, "max": null, "unit": "percent" },
+      { "id": "crit_chance", "name": "暴击率", "name_en": "Crit Chance", "base": 5, "max": null, "unit": "percent" },
+      { "id": "crit_damage", "name": "暴击伤害", "name_en": "Crit Damage", "base": 150, "max": null, "unit": "percent" },
+      { "id": "range", "name": "攻击范围", "name_en": "Range", "base": 0, "max": null },
+      { "id": "knockback", "name": "击退", "name_en": "Knockback", "base": 0, "max": null },
+      { "id": "life_steal", "name": "生命偷取", "name_en": "Life Steal", "base": 0, "max": null, "unit": "percent" }
+    ],
+    "economy": [
+      { "id": "harvesting", "name": "收获", "name_en": "Harvesting", "base": 0, "max": null, "description": "每波次结束获得额外材料" },
+      { "id": "luck", "name": "幸运", "name_en": "Luck", "base": 0, "max": null, "description": "影响掉落品质和商店品质" },
+      { "id": "xp_gain", "name": "经验加成", "name_en": "XP Gain", "base": 0, "max": null, "unit": "percent" },
+      { "id": "engineering", "name": "工程学", "name_en": "Engineering", "base": 0, "max": null },
+      { "id": "curse", "name": "诅咒", "name_en": "Curse", "base": 0, "max": null, "description": "增强敌人但增加掉落" }
+    ]
+  },
+  "formulas": {
+    "damage": "final_damage = (weapon_base_damage + damage_stat) * crit_check",
+    "crit_check": "if random() < crit_chance: * crit_damage_multiplier, else: * 1.0",
+    "armor_reduction": "damage_reduction = min(armor / (armor + 20), 0.75)",
+    "armor_final": "final_damage = raw_damage * (1 - damage_reduction)",
+    "attack_speed": "actual_cooldown = weapon_base_cooldown / (1 + attack_speed_percent / 100)",
+    "attack_speed_min": "min_cooldown = 0.1s",
+    "dodge": "if random() < min(dodge_percent/100, 0.60): ignore_damage",
+    "knockback": "knockback_distance = base_knockback + knockback_stat",
+    "harvesting": "bonus_materials_per_wave = harvesting_stat",
+    "luck_shop": "high_quality_chance = base_chance + luck * 0.5%",
+    "luck_chest": "chest_drop_chance = base_chance + luck * 0.3%",
+    "curse_hp": "enemy_hp_multiplier = 1.5 + curse * 0.02",
+    "curse_damage": "enemy_damage_multiplier = 1.25",
+    "curse_speed": "enemy_speed_multiplier = 1.15",
+    "curse_drop": "material_drop_multiplier = 1.33"
+  },
+  "leveling": {
+    "xp_per_level": "20 + current_level * 10",
+    "choices_per_level": 3,
+    "upgrade_options": [
+      { "group": "damage", "options": ["+5 melee_damage", "+5 ranged_damage", "+5 elemental_damage"] },
+      { "group": "offense", "options": ["+5% attack_speed", "+5% crit_chance", "+5 range"] },
+      { "group": "defense", "options": ["+5 max_hp", "+1 armor", "+5% dodge"] },
+      { "group": "economy", "options": ["+3 harvesting", "+5 luck", "+3 engineering"] }
+    ]
+  }
+}

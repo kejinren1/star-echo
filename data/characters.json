@@ -1,0 +1,103 @@
+{
+  "characters": [
+    {
+      "id": "well_rounded",
+      "name": "均衡者",
+      "name_en": "Well-Rounded",
+      "description": "全能型角色，适合新手了解基础玩法",
+      "passive": {
+        "max_hp": 10,
+        "speed_percent": 5,
+        "harvesting": 3
+      },
+      "starting_weapon": "pistol",
+      "weapon_restrictions": [],
+      "unlock_condition": "默认解锁"
+    },
+    {
+      "id": "brawler",
+      "name": "格斗家",
+      "name_en": "Brawler",
+      "description": "近战爆发型，贴脸输出",
+      "passive": {
+        "melee_attack_speed_percent": 50,
+        "melee_damage": 15,
+        "life_steal_percent": 10
+      },
+      "starting_weapon": "fist",
+      "weapon_restrictions": ["no_ranged"],
+      "penalty": { "range": -50 },
+      "unlock_condition": "默认解锁"
+    },
+    {
+      "id": "ranger",
+      "name": "游侠",
+      "name_en": "Ranger",
+      "description": "远程风筝型，安全输出",
+      "passive": {
+        "ranged_range_bonus": 60,
+        "ranged_damage_effect_percent": 50,
+        "crit_chance_percent": 10
+      },
+      "starting_weapon": "slingshot",
+      "weapon_restrictions": ["no_melee"],
+      "penalty": { "max_hp": -25 },
+      "unlock_condition": "默认解锁"
+    },
+    {
+      "id": "mage",
+      "name": "法师",
+      "name_en": "Mage",
+      "description": "元素反应型，利用元素反应打出爆发",
+      "passive": {
+        "elemental_damage": 10,
+        "double_element_chance_percent": 30,
+        "elemental_damage_effect_percent": 33
+      },
+      "starting_weapon": "wand",
+      "weapon_restrictions": [],
+      "penalty": {
+        "melee_damage_percent": -100,
+        "ranged_damage_percent": -100,
+        "engineering": -50
+      },
+      "unlock_condition": "默认解锁"
+    },
+    {
+      "id": "engineer",
+      "name": "工程师",
+      "name_en": "Engineer",
+      "description": "阵地战型，靠结构物输出",
+      "passive": {
+        "engineering": 15,
+        "structure_hp_percent": 50,
+        "structure_damage_percent": 30
+      },
+      "starting_weapon": "turret",
+      "weapon_restrictions": [],
+      "penalty": {
+        "attack_speed_percent": -20,
+        "melee_damage": -10
+      },
+      "unlock_condition": "默认解锁"
+    },
+    {
+      "id": "gambler",
+      "name": "赌徒",
+      "name_en": "Gambler",
+      "description": "经济滚雪球型，前期弱后期翻盘",
+      "passive": {
+        "luck": 50,
+        "shop_quality_percent": 25,
+        "double_material_chance_percent": 20
+      },
+      "starting_weapon": "shuriken",
+      "weapon_restrictions": [],
+      "penalty": {
+        "damage_percent": -30,
+        "attack_speed_percent": -20
+      },
+      "unlock_condition": "默认解锁"
+    }
+  ]
+}

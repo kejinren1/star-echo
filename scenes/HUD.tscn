@@ -1,0 +1,319 @@
+[gd_scene load_steps=9 format=3 uid="uid://b5a5hud000001"]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hud"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/bar_hp_bg.png" id="2_hpbg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/bar_hp_fill.png" id="3_hpfill"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/bar_xp_bg.png" id="4_xpbg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/bar_xp_fill.png" id="5_xpfill"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/icon_coin.png" id="6_coin"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/slot_weapon.png" id="7_slotw"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/slot_item.png" id="8_sloti"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TopBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LeftSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HealthBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/TopBar/LeftSection"]
+custom_minimum_size = Vector2(120, 8)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+nine_patch_stretch = false
+texture_under = ExtResource("2_hpbg")
+texture_progress = ExtResource("3_hpfill")
+
+[node name="XpBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/TopBar/LeftSection"]
+custom_minimum_size = Vector2(120, 4)
+layout_mode = 2
+max_value = 100.0
+value = 0.0
+nine_patch_stretch = false
+texture_under = ExtResource("4_xpbg")
+texture_progress = ExtResource("5_xpfill")
+
+[node name="HealthLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar/LeftSection"]
+layout_mode = 2
+text = "100/100"
+theme_override_font_sizes/font_size = 8
+
+[node name="CenterSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="WaveLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar/CenterSection"]
+layout_mode = 2
+text = "波次 0/20"
+theme_override_font_sizes/font_size = 8
+
+[node name="RightSection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="TimerLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar/RightSection"]
+layout_mode = 2
+text = "30"
+theme_override_font_sizes/font_size = 8
+
+[node name="CoinIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/TopBar/RightSection"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+texture = ExtResource("6_coin")
+expand_mode = 1
+
+[node name="CoinsLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar/RightSection"]
+layout_mode = 2
+text = "0"
+theme_override_font_sizes/font_size = 8
+
+[node name="VSpacer" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BottomBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="WeaponBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="WeaponSlot0" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot0"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeaponSlot1" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot1"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeaponSlot2" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot2"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeaponSlot3" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot3"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeaponSlot4" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot4"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WeaponSlot5" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot5"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ItemSlot0" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("8_sloti")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot0"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemSlot1" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("8_sloti")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot1"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemSlot2" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("8_sloti")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot2"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemSlot3" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("8_sloti")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot3"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5

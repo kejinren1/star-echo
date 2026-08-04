@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5a8vfx000001"]
+
+[ext_resource type="Script" path="res://scripts/effects/vfx_player.gd" id="1_vfx"]
+
+[node name="VfxPlayer" type="Node2D"]
+script = ExtResource("1_vfx")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+centered = true

@@ -1,0 +1,134 @@
+{
+  "elemental_status": {
+    "fire": {
+      "name": "燃烧",
+      "name_en": "Burning",
+      "duration": 3,
+      "effect": "每秒造成 3 + (元素伤害×0.2) 点伤害",
+      "dot": 3,
+      "dot_scaling": 0.2
+    },
+    "ice": {
+      "name": "减速",
+      "name_en": "Chilled",
+      "duration": 2,
+      "effect": "移动速度-40%",
+      "slow_percent": 40
+    },
+    "lightning": {
+      "name": "麻痹",
+      "name_en": "Paralyzed",
+      "duration": 0.5,
+      "effect": "无法行动",
+      "stun": true
+    },
+    "poison": {
+      "name": "中毒",
+      "name_en": "Poisoned",
+      "duration": 5,
+      "effect": "每秒造成 2 + (元素伤害×0.15) 点伤害",
+      "dot": 2,
+      "dot_scaling": 0.15
+    },
+    "plasma": {
+      "name": "灼烧",
+      "name_en": "Sear",
+      "duration": 3,
+      "effect": "防御-5",
+      "armor_reduction": 5
+    }
+  },
+  "element_reactions": [
+    {
+      "combination": ["fire", "ice"],
+      "name": "蒸汽爆破",
+      "name_en": "Steam Burst",
+      "damage": 20,
+      "damage_scaling": 0.5,
+      "aoe_radius": 80,
+      "extra_effect": "致盲(命中率-50%) 2秒"
+    },
+    {
+      "combination": ["fire", "lightning"],
+      "name": "雷火风暴",
+      "name_en": "Storm of Fire",
+      "damage": 15,
+      "damage_scaling": 0.4,
+      "chain_count": 3,
+      "chain_falloff": 0.25,
+      "extra_effect": "触发3次连锁闪电"
+    },
+    {
+      "combination": ["fire", "poison"],
+      "name": "瘟疫之火",
+      "name_en": "Plague Fire",
+      "damage": 25,
+      "damage_scaling": 0.6,
+      "extra_effect": "留下一片毒火区域(3秒, 每秒5点伤害)"
+    },
+    {
+      "combination": ["fire", "plasma"],
+      "name": "超新星",
+      "name_en": "Supernova",
+      "damage": 40,
+      "damage_scaling": 0.8,
+      "aoe_radius": 120,
+      "extra_effect": "无视护甲"
+    },
+    {
+      "combination": ["ice", "lightning"],
+      "name": "超导",
+      "name_en": "Superconduct",
+      "damage": 10,
+      "damage_scaling": 0.3,
+      "extra_effect": "冻结2秒"
+    },
+    {
+      "combination": ["ice", "poison"],
+      "name": "寒毒",
+      "name_en": "Frost Toxin",
+      "damage": 8,
+      "damage_scaling": 0.2,
+      "extra_effect": "减速延长至4秒且减速60%"
+    },
+    {
+      "combination": ["ice", "plasma"],
+      "name": "绝对零度",
+      "name_en": "Absolute Zero",
+      "damage": 15,
+      "damage_scaling": 0.4,
+      "extra_effect": "冻结3秒"
+    },
+    {
+      "combination": ["lightning", "poison"],
+      "name": "腐蚀链",
+      "name_en": "Corrosive Chain",
+      "damage": 12,
+      "damage_scaling": 0.3,
+      "chain_count": 3,
+      "extra_effect": "连锁敌人并施加中毒"
+    },
+    {
+      "combination": ["lightning", "plasma"],
+      "name": "电磁脉冲",
+      "name_en": "EMP",
+      "damage": 18,
+      "damage_scaling": 0.4,
+      "extra_effect": "沉默敌人3秒(无法使用特殊技能)"
+    },
+    {
+      "combination": ["poison", "plasma"],
+      "name": "衰变",
+      "name_en": "Decay",
+      "damage": 30,
+      "damage_scaling": 0.6,
+      "extra_effect": "最大生命值-10% 持续整局"
+    }
+  ],
+  "reaction_rules": {
+    "trigger_condition": "敌人同时带有两种元素状态",
+    "post_reaction": "清除两种元素状态",
+    "damage_type": "elemental",
+    "scales_with": "elemental_damage"
+  }
+}

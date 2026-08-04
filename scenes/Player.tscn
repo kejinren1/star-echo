@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=3 uid="uid://b5a1player001"]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Texture2D" path="res://assets/sprites/characters/fighter_idle.png" id="2_idle"]
+[ext_resource type="Texture2D" path="res://assets/sprites/characters/fighter_walk.png" id="3_walk"]
+[ext_resource type="Script" path="res://scripts/weapons/weapon_controller.gd" id="4_wctrl"]
+
+[sub_resource type="RectangleShape2D" id="shape_player"]
+size = Vector2(24, 28)
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+script = ExtResource("1_player")
+idle_texture = ExtResource("2_idle")
+walk_texture = ExtResource("3_walk")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+centered = true
+offset = Vector2(0, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("shape_player")
+
+[node name="WeaponController" type="Node" parent="."]
+script = ExtResource("4_wctrl")

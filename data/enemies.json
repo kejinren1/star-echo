@@ -1,0 +1,63 @@
+{
+  "enemies": {
+    "regular": [
+      { "id": "chaser", "name": "追击者", "hp": 3, "hp_growth": 2, "damage": 3, "damage_growth": 0.6, "speed": 320, "drop": 1, "behavior": "chase" },
+      { "id": "charger", "name": "冲锋者", "hp": 6, "hp_growth": 3, "damage": 4, "damage_growth": 0.8, "speed": 400, "drop": 1, "behavior": "charge" },
+      { "id": "fly", "name": "飞虫", "hp": 8, "hp_growth": 3, "damage": 3, "damage_growth": 0.7, "speed": 350, "drop": 1, "behavior": "zigzag" },
+      { "id": "bruiser", "name": "胖子", "hp": 20, "hp_growth": 10, "damage": 6, "damage_growth": 0.8, "speed": 250, "drop": 3, "behavior": "chase" },
+      { "id": "spitter", "name": "投弹者", "hp": 10, "hp_growth": 2, "damage": 4, "damage_growth": 0.6, "speed": 180, "drop": 1, "behavior": "ranged" },
+      { "id": "healer", "name": "治疗者", "hp": 12, "hp_growth": 6, "damage": 3, "damage_growth": 0.5, "speed": 300, "drop": 2, "behavior": "heal" },
+      { "id": "spawner", "name": "产卵者", "hp": 15, "hp_growth": 3, "damage": 4, "damage_growth": 0.5, "speed": 120, "drop": 1, "behavior": "spawn" },
+      { "id": "horned_charger", "name": "角冲锋者", "hp": 15, "hp_growth": 5, "damage": 5, "damage_growth": 0.9, "speed": 425, "drop": 1, "behavior": "charge" },
+      { "id": "pursuer", "name": "掠夺者", "hp": 12, "hp_growth": 18, "damage": 5, "damage_growth": 1.0, "speed": 150, "drop": 3, "behavior": "chase" },
+      { "id": "slasher", "name": "利刃者", "hp": 50, "hp_growth": 20, "damage": 6, "damage_growth": 1.0, "speed": 275, "drop": 5, "behavior": "chase" },
+      { "id": "helmet_alien", "name": "装甲异形", "hp": 10, "hp_growth": 4, "damage": 4, "damage_growth": 0.8, "speed": 250, "drop": 1, "behavior": "chase", "armor": 3 },
+      { "id": "horned_fly", "name": "角飞虫", "hp": 18, "hp_growth": 5, "damage": 4, "damage_growth": 0.8, "speed": 350, "drop": 1, "behavior": "zigzag" },
+      { "id": "corrupted_tree", "name": "腐蚀树", "hp": 15, "hp_growth": 12, "damage": 5, "damage_growth": 0.9, "speed": 0, "drop": 1, "behavior": "stationary" },
+      { "id": "mad_slasher", "name": "狂暴利刃者", "hp": 80, "hp_growth": 30, "damage": 8, "damage_growth": 1.2, "speed": 275, "drop": 5, "behavior": "chase" },
+      { "id": "lamprey", "name": "灯笼鱼", "hp": 30, "hp_growth": 12, "damage": 4, "damage_growth": 0.7, "speed": 350, "drop": 1, "behavior": "chase" }
+    ],
+    "elite": [
+      { "id": "butcher", "name": "屠夫", "hp": 200, "hp_growth": 100, "damage": 8, "speed": 200, "drop": 10, "behavior": "aoe_attack" },
+      { "id": "colossus", "name": "巨像", "hp": 300, "hp_growth": 150, "damage": 10, "speed": 150, "drop": 10, "behavior": "chase" },
+      { "id": "rhino", "name": "犀牛", "hp": 250, "hp_growth": 120, "damage": 8, "speed": 250, "drop": 10, "behavior": "charge" },
+      { "id": "monk", "name": "修士", "hp": 200, "hp_growth": 100, "damage": 6, "speed": 300, "drop": 10, "behavior": "self_heal" },
+      { "id": "croc", "name": "鳄鱼", "hp": 220, "hp_growth": 110, "damage": 8, "speed": 300, "drop": 10, "behavior": "chase" },
+      { "id": "mom", "name": "母体", "hp": 250, "hp_growth": 120, "damage": 6, "speed": 200, "drop": 10, "behavior": "spawn" }
+    ],
+    "boss": [
+      {
+        "id": "invoker",
+        "name": "召唤者",
+        "hp": 8000,
+        "damage": 15,
+        "speed": 200,
+        "wave": 10,
+        "phases": [
+          { "hp_threshold_percent": 100, "attacks": ["summon_2_enemies_every_5s", "3_projectile_spread"], "speed_multiplier": 1.0 },
+          { "hp_threshold_percent": 60, "attacks": ["summon_4_enemies_every_2.5s", "6_projectile_spread"], "speed_multiplier": 1.2 }
+        ]
+      },
+      {
+        "id": "predator",
+        "name": "掠食者",
+        "hp": 15000,
+        "damage": 20,
+        "speed": 300,
+        "wave": 20,
+        "phases": [
+          { "hp_threshold_percent": 100, "attacks": ["charge_attack", "aoe_every_8s"], "speed_multiplier": 1.0 },
+          { "hp_threshold_percent": 66, "attacks": ["charge_attack_2x", "summon_1_elite", "projectile_barrage"], "speed_multiplier": 1.0 },
+          { "hp_threshold_percent": 33, "attacks": ["all_attacks_2x", "summon_2_elite"], "speed_multiplier": 1.3 }
+        ]
+      }
+    ]
+  },
+  "scaling": {
+    "hp_formula": "base_hp + hp_growth * wave",
+    "damage_formula": "base_damage + damage_growth * wave",
+    "speed_formula": "base_speed * (1 + min(wave * 0.01, 0.2))",
+    "elite_hp_multiplier": "1 + wave * 0.15",
+    "elite_damage_multiplier": "1 + wave * 0.08"
+  }
+}

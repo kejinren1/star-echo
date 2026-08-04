@@ -1,0 +1,39 @@
+[gd_scene load_steps=10 format=3 uid="uid://b5a7main00001"]
+
+[ext_resource type="Script" path="res://scripts/autoload/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://b5baground001" path="res://scenes/Ground.tscn" id="2_ground"]
+[ext_resource type="PackedScene" uid="uid://b5a1player001" path="res://scenes/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" uid="uid://b5a3spawn0001" path="res://scenes/EnemySpawner.tscn" id="4_spawner"]
+[ext_resource type="PackedScene" uid="uid://b5a4wave00001" path="res://scenes/WaveManager.tscn" id="5_wave"]
+[ext_resource type="Script" path="res://scripts/systems/economy.gd" id="6_economy"]
+[ext_resource type="Script" path="res://scripts/systems/inventory.gd" id="7_inventory"]
+[ext_resource type="PackedScene" uid="uid://b5a5hud000001" path="res://scenes/HUD.tscn" id="8_hud"]
+[ext_resource type="PackedScene" uid="uid://cgnu1r0yyr0vs" path="res://scenes/Shop.tscn" id="9_shop"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="Ground" parent="World" instance=ExtResource("2_ground")]
+
+[node name="Player" parent="World" instance=ExtResource("3_player")]
+position = Vector2(320, 180)
+
+[node name="Enemies" type="Node" parent="World"]
+
+[node name="VfxContainer" type="Node" parent="World"]
+
+[node name="EnemySpawner" parent="World" instance=ExtResource("4_spawner")]
+
+[node name="WaveManager" parent="." instance=ExtResource("5_wave")]
+
+[node name="Economy" type="Node" parent="."]
+script = ExtResource("6_economy")
+
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("7_inventory")
+
+[node name="HUD" parent="." instance=ExtResource("8_hud")]
+
+[node name="Shop" parent="." instance=ExtResource("9_shop")]

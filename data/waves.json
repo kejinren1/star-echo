@@ -1,0 +1,120 @@
+{
+  "waves": [
+    {
+      "wave": 1, "duration": 20, "total_enemies": 12,
+      "composition": [ { "enemy": "chaser", "count": 8 }, { "enemy": "fly", "count": 4 } ],
+      "special": null
+    },
+    {
+      "wave": 2, "duration": 25, "total_enemies": 18,
+      "composition": [ { "enemy": "chaser", "count": 10 }, { "enemy": "charger", "count": 5 }, { "enemy": "fly", "count": 3 } ],
+      "special": null
+    },
+    {
+      "wave": 3, "duration": 30, "total_enemies": 25,
+      "composition": [ { "enemy": "charger", "count": 10 }, { "enemy": "fly", "count": 8 }, { "enemy": "spitter", "count": 5 }, { "enemy": "bruiser", "count": 2 } ],
+      "special": "chest_enemy_first_appearance"
+    },
+    {
+      "wave": 4, "duration": 30, "total_enemies": 28,
+      "composition": [ { "enemy": "chaser", "count": 12 }, { "enemy": "charger", "count": 8 }, { "enemy": "helmet_alien", "count": 5 }, { "enemy": "spitter", "count": 3 } ],
+      "special": "curse_enemy_appearance"
+    },
+    {
+      "wave": 5, "duration": 35, "total_enemies": 32,
+      "composition": [ { "enemy": "fly", "count": 10 }, { "enemy": "horned_charger", "count": 8 }, { "enemy": "bruiser", "count": 5 }, { "enemy": "spitter", "count": 5 }, { "enemy": "spawner", "count": 2 } ],
+      "special": "swarm_wave",
+      "special_note": "敌人数量翻倍, HP减半"
+    },
+    {
+      "wave": 6, "duration": 35, "total_enemies": 35,
+      "composition": [ { "enemy": "horned_charger", "count": 10 }, { "enemy": "helmet_alien", "count": 8 }, { "enemy": "bruiser", "count": 7 }, { "enemy": "spitter", "count": 5 }, { "enemy": "elite:butcher", "count": 1 } ],
+      "special": "elite_first_appearance"
+    },
+    {
+      "wave": 7, "duration": 40, "total_enemies": 38,
+      "composition": [ { "enemy": "horned_fly", "count": 10 }, { "enemy": "bruiser", "count": 8 }, { "enemy": "slasher", "count": 5 }, { "enemy": "spitter", "count": 8 }, { "enemy": "healer", "count": 2 }, { "enemy": "elite:monk", "count": 1 } ],
+      "special": null
+    },
+    {
+      "wave": 8, "duration": 40, "total_enemies": 42,
+      "composition": [ { "enemy": "chaser", "count": 15 }, { "enemy": "charger", "count": 10 }, { "enemy": "slasher", "count": 8 }, { "enemy": "horned_charger", "count": 5 }, { "enemy": "elite:rhino", "count": 2 } ],
+      "special": null
+    },
+    {
+      "wave": 9, "duration": 45, "total_enemies": 45,
+      "composition": [ { "enemy": "mad_slasher", "count": 5 }, { "enemy": "lamprey", "count": 10 }, { "enemy": "horned_fly", "count": 12 }, { "enemy": "bruiser", "count": 8 }, { "enemy": "spawner", "count": 3 }, { "enemy": "elite:croc", "count": 2 } ],
+      "special": "high_pressure"
+    },
+    {
+      "wave": 10, "duration": 60, "total_enemies": -1,
+      "composition": [ { "enemy": "boss:invoker", "count": 1 } ],
+      "special": "boss_wave",
+      "special_note": "Boss持续生成普通敌人"
+    },
+    {
+      "wave": 11, "duration": 40, "total_enemies": 48,
+      "composition": [ { "enemy": "horned_charger", "count": 15 }, { "enemy": "helmet_alien", "count": 10 }, { "enemy": "slasher", "count": 8 }, { "enemy": "spitter", "count": 8 }, { "enemy": "healer", "count": 3 }, { "enemy": "elite:butcher", "count": 2 } ],
+      "special": null
+    },
+    {
+      "wave": 12, "duration": 45, "total_enemies": 52,
+      "composition": [ { "enemy": "mad_slasher", "count": 8 }, { "enemy": "lamprey", "count": 12 }, { "enemy": "bruiser", "count": 10 }, { "enemy": "spawner", "count": 5 }, { "enemy": "elite:colossus", "count": 3 } ],
+      "special": null
+    },
+    {
+      "wave": 13, "duration": 45, "total_enemies": 55,
+      "composition": [ { "enemy": "horned_fly", "count": 15 }, { "enemy": "slasher", "count": 10 }, { "enemy": "horned_charger", "count": 12 }, { "enemy": "healer", "count": 5 }, { "enemy": "elite:rhino", "count": 3 } ],
+      "special": null
+    },
+    {
+      "wave": 14, "duration": 50, "total_enemies": 58,
+      "composition": [ { "enemy": "mad_slasher", "count": 10 }, { "enemy": "helmet_alien", "count": 12 }, { "enemy": "lamprey", "count": 15 }, { "enemy": "spitter", "count": 10 }, { "enemy": "elite:croc", "count": 3 } ],
+      "special": "curse_wave"
+    },
+    {
+      "wave": 15, "duration": 50, "total_enemies": 60,
+      "composition": [ { "enemy": "mixed", "count": 56 }, { "enemy": "elite:mixed", "count": 4 } ],
+      "special": "swarm_wave",
+      "special_note": "中期高潮, 敌人数量翻倍, HP减半"
+    },
+    {
+      "wave": 16, "duration": 50, "total_enemies": 62,
+      "composition": [ { "enemy": "mad_slasher", "count": 12 }, { "enemy": "lamprey", "count": 15 }, { "enemy": "bruiser", "count": 12 }, { "enemy": "spawner", "count": 8 }, { "enemy": "elite:monk", "count": 3 } ],
+      "special": null
+    },
+    {
+      "wave": 17, "duration": 55, "total_enemies": 65,
+      "composition": [ { "enemy": "mixed_with_curse", "count": 61 }, { "enemy": "elite:mixed", "count": 4 } ],
+      "special": "curse_wave",
+      "special_note": "高压波"
+    },
+    {
+      "wave": 18, "duration": 55, "total_enemies": 68,
+      "composition": [ { "enemy": "mad_slasher", "count": 15 }, { "enemy": "horned_charger", "count": 15 }, { "enemy": "slasher", "count": 10 }, { "enemy": "elite:rhino", "count": 4 } ],
+      "special": null
+    },
+    {
+      "wave": 19, "duration": 55, "total_enemies": 70,
+      "composition": [ { "enemy": "mixed", "count": 65 }, { "enemy": "elite:mixed", "count": 5 } ],
+      "special": "high_pressure",
+      "special_note": "最终波前高潮"
+    },
+    {
+      "wave": 20, "duration": 90, "total_enemies": -1,
+      "composition": [ { "enemy": "boss:predator", "count": 1 } ],
+      "special": "final_boss_wave",
+      "special_note": "最终Boss持续生成精英和普通敌人"
+    }
+  ],
+  "generation": {
+    "base_enemy_count_formula": "base_count + wave * 2",
+    "spawn_interval_formula": "max(0.3, base_interval - wave * 0.02)",
+    "max_concurrent_formula": "min(20 + wave * 2, 60)"
+  },
+  "rewards": {
+    "wave_complete_base": "5 + wave * 2",
+    "harvesting_bonus": "= harvesting_stat",
+    "kill_bonus": "kill_count * 1 (elite * 3, boss * 50)"
+  }
+}

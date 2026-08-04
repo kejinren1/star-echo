@@ -1,0 +1,35 @@
+# Godot
+.godot/
+*.import
+# export_presets.cfg 保留在仓库中：团队共享的打包配置，clone 后需能重新导出
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+*.swp
+*~
+.vscode/
+.idea/
+
+# Build
+/build/
+/dist/
+*.exe
+*.x86_64
+*.app
+
+# Local AI/agent memory & secrets (never sync to other machines)
+.workbuddy/
+
+# Pixelate tool test outputs & logs (regenerate via tools/pixelate_batch.py)
+tools/_demo/
+tools/_demo_input.png
+tools/_selftest.py
+tools/*.log
+tools/tpz_extract/
+
+# Archives / distributable bundles (send via release page or cloud, not git)
+*.zip
