@@ -24,10 +24,11 @@ desktop.ini
 # Local AI/agent memory & secrets (never sync to other machines)
 .workbuddy/
 
-# Pixelate tool test outputs & logs (regenerate via tools/pixelate_batch.py)
-tools/_demo/
-tools/_demo_input.png
-tools/_selftest.py
+# Tool scratch files, test outputs & logs.
+# 约定：tools/ 下以下划线开头 = 一次性临时产物，永不入库；
+# 正式工具无下划线（pixelate_batch.py / baseline_check.py / build_release.py），
+# 属于交接工作流的一部分，必须入库。
+tools/_*
 tools/*.log
 tools/tpz_extract/
 
