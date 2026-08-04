@@ -11,6 +11,11 @@ signal weapon_fired(weapon: Resource)
 
 const ProjectileScene: PackedScene = preload("res://scenes/Projectile.tscn")
 
+# ========== 常量 ==========
+
+## 由 JSON 构建的武器打在 meta 上的来源 id key（供测试/UI 反查）
+const META_SOURCE_ID: StringName = &"source_id"
+
 # ========== 属性 ==========
 
 var owner_node: Node2D                        ## 武器所有者（玩家）
@@ -65,6 +70,56 @@ func equip_weapon(weapon: Resource) -> void:
 ## 卸下武器
 func unequip_weapon(weapon: Resource) -> void:
 	equipped_weapons.erase(weapon)
+
+# ========== 数据驱动装备（Day 2：角色起始武器接线） ==========
+
+## 按 data/weapons.json 的条目构建一把 Weapon 资源，未知 id 返回 null
+## 字段映射：name→weapon_name / _category→weapon_type / damage→base_damage
+##          cooldown→fire_rate(取倒数) / range→attack_range / projectiles→projectile_count
+func build_weapon_from_data(weapon_id: String) -> Weapon:
+	var data: Dictionary = DataLoader.get_weapon(weapon_id)
+	if data.is_empty():
+		push_warning("[WeaponController] weapons.json 无此武器: %s" % weapon_id)
+		return null
+
+	var w := Weapon.new()
+	w.weapon_name = str(data.get("name", weapon_id))
+	w.weapon_type = DataLoader.get_weapon_category(weapon_id)
+	w.description = str(data.get("special", ""))
+	w.base_damage = float(data.get("damage", 5.0))
+	# JSON 用「冷却秒数」，Weapon 用「每秒次数」
+	var cooldown: float = maxf(float(data.get("cooldown", 1.0)), 0.01)
+	w.fire_rate = 1.0 / cooldown
+	w.attack_range = float(data.get("range", 200.0))
+	w.projectile_count = maxi(int(data.get("projectiles", 1)), 1)
+	w.knockback = float(data.get("knockback", 0.0))
+	# projectile_speed 保留 Weapon 默认 400；lifetime 由 _spawn_projectile() 按 range/speed 推导，不手设
+	w.level = 1
+	w.max_level = int(data.get("max_level", 5))
+	w.set_meta(META_SOURCE_ID, weapon_id)
+	return w
+
+## 按 id 装备数据驱动武器，覆盖 _ready() 装上的占位「初始枪」
+## 返回是否成功（未知 id 时保留默认武器，保证仍可开火，不崩溃）
+func equip_from_data(weapon_id: String) -> bool:
+	if weapon_id.is_empty():
+		return false
+	var w := build_weapon_from_data(weapon_id)
+	if w == null:
+		return false
+
+	equipped_weapons.clear()
+	equip_weapon(w)
+	return true
+
+## 取回首把武器的数据来源 id（无来源标记时返回空串，供测试断言）
+func get_primary_weapon_id() -> String:
+	if equipped_weapons.is_empty():
+		return ""
+	var first: Resource = equipped_weapons[0]
+	if first == null or not first.has_meta(META_SOURCE_ID):
+		return ""
+	return str(first.get_meta(META_SOURCE_ID))
 
 ## 获取最近敌人作为目标（仅用于鼠标未移动时的回退瞄准）
 func _find_nearest_enemy() -> Node2D:

@@ -27,6 +27,7 @@ var current_state: GameState = GameState.MENU
 var current_wave: int = 0          ## 当前波次 (从 1 开始)
 var max_waves: int = 20            ## 总波次数 (启动时从 DataLoader 加载)
 var is_boss_wave: bool = false     ## 当前是否为 Boss 波
+var current_character_id: String = ""      ## 本局英雄 id（Main._ready 写入，供 Day 3 主动技能系统读取）
 
 # 子系统引用 (由 Main.tscn 在 _ready 中赋值)
 var player: Node = null

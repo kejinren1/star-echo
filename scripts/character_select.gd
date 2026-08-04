@@ -20,15 +20,8 @@ const SELECTION_META: StringName = &"se_selected_character"
 ## 战斗主场景
 const MAIN_SCENE_PATH: String = "res://scenes/Main.tscn"
 
-## 立绘目录（资产由 W3 维护，缺失时自动降级为占位色块）
+## 立绘目录（仅用于 id 同名资产的最后兜底，主路径走 characters.json 的 sprite 字段）
 const PORTRAIT_DIR: String = "res://assets/sprites/characters/"
-
-## hero id → 美术资产文件名前缀（W3 现有命名）
-const PORTRAIT_ALIAS: Dictionary = {
-	"se_irene": "elin",
-	"se_noa": "noah",
-	"se_ren": "lain",
-}
 
 const CARD_SIZE: Vector2 = Vector2(180, 176)
 const PORTRAIT_SIZE: Vector2 = Vector2(64, 64)
@@ -97,7 +90,7 @@ func _create_card(hero_id: String, data: Dictionary) -> Button:
 	card.add_child(vbox)
 
 	# 立绘（缺资产时用占位色块）
-	vbox.add_child(_create_portrait(hero_id))
+	vbox.add_child(_create_portrait(hero_id, data))
 
 	# 英文名（默认字体无 CJK 字形，英文名保证可读）
 	var name_en := Label.new()
@@ -129,8 +122,8 @@ func _create_card(hero_id: String, data: Dictionary) -> Button:
 # ========== 立绘 ==========
 
 ## 生成立绘节点：有资产用 TextureRect，无资产用占位 ColorRect
-func _create_portrait(hero_id: String) -> Control:
-	var tex := _load_portrait(hero_id)
+func _create_portrait(hero_id: String, data: Dictionary) -> Control:
+	var tex := _load_portrait(hero_id, data)
 	if tex != null:
 		var portrait := TextureRect.new()
 		portrait.texture = tex
@@ -147,12 +140,14 @@ func _create_portrait(hero_id: String) -> Control:
 	return placeholder
 
 ## 按候选路径查找立绘，全部缺失返回 null
-func _load_portrait(hero_id: String) -> Texture2D:
+## 主路径 = characters.json 的 `sprite` 前缀（Day 2 起硬编码 PORTRAIT_ALIAS 已收敛进数据层）
+func _load_portrait(hero_id: String, data: Dictionary) -> Texture2D:
 	var candidates: Array[String] = []
-	var alias: String = str(PORTRAIT_ALIAS.get(hero_id, ""))
-	if alias != "":
-		candidates.append("%s%s_portrait.png" % [PORTRAIT_DIR, alias])
-		candidates.append("%s%s_idle.png" % [PORTRAIT_DIR, alias])
+	var prefix: String = str(data.get("sprite", ""))
+	if not prefix.is_empty():
+		candidates.append("%s%s_portrait.png" % [PORTRAIT_DIR, prefix])
+		candidates.append("%s%s_idle.png" % [PORTRAIT_DIR, prefix])
+	# 数据未配 sprite 时，最后按 id 同名资产兜底
 	candidates.append("%s%s_portrait.png" % [PORTRAIT_DIR, hero_id])
 
 	for path in candidates:

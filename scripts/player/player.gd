@@ -37,6 +37,37 @@ signal took_damage(amount: float)
 @export var idle_fps: float = 6.0            ## idle 动画 FPS
 @export var walk_fps: float = 10.0           ## walk 动画 FPS
 
+# ========== 角色（Day 2：hero id 消费） ==========
+
+## 英雄精灵目录（配合 characters.json 的 `sprite` 前缀字段拼装）
+const SPRITE_DIR: String = "res://assets/sprites/characters/"
+
+## characters.json 的 passive/penalty 键 → apply_stat_modifier 的合法 stat 名
+## mode: "add" 直接加 / "percent" 百分数转倍率乘算 / "ratio" 百分数转 0~1 后加
+const STAT_MAP: Dictionary = {
+	"max_hp": {"stat": "max_health", "mode": "add"},
+	"speed_percent": {"stat": "move_speed", "mode": "percent"},
+	"armor": {"stat": "armor", "mode": "add"},
+	"regen": {"stat": "regen", "mode": "add"},
+	"hp_regen": {"stat": "regen", "mode": "add"},
+	"dodge_percent": {"stat": "dodge", "mode": "ratio"},
+	"crit_chance_percent": {"stat": "crit_chance", "mode": "ratio"},
+	"attack_speed_percent": {"stat": "attack_speed", "mode": "percent"},
+	"melee_attack_speed_percent": {"stat": "attack_speed", "mode": "percent"},
+	"damage_percent": {"stat": "damage", "mode": "percent"},
+	"range_percent": {"stat": "range", "mode": "percent"},
+	"luck": {"stat": "luck", "mode": "add"},
+	"pickup_range": {"stat": "pickup_range", "mode": "add"},
+}
+
+## 刻意不进 STAT_MAP 的键（进 bonus_stats 等后续系统消费），附不映射的原因
+## `range`：JSON 里是「像素平直加减」（如 brawler -50），而 range_multiplier 是倍率，
+##          直接加会把倍率打成负数使武器射程失效 —— 口径统一属 Day 4 强化面板的决策
+const STAT_MAP_EXCLUDED: PackedStringArray = ["range"]
+
+var character_id: String = ""                ## 当前英雄 id（空 = 未经角色选择）
+var bonus_stats: Dictionary = {}             ## 引擎尚未实现的被动/惩罚键，Day 3 技能与 Day 4 面板读此字典
+
 # ========== 内部状态 ==========
 
 var health: float                            ## 当前生命值
@@ -52,6 +83,71 @@ var _is_walking: bool = false
 func _ready() -> void:
 	health = max_health
 	health_changed.emit(health, max_health)
+	_setup_animation()
+
+# ========== 角色装载（由 Main 在 _ready 中调用） ==========
+
+## 应用 characters.json 中的一条英雄数据：被动 + 惩罚 + 精灵资源
+## 空字典直接返回（调试直开 Main.tscn 时保持出厂属性）
+func apply_character(char_data: Dictionary) -> void:
+	if char_data.is_empty():
+		return
+
+	character_id = str(char_data.get("id", ""))
+	bonus_stats.clear()
+	# 惩罚与被动同表处理：值为负数走同一入口即可
+	_apply_stat_dict(char_data.get("passive", {}))
+	_apply_stat_dict(char_data.get("penalty", {}))
+	_apply_character_sprite(str(char_data.get("sprite", "")))
+
+	# 起始满血：被动/惩罚可能改动了上限
+	health = max_health
+	health_changed.emit(health, max_health)
+	stats_changed.emit()
+
+## 按 STAT_MAP 落实一组属性键；未映射的键原样收进 bonus_stats（禁止静默丢弃）
+func _apply_stat_dict(source: Dictionary) -> void:
+	if source.is_empty():
+		return
+
+	for key: String in source:
+		var amount: float = float(source[key])
+		if not STAT_MAP.has(key):
+			# 同名键叠加而非覆盖（passive 与 penalty 可能命中同一键）
+			bonus_stats[key] = float(bonus_stats.get(key, 0.0)) + amount
+			continue
+
+		var rule: Dictionary = STAT_MAP[key]
+		var stat_name: String = str(rule["stat"])
+		match str(rule["mode"]):
+			"add":
+				apply_stat_modifier(stat_name, amount)
+			"percent":
+				apply_stat_modifier(stat_name, 1.0 + amount / 100.0, true)
+			"ratio":
+				apply_stat_modifier(stat_name, amount / 100.0)
+
+## 换上英雄专属精灵（`sprite` 为资源名前缀）；缺资源时保留 Player.tscn 预设素材
+func _apply_character_sprite(prefix: String) -> void:
+	if prefix.is_empty():
+		return
+	var idle_path: String = "%s%s_idle.png" % [SPRITE_DIR, prefix]
+	var walk_path: String = "%s%s_walk.png" % [SPRITE_DIR, prefix]
+	if not ResourceLoader.exists(idle_path) or not ResourceLoader.exists(walk_path):
+		# 区分「文件不在」与「文件在但未生成 .import」，后者编辑器一开即消解，不算缺陷
+		if FileAccess.file_exists(idle_path) and FileAccess.file_exists(walk_path):
+			print_verbose("[Player] 英雄精灵尚未导入，沿用默认素材: %s" % character_id)
+		else:
+			push_warning("[Player] 英雄精灵缺失，沿用默认素材: %s" % character_id)
+		return
+
+	var idle_res := ResourceLoader.load(idle_path)
+	var walk_res := ResourceLoader.load(walk_path)
+	if not (idle_res is Texture2D) or not (walk_res is Texture2D):
+		return
+	idle_texture = idle_res as Texture2D
+	walk_texture = walk_res as Texture2D
+	_is_walking = false
 	_setup_animation()
 
 # ========== 动画 ==========
@@ -197,6 +293,14 @@ func apply_stat_modifier(stat_name: String, value: float, is_multiplicative: boo
 			regen = apply_value(regen, value, is_multiplicative)
 		"pickup_range":
 			pickup_range = apply_value(pickup_range, value, is_multiplicative)
+		"crit_damage":
+			crit_damage = apply_value(crit_damage, value, is_multiplicative)
+		"dodge":
+			dodge = clampf(apply_value(dodge, value, is_multiplicative), 0.0, 0.9)
+		"luck":
+			luck = apply_value(luck, value, is_multiplicative)
+		"coin_bonus":
+			coin_bonus = apply_value(coin_bonus, value, is_multiplicative)
 	stats_changed.emit()
 
 func apply_value(base: float, mod: float, multiplicative: bool) -> float:

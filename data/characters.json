@@ -10,6 +10,7 @@
         "speed_percent": 5,
         "harvesting": 3
       },
+      "sprite": "fighter",
       "starting_weapon": "pistol",
       "weapon_restrictions": [],
       "unlock_condition": "默认解锁"
@@ -24,9 +25,14 @@
         "melee_damage": 15,
         "life_steal_percent": 10
       },
+      "sprite": "fighter",
       "starting_weapon": "fist",
-      "weapon_restrictions": ["no_ranged"],
-      "penalty": { "range": -50 },
+      "weapon_restrictions": [
+        "no_ranged"
+      ],
+      "penalty": {
+        "range": -50
+      },
       "unlock_condition": "默认解锁"
     },
     {
@@ -39,9 +45,14 @@
         "ranged_damage_effect_percent": 50,
         "crit_chance_percent": 10
       },
+      "sprite": "fighter",
       "starting_weapon": "slingshot",
-      "weapon_restrictions": ["no_melee"],
-      "penalty": { "max_hp": -25 },
+      "weapon_restrictions": [
+        "no_melee"
+      ],
+      "penalty": {
+        "max_hp": -25
+      },
       "unlock_condition": "默认解锁"
     },
     {
@@ -54,6 +65,7 @@
         "double_element_chance_percent": 30,
         "elemental_damage_effect_percent": 33
       },
+      "sprite": "fighter",
       "starting_weapon": "wand",
       "weapon_restrictions": [],
       "penalty": {
@@ -73,6 +85,7 @@
         "structure_hp_percent": 50,
         "structure_damage_percent": 30
       },
+      "sprite": "fighter",
       "starting_weapon": "turret",
       "weapon_restrictions": [],
       "penalty": {
@@ -91,6 +104,7 @@
         "shop_quality_percent": 25,
         "double_material_chance_percent": 20
       },
+      "sprite": "fighter",
       "starting_weapon": "dagger",
       "weapon_restrictions": [],
       "penalty": {
@@ -110,6 +124,7 @@
         "fire_damage_percent": 15,
         "burn_duration_percent": 30
       },
+      "sprite": "elin",
       "starting_weapon": "se_star_flame",
       "weapon_restrictions": [],
       "penalty": {
@@ -149,6 +164,7 @@
         "structure_hp_percent": 40,
         "summon_count": 1
       },
+      "sprite": "noah",
       "starting_weapon": "se_auto_turret",
       "weapon_restrictions": [],
       "penalty": {
@@ -190,6 +206,7 @@
         "crit_chance_percent": 10,
         "life_steal_percent": 5
       },
+      "sprite": "lain",
       "starting_weapon": "se_star_blade",
       "weapon_restrictions": [],
       "penalty": {

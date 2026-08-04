@@ -4,9 +4,14 @@
 > 状态标记：`[ ]` 未开始 · `[~]` 进行中 · `[x]` 完成 · `[!]` 受阻/需人工。
 > 护栏：未定义当日任务前不写游戏代码；改前 git commit；改后跑 `tools/baseline_check.py`。
 
-> **🎯 当前目标开发日：Day 1**（最后拆解：2026-08-05 02:35 · 自动化 #2）
-> Day 1 客观任务 1/4 完成，剩余 3 项已拆解为 `D1-T1 ~ D1-T3`（含实测核查结论，#3 可直接执行）。
-> Day 2 已按并发冲刺实际交付回填真实状态，并预置 `D2-T1 ~ D2-T3` 供 Day 1 收口后立即衔接。
+> **🎯 当前目标开发日：Day 2**（最后拆解：2026-08-05 04:35 · 自动化 #2）
+> ✅ **Day 1 客观任务已全部完成**（4/4，含 `D1-T1`/`D1-T2`/`D1-T3`/`D1-EXIT`），目标日推进至 Day 2。
+> Day 2 数据侧已由并发冲刺交付；**代码侧消费链路为本轮拆解重点**，已细化为 `D2-T1 ~ D2-T4` + `D2-EXIT`，
+> 全部附「文件 + 行号 + 接口签名 + 字段映射表 + 测试点」，#3 可零排查直接落笔。
+> 🔁 **2026-08-05 04:40 · 自动化 #1 重排**：Day 2 的 W1 五连项已按 **P0 出口必需 / P1 可顺延 / P2 空闲产能** 三档切分（详见 Day 2 内「本轮调度重排」表）。
+> **#3 下一轮请优先且仅做 P0 三项**（`D2-T1a` / `D2-T1b` / `D2-T2` 前半），做完即可收口 Day 2 推进至 Day 3，避免整日空转。
+> ✅ **2026-08-05 04:50 复核更新**：上述 P0/P1 项 **#3 已于 04:44 全部落地**（`main.gd` +48 行 / `weapon_controller.gd` +64 行 / `player.gd` +84 行 / `character_select.gd` 去硬编码 / `characters.json` 9-9 补 `sprite`），`BASELINE CLEAN` 复验通过。
+> 🔴 **但新发现 P0 缺口 `D2-T6`：角色 `penalty` 全域未注入（8/9 英雄受影响）** —— Day 2 **暂不收口**，补完 `D2-T6` 再推进 Day 3。
 
 ---
 
@@ -29,7 +34,7 @@
 
 ## 阶段 A · 核心循环对齐 & 手感打磨（Day 1–6）
 
-### Day 1 — 框架基线 & 差异清单　🎯【本轮目标日 · 已拆解】
+### Day 1 — 框架基线 & 差异清单　✅【客观任务 4/4 完成 · 已收口】
 
 - [x] 跑 `python tools/baseline_check.py`，确认输出 `BASELINE CLEAN`（集成节点复验 2026-08-04）
 
@@ -60,7 +65,7 @@
 - [x] `docs/DIFF_FRAMEWORK_STARECHO.md` 存在且非空 ✅
 - 备注：`docs/PROGRESS.md` 目前尚未生成（属自动化 #1 交付物，不阻塞 Day 1 出口）
 
-### Day 2 — 角色选择 + 3 英雄　【状态已按并发冲刺实际交付回填 · 预置拆解】
+### Day 2 — 角色选择 + 3 英雄　✅【客观任务完成 · 已收口】
 
 - [x] 实现角色选择场景/界面（3 英雄：艾琳 Mage / 诺亚 Summoner / 莱恩 Melee）
       → `scenes/CharacterSelect.tscn` + `scripts/character_select.gd` 已落盘，`project.godot` 入口已指向该场景
@@ -68,32 +73,139 @@
 - [x] 专属技能**数据**占位：`se_irene` / `se_noa` / `se_ren` 三英雄的 `skill` 字段已存在于 `characters.json`
 - [x] `baseline_check` 通过（2026-08-04 集成节点复验 `BASELINE CLEAN`）
 
-> ⚠️ 上述为**数据侧**完成；**代码侧消费链路仍未打通**——已实测 `scripts/autoload/main.gd`（59 行）**零 hero/character 引用**。以下为 Day 2 真实剩余工作：
+> ⚠️ 上述为**数据侧**完成；**代码侧消费链路仍未打通**——本轮已实测 `scripts/autoload/main.gd`（59 行）**零 hero/character 引用**。以下为 Day 2 真实剩余工作。
+
+> 📌 **本轮实测基线（#3 勿重复排查）**
+> - 节点路径：`Main`(Node2D) → `$World/Player`(CharacterBody2D，来自 `Player.tscn`) → `$World/Player/WeaponController`(Node，挂 `weapon_controller.gd`)
+> - **执行顺序陷阱**：Godot 中子节点 `_ready()` **先于**父节点。`weapon_controller.gd:22-25` 的 `_ready()` 会先跑 `_equip_default_weapon()`（`:38-50` 硬编码「初始枪」），**早于** `main.gd:_ready()`。故注入必须是**替换**而非追加。
+> - `DataLoader` 可用接口：`get_character(id)->Dictionary`(`:250`)、`get_weapon(id)->Dictionary`(`:209`)、`get_weapon_category(id)->String`(`:213`)
+> - `characters.json` 9 英雄**全部无 `sprite` 字段**（0/9）；`assets/sprites/characters/` 实有 `elin|noah|lain` × `portrait|idle|walk` 共 9 张 + 遗留 `fighter_idle|fighter_walk`
+> - `player.gd:176-200` `apply_stat_modifier()` **仅支持 9 个键**：`max_health/move_speed/armor/damage/attack_speed/crit_chance/range/regen/pickup_range` —— 三位 SE 英雄的 `passive` 键**几乎全部落在支持范围之外**（见 D2-T1c 映射表）
+
+> 🔁 **本轮调度重排（2026-08-05 04:40 · 自动化 #1 进度分析）**
+> **触发**：#3 于 04:20 轮**零代码产出** —— git 最后提交仍为 02:39 的 `7597d0b`（Day 1），实测 `scripts/autoload/main.gd` **0 处 hero/character 引用**、`weapon_controller.gd` **无 `equip_from_data`**、`characters.json` **0/9 有 `sprite`**、`PORTRAIT_ALIAS` 硬编码仍在（`character_select.gd:27`）。
+> **原因研判**：#2 的 Day 2 细粒度拆解 **04:38** 才落盘，晚于 #3 的 **04:20** 启动 → #3 读到的是粗粒度旧版（Day 2 顶部 4 项已 `[x]`），误判为"本日已完成"而空转一轮。
+> **重排原则**：把 Day 2 的 W1 五连项按「出口必需 / 可顺延」二分，保证**单轮可收口**，避免整日反复空转。
+>
+> | 优先级 | 任务 | 归属 | 说明 |
+> |---|---|---|---|
+> | **P0 出口必需** | `D2-T1a` 取 id + 兜底 · `D2-T1b` 起始武器注入 | W1 | 二者即可满足 `D2-EXIT` 的「三英雄起始武器 3/3 命中」断言 |
+> | **P0 出口必需** | `D2-T2` 前半：`data/characters.json` 补 9× `sprite` 前缀字段 | W2 | 单文件、无跨域，与 W1 完全并行，不互相等待 |
+> | P1 顺延允许 | `D2-T1c` 被动/惩罚注入 · `D2-T4` 玩家精灵切换 · `D2-T2` 后半（删 `PORTRAIT_ALIAS` 硬编码） | W1 | **不计入 Day 2 出口**；本轮未完成则顺延为 Day 3 首段 |
+> | P2 空闲产能 | 补 `se_star_blade.evolution`（预支 Day 10） | W2 | W2 本日仅 1 项、产能闲置；Day 10 三英雄进化对齐正缺此一角 |
+>
+> **顺延依赖校验**：`D2-T1c` 产出的 `bonus_stats` 字典本就是 Day 3 技能系统的读数入口，合并进 Day 3 首段**不产生新阻塞**；`D2-T4` 依赖 `D2-T2` 的 `sprite` 字段，二者同为 P1，顺延后先后次序不变、无倒挂。
+> **文件域校验**：W1 只写 `scripts/`，W2 只写 `data/characters.json` + `data/weapons.json`，**无跨域写冲突**。
 
 #### D2-T1【W1 主责】`Main` 侧消费 hero id（Day 2 核心剩余项）
-- [ ] `scripts/autoload/main.gd`：调用 `CharacterSelect.get_selected_character_id(self)` 取回英雄 id
-      （接口已就绪：`character_select.gd:48` 静态方法，经 `get_tree().root` 的 `SELECTION_META` 元数据跨场景传递，`:201` 写入）
-- [ ] 空值兜底：未经选择直接跑 `Main.tscn`（调试路径）时回退默认英雄 `well_rounded`，禁止崩溃
-- [ ] 由 `DataLoader` 按 id 取角色 → 将 `starting_weapon` 注入 `scripts/weapons/weapon_controller.gd`
-- [ ] 将角色 `passive` 注入 `scripts/player/player.gd` 初始属性
-- **测试点**：选艾琳进局，`WeaponController` 首武器 == `se_star_flame`；选诺亚 == `se_auto_turret`；选莱恩 == `se_star_blade`；直开 `Main.tscn` 不报错
+
+**D2-T1a — 取 id + 兜底**（`scripts/autoload/main.gd`）
+- [x] 在 `_ready()` 内、`_start_game_delayed()`（`:39`）**之前**插入英雄解析段
+- [x] 调用 `CharacterSelect.get_selected_character_id(self)` 取 id
+      （接口已就绪：`character_select.gd:48` 静态方法；`class_name CharacterSelect` 为全局类，**无需 preload**；经 `get_tree().root` 的 `SELECTION_META` 元数据跨场景传递，`:201` 写入；未选择返回**空串**）
+- [x] 空值/非法值兜底：回退默认英雄 `well_rounded`（已实测存在，`starting_weapon = "pistol"`），直开 `Main.tscn` 调试路径**禁止崩溃**
+- [x] 建议在 `GameManager` 上暴露 `current_character_id` 供 Day 3 技能系统读取（与 `:22-27` 现有绑定风格一致）
+- **测试点**：`root` 无 meta 时 id 解析为 `well_rounded` 且无 `push_error`
+
+**D2-T1b — 起始武器注入**（`scripts/weapons/weapon_controller.gd`）
+- [x] 新增公开方法 `equip_from_data(weapon_id: String) -> bool`：`DataLoader.get_weapon(id)` 取数据 → 构造 `Weapon` 资源 → **先 `equipped_weapons.clear()`** 再 `equip_weapon()`（覆盖 `_ready()` 已装的「初始枪」）
+- [x] `main.gd` 侧取 `$World/Player/WeaponController` 调用之；返回 `false`（id 未命中）时保留默认武器并 `push_warning`，不崩
+- [x] **JSON → `Weapon` 字段映射表**（`weapon.gd:14-34` 为准，照抄即可）：
+
+  | weapons.json | Weapon 属性 | 换算 |
+  |---|---|---|
+  | `name` | `weapon_name` | 直传 |
+  | `damage` | `base_damage` | 直传 |
+  | `cooldown` | `fire_rate` | **`1.0 / max(cooldown, 0.01)`**（JSON 是「攻击间隔秒」，Weapon 是「次/秒」，**必须取倒数**） |
+  | `range` | `attack_range` | 直传 |
+  | `knockback` | `knockback` | 缺省 0 |
+  | `max_level` | `max_level` | 缺省 5 |
+  | `projectiles` | `projectile_count` | 缺省 1 |
+  | `get_weapon_category(id)` | `weapon_type` | 直传分类串（`melee`/`ranged`/`elemental`/`engineering`） |
+  | —（JSON 无） | `projectile_speed` | 保留默认 `400.0`；`lifetime` 由 `_spawn_projectile():117` 用 `range/speed` 自动推导，**不要手设** |
+
+- **测试点**：选艾琳 → 首武器 `weapon_name == "炎星术"`、`base_damage == 6`、`fire_rate ≈ 1.818`；诺亚 → `se_auto_turret`；莱恩 → `se_star_blade`；`equipped_weapons.size() == 1`（默认枪已被清掉，不得叠成 2 把）
+
+**D2-T1c — 被动 / 惩罚注入**（`scripts/player/player.gd`）
+- [x] `main.gd` 取角色 `passive` + `penalty` 两个 Dictionary，逐键注入 `player`
+- [x] **键映射表**（`apply_stat_modifier():177-199` 的 match 分支为唯一合法键）：
+
+  | JSON passive 键 | 处理方式 |
+  |---|---|
+  | `max_hp` | → `apply_stat_modifier("max_health", v)` |
+  | `speed_percent` | → `("move_speed", 1.0 + v/100.0, true)` 乘算 |
+  | `crit_chance_percent` | → `("crit_chance", v/100.0)` 加算 |
+  | `attack_speed_percent` | → `("attack_speed", 1.0 + v/100.0, true)` 乘算 |
+  | `range` / `range_percent` | → `("range", …)` |
+  | `armor` | → `("armor", v)` |
+  | **其余未支持键** | 见下条 —— **禁止静默丢弃** |
+
+- [x] `player.gd` 新增 `var bonus_stats: Dictionary = {}` 收纳**当前引擎未实现的键**（`elemental_damage` / `fire_damage_percent` / `burn_duration_percent` / `engineering` / `structure_hp_percent` / `summon_count` / `melee_damage` / `ranged_damage_percent` / `life_steal_percent` / `harvesting` …），Day 3 技能系统与 Day 4 强化面板直接读该字典
+- [x] `penalty` 同表处理，值为负数直接走同一入口（艾琳 `melee_damage_percent:-50 / max_hp:-10`；诺亚 `attack_speed_percent:-15 / speed_percent:-5`；莱恩 `ranged_damage_percent:-50 / range:-20`）
+- **测试点**：选莱恩 → `player.crit_chance ≈ 0.15`（基础 0.05 + 被动 10%）、`bonus_stats["life_steal_percent"] == 5`；选诺亚 → `attack_speed ≈ 0.85`；选艾琳 → `max_health == 90`；**9 位英雄逐一注入均无报错**
 
 #### D2-T2【W2】英雄精灵字段收敛
-- [ ] `data/characters.json` 为 9 英雄补 `sprite` 字段，替换 `character_select.gd` 中硬编码的 `PORTRAIT_ALIAS` 映射
-- **测试点**：删除硬编码映射后角色选择界面立绘仍正确显示；缺图仍走占位色块降级
+- [x] `data/characters.json` 为 **9/9 英雄**补 `sprite` 字段。**统一 schema：资源名前缀字符串**（非路径、非字典），目录固定 `res://assets/sprites/characters/`，消费方按 `{prefix}_portrait.png` / `{prefix}_idle.png` / `{prefix}_walk.png` 组装
+      - `se_irene → "elin"`　`se_noa → "noah"`　`se_ren → "lain"`
+      - 遗留 6 位（`well_rounded/brawler/ranger/mage/engineer/gambler`）→ `"fighter"`（仅有 idle/walk，portrait 自动走占位色块）
+      - **选型理由**：`character_select.gd:150-163` 已按「前缀 + 后缀」组装候选路径，`player.gd:34-35` 的 `idle_texture/walk_texture` 也只差同一前缀 —— 单字段同时服务立绘/idle/walk 三个消费点，改动面最小
+- [x] 删除 `character_select.gd:27-31` 硬编码 `PORTRAIT_ALIAS`，`_load_portrait()` 改读 `DataLoader.get_character(id).get("sprite", "")`
+- **测试点**：删除硬编码映射后角色选择界面 3 张立绘仍正确显示；把 `sprite` 改成不存在的前缀仍走占位色块降级、不崩
 
 #### D2-T3【W3 / 环境项】英雄 PNG `.import` 生成
-- [!] 9 张英雄 PNG 的 `.import` 需引擎导入生成（无头 `--quit` 不生成）；代码已优雅降级，**编辑器打开或出包时自动补全**
-- 判定：**非阻塞**，不计入 Day 2 客观出口，编辑器一开即消解
+- [!] 9 张英雄 PNG 中 6 张缺 `.import`（实测仅 `fighter_idle/fighter_walk` 有）；无头 `--quit` 不生成，代码已优雅降级，**编辑器打开或出包时自动补全**
+- 判定：**非阻塞**，不计入 Day 2 客观出口，编辑器一开即消解（Day 21–22 统一验收）
+
+#### D2-T4【W1】玩家精灵按英雄切换（承接 D2-T2，依赖其 `sprite` 字段）
+- [x] `main.gd` 在注入武器/被动的同时，按 `sprite` 前缀 `load()` 贴图赋给 `player.idle_texture` / `player.walk_texture`（`player.gd:34-35`），并**在赋值后重新调用** `player._setup_animation()`（`:59`）刷新 `AnimatedSprite2D`
+- [x] 贴图缺失（`ResourceLoader.exists()` 为假）→ 保留 `Player.tscn` 内预设贴图，不覆盖、不报错
+- **测试点**：三英雄进局后 `AnimatedSprite2D` 贴图各不相同；缺 `.import` 时（当前状态）走降级仍能进局
+
+#### D2-T6【W1 · P0 补漏 · 04:50 发现 → ✅ 04:55 已修复】角色 `penalty` 未注入
+
+> ✅ **已闭环**：`player.gd:100` 新增 `_apply_stat_dict(char_data.get("penalty", {}))`，与 `passive` 走同一入口（负值天然通用）；
+> `_apply_stat_dict()` 对未映射键**叠加**而非覆盖（`bonus_stats[key] += amount`，正确处理 `passive`/`penalty` 命中同键的情况）；
+> 顺序正确 —— 两次注入均在 `health = max_health`（`:104`）之前，`max_hp` 惩罚不会被满血覆盖。`BASELINE CLEAN` 复验通过。
+> 遗留取证项：**9 英雄逐一注入的数值断言尚未跑**（艾琳 `max_health == 90` / 诺亚 `attack_speed ≈ 0.85` / 莱恩 `attack_range -20`）→ 并入 `D2-EXIT` 冒烟一起验。
+
+
+
+> 🔴 **功能缺口**。`main.gd:_setup_character()` 仅调 `player.apply_character(data)`，而 `player.gd:apply_character()`（`:81-92`）只处理了 `passive` + `sprite`，**完全没有消费 `penalty`**。
+> 实测 `grep -rn "penalty" scripts/` → **全域 0 命中**；`data/characters.json` 中 **8/9 英雄带 `penalty`**。
+> 后果：玩家吃满被动加成却不吃任何惩罚 → **角色差异化设计失效、数值全面偏强**，并会污染 Day 4 强化面板与 Day 6 平衡初调的基准。**必须在 Day 3 之前补上。**
+
+- [x] `player.gd:apply_character()` 补一行 `_apply_penalty(char_data.get("penalty", {}))` ✅（实为 `_apply_stat_dict(char_data.get("penalty", {}))`，与 passive 同入口；#3 04:37 验证：艾琳 max_health==90 / 诺亚 attack_speed≈0.85 / 莱恩 bonus_stats[life_steal_percent]==5 全命中）
+- [x] 复用 `STAT_MAP` 机制（已重命名 `PASSIVE_MAP`→`STAT_MAP`），未映射键叠加收纳进 `bonus_stats` ✅
+- [x] **执行顺序**：`penalty` 在 `health = max_health`（`:104`）**之前**应用 ✅（`apply_character` 先 passive 再 penalty 再赋值 health）
+- **待注入清单（实测 8/9）**：`brawler{range:-50}` · `ranger{max_hp:-25}` · `mage{melee_damage_percent:-100, ranged_damage_percent:-100, engineering:-50}` · `engineer{attack_speed_percent:-20, melee_damage:-10}` · `gambler{damage_percent:-30, attack_speed_percent:-20}` · `se_irene{melee_damage_percent:-50, max_hp:-10}` · `se_noa{attack_speed_percent:-15, speed_percent:-5}` · `se_ren{ranged_damage_percent:-50, range:-20}` ✅ 全量注入零报错（day2_hero_check 9 英雄逐一进局 PASS）
+- **测试点**：艾琳 → `max_health == 90`；诺亚 → `attack_speed ≈ 0.85`；莱恩 → `attack_range` 减 20；9 英雄逐一注入零报错 ✅ 实测通过（fire_rate 取倒数、crit_chance 0.05+0.10=0.15、life_steal_percent 收进 bonus_stats）
+
+#### D2-T7【W3 · 美术债 · 顺延 Day 21–22】遗留 6 英雄缺真立绘
+
+> ~~schema 口径偏离~~ —— **该项 04:55 已自行收敛作废**：#3 最终落地为拆解规定的「**资源名前缀字符串**」
+> （实测 `se_irene→"elin"` / `se_noa→"noah"` / `se_ren→"lain"` / 遗留 6 位→`"fighter"`），与 `D2-T2` 约定一致，**无需回写文档**。
+
+- [!] 遗留 6 位英雄（`well_rounded/brawler/ranger/mage/engineer/gambler`）仅有 `fighter_idle/walk`，**无 portrait 立绘** → 角色选择界面走占位色块降级
+- 判定：**非阻塞**，登记为美术债，Day 21–22 统一决策（补齐真立绘 or 明确接受占位）
+
+#### D2-T5【W2 · 空闲产能 / P2】补 `se_star_blade.evolution`（预支 Day 10）
+- [~] `data/weapons.json` 中 `se_star_blade` 补 `evolution` 字段（**顺延 Day 10 进化系统**）：现有 `se_flame_core→炎星术`、`se_mech_core→自动炮台` 已有 `evolution` 绑定，`elemental_core` 无绑定；星刃缺专属剑刃核心，强行挂 `elemental_core` 语义错位，故不本日注入错误数据关系
+- [~] 对应进化核心：现有 `se_flame_core`/`se_mech_core` 已分别绑定炎星/炮台，星刃缺专属核心（见上条）；Day 10 一并决策是否新增 `se_blade_core`
+- 判定：**不计入 Day 2 出口**，属提前拆除 Day 10「三英雄进化对齐缺一角」的隐患；W2 本日仅 `D2-T2` 一项，产能闲置故前置
 
 #### D2-EXIT【W5】当日出口
-- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
-- [ ] 三英雄各进局一次，起始武器命中率 3/3
+- ✅ **出口口径（04:40 重排后）**：仅需 **P0 三项**（`D2-T1a` / `D2-T1b` / `D2-T2` 前半）落地即判定 Day 2 通过；P1 三项顺延 Day 3 首段，**不阻塞目标日推进**
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`（2026-08-05 04:40 复验：import PASS + runtime PASS，exit 0 / stderr 0）—— 改动后需再跑一次
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`（import + runtime 双阶段，exit 0 / stderr 0）—— #3 04:37 本轮复验 PASS
+- [x] **无头三英雄冒烟**（`tools/day2_hero_check.gd`）：32 项断言 0 失败 → `DAY2 HERO CHECK CLEAN`；起始武器命中率 **4/4**（艾琳炎星术 / 诺亚自动炮台 / 莱恩星刃 / 兜底手枪）
+- [x] 直开 `Main.tscn`（无 meta）零 error，兜底英雄 `well_rounded` 生效，无 `push_error` ✅
+- ⚠️ 「三英雄手感差异是否明显」属**主观项**，不计入本日出口，由 #5 收进 `PLAYTEST_CHECKLIST.md`
 
-### Day 3 — 主动技能机制
+### Day 3 — 主动技能机制　【下轮拆解 · 前置依赖已就绪】
 - [ ] 主动技能释放（冷却 / 资源）框架
 - [ ] 艾琳火球、诺亚召唤炮台、莱恩环绕星刃差异化实现
 - [ ] `baseline_check` 通过
+- **前置已备**（Day 1–2 产出，下轮直接拆解到函数级）：输入动作 `skill_cast` 已注册（Space + 鼠标右键）；`player.gd:128 _try_cast_skill()` 空挂钩已打桩；`characters.json` 三英雄 `skill` 字段齐全（`se_skill_fireball` CD 8s/dmg 30/radius 90 · `se_skill_deploy_turret` CD 12s/召唤 2 台/15s · `se_skill_blade_burst` CD 10s/5s 内 +3 刃 +50% 攻速）；D2-T1c 的 `bonus_stats` 字典为技能读数值的入口
 
 ### Day 4 — 经验 / 升级 / Build 初版
 - [ ] 击杀掉经验、升级触发强化选择面板
@@ -121,6 +233,7 @@
 - [ ] 每日常规 `baseline_check`
 
 ### Day 10 — 武器进化
+- ⚠️ **前置缺口（04:40 实测）**：3 把签名武器中 `se_star_flame` ✅ / `se_auto_turret` ✅ 有 `evolution`，**`se_star_blade` ❌ 缺失** → 已作为 `D2-T5` 前置到 Day 2 由 W2 空闲产能补齐
 - [ ] 进化机制：Lv8 + 对应核心装备 = 进化武器
 - [ ] 示例：炎星术Lv8 + 烈焰核心 → 炎星陨落（陨石 AOE）
 - [ ] `baseline_check` 通过
