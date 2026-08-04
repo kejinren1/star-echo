@@ -116,6 +116,20 @@ func _handle_movement() -> void:
 	move_and_slide()
 	_update_animation()
 
+# ========== 主动技能（大纲 §5：玩家控制的主动技能，带冷却/资源） ==========
+# 本日仅打桩（D1-T1）：输入动作 skill_cast 已在 project.godot 注册；
+# 具体「读取英雄 skill → 冷却判定 → 差异化释放」逻辑由 Day 3 填充。
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("skill_cast"):
+		_try_cast_skill()
+
+## 主动技能释放挂钩（空实现，待 Day 3 填充）
+func _try_cast_skill() -> void:
+	# TODO(Day3): 读取 CharacterSelect.get_selected_character_id(self) → hero.skill
+	#             → 冷却计时 → 艾琳火球 / 诺亚炮台 / 莱恩星刃 差异化释放
+	pass
+
 # ========== 生命与受伤 ==========
 
 func _handle_regeneration(delta: float) -> void:
