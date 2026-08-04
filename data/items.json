@@ -47,6 +47,9 @@
     { "id": "spider", "name": "蜘蛛", "rarity": "legendary", "price": 110, "effects": { "damage_percent": 12, "attack_speed_per_different_weapon_percent": 6, "dodge_percent": -3, "harvesting": -5 }, "tags": ["damage"] },
     { "id": "potato", "name": "土豆", "rarity": "legendary", "price": 95, "effects": { "max_hp": 3, "hp_regen": 2, "life_steal_percent": 1, "damage_percent": 5, "attack_speed_percent": 5, "speed_percent": 3, "dodge_percent": 3, "armor": 1, "luck": 5 }, "tags": [] },
     { "id": "elemental_master", "name": "元素大师徽章", "rarity": "legendary", "price": 115, "effects": { "elemental_damage": 10, "reaction_heal": 5, "element_duration_percent": 50 }, "tags": ["elemental"] },
-    { "id": "mech_heart", "name": "机械之心", "rarity": "legendary", "price": 105, "effects": { "engineering": 10, "structure_damage_percent": 50, "auto_turret_per_wave": 1 }, "tags": ["engineering"] }
+    { "id": "mech_heart", "name": "机械之心", "rarity": "legendary", "price": 105, "effects": { "engineering": 10, "structure_damage_percent": 50, "auto_turret_per_wave": 1 }, "tags": ["engineering"] },
+
+    { "id": "se_flame_core", "name": "烈焰核心", "rarity": "legendary", "price": 120, "effects": { "elemental_damage": 8, "fire_damage_percent": 25, "burn_duration_percent": 30 }, "tags": ["elemental", "evolution_core"], "star_echo": true, "evolution": { "weapon_id": "se_star_flame", "requires_level": 8, "result_id": "se_star_fall", "result_name": "炎星陨落", "description": "炎星术 Lv8 + 烈焰核心 → 炎星陨落: 召唤大型火焰陨石 AOE" } },
+    { "id": "se_mech_core", "name": "机械核心", "rarity": "legendary", "price": 120, "effects": { "engineering": 8, "structure_damage_percent": 40, "structure_duration_percent": 50, "summon_count": 1 }, "tags": ["engineering", "evolution_core"], "star_echo": true, "evolution": { "weapon_id": "se_auto_turret", "requires_level": 8, "result_id": "se_turret_array", "result_name": "机械炮阵", "description": "诺亚机械强化: 自动炮台 Lv8 + 机械核心 → 机械炮阵, 炮台常驻并多台同场" } }
   ]
 }

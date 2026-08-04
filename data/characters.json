@@ -98,6 +98,127 @@
         "attack_speed_percent": -20
       },
       "unlock_condition": "默认解锁"
+    },
+    {
+      "id": "se_irene",
+      "name": "炎术师·艾琳",
+      "name_en": "Irene the Pyromancer",
+      "class": "Mage",
+      "description": "回响者联盟的炎系术士，以星骸之火灼烧异变生命；越战越炽。",
+      "passive": {
+        "elemental_damage": 8,
+        "fire_damage_percent": 15,
+        "burn_duration_percent": 30
+      },
+      "starting_weapon": "se_star_flame",
+      "weapon_restrictions": [],
+      "penalty": {
+        "melee_damage_percent": -50,
+        "max_hp": -10
+      },
+      "skill": {
+        "id": "se_skill_fireball",
+        "name": "炽星火球",
+        "name_en": "Blazing Fireball",
+        "type": "active",
+        "cooldown": 8.0,
+        "damage": 30,
+        "radius": 90,
+        "element_type": "fire",
+        "description": "向鼠标方向抛射巨型火球，命中爆炸并施加燃烧(4秒)"
+      },
+      "growth": {
+        "type": "fire_damage",
+        "per_level": {
+          "elemental_damage": 2,
+          "fire_damage_percent": 3
+        },
+        "description": "火焰伤害成长：每级 +2 元素伤害 / +3% 火焰伤害"
+      },
+      "unlock_condition": "默认解锁",
+      "star_echo": true
+    },
+    {
+      "id": "se_noa",
+      "name": "机械师·诺亚",
+      "name_en": "Noa the Machinist",
+      "class": "Summoner",
+      "description": "从星骸残骸中打捞造物的机械师，以炮台阵列构筑阵地。",
+      "passive": {
+        "engineering": 12,
+        "structure_hp_percent": 40,
+        "summon_count": 1
+      },
+      "starting_weapon": "se_auto_turret",
+      "weapon_restrictions": [],
+      "penalty": {
+        "attack_speed_percent": -15,
+        "speed_percent": -5
+      },
+      "skill": {
+        "id": "se_skill_deploy_turret",
+        "name": "紧急部署",
+        "name_en": "Emergency Deploy",
+        "type": "active",
+        "cooldown": 12.0,
+        "summon_id": "se_auto_turret",
+        "summon_count": 2,
+        "duration": 15.0,
+        "description": "立即在身侧部署 2 台临时炮台，持续 15 秒"
+      },
+      "growth": {
+        "type": "summon_count",
+        "per_level": {
+          "engineering": 2
+        },
+        "per_5_levels": {
+          "summon_count": 1
+        },
+        "description": "召唤数量成长：每 5 级 +1 召唤上限，每级 +2 工程学"
+      },
+      "unlock_condition": "默认解锁",
+      "star_echo": true
+    },
+    {
+      "id": "se_ren",
+      "name": "剑士·莱恩",
+      "name_en": "Ren the Blademaster",
+      "class": "Melee",
+      "description": "以星刃贴身收割的剑士，暴击时汲取异变生命的回响。",
+      "passive": {
+        "melee_damage": 8,
+        "crit_chance_percent": 10,
+        "life_steal_percent": 5
+      },
+      "starting_weapon": "se_star_blade",
+      "weapon_restrictions": [],
+      "penalty": {
+        "ranged_damage_percent": -50,
+        "range": -20
+      },
+      "skill": {
+        "id": "se_skill_blade_burst",
+        "name": "星刃爆发",
+        "name_en": "Blade Burst",
+        "type": "active",
+        "cooldown": 10.0,
+        "duration": 5.0,
+        "effects": {
+          "orbit_blade_count": 3,
+          "attack_speed_percent": 50
+        },
+        "description": "5 秒内环绕星刃额外 +3 把并提升 50% 攻速"
+      },
+      "growth": {
+        "type": "crit_life_steal",
+        "per_level": {
+          "crit_chance_percent": 1,
+          "life_steal_percent": 0.5
+        },
+        "description": "暴击吸血成长：每级 +1% 暴击率 / +0.5% 生命偷取"
+      },
+      "unlock_condition": "默认解锁",
+      "star_echo": true
     }
   ]
 }

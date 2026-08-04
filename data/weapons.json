@@ -108,6 +108,39 @@
         "knockback": 5,
         "special": "施加燃烧状态3秒",
         "element_type": "fire"
+      },
+      {
+        "id": "se_star_blade",
+        "name": "星刃",
+        "name_en": "Star Blade",
+        "slot": "weapon",
+        "tier": 1,
+        "price": 15,
+        "damage": 7,
+        "cooldown": 0.45,
+        "range": 110,
+        "crit_chance": 0.08,
+        "crit_damage": 1.8,
+        "scaling": { "melee_damage": 1.0 },
+        "knockback": 8,
+        "life_steal": 1,
+        "blade_count": 1,
+        "orbit_radius": 110,
+        "orbit_speed": 180,
+        "special": "环绕玩家旋转的星刃, 持续对接触敌人造成伤害",
+        "star_echo": true,
+        "signature_of": "se_ren",
+        "max_level": 8,
+        "levels": [
+          { "level": 1, "damage": 7, "cooldown": 0.45, "blade_count": 1, "orbit_radius": 110, "orbit_speed": 180, "upgrade": "基础形态" },
+          { "level": 2, "damage": 9, "cooldown": 0.45, "blade_count": 1, "orbit_radius": 115, "orbit_speed": 190, "upgrade": "伤害 +2" },
+          { "level": 3, "damage": 11, "cooldown": 0.42, "blade_count": 2, "orbit_radius": 120, "orbit_speed": 200, "upgrade": "星刃数量 +1" },
+          { "level": 4, "damage": 14, "cooldown": 0.42, "blade_count": 2, "orbit_radius": 125, "orbit_speed": 210, "upgrade": "伤害 +3" },
+          { "level": 5, "damage": 17, "cooldown": 0.38, "blade_count": 3, "orbit_radius": 132, "orbit_speed": 220, "upgrade": "星刃数量 +1, 转速提升" },
+          { "level": 6, "damage": 21, "cooldown": 0.38, "blade_count": 3, "orbit_radius": 138, "orbit_speed": 235, "upgrade": "伤害 +4, 半径扩大" },
+          { "level": 7, "damage": 26, "cooldown": 0.34, "blade_count": 4, "orbit_radius": 145, "orbit_speed": 250, "upgrade": "星刃数量 +1" },
+          { "level": 8, "damage": 32, "cooldown": 0.30, "blade_count": 4, "orbit_radius": 150, "orbit_speed": 270, "upgrade": "满级: 可进化(需对应核心)" }
+        ]
       }
     ],
     "ranged": [
@@ -345,6 +378,43 @@
         "scaling": { "elemental_damage": 1.0 },
         "element_type": "plasma",
         "special": "穿透所有敌人"
+      },
+      {
+        "id": "se_star_flame",
+        "name": "炎星术",
+        "name_en": "Star Flame Art",
+        "slot": "weapon",
+        "tier": 1,
+        "price": 15,
+        "damage": 6,
+        "cooldown": 0.55,
+        "range": 260,
+        "crit_chance": 0.05,
+        "crit_damage": 1.5,
+        "scaling": { "elemental_damage": 0.8 },
+        "element_type": "fire",
+        "projectiles": 1,
+        "special": "发射炎星火弹, 命中施加燃烧(3秒)",
+        "star_echo": true,
+        "signature_of": "se_irene",
+        "max_level": 8,
+        "evolution": {
+          "requires_item": "se_flame_core",
+          "requires_level": 8,
+          "result_id": "se_star_fall",
+          "result_name": "炎星陨落",
+          "description": "召唤大型火焰陨石造成范围 AOE"
+        },
+        "levels": [
+          { "level": 1, "damage": 6, "cooldown": 0.55, "range": 260, "projectiles": 1, "upgrade": "基础形态" },
+          { "level": 2, "damage": 8, "cooldown": 0.55, "range": 270, "projectiles": 1, "upgrade": "伤害 +2" },
+          { "level": 3, "damage": 10, "cooldown": 0.50, "range": 280, "projectiles": 1, "upgrade": "攻速提升, 燃烧 4 秒" },
+          { "level": 4, "damage": 12, "cooldown": 0.50, "range": 290, "projectiles": 2, "upgrade": "弹丸数 +1" },
+          { "level": 5, "damage": 15, "cooldown": 0.45, "range": 300, "projectiles": 2, "upgrade": "伤害 +3, 攻速提升" },
+          { "level": 6, "damage": 18, "cooldown": 0.45, "range": 310, "projectiles": 2, "upgrade": "命中产生小范围爆燃(半径40)" },
+          { "level": 7, "damage": 22, "cooldown": 0.40, "range": 320, "projectiles": 3, "upgrade": "弹丸数 +1" },
+          { "level": 8, "damage": 27, "cooldown": 0.35, "range": 340, "projectiles": 3, "upgrade": "满级: 可进化为炎星陨落(需烈焰核心)" }
+        ]
       }
     ],
     "engineering": [
@@ -419,6 +489,43 @@
         "range": 120,
         "scaling": { "engineering": 0.8 },
         "special": "生成护盾区域, 减伤50%"
+      },
+      {
+        "id": "se_auto_turret",
+        "name": "自动炮台",
+        "name_en": "Auto Turret",
+        "slot": "weapon",
+        "tier": 1,
+        "price": 15,
+        "damage": 5,
+        "cooldown": 0.50,
+        "range": 220,
+        "crit_chance": 0.05,
+        "crit_damage": 1.5,
+        "scaling": { "engineering": 0.8 },
+        "summon_count": 1,
+        "duration": 20,
+        "special": "召唤自动炮台自主索敌射击, 存在20秒",
+        "star_echo": true,
+        "signature_of": "se_noa",
+        "max_level": 8,
+        "evolution": {
+          "requires_item": "se_mech_core",
+          "requires_level": 8,
+          "result_id": "se_turret_array",
+          "result_name": "机械炮阵",
+          "description": "诺亚机械强化: 炮台常驻不消失并同时部署多台"
+        },
+        "levels": [
+          { "level": 1, "damage": 5, "cooldown": 0.50, "range": 220, "summon_count": 1, "duration": 20, "upgrade": "基础形态" },
+          { "level": 2, "damage": 7, "cooldown": 0.50, "range": 225, "summon_count": 1, "duration": 22, "upgrade": "伤害 +2, 存在时间 +2s" },
+          { "level": 3, "damage": 9, "cooldown": 0.46, "range": 230, "summon_count": 2, "duration": 22, "upgrade": "炮台数量 +1" },
+          { "level": 4, "damage": 11, "cooldown": 0.46, "range": 240, "summon_count": 2, "duration": 24, "upgrade": "伤害 +2, 射程提升" },
+          { "level": 5, "damage": 14, "cooldown": 0.42, "range": 250, "summon_count": 2, "duration": 26, "upgrade": "攻速提升" },
+          { "level": 6, "damage": 17, "cooldown": 0.42, "range": 255, "summon_count": 3, "duration": 26, "upgrade": "炮台数量 +1" },
+          { "level": 7, "damage": 21, "cooldown": 0.36, "range": 265, "summon_count": 3, "duration": 28, "upgrade": "伤害 +4, 攻速提升" },
+          { "level": 8, "damage": 26, "cooldown": 0.32, "range": 280, "summon_count": 3, "duration": 30, "upgrade": "满级: 可进化为机械炮阵(需机械核心)" }
+        ]
       }
     ]
   }
