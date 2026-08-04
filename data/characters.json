@@ -91,7 +91,7 @@
         "shop_quality_percent": 25,
         "double_material_chance_percent": 20
       },
-      "starting_weapon": "shuriken",
+      "starting_weapon": "dagger",
       "weapon_restrictions": [],
       "penalty": {
         "damage_percent": -30,
