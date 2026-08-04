@@ -6,7 +6,7 @@
 
 ## ▶ 项目指令（直接粘贴到项目组「指令」框）
 
-你正在协作开发一款类 Brotato 的俯视角自动射击肉鸽游戏（项目名 Roguelike Studio）。硬性背景：引擎 Godot 4.3 + GDScript，目标平台 PC(Steam)，架构必须数据驱动、低耦合、方便扩展玩法与美术。运行方式：用 `tools/Godot_v4.3-stable_win64.exe` 打开 `project.godot` 按 F5；打包用 `--export-pack` 生成 `build/RoguelikeStudio.pck` 并把引擎 exe 改名为同前缀 exe 同目录，双击即玩。约定三条必须守：①新增角色/怪物 = 一条 JSON + 一张横向帧 strip PNG，零代码改动（DataLoader 自动缓存）；②帧 strip 横向排列、帧宽=精灵尺寸（如 4 帧@32 = 128x32）；③美术 32px 基准网格、Indexed 32 色调色板、Nearest 过滤、1px 描边。像素化用 `tools/pixelate_batch.py`（网格降采样+代表色+32 色量化）。架构分层：Autoload(GameManager/DataLoader/main) → 系统层(WaveManager/Economy/Inventory/EnemySpawner) → 实体层(Player/Enemy/Weapon+WeaponController) → UI 层(HUD/Shop) → 工具层(SpriteFrameFactory/IconAtlas/VfxPlayer)。当前已接通玩家移动+鼠标方向自动射击、弹丸命中、敌人接触伤害、死亡特效、HUD、金币掉落；Phase 2 待补：武器/道具系统、商店购买生效、经验升级、角色选择、元素反应、音效、波次清场判定。代码走 git 远程（本地仓库已 init，76 文件/0.25MB，已排除引擎与 build）；大文件/可玩 demo 走项目组资产库。改动前先读 `docs/GDD.md` 与 `docs/ART_STYLE.md`。
+你正在协作开发一款类 Brotato 的俯视角自动射击肉鸽游戏（项目名 Roguelike Studio）。硬性背景：引擎 Godot 4.3 + GDScript，目标平台 PC(Steam)，架构必须数据驱动、低耦合、方便扩展玩法与美术。运行方式：用 `tools/Godot_v4.3-stable_win64.exe` 打开 `project.godot` 按 F5；改动前后各跑一次 `python tools/baseline_check.py`（双阶段 headless 自校验，必须 BASELINE CLEAN 才提交）；发布一条命令 `python tools/build_release.py --zip`（导出 pck→校验 exe→实测启动→出分发包，任一步失败非零退出）。约定三条必须守：①新增角色/怪物 = 一条 JSON + 一张横向帧 strip PNG，零代码改动（DataLoader 自动缓存）；②帧 strip 横向排列、帧宽=精灵尺寸（如 4 帧@32 = 128x32）；③美术 32px 基准网格、Indexed 32 色调色板、Nearest 过滤、1px 描边。像素化用 `tools/pixelate_batch.py`（网格降采样+代表色+32 色量化）。架构分层：Autoload(GameManager/DataLoader/main) → 系统层(WaveManager/Economy/Inventory/EnemySpawner) → 实体层(Player/Enemy/Weapon+WeaponController) → UI 层(HUD/Shop) → 工具层(SpriteFrameFactory/IconAtlas/VfxPlayer)。当前已接通玩家移动+鼠标方向自动射击、弹丸命中、敌人接触伤害、死亡特效、HUD、金币掉落；Phase 2 待补：武器/道具系统、商店购买生效、经验升级、角色选择、元素反应、音效、波次清场判定。代码走 git 远程（仓库 112 文件，已排除引擎 133MB 与 build 产物）；大文件/可玩 demo 走项目组资产库。`addons/godot_mcp` 已入库但未启用且需 Godot 4.6，升级未定前不要启用。改动前先读 `docs/GDD.md` 与 `docs/ART_STYLE.md`。
 
 ---
 
@@ -25,8 +25,9 @@
 |------|------|
 | 引擎本体 | `tools/Godot_v4.3-stable_win64.exe` |
 | 打开项目 | 用引擎打开 `project.godot`，按 F5 运行 |
-| 无头验证 | `python` subprocess 跑 `--headless` 抓日志（bash 重定向不持久，必须用 Python） |
-| 打包 | `tools\Godot_v4.3-stable_win64.exe --headless --path . --export-pack "Windows Desktop" build\RoguelikeStudio.pck`，再 `cp` 引擎 exe 为 `build\RoguelikeStudio.exe`（须同目录） |
+| 无头验证 | `python tools/baseline_check.py` → 输出 PASS/FAIL，`BASELINE CLEAN` 才允许提交 |
+| 打包发布 | `python tools/build_release.py --zip` → 导出 pck + 校验 exe + 实测启动 + 出 `build.zip` |
+| 手工打包（备用） | `tools\Godot_v4.3-stable_win64.exe --headless --path . --export-pack "Windows Desktop" build\RoguelikeStudio.pck`，再 `cp` 引擎 exe 为 `build\RoguelikeStudio.exe`（须同目录同前缀，否则 pck 不自动加载） |
 | 像素化工具 | `tools\pixelate_batch.py --input <raw> --output <out> --width 32 --mode mean --palette` |
 
 ## 3. 架构分层
@@ -49,8 +50,10 @@
 ## 5. 当前进度（截至 2026-08-04）
 
 - ✅ 已接通：玩家移动 + 鼠标方向自动射击、弹丸命中扣血/击杀掉金币、敌人接触伤害（0.4s 无敌帧）、死亡特效、HUD、金币掉落
-- ✅ 已 git 化：本地仓库 `ce848af`，76 文件 / 合计 0.25MB；`.gitignore` 排除 Godot 引擎(~133MB)、`/build/`、`.workbuddy/`、测试产物、`.zip`；`.gitattributes` 统一换行
+- ✅ 已 git 化：本地仓库 5 次提交（HEAD `3da8aa8`），112 文件；`.gitignore` 排除 Godot 引擎(~133MB)、`/build/`、`.workbuddy/`、`tools/_*` 临时产物、`.zip`；`.gitattributes` 统一换行
+- ✅ 工程化工具：`tools/baseline_check.py`（双阶段 headless 自校验）、`tools/build_release.py`（一条命令发布）；`export_presets.cfg` 已排除 `addons/*, docs/*, tools/*` 不进玩家 pck
 - 📄 文档：`docs/GDD.md`、`docs/ART_STYLE.md`（含十二~十四章：资产扩展规范 / 像素化 SOP / 标准规格表）
+- ⚠️ 未决事项：`addons/godot_mcp` 已入库但**未启用**，其 `plugin.cfg` 要求 Godot **4.6**，而项目锁定 **4.3**（`tools/` 下已下载 4.6 压缩包）。是否升级引擎需 Owner 拍板，升级前不要启用该插件
 - ⏳ Phase 2 待补：武器/道具系统、商店购买生效、经验升级、角色选择、元素反应、音效、波次清场判定（当前波次纯计时制，怪跨波累积）
 
 ## 6. 目录与关键文件速查
@@ -62,16 +65,20 @@ data/*.json                enemies(23)/weapons(29)/items(39)/characters(6)/waves
 scripts/                   18+ GDScript（autoload/player/enemy/weapons/items/systems/ui/effects/utils）
 scenes/                    Main/Player/Enemy/EnemySpawner/WaveManager/HUD/Shop/VfxPlayer/Projectile
 assets/sprites/            26 PNG（角色/敌人/特效/UI/地面/图标），均 RGBA 帧 strip
+addons/godot_mcp/          MCP 编辑器插件（未启用，需 Godot 4.6，见未决事项）
 tools/pixelate_batch.py    批量像素化脚本（Pillow）
+tools/baseline_check.py    headless 双阶段自校验（改动前后必跑）
+tools/build_release.py     一条命令发布构建（--zip 出分发包）
+tools/_*                   临时产物，永不入库（下划线约定）
 docs/GDD.md, ART_STYLE.md  设计文档与美术规范
-build/RoguelikeStudio.exe+pck  可分发可玩 demo（不进 git）
+build/RoguelikeStudio.exe+pck  可分发可玩 demo（不进 git，走资产库）
 ```
 
 ## 7. 新人 Agent 上手 5 步
 
 1. 读 `docs/GDD.md` + `docs/ART_STYLE.md`（尤其十二~十四章）
 2. 读工作区根项目记忆（MEMORY）了解历史决策
-3. 用引擎跑一次游戏，headless 验证 baseline 零错误
+3. 跑 `python tools/baseline_check.py`，确认 `BASELINE CLEAN`（注：Godot 日志用 bash 重定向不持久，必须走 Python subprocess，脚本已封装）
 4. 改动严守「数据驱动 + 帧 strip + 32 色」约定
 5. 大文件（引擎/build demo/美术原图）走云盘资产库共享；代码走 git 远程
 
