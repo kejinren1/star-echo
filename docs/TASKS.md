@@ -4,14 +4,20 @@
 > 状态标记：`[ ]` 未开始 · `[~]` 进行中 · `[x]` 完成 · `[!]` 受阻/需人工。
 > 护栏：未定义当日任务前不写游戏代码；改前 git commit；改后跑 `tools/baseline_check.py`。
 
-> **🎯 当前目标开发日：Day 2**（最后拆解：2026-08-05 04:35 · 自动化 #2）
-> ✅ **Day 1 客观任务已全部完成**（4/4，含 `D1-T1`/`D1-T2`/`D1-T3`/`D1-EXIT`），目标日推进至 Day 2。
-> Day 2 数据侧已由并发冲刺交付；**代码侧消费链路为本轮拆解重点**，已细化为 `D2-T1 ~ D2-T4` + `D2-EXIT`，
-> 全部附「文件 + 行号 + 接口签名 + 字段映射表 + 测试点」，#3 可零排查直接落笔。
-> 🔁 **2026-08-05 04:40 · 自动化 #1 重排**：Day 2 的 W1 五连项已按 **P0 出口必需 / P1 可顺延 / P2 空闲产能** 三档切分（详见 Day 2 内「本轮调度重排」表）。
-> **#3 下一轮请优先且仅做 P0 三项**（`D2-T1a` / `D2-T1b` / `D2-T2` 前半），做完即可收口 Day 2 推进至 Day 3，避免整日空转。
-> ✅ **2026-08-05 04:50 复核更新**：上述 P0/P1 项 **#3 已于 04:44 全部落地**（`main.gd` +48 行 / `weapon_controller.gd` +64 行 / `player.gd` +84 行 / `character_select.gd` 去硬编码 / `characters.json` 9-9 补 `sprite`），`BASELINE CLEAN` 复验通过。
-> 🔴 **但新发现 P0 缺口 `D2-T6`：角色 `penalty` 全域未注入（8/9 英雄受影响）** —— Day 2 **暂不收口**，补完 `D2-T6` 再推进 Day 3。
+> **🎯 当前目标开发日：Day 3 — 主动技能机制**（最后拆解：2026-08-05 06:35 · 自动化 #2 ／ 最后重排：2026-08-05 06:47 · 自动化 #1）
+> ✅ **Day 1 收口**（客观 4/4）　✅ **Day 2 收口**（P0 全落地 + `D2-T6` penalty 已闭环 + `D2-EXIT` 32 断言 0 失败，提交 `edd0e9a`）
+> ⬜ **Day 3 客观进度 0/8** —— 06:47 实测：`grep -rn "SkillController\|explosion_radius\|apply_status" scripts/ scenes/` **全域 0 命中**，`scripts/player/skill_controller.gd`、`scripts/weapons/turret.gd`、`scenes/Turret.tscn` 均未创建，`player.gd:224 _try_cast_skill()` 仍为空 `pass`。**尚未开工，非撕裂状态。**
+>
+> 🔴 **2026-08-05 06:47 · 自动化 #1 发现 P0 硬缺口 → 已新增 `D3-T2b`**
+> Day 3 定案表把「燃烧 DoT 载体」定为「`enemy.gd` 新增最小状态机 `apply_status()`」，但 **`D3-T1`～`D3-T7` 七项任务中无任何一条承载该实现**。
+> 而 `D3-T2` 仅要求「调 `e.apply_status(...)` 前先 `has_method` 守卫」→ 方法不存在时**静默跳过、不报错**，燃烧永远不生效，
+> 且 `D3-EXIT` 断言 5「`_status` 内含 `fire`」**必然失败**。实测 `grep -rn "status\|_dot\|burn\|debuff" scripts/enemy/enemy.gd` = **0 命中**，零实现确认。
+> → 已补 `D3-T2b【W1 · P0】`，**必须先于 `D3-T3` 落地**。
+>
+> 🟡 **同时发现数据口径冲突 → 已补进 `D3-T7`**：`elements.json.elemental_status.fire.duration = **3**` vs 艾琳技能 description「燃烧(**4**秒)」/ `D3-T3` 定的 `status_duration:4.0` —— 同一 `fire` 状态两个时长口径，需收敛（详见 `D3-T7`）。
+>
+> 🔁 **W1 单点重载已分档**：Day 3 的 W1 承担 7 项、W2 仅 1 项、W3/W4 **完全空闲**（见 `DAY_ROLE_ASSIGNMENTS.md`）。
+> **#3 下一轮请按 `T1 → T2 → T2b → T5 → T3` 顺序做 P0 五项即可收口 Day 3**；`T4`（炮台，需新建 2 个文件，工作量最大）与 `T6`（HUD）降为 P1 顺延。详见 Day 3 内「本轮调度重排」表。
 
 ---
 
@@ -188,10 +194,10 @@
 - [!] 遗留 6 位英雄（`well_rounded/brawler/ranger/mage/engineer/gambler`）仅有 `fighter_idle/walk`，**无 portrait 立绘** → 角色选择界面走占位色块降级
 - 判定：**非阻塞**，登记为美术债，Day 21–22 统一决策（补齐真立绘 or 明确接受占位）
 
-#### D2-T5【W2 · 空闲产能 / P2】补 `se_star_blade.evolution`（预支 Day 10）
-- [~] `data/weapons.json` 中 `se_star_blade` 补 `evolution` 字段（**顺延 Day 10 进化系统**）：现有 `se_flame_core→炎星术`、`se_mech_core→自动炮台` 已有 `evolution` 绑定，`elemental_core` 无绑定；星刃缺专属剑刃核心，强行挂 `elemental_core` 语义错位，故不本日注入错误数据关系
-- [~] 对应进化核心：现有 `se_flame_core`/`se_mech_core` 已分别绑定炎星/炮台，星刃缺专属核心（见上条）；Day 10 一并决策是否新增 `se_blade_core`
-- 判定：**不计入 Day 2 出口**，属提前拆除 Day 10「三英雄进化对齐缺一角」的隐患；W2 本日仅 `D2-T2` 一项，产能闲置故前置
+#### D2-T5【W2 · 空闲产能 / P2】补 `se_star_blade.evolution`（**已转出 → Day 10**）
+- [!] `data/weapons.json` 中 `se_star_blade` 缺 `evolution` 字段：现有 `se_flame_core→炎星术`、`se_mech_core→自动炮台` 已有 `evolution` 绑定，`elemental_core` 无绑定；星刃缺专属剑刃核心，强行挂 `elemental_core` 语义错位，故**拒绝注入错误数据关系**
+- [!] 对应进化核心：星刃缺专属核心；是否新增 `se_blade_core` 属进化系统设计决策
+- 判定：**不计入 Day 2 出口**。原为 `[~]` 在进行中，08-05 06:35（#2 第 3 轮）**改标 `[!]` 并转出为 Day 10 的 `D10-PRE` 条目**——技术决策依赖进化系统本体，留在 Day 2 会造成目标日定位被永久钉死在已完工的一天（双源漂移）
 
 #### D2-EXIT【W5】当日出口
 - ✅ **出口口径（04:40 重排后）**：仅需 **P0 三项**（`D2-T1a` / `D2-T1b` / `D2-T2` 前半）落地即判定 Day 2 通过；P1 三项顺延 Day 3 首段，**不阻塞目标日推进**
@@ -201,11 +207,175 @@
 - [x] 直开 `Main.tscn`（无 meta）零 error，兜底英雄 `well_rounded` 生效，无 `push_error` ✅
 - ⚠️ 「三英雄手感差异是否明显」属**主观项**，不计入本日出口，由 #5 收进 `PLAYTEST_CHECKLIST.md`
 
-### Day 3 — 主动技能机制　【下轮拆解 · 前置依赖已就绪】
-- [ ] 主动技能释放（冷却 / 资源）框架
-- [ ] 艾琳火球、诺亚召唤炮台、莱恩环绕星刃差异化实现
-- [ ] `baseline_check` 通过
-- **前置已备**（Day 1–2 产出，下轮直接拆解到函数级）：输入动作 `skill_cast` 已注册（Space + 鼠标右键）；`player.gd:128 _try_cast_skill()` 空挂钩已打桩；`characters.json` 三英雄 `skill` 字段齐全（`se_skill_fireball` CD 8s/dmg 30/radius 90 · `se_skill_deploy_turret` CD 12s/召唤 2 台/15s · `se_skill_blade_burst` CD 10s/5s 内 +3 刃 +50% 攻速）；D2-T1c 的 `bonus_stats` 字典为技能读数值的入口
+### Day 3 — 主动技能机制　🎯【本轮目标日 · 已拆解到函数级 · 2026-08-05 06:35】
+
+> **护栏**：改前 `git commit` 存档；改后 `python tools/baseline_check.py` 必须 `BASELINE CLEAN`。
+> **文件域**：W1 写 `scripts/` `scenes/`；W2 只写 `data/characters.json`；**无跨域冲突**。
+> **前置全部实测确认**：`skill_cast` 已注册（物理键码 32 + 鼠标右键 button_index 2）｜`player.gd:219-227` `_unhandled_input`+`_try_cast_skill()` 空桩已在位｜`GameManager.current_character_id`（`game_manager.gd:30`）与 `player.character_id`（`player.gd:96`）双通道可读英雄｜`player.bonus_stats`（`player.gd:69`）为技能读数入口。
+
+#### 本日总定案（先读，避免执行期临场决策）
+| 议题 | 定案 | 依据 |
+|------|------|------|
+| 技能逻辑放哪 | **新建 `scripts/player/skill_controller.gd`，作为 Player 子节点**，与 `WeaponController` 同层同构 | `Player.tscn:23` 已有 WeaponController 范式；避免 `player.gd` 继续膨胀 |
+| 「资源/法力」做不做 | **本日只做冷却，不做法力** | `characters.json` 三技能均无 `cost`/`mana` 字段，**不臆造数值** |
+| 火球用新场景还是扩展 | **扩展现有 `projectile.gd`**，新增可选字段，默认值 = 现有行为 | 已是 Area2D+`body_entered`，新增场景会翻倍维护面；`explosion_radius=0` 保证既有武器**零回归** |
+| AOE 判定方式 | **遍历 `GameManager.enemy_spawner.enemies_container` 算距离**，不用物理查询 | 复用 `weapon_controller.gd:126-137` 现成范式；无头测试下物理帧不可靠 |
+| 燃烧 DoT 载体 | **`enemy.gd` 新增最小状态机 `apply_status()`** | 实测 `enemy.gd` **零** DoT/status 实现，是真实缺口，不是重复造轮子 |
+| 技能 VFX | 复用现有 `crit`（火球爆炸）/ `hit`（炮台开火） | `vfx_player.gd:17-21` 仅 5 种特效，**专属 VFX 属 Day 23**，本日不越界 |
+
+---
+
+#### 🔁 本轮调度重排（2026-08-05 06:47 · 自动化 #1 进度分析）
+
+> **触发**：Day 3 客观进度 0/8，且 **W1 单点承担 7 项、W2 仅 1 项、W3/W4 空闲**——负载严重失衡，单轮一次性吞下 7 项极可能重演 Day 2 的「整日空转」。
+> **重排原则**：① 先补硬缺口（`D3-T2b`）；② 按「**最小可验闭环**」切出 P0，保证单轮可收口；③ 重活（`T4` 新建 2 文件）与非功能项（`T6` HUD）顺延。
+
+| 优先级 | 任务 | 归属 | 说明 |
+|---|---|---|---|
+| **P0 ①** | `D3-T1` 技能控制器骨架 | W1 | 一切技能的载体，无它则 T3/T4/T5 全部无处挂 |
+| **P0 ②** | `D3-T2` `projectile.gd` 爆炸 AOE + 元素附着 | W1 | 火球依赖；默认值 = 现有行为，既有武器零回归 |
+| **P0 ③** | **`D3-T2b` `enemy.gd` 状态机 `apply_status()`**（**本轮新增**） | W1 | **硬缺口**：不补则燃烧静默失效 + `D3-EXIT` 断言 5 必挂 |
+| **P0 ④** | `D3-T5` 莱恩「星刃爆发」 | W1 | **最轻**（纯 buff 数值 + 计时，无新建文件）——提前做可**最快验证 T1 骨架是否正确**，失败时返工成本最低 |
+| **P0 ⑤** | `D3-T3` 艾琳「炽星火球」 | W1 | 依赖 T2 + T2b；完成后「技能系统 + AOE + DoT」全链路首次贯通 |
+| **P0 ⑥** | `D3-T7` `characters.json` 补 `burn_duration` + 元素口径收敛 | W2 | 单文件、与 W1 完全并行，不互相等待 |
+| P1 顺延 | `D3-T4` 诺亚「紧急部署」+ 炮台实体 | W1 | **工作量最大**（新建 `turret.gd` + `Turret.tscn` + 索敌/存活/摆位）；未完成则顺延 Day 4 首段 |
+| P1 顺延 | `D3-T6` HUD 技能冷却指示 | W1 | 纯表现层，技能功能本身在 T1–T5 已客观可验 |
+| P2 空闲产能 | W3 可预支 `D2-T7` 美术债（6 遗留英雄立绘）或 Day 23 火球/召唤 VFX 素材 | W3 | **不计入 Day 3 出口**；`assets/sprites/` 独占域，与 W1/W2 零冲突 |
+
+> **顺延依赖校验**：`D3-T4` 产出的 `Turret` 与 Day 4「XP/升级」无耦合，顺延至 Day 4 首段**不产生新阻塞**；`D3-T6` 仅读 `SkillController` 的 `cooldown_changed` 信号（T1 已定义），顺延后接口不变、无倒挂。
+> **文件域校验**：W1 只写 `scripts/` + `scenes/`，W2 只写 `data/characters.json` + `data/elements.json`，W3 只写 `assets/sprites/` —— **无跨域写冲突**。
+> **出口口径调整**：见本日 `D3-EXIT` 内「P0 收口口径」——断言 3（Turret 数 == 3）随 `D3-T4` 一并顺延，不阻塞目标日推进。
+
+---
+
+#### D3-T1【W1 · P0】技能控制器骨架 `scripts/player/skill_controller.gd`（新建）
+- [ ] 新建脚本，`extends Node`；在 `scenes/Player.tscn` 内 `WeaponController` **同层**添加节点 `SkillController`
+- [ ] 状态字段：`var skill_data: Dictionary = {}` / `var _cd_left: float = 0.0` / `var _cd_total: float = 0.0` / `var player: Node2D`
+- [ ] 信号：`signal cooldown_changed(left: float, total: float)`、`signal skill_cast(skill_id: String)`
+- [ ] `_ready()`：`player = get_parent() as Node2D`（**禁止**在此读 `player.character_id`——子节点 `_ready()` 早于父节点，此刻英雄尚未装载，与 D2 踩过的坑同源）
+- [ ] `setup(char_data: Dictionary) -> void`：取 `char_data.get("skill", {})` 存入 `skill_data`，`_cd_total = float(skill_data.get("cooldown", 0.0))`，发一次 `cooldown_changed(0.0, _cd_total)`
+- [ ] `_ensure_loaded() -> void`：`skill_data` 为空时兜底自查 `DataLoader.get_character(GameManager.current_character_id)`——保证**直开 `Main.tscn` 调试路径**技能仍可用
+- [ ] `_process(delta)`：`_cd_left > 0` 时递减并 `cooldown_changed.emit()`；归零时 clamp 到 0（禁止负数）
+- [ ] `can_cast() -> bool`：`_cd_left <= 0.0 and not skill_data.is_empty()`
+- [ ] `try_cast() -> bool`：`_ensure_loaded()` → `can_cast()` 失败返回 `false`（**静默，不刷 warning**，玩家会狂按）→ 按 `skill_data.id` 分派 → 成功则 `_cd_left = _cd_total` + `skill_cast.emit(id)`
+- [ ] 分派表（`match str(skill_data.get("id", ""))`，未知 id → `push_warning` 且不进冷却）：
+  | skill id | 处理函数 | 归属任务 |
+  |----------|----------|----------|
+  | `se_skill_fireball` | `_cast_fireball()` | D3-T3 |
+  | `se_skill_deploy_turret` | `_cast_deploy_turret()` | D3-T4 |
+  | `se_skill_blade_burst` | `_cast_blade_burst()` | D3-T5 |
+- [ ] `scripts/player/player.gd:224` `_try_cast_skill()` 改为转发：取 `get_node_or_null("SkillController")`，有则 `.try_cast()`，无则原样 `pass`（**保留空实现分支**，防 Player.tscn 未更新时崩）
+- [ ] `scripts/autoload/main.gd:_setup_character()` 在 `player.apply_character(data)` **之后**、`_equip_starting_weapon()` **之前**插入 `_setup_skill(data)`：取 `player.get_node_or_null("SkillController")` 调 `setup(data)`，节点缺失只 `push_warning` 不阻断
+- 测试点：三英雄各自 `_cd_total` == 8.0 / 12.0 / 10.0；`well_rounded`（无 `skill` 字段）`can_cast()` 恒 `false` 且**不报错**
+
+#### D3-T2【W1 · P0】`projectile.gd` 扩展：爆炸 AOE + 元素附着
+- [ ] 新增导出字段（**全部给默认值 = 现有行为**，保证既有武器零回归）：
+  - `@export var explosion_radius: float = 0.0`（0 = 不爆炸）
+  - `@export var explosion_damage: float = 0.0`
+  - `@export var status_type: String = ""`（`""` = 不附着）
+  - `@export var status_duration: float = 0.0`
+  - `@export var status_dps: float = 0.0`
+- [ ] `initialize(props)` 补齐上述 5 键的读取（沿用现有 `if props.has(...)` 写法，**不改签名**）
+- [ ] 新增 `_explode() -> void`：`explosion_radius <= 0.0` 直接 return；否则遍历 `GameManager.enemy_spawner.enemies_container.get_children()`，`is_instance_valid(e) and e.is_alive` 且 `global_position.distance_to(e.global_position) <= explosion_radius` → `e.take_damage(explosion_damage)`，并在 `status_type != ""` 时调 `e.apply_status(status_type, status_duration, status_dps)`（**先 `has_method` 守卫**）
+- [ ] `_explode()` 末尾 `VfxPlayer.spawn(GameManager.vfx_container, global_position, "crit")`，`vfx_container` 为 null 时跳过
+- [ ] 调用时机两处：`_on_body_entered()` 命中后**销毁前**调一次；`_physics_process()` 寿命耗尽 `queue_free()` **前**调一次（火球打空也要炸）
+- ⚠️ **防重复爆炸**：加 `var _exploded: bool = false` 守卫，两条路径都可能触发
+- 测试点：普通武器弹丸（`explosion_radius=0`）行为与 Day 2 完全一致；`pistol` 伤害数值不变
+
+#### D3-T2b【W1 · P0】`enemy.gd` 最小状态机 `apply_status()`（**06:47 #1 新增 · 补任务清单硬缺口**）
+
+> 🔴 **为何必须新增**：本日「定案表」已把燃烧 DoT 载体定为「`enemy.gd` 新增最小状态机 `apply_status()`」，
+> 但 `D3-T1`～`D3-T7` **无任何一条任务承载该实现**；`D3-T2` 只写了「先 `has_method` 守卫」——
+> 守卫的后果是**方法不存在时静默跳过、不报错**，燃烧永远不生效，且 `D3-EXIT` 断言 5「`_status` 内含 `fire`」**必然失败**。
+> **实测取证**（06:47）：`grep -rn "status\|_dot\|burn\|debuff" scripts/enemy/enemy.gd` → **0 命中**，零实现确认。
+> **依赖次序：必须先于 `D3-T3` 落地**，否则 T3 写完也验不出燃烧。
+
+- [ ] `scripts/enemy/enemy.gd` 新增字段 `var _status: Dictionary = {}`，结构 `{ "<type>": {"left": float, "dps": float} }`
+- [ ] 新增 `func apply_status(type: String, duration: float, dps: float) -> void`：
+      同类型状态**取较长时长 + 较高 dps**（`max()` 刷新，**不叠加多层**）——避免火球连击导致 DoT 无限堆叠
+- [ ] 在 `_physics_process(delta)` 内（`:131`，**现有 `if not is_alive or _is_dying: return` 守卫之后**）调 `_tick_status(delta)`
+- [ ] `func _tick_status(delta) -> void`：逐条 `left -= delta` 并 `take_damage(dps * delta)`；`left <= 0` 时 `erase()`
+      - ⚠️ **遍历时删除的坑**：先收集待删 key 到数组，循环结束后统一 `erase()`，**禁止在 `for` 内直接 `erase`**
+      - ⚠️ `take_damage()` 可能触发死亡 → 每次调用前 `if not is_alive: return`，防止对已死敌人持续结算
+- [ ] 新增 `func has_status(type: String) -> bool`（供 `D3-EXIT` 断言 5 与 Day 17 精英免疫读取）
+- [ ] **不做**元素反应（`elements.json.element_reactions` 归 Day 7–9 元素武器），本日仅单状态 DoT
+- 测试点：`apply_status("fire", 4.0, 4.6)` 后敌人 `health` 每帧下降；4 秒后 `has_status("fire") == false`；DoT 击杀敌人时**不重复触发死亡逻辑**（`_is_dying` 守卫生效）；未附着状态的敌人 `_status` 恒为空、`_tick_status` 零开销
+
+#### D3-T3【W1 · P0】艾琳「炽星火球」`_cast_fireball()`
+- [ ] 读数：`damage` 30 / `radius` 90 / `element_type` `"fire"`（均来自 `skill_data`，缺省值兜底）
+- [ ] 燃烧时长读 `skill_data.get("burn_duration", 4.0)`（**依赖 D3-T5 补字段**；未补时 4.0 兜底，与 description「燃烧(4秒)」一致）
+- [ ] 燃烧 dps 口径（唯一算法，取自 `elements.json.elemental_status.fire`：`dot=3, dot_scaling=0.2`）：
+  ```
+  dps = 3.0 + player.bonus_stats.get("elemental_damage", 0.0) * 0.2
+  ```
+  艾琳 passive `elemental_damage: 8` → **dps = 4.6**，4 秒共 18.4 —— 这正是 D2-T1c 埋下 `bonus_stats` 的第一个消费方，**闭环**
+- [ ] 伤害套玩家倍率：`damage * player.damage_multiplier`（对齐 `weapon_controller.gd:169-170` 现有口径）
+- [ ] 生成：`preload("res://scenes/Projectile.tscn")` 实例化 → `initialize({speed:280, damage:<直击伤害>, lifetime:1.4, pierce:0, explosion_radius:90, explosion_damage:<同上>, status_type:"fire", status_duration:4.0, status_dps:4.6})`
+- [ ] 挂载父节点与朝向：复用 `weapon_controller.gd:33-40 _find_container()` 同策略（`World/Projectiles` 优先，回退 `World`）；方向 = `player.get_global_mouse_position()` 归一化，鼠标贴身（< 6.0）时回退最近敌人 → 再回退 `Vector2.UP`（**照抄 `_get_aim_direction()`**，避免两套瞄准口径）
+- 测试点：CD 内二次按键无第二发火球；半径 90 内**所有**敌人同时掉血；`bonus_stats` 无 `elemental_damage` 的英雄不崩（dps 退化为 3.0）
+
+#### D3-T4【W1 · P0】诺亚「紧急部署」`_cast_deploy_turret()` + 炮台实体
+- [ ] 新建 `scripts/weapons/turret.gd`（`extends Node2D`）+ `scenes/Turret.tscn`
+- [ ] 炮台数值**全部来自** `DataLoader.get_weapon("se_auto_turret")`（实测 `damage:5 / cooldown:0.5 / range:220`），**禁止硬编码**
+- [ ] 炮台行为：`_process` 冷却计时 → 射程内索敌（复用 `_find_nearest_enemy()` 范式）→ 生成 `Projectile`（`speed:400, lifetime:range/speed`）→ 无敌人则空转不开火
+- [ ] 存活：`duration` 取 `skill_data.get("duration", 15.0)`，到期 `queue_free()`；**每帧递减写在 `_process`，禁止用 `Timer` 节点**（无头测试下 Timer 依赖 SceneTree 计时更易漂）
+- [ ] 部署数量定案：`skill_data.summon_count`(2) **+** `player.bonus_stats.get("summon_count", 0.0)`(诺亚 passive = 1) = **3 台**——passive `summon_count: 1` 明确写在 `characters.json`，属有据加成非臆造
+- [ ] 摆位：以玩家为心、半径 40px 圆周**均布**（`TAU / count * i`）
+- [ ] 挂载：`player.get_parent()`（即 `World`）——**不挂 Player 子节点**，炮台是「部署」语义，不得跟随玩家移动
+- [ ] 炮台外观：`vfx_player.gd` 无炮台图，**用 `Polygon2D` 或运行时 `Image` 画占位方块**（对齐 `projectile.gd:57 _make_bullet_texture()` 的运行时绘制范式），真精灵登记为 Day 21–22 美术债
+- 测试点：释放后 `World` 下 Turret 节点数 == 3；15 秒后归 0；炮台在玩家跑开后**留在原地**
+
+#### D3-T5【W1 · P0】莱恩「星刃爆发」`_cast_blade_burst()`
+- [ ] 读 `skill_data.effects`（实测 `{orbit_blade_count: 3, attack_speed_percent: 50}`）与 `duration`(5.0)
+- [ ] 攻速 buff：`player.apply_stat_modifier("attack_speed", 1.5, true)`；5 秒后**用乘法逆元还原** `apply_stat_modifier("attack_speed", 1.0 / 1.5, true)`
+  - ⚠️ **禁止用加减还原**：`attack_speed` 在 `player.gd:286-287` 是乘法通道，加减会导致反复释放后数值漂移
+- [ ] 计时用 `await get_tree().create_timer(duration).timeout`；`await` 后**必须** `if not is_instance_valid(player): return`（玩家可能已死，否则 5 秒后访问已释放对象报错）
+- [ ] `orbit_blade_count`：`player.bonus_stats["orbit_blade_count"] += 3`，到期 `-= 3`
+- 🔶 **本日可见性边界（必须写进验收口径，防 W5 误判）**：环绕刃**渲染机制尚不存在**（`se_star_blade.blade_count/orbit_radius/orbit_speed` 数据已齐，但环绕武器逻辑属 **Day 5 武器 6 槽挂载**）。故莱恩技能本日为「**攻速 buff 可见 + 刃数字段埋点**」，Day 5 环绕武器实现时自动消费 `bonus_stats.orbit_blade_count`。**不在本日臆造环绕刃渲染**
+- 测试点：释放瞬间 `attack_speed` == 基线 × 1.5；5.01 秒后**精确回到**基线（误差 < 0.001）；连续释放 3 次后仍不漂移
+
+#### D3-T6【W1 · P1】HUD 技能冷却指示
+- [ ] `scenes/HUD.tscn` 在 `MarginContainer/VBoxContainer/BottomBar` 下新增 `SkillSlot`（`TextureRect` + 子 `Label` 显示剩余秒数，样式对齐现有 `WeaponSlot0`）
+- [ ] `scripts/ui/hud.gd` 新增 `_on_skill_cooldown_changed(left, total)`：`left <= 0` 显示「就绪」并满亮度；否则显示 `"%.1f" % left` 且 `modulate` 压暗到 0.4
+- [ ] 连接时机：`_ready()` 内 `await get_tree().process_frame` 后取 `GameManager.player.get_node_or_null("SkillController")` 再 connect（**HUD 与 Player 的 `_ready` 顺序不保证**）；取不到只 `push_warning` 不崩
+- 判定：P1，不阻塞 Day 3 出口（技能功能本身在 T1–T5 已客观可验）
+
+#### D3-T7【W2 · P0】`characters.json` 补显式技能字段
+- [ ] `se_irene.skill` 补 `"burn_duration": 4.0`——**当前 4 秒只写在 `description` 文本里，代码无法读取**，属真实数据缺口（`se_noa` 的 `duration:15.0`、`se_ren` 的 `duration:5.0` 均已显式，仅艾琳缺）
+- [ ] 复核三技能 schema 一致性：`id/name/type/cooldown` 四键 3/3 齐全（实测已齐，仅确认不改）
+- [ ] **不新增** `cost`/`mana`/`resource_type` 字段——本日不做资源系统，避免注入无消费方的死数据
+
+**🟡 D3-T7b — 元素状态时长口径收敛（06:47 #1 新增）**
+
+> **冲突实测**：`data/elements.json:elemental_status.fire` = `{"duration": 3, "dot": 3, "dot_scaling": 0.2}`，
+> 而艾琳 `skill.description` 写「燃烧(**4**秒)」、`D3-T3` 定 `status_duration:4.0`、`D3-T7` 要补 `burn_duration:4.0`。
+> **同一个 `fire` 燃烧状态存在 3 秒与 4 秒两个口径** —— `D3-T3` 恰好是「dps 取 `elements.json`、duration 取 description」的混合读法，
+> 若原样落地，`elements.json.duration:3` 沦为死数据；等 Day 7–9 通用元素武器按 `elements.json` 读到 3 秒时，
+> **同一燃烧 buff 会出现两种时长**，Day 13「10 属性公式校验」必然翻车。
+
+- [ ] **二选一并写明理由**（推荐 A）：
+      - **A · 技能显式覆写**（推荐）：保留 `elements.json.duration = 3` 作为**通用元素武器基准**，艾琳技能 `burn_duration: 4.0` 视为**英雄技能特权加成**，
+        并在 `D3-T3` 读数处加注释 `# 技能覆写通用 3s 基准，见 D3-T7b`。理由：改动面最小，且「英雄技能强于通用武器」符合设计直觉
+      - B · 统一为 4 秒：改 `elements.json.fire.duration = 4`。**风险**：该字段可能已被其它元素配置交叉引用，需先 `grep -rn "elemental_status" scripts/ data/` 确认消费方
+- [ ] 无论选哪个，**dps 公式唯一化**：`dps = dot + bonus_stats.elemental_damage * dot_scaling`，`dot`/`dot_scaling` **只从 `elements.json` 读**，禁止在技能数据里另写一份
+- 文件域：`data/characters.json` +（若选 B）`data/elements.json`，与 W1 无冲突
+
+#### D3-EXIT【W5】当日出口
+
+> ✅ **P0 收口口径（06:47 重排后）**：落地 **P0 六项**（`T1` / `T2` / `T2b` / `T5` / `T3` / `T7`）+ 下列断言 **1·2·4·5·6** 全过，即判定 Day 3 通过、推进 Day 4。
+> 断言 **3（Turret 数 == 3）随 `D3-T4` 一并顺延至 Day 4 首段**，`D3-T6`（HUD）不计入出口。
+
+- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`（import + runtime 双阶段，exit 0 / stderr 0）
+- [ ] 新建 `tools/day3_skill_check.gd` 无头断言（照搬 `tools/day2_hero_check.gd` 的 `extends SceneTree` + 分帧推进骨架），覆盖：
+  1. 三英雄 `SkillController._cd_total` 分别 == 8.0 / 12.0 / 10.0　【P0】
+  2. `try_cast()` 首次返回 `true`，紧接第二次返回 `false`（冷却生效）　【P0】
+  3. 诺亚释放后 `World` 下 Turret 节点数 == **3**　【⏭ 随 `D3-T4` 顺延 Day 4，本日不判】
+  4. 莱恩释放后 `attack_speed` == 基线 × 1.5，且到期精确还原　【P0】
+  5. 艾琳火球爆炸后半径内敌人 `health` 下降，且 `has_status("fire") == true`　【P0 · **依赖 `D3-T2b`**，原文「`_status` 内含 `fire`」改用 `D3-T2b` 提供的公开查询接口，避免断言私有字段】
+  6. `well_rounded`（无 skill）按键**零 error**、`can_cast()` 恒 false　【P0】
+- [ ] 回归：`tools/day2_hero_check.gd` 仍 32 断言 0 失败（**防 T2 改动 `projectile.gd` 波及既有武器**）
+- [ ] **护栏（Day 2 破口复查）**：本日改动必须 `git commit`——Day 2 曾出现「代码已落地但未提交」，现已由 `edd0e9a` 补上，勿再重演
+- ⚠️ 主观项「技能释放爽不爽 / 火球打击感 / 炮台摆位是否顺手」→ 不计入出口，由 #5 收进 `PLAYTEST_CHECKLIST.md`
 
 ### Day 4 — 经验 / 升级 / Build 初版
 - [ ] 击杀掉经验、升级触发强化选择面板
@@ -215,6 +385,7 @@
 ### Day 5 — 武器 6 槽挂载
 - [ ] 自动攻击 + 武器挂载 6 槽逻辑（对齐大纲上限）
 - [ ] 武器 Lv1-8 升级（伤害/数量/范围/攻速）
+- [ ] **环绕武器机制**（`se_star_blade` 的 `blade_count/orbit_radius/orbit_speed` 数据已齐）——实现时**必须消费** `player.bonus_stats["orbit_blade_count"]`：Day 3 莱恩技能已往该键写入临时 +3，届时自动生效（Day 3 埋点，此处收口）
 - [ ] `baseline_check` 通过
 
 ### Day 6 — 阶段 A 集成测试
@@ -233,7 +404,7 @@
 - [ ] 每日常规 `baseline_check`
 
 ### Day 10 — 武器进化
-- ⚠️ **前置缺口（04:40 实测）**：3 把签名武器中 `se_star_flame` ✅ / `se_auto_turret` ✅ 有 `evolution`，**`se_star_blade` ❌ 缺失** → 已作为 `D2-T5` 前置到 Day 2 由 W2 空闲产能补齐
+- [ ] **D10-PRE【W2】星刃进化链补全**（由 Day 2 `D2-T5` 转入，08-05 06:35 #2 收敛为单一来源）：3 把签名武器中 `se_star_flame→se_flame_core→se_star_fall` ✅、`se_auto_turret→se_mech_core→se_turret_array` ✅ 两条链完整，**唯独 `se_star_blade` ❌ 缺 `evolution` 且无专属核心**。本日决策：新增 `se_blade_core` 补齐第三条链，or 明确接受莱恩无进化。**禁止挂 `elemental_core` 凑数**（语义错位，Day 2 已否决）
 - [ ] 进化机制：Lv8 + 对应核心装备 = 进化武器
 - [ ] 示例：炎星术Lv8 + 烈焰核心 → 炎星陨落（陨石 AOE）
 - [ ] `baseline_check` 通过

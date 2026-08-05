@@ -239,3 +239,373 @@ engineering : landmine laser_turret mech_arm plasma_cannon turret wrench se_auto
 ---
 
 *报告生成：**w5-qa** · 唯一写入文件：`docs/TEST_REPORT.md` · 提交信息：`w5: baseline + json validity report`*
+
+---
+
+## 追加条目 · 2026-08-05（自动化测试轮次）
+
+> 执行器：自动化测试工程师（hourly @ :45）· 全程只读，仅测与报告，未改任何游戏代码/数据/美术。
+> 基线版本：`git HEAD = f528756`（集成节点：main_scene 接线 CharacterSelect + 修复 gambler 悬空武器）
+> 引擎：`tools/Godot_v4.3-stable_win64.exe`（Godot 4.3.stable.official.77dcf97d8）
+> 工作树状态：仅 `docs/*`（CONCURRENCY_PLAN.md / TASKS.md 修改、若干规划文档未跟踪）改动，**无游戏逻辑/数据/美术改动**，不影验证结论。
+
+### 执行摘要（TL;DR）
+
+**✅ 全绿 PASS。** 无头导入、4 帧运行、600 帧深度运行、全量 JSON 解析、跨引用完整性、数值边界、11 场景实例化——七项检查全部通过，零脚本错误、零运行时报错、零 stderr。
+
+上次报告（2026-08-04 §5.1）标记的 **`gambler.starting_weapon = "shuriken"` 悬空引用，已于集成节点 f528756 修复**：现指向 `dagger`（已存在于 `weapons.json`），本轮 9 英雄 × starting_weapon 全命中。
+
+| # | 检查项 | 结果 | 详情 |
+|---|---|---|---|
+| 1 | 无头导入（`--quit`） | ✅ PASS | exit 0，`baseline_import_err.log` 0 B |
+| 2 | 浅层运行（`--quit-after 4`） | ✅ PASS | exit 0，`baseline_runtime_err.log` 0 B |
+| 3 | 深度运行（`--quit-after 600` ≈10s） | ✅ CLEAN | exit 0，`deep_runtime_err.log` 0 B，0 条显著 stderr |
+| 4 | `data/*.json` 解析 | ✅ 8/8 | 无 JSONDecodeError / 截断 |
+| 5 | 跨引用完整性 | ✅ PASS | 0 悬空（含 gambler 已修复）；ID 无重复 |
+| 6 | 数值边界（976 字段） | ✅ PASS | 37 负值 + 2 负百分比 + 1 零伤害，**全部为有意设计** |
+| 7 | 11 场景实例化 smoke | ✅ 11/11 | EXIT=0，无 load/instantiate 失败 |
+
+### 1. Godot 无头校验（godot-headless-verify 流程）
+
+- **导入阶段**：`baseline_check.py` → `[import] PASS - exit 0, stderr clean`。所有 `.gd` / `.tscn` 解析通过，无 autoload / 脚本解析错误。
+- **运行时阶段**：`[runtime] PASS - exit 0, stderr clean`（4 帧 `_ready` + 首帧）。
+- **日志落盘复检**：`baseline_import_err.log` / `baseline_runtime_err.log` / `deep_runtime_err.log` **均为 0 字节** → 排除空跑假通过，引擎确实被拉起且未吐错。
+
+### 2. 深度运行探测（600 帧，承接 2026-08-04 §5.5 建议）
+
+```
+[runtime 600 iters] exit=0 stderr_lines=0 significant=0
+DEEP RESULT: CLEAN
+```
+直接以 `--quit-after 600` 拉起主场景（当前 `run/main_scene = res://scenes/CharacterSelect.tscn`），覆盖 `_ready` / `_process` / 定时器 / 信号初始化路径，无报错。
+
+### 3. 数据层 JSON 校验
+
+| 文件 | 解析 | 顶层键 | 体积 |
+|---|---|---|---|
+| characters.json | ✅ | `characters`(9) | 6453 B |
+| elements.json | ✅ | elemental_status(5)/element_reactions(10)/reaction_rules(4) | 3400 B |
+| enemies.json | ✅ | enemies(3 档)/scaling(5) | 4558 B |
+| events.json | ✅ | events(10) | 8791 B |
+| items.json | ✅ | items(47) | 8730 B |
+| stats.json | ✅ | stats(3)/formulas(15)/leveling(3) | 4135 B |
+| waves.json | ✅ | waves(20)/generation(3)/rewards(3) | 6123 B |
+| weapons.json | ✅ | weapons(4 类/32 叶子) | 16557 B |
+
+`TOTAL=8 OK=8 FAIL=0` —— 无半截 JSON、无编码异常。
+
+### 4. 跨引用完整性（静态只读）
+
+- **ID 唯一性**：characters 9 / weapons 32 / items 47 / enemies 23 —— **均无重复 ID**。
+- **characters → weapons（starting_weapon）**：9/9 全命中，含 3 英雄签名武器链路（`se_irene→se_star_flame` / `se_noa→se_auto_turret` / `se_ren→se_star_blade`）。**`gambler→dagger`（已修复，原 `shuriken` 悬空）。**
+- **waves → enemies**：20 波引用的敌人 ID 全部命中 `enemies.json`，**0 悬空**。
+- **characters → items/passives**：`weapon_restrictions` 标签（如 `no_ranged`）非武器 ID，已正确排除。
+
+### 5. 数值边界扫描（976 字段）
+
+扫描命中 3 类「异常数值」，经逐条核查 **全部为有意设计，非缺陷**：
+
+| 异常 | 命中 | 核查结论 |
+|---|---|---|
+| 负值（37 处） | `characters[].penalty.*`（如 `melee_damage_percent=-100`）、`events[].effect_on_route.value=-1`、`items[].effects.*` 负值 | **角色惩罚 / 事件代价 / 诅咒类减益物品**，语义上本就为负，设计预期内 |
+| 负百分比（2 处） | `items[24] crit_chance_percent=-4`（medal）、`items[40] crit_chance_percent=-5`（heavy_bullets） | **诅咒物品降暴击**，与正值的整型百分比约定（insanity=5 / blindfold=8 / alloy=5）一致，非越界 |
+| 零伤害（1 处） | `weapons.engineering.force_field` `damage=0` | **力场发生器（护盾区域，减伤 50%）**，防御型武器，0 伤害有意；非 `wrench`（`wrench` 伤害=8 正常） |
+
+> 注：`waves[].total_enemies=-1` 仅出现在第 10、20 波（`special=boss_wave` / `final_boss_wave`），配合 `composition`/`special_note` 表达「Boss 持续生成」，属 **哨兵值**，非数据错误。提醒 w1-code：WaveManager 须将 `total_enemies<=0` 视为「走 Boss/composition 逻辑」而非按字面 -1 生成。
+
+**数值层结论：无越界、无非法数值、无非法百分比。**
+
+### 6. 场景实例化 smoke（headless-verify §2）
+
+```
+OK res://scenes/CharacterSelect.tscn (children=2)
+OK res://scenes/Main.tscn (children=6)
+OK res://scenes/Player.tscn (children=3)
+OK res://scenes/Enemy.tscn (children=2)
+OK res://scenes/EnemySpawner.tscn (children=0)
+OK res://scenes/Ground.tscn (children=0)
+OK res://scenes/HUD.tscn (children=1)
+OK res://scenes/Projectile.tscn (children=0)
+OK res://scenes/Shop.tscn (children=2)
+OK res://scenes/VfxPlayer.tscn (children=1)
+OK res://scenes/WaveManager.tscn (children=0)
+EXIT=0
+```
+
+**11/11 场景 `load()` + `instantiate()` 全部成功**，含集成节点新接线的 `CharacterSelect` 与 `Main`。
+
+### 7. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— 均 PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons + waves→enemies 悬空引用 —— 0 悬空（gambler 已修复）
+- [x] 数值边界扫描（976 字段）—— 全部异常为有意设计
+- [x] 11 场景实例化 smoke —— 11/11 成功
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`
+
+### 结论
+
+**✅ 2026-08-05 自动化测试轮次：PASS。** 工程可导入、可运行、数据完整且边界健康、全部场景可实例化。相较 2026-08-04 报告，唯一变化是 §5.1 历史悬空引用（`gambler/shuriken`）已在集成节点关闭。当前无已知阻断缺陷，无需回退或修复。建议延续 600 帧深度探测作为常态（成本 ≈ +4.8s，性价比高）。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 追加条目 · 2026-08-05 04:31（自动化测试轮次 #2）
+
+> 执行器：自动化测试工程师（hourly @ :45）· 全程只读，仅测与报告，未改任何游戏代码/数据/美术。
+> 基线版本：`git HEAD = 7597d0b`（Day1: framework diff + skill_cast input stub）
+> 引擎：`tools/Godot_v4.3-stable_win64.exe`（Godot 4.3.stable.official.77dcf97d8）
+> 工作树状态：仅 `docs/*`（CONCURRENCY_PLAN.md / TASKS.md / 规划文档未跟踪）改动，**无游戏逻辑/数据/美术改动**（`7597d0b` 改动了 `project.godot` 输入映射与 `scripts/player/player.gd` 打桩，属上一轮已覆盖的基线范畴）。不影验证结论。
+
+### 执行摘要（TL;DR）
+
+**✅ PASS（含 1 项 WARNING/潜在风险）。** 七项检查中六项全绿；跨引用检查经前缀修正后发现 **1 处潜在悬空引用** `waves[17].composition -> "mixed_with_curse"`，属「数据已引用、代码尚未消费」类 latent 风险（与历史 `gambler/shuriken` 同类），当前无头运行不触发、非阻断，交 w1-code（WaveManager）后续处理。
+
+自上一轮（02:33，HEAD=f528756）以来工程已推进至 `7597d0b`（Day1 输入打桩），本次重跑全部基线仍 **CLEAN**，证明 `skill_cast` 输入映射与 `player.gd` 空挂钩未破坏导入/运行时。
+
+| # | 检查项 | 结果 | 详情 |
+|---|---|---|---|
+| 1 | 无头导入（`--quit`） | ✅ PASS | exit 0，`baseline_import_err.log` 0 B |
+| 2 | 浅层运行（`--quit-after 4`） | ✅ PASS | exit 0，`baseline_runtime_err.log` 0 B |
+| 3 | 深度运行（`--quit-after 600` ≈10s） | ✅ CLEAN | exit 0，`deep_runtime_err.log` 0 B，0 条显著 stderr |
+| 4 | `data/*.json` 解析 | ✅ 8/8 | 无 JSONDecodeError / 截断 |
+| 5 | 跨引用完整性 | ⚠️ 1 潜在悬空 | ID 无重复；`characters→weapons` 9/9；`waves→enemies` 修正后仅 `mixed_with_curse` 未解析 |
+| 6 | 数值边界（976 字段） | ✅ PASS | 37 负值 + 1 零伤害，**全部有意设计**；无越界百分比 |
+| 7 | 11 场景实例化 smoke | ✅ 11/11 | EXIT=0，无 load/instantiate 失败 |
+
+### 1. Godot 无头校验（godot-headless-verify 流程）
+
+- **导入阶段**：`baseline_check.py` → `[import] PASS - exit 0, stderr clean`。全部 `.gd` / `.tscn` 解析通过，无 autoload / 脚本解析错误。
+- **运行时阶段**：`[runtime] PASS - exit 0, stderr clean`（4 帧 `_ready` + 首帧）。
+- **日志落盘复检**：`baseline_import_err.log` / `baseline_runtime_err.log` / `deep_runtime_err.log` **均为 0 字节** → 排除空跑假通过，引擎确实被拉起且未吐错。
+
+### 2. 深度运行探测（600 帧，承接 §5.5 建议）
+
+```
+[runtime 600 iters] exit=0 stderr_lines=0 significant=0
+DEEP RESULT: CLEAN
+```
+
+直接以 `--quit-after 600` 拉起主场景（`run/main_scene = res://scenes/CharacterSelect.tscn`），覆盖 `_ready` / `_process` / 定时器 / 信号初始化路径，无报错。`skill_cast` 输入打桩（`player.gd` 空挂钩）未引发任何 import/runtime 异常。
+
+### 3. 数据层 JSON 校验
+
+| 文件 | 解析 | 顶层键 | 体积 |
+|---|---|---|---|
+| characters.json | ✅ | `characters`(9) | 6451 B |
+| elements.json | ✅ | elemental_status(5)/element_reactions(10)/reaction_rules(4) | 3400 B |
+| enemies.json | ✅ | enemies(3 档)/scaling(5) | 4558 B |
+| events.json | ✅ | events(10) | 8791 B |
+| items.json | ✅ | items(47) | 8730 B |
+| stats.json | ✅ | stats(3)/formulas(15)/leveling(3) | 4135 B |
+| waves.json | ✅ | waves(20)/generation(3)/rewards(3) | 6123 B |
+| weapons.json | ✅ | weapons(4 类/32 叶子) | 16557 B |
+
+`TOTAL=8 OK=8 FAIL=0` —— 无半截 JSON、无编码异常。
+
+### 4. 跨引用完整性（静态只读，前缀修正版）
+
+- **ID 唯一性**：characters 9 / weapons 32 / items 47 / enemies 23 —— **均无重复 ID**。
+- **characters → weapons（starting_weapon）**：9/9 全命中（含 `gambler→dagger` 已修复、`se_irene→se_star_flame` / `se_noa→se_auto_turret` / `se_ren→se_star_blade` 三英雄签名链路）。
+- **waves → enemies（前缀感知解析）**：`composition[].enemy` 使用 **类别前缀约定** —— `elite:<id>`（如 `elite:butcher`）→ `butcher`、`boss:<id>`（如 `boss:invoker`）→ `invoker`；并存在聚合生成池令牌 `mixed` / `elite:mixed`。据此修正后：
+  - 12 处 `elite:` / `boss:` 前缀引用 **全部解析命中** enemies.json；
+  - `mixed` / `elite:mixed` 为**有意聚合池令牌**（swarm/high_pressure 波），非字面敌人 ID，正确排除；
+  - **⚠️ 唯一未解析令牌：`waves[17].composition[0].enemy = "mixed_with_curse"`**（special=`curse_wave`）—— 该令牌**既不在 enemies.json，也未被任何 `scripts/` / `scenes/` 代码消费**（同 `mixed` 家族整体尚未被 WaveManager 实现）。
+
+### 5. 数值边界扫描（976 字段）
+
+扫描命中 2 类「异常数值」，经逐条核查 **全部为有意设计，非缺陷**：
+
+| 异常 | 命中 | 核查结论 |
+|---|---|---|
+| 负值（37 处） | `characters[].penalty.*`（如 `melee_damage_percent=-100`、`range=-50`、`max_hp=-25`）、`events[].effect_on_route.value=-1`、诅咒类减益物品负值 | **角色惩罚 / 事件代价 / 诅咒物品**，语义本就为负，设计预期内 |
+| 零伤害（1 处） | `weapons.engineering.force_field` `damage=0` | **力场发生器（护盾区域，减伤 50%）**，防御型武器，0 伤害有意 |
+
+> 负值百分比越界检查（`*_percent < -100`）：**0 处**。注：历史报告标记的 `crit_chance_percent=-4`/`-5`（诅咒降暴击）属 [-100,0] 区间，合法，本轮机检不误报。
+> 哨兵值 `waves[20].total_enemies=-1`（final_boss_wave）配合 `composition`/`special_note` 表达「Boss 持续生成」，非数据错误（同 `waves[10]`）。提醒 w1-code：WaveManager 须将 `total_enemies<=0` 视为「走 Boss/composition 逻辑」。
+
+**数值层结论：无越界、无非法数值。**
+
+### 6. 场景实例化 smoke（headless-verify §2）
+
+```
+OK res://scenes/CharacterSelect.tscn children=2
+OK res://scenes/Main.tscn children=6
+OK res://scenes/Player.tscn children=3
+OK res://scenes/Enemy.tscn children=2
+OK res://scenes/EnemySpawner.tscn children=0
+OK res://scenes/Ground.tscn children=0
+OK res://scenes/HUD.tscn children=1
+OK res://scenes/Projectile.tscn children=0
+OK res://scenes/Shop.tscn children=2
+OK res://scenes/VfxPlayer.tscn children=1
+OK res://scenes/WaveManager.tscn children=0
+EXIT=0
+```
+
+**11/11 场景 `load()` + `instantiate()` 全部成功**（含 Day1 接线的 `CharacterSelect` 与 `Main`）。
+
+### 7. 本轮新增发现（⚠️ WARNING，非阻断）
+
+#### 7.1 ⚠️【潜在悬空引用 · latent · 交 w1-code】`waves[17].composition[0].enemy = "mixed_with_curse"`
+
+- **现象**：wave 17（special=`curse_wave`，高压波）的 composition 首项引用令牌 `"mixed_with_curse"`（count=61），该令牌**不在 `enemies.json`**，也**未被当前任何代码消费**。
+- **同类约定**：`mixed` / `elite:mixed` 是已确立的「混合生成池」令牌；`mixed_with_curse` 显然是其咒诅变体（`mixed` + `_with_curse`），命名风格一致、非笔误概率高。
+- **为何 baseline / 本轮不报错**：`scripts/` / `scenes/` 中**没有任何代码消费 `mixed` 家族**（WaveManager 的波次生成逻辑尚未实现，属 Day 3+ 范围）。因此该令牌当前处于「已写数据、零消费方」状态，无头运行完全不触达。
+- **何时/是否爆炸**：取决于 WaveManager 实现方式 —— 若其池解析器仅硬编码处理 `mixed` / `elite:mixed` 而漏掉 `mixed_with_curse`，则该波会拿到 null → 空引用或静默不生成；若解析器用 `startswith("mixed")` 或通配聚合池，则正常。
+- **建议（w5 不改数据）**：① 由 w1-code 在 WaveManager 落地时确认聚合池解析器覆盖 `mixed_with_curse`（及未来可能的其他 `mixed*` 变体）；② 或数据归口将其收敛为 `mixed` 并在 `special=curse_wave` 上叠加咒诅修饰，消除命名歧义。优先级 **低**（不影响当前可运行性，且 20 波中仅此 1 处）。
+
+### 8. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— 均 PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons + waves→enemies（**前缀感知修正**）悬空引用 —— 仅 `mixed_with_curse` 未解析（WARNING）
+- [x] 数值边界扫描（976 字段）—— 全部异常为有意设计，无越界
+- [x] 11 场景实例化 smoke —— 11/11 成功
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`
+
+### 结论
+
+**✅ 2026-08-05 04:31 自动化测试轮次 #2：PASS（1 WARNING）。** 工程（HEAD=7597d0b，含 Day1 `skill_cast` 输入打桩）可导入、可运行、数据完整且边界健康、全部场景可实例化。相较 02:33 轮次，唯一新增发现是 `waves[17].mixed_with_curse` 潜在悬空池令牌（latent，非阻断，交 w1-code）。当前无已知阻断缺陷，无需回退或修复。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 追加条目 · 2026-08-05 06:30（自动化测试轮次 #3）
+
+> 执行器：自动化测试工程师（hourly @ :45）· 全程只读，仅测与报告，未改任何游戏代码/数据/美术。
+> 基线版本：`git HEAD = edd0e9a`（Day2: hero-id consumption + starting-weapon injection + passive/penalty + sprite + headless hero-check guard）
+> 引擎：`tools/Godot_v4.3-stable_win64.exe`（Godot 4.3.stable.official.77dcf97d8）
+> 主场景：`run/main_scene = res://scenes/CharacterSelect.tscn`
+> 工作树状态：HEAD 已推进至 Day2 提交；本次仅生成 `docs/TEST_REPORT.md` 一个文件改动，无游戏逻辑/数据/美术改动。
+
+### 执行摘要（TL;DR）
+
+**✅ PASS（0 WARNING）。** 七项检查全绿，并**新增一项 Day2 出口功能级回归（`day2_hero_check.gd`，32 断言全过）**。无头导入、4 帧运行、600 帧深度运行、全量 JSON 解析、跨引用完整性、数值边界、11 场景实例化 —— 全部通过，零脚本错误、零运行时报错、零 stderr。
+
+本轮覆盖 HEAD=edd0e9a（Day2 提交），即前两轮（02:33 @ f528756 / 04:31 @ 7597d0b）所预测「会暴露 latent 风险」的变更：角色选择 → Main 的 hero-id 消费、起始武器注入、被动/惩罚注入、精灵接入。经验证：
+
+- **`day2_hero_check.gd` 端到端全过**：9 英雄（含三 SE 签名英雄）进局起始武器命中 9/9；无选择直开 Main 兜底回退 `well_rounded`+`pistol` 正常；`se_ren` 的 `bonus_stats[life_steal_percent]=5.0` 验证被动/惩罚注入已生效 —— 前报 §5.1/§5.2 的潜在暴露面已被 Day2 落地关闭。
+- 前轮标记的 `gambler.starting_weapon` 悬空（已指 `dagger`）本轮再确认 9/9 命中；`waves[17].mixed_with_curse` 按 `mixed*` 池令牌约定放行，维持 latent 备注（详见 §7）。
+
+| # | 检查项 | 结果 | 详情 |
+|---|---|---|---|
+| 1 | 无头导入（`--quit`） | ✅ PASS | exit 0，`baseline_import_err.log` 0 B |
+| 2 | 浅层运行（`--quit-after 4`） | ✅ PASS | exit 0，`baseline_runtime_err.log` 0 B |
+| 3 | 深度运行（`--quit-after 600` ≈10s） | ✅ CLEAN | exit 0，`deep_runtime_err.log` 0 B |
+| 4 | `data/*.json` 解析 | ✅ 8/8 | 无 JSONDecodeError / 截断 |
+| 5 | 跨引用完整性 | ✅ PASS | 0 悬空（ID 无重复；characters→weapons 9/9；waves→enemies 全部解析） |
+| 6 | 数值边界（976 字段） | ✅ PASS | 37 负值 + 1 零伤害，全部有意设计；无越界百分比 |
+| 7 | 11 场景实例化 smoke | ✅ 11/11 | EXIT=0，无 load/instantiate 失败 |
+| 8 | Day2 出口功能级回归 | ✅ 32/32 | `day2_hero_check.gd` 断言全过，CLEAN |
+
+### 1. Godot 无头校验（godot-headless-verify 流程）
+
+- **导入阶段**：`baseline_check.py` → `[import] PASS - exit 0, stderr clean`。
+- **运行时阶段**：`[runtime] PASS - exit 0, stderr clean`（4 帧 `_ready` + 首帧）。
+- **日志落盘复检**：`baseline_import_err.log` / `baseline_runtime_err.log` / `deep_runtime_err.log` **均为 0 字节** → 排除空跑假通过，引擎确被拉起且未吐错。
+
+### 2. 深度运行探测（600 帧，承接 §5.5 建议）
+
+```
+[import(--quit)]          exit=0
+[runtime(--quit-after 4)] exit=0
+[runtime 600 iters]       exit=0 stderr_bytes=0
+DEEP RESULT: CLEAN
+```
+
+直接以 `--quit-after 600` 拉起主场景（`CharacterSelect.tscn`），覆盖 `_ready` / `_process` / 定时器 / 信号初始化路径，无报错。
+
+### 3. 数据层 JSON 校验
+
+| 文件 | 解析 | 顶层键 | 体积 |
+|---|---|---|---|
+| characters.json | ✅ | `characters`(9) | 6986 B |
+| elements.json | ✅ | elemental_status(5)/element_reactions(10)/reaction_rules(4) | 3400 B |
+| enemies.json | ✅ | enemies(3 档)/scaling(5) | 4558 B |
+| events.json | ✅ | events(10) | 8791 B |
+| items.json | ✅ | items(47) | 8730 B |
+| stats.json | ✅ | stats(3)/formulas(15)/leveling(3) | 4135 B |
+| waves.json | ✅ | waves(20)/generation(3)/rewards(3) | 6123 B |
+| weapons.json | ✅ | weapons(4 类/32 叶子) | 16557 B |
+
+`TOTAL=8 OK=8 FAIL=0` —— 无半截 JSON、无编码异常。
+
+### 4. 跨引用完整性（静态只读，前缀感知）
+
+- **ID 唯一性**：characters 9 / weapons 32 / items 47 / enemies 23 —— **均无重复 ID**。
+- **characters → weapons（starting_weapon）**：9/9 全命中（含 `gambler→dagger` 已修复、`se_irene→se_star_flame` / `se_noa→se_auto_turret` / `se_ren→se_star_blade` 三英雄签名链路）。
+- **waves → enemies**：`composition[].enemy` 采用 `elite:`/`boss:` 前缀约定（strip 后命中）与 `mixed*` / `elite:mixed` 聚合池令牌（放行）；20 波引用 **0 悬空**。
+
+### 5. 数值边界扫描（976 字段）
+
+| 异常 | 命中 | 核查结论 |
+|---|---|---|
+| 负值（37 处） | `characters[].penalty.*`、`events[].effect_on_route.value=-1`、诅咒类减益物品负值 | **角色惩罚 / 事件代价 / 诅咒物品**，语义本就为负，设计预期内 |
+| 零伤害（1 处） | `weapons.engineering.force_field.damage=0` | **力场发生器（护盾区域，减伤 50%）**，防御型武器，0 伤害有意 |
+| 负值百分比越界（`*_percent < -100`） | 0 | 合法区间内（含 `crit_chance_percent=-4/-5` 诅咒降暴击） |
+| 哨兵值 `total_enemies=-1`（waves[9]/[19]，boss 波） | 2 | 配合 `composition`/`special_note` 表达「Boss 持续生成」，非数据错误；提醒 WaveManager 将 `total_enemies<=0` 视为走 Boss/composition 逻辑 |
+
+**数值层结论：无越界、无非法数值。**
+
+### 6. 场景实例化 smoke（headless-verify §2）
+
+```
+OK res://scenes/CharacterSelect.tscn children=2
+OK res://scenes/Main.tscn children=6
+OK res://scenes/Player.tscn children=3
+OK res://scenes/Enemy.tscn children=2
+OK res://scenes/EnemySpawner.tscn children=0
+OK res://scenes/Ground.tscn children=0
+OK res://scenes/HUD.tscn children=1
+OK res://scenes/Projectile.tscn children=0
+OK res://scenes/Shop.tscn children=2
+OK res://scenes/VfxPlayer.tscn children=1
+OK res://scenes/WaveManager.tscn children=0
+EXIT=0
+```
+
+**11/11 场景 `load()` + `instantiate()` 全部成功。**
+
+### 7. 本轮新增：Day2 出口功能级回归（`day2_hero_check.gd`）
+
+仓库内已落地的 Day2 出口校验脚本（非我方新建），直接实例化 `Main.tscn` 并断言 hero-id → 起始武器管线。**32 项断言，0 失败**：
+
+```
+=== Day 2 hero pipeline check ===
+se_irene  : id=se_irene, weapon=se_star_flame(炎星术), slot=1, base_dmg=6.000, fire_rate=1.818, max_hp=90.000  PASS
+se_noa     : id=se_noa, weapon=se_auto_turret(自动炮台), slot=1, attack_speed=0.850  PASS
+se_ren     : id=se_ren, weapon=se_star_blade(星刃), slot=1, crit_chance=0.150, bonus[life_steal_percent]=5.000  PASS
+<none>     : id=well_rounded, weapon=pistol(手枪), slot=1  PASS   (无选择兜底)
+brawler/ranger/mage/engineer/gambler: 进局+起始武器命中+无error  PASS
+--- 32 项断言，0 项失败 ---
+DAY2 HERO CHECK CLEAN
+```
+
+> **结论**：前两轮（§5.1/§5.2）担心的「角色选择消费起始武器 → 裸奔/空引用」「三 SE 英雄精灵错位」等潜在暴露面，在 Day2 提交 edd0e9a 后**已被功能级测试确认关闭**。chars→weapons 链路 9/9 命中、被动/惩罚注入生效、兜底路径正常。
+
+### 8. 遗留 latent（非阻断，持续追踪）
+
+#### 8.1 ⚠️【latent · 交 w1-code】`waves[17].composition[0].enemy = "mixed_with_curse"`
+`mixed` 家族池令牌整体尚未被 WaveManager 实现（Day 3+ 范围）。该令牌按 `mixed*` 约定放行、非硬悬空，但 WaveManager 落地时需确认聚合池解析器覆盖 `mixed_with_curse`（及未来 `mixed*` 变体），否则该咒诅波可能拿到 null。优先级低，不影响当前可运行性。
+
+### 9. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— 均 PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN（0 B stderr）
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons + waves→enemies（前缀感知）悬空引用 —— 0 悬空
+- [x] 数值边界扫描（976 字段）—— 全部异常为有意设计，无越界
+- [x] 11 场景实例化 smoke —— 11/11 成功
+- [x] 运行 `day2_hero_check.gd` 功能级回归 —— 32/32 断言通过
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时校验脚本/日志已清理
+
+### 结论
+
+**✅ 2026-08-05 06:30 自动化测试轮次 #3：PASS（0 WARNING）。** 工程（HEAD=edd0e9a，Day2 提交）可导入、可运行、数据完整且边界健康、全部场景可实例化，且 Day2 核心管线（角色选择 → 起始武器/被动注入）经功能级测试确认可用。相较 04:31 轮次（@ 7597d0b），本轮多覆盖了一整个 Day2 提交并新增 `day2_hero_check.gd` 出口回归，结果全绿。当前无已知阻断缺陷，无需回退或修复；唯一 latent 项 `mixed_with_curse` 交 w1-code 在 WaveManager 落地时确认。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*

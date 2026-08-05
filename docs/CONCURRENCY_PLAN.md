@@ -44,7 +44,7 @@
 1. **严格按矩阵划域**：每个 Agent 只写自己独占的文件域；跨域改动一律走集成节点。
 2. **共享文件 `project.godot` 序列化**：Autoload / 场景注册等需改 `project.godot` 时，**不并发改**——由集成节点在各 Agent 完成后统一合并（或预先由 W1 一次性写入）。
 3. **报告文件互不重叠**：各自动化/工作流写独立文件，避免互踩：
-   - 进度日报 → `docs/PROGRESS_LOG.md`
+   - 进度日报 → `docs/PROGRESS.md`
    - 测试报告 → `docs/TEST_REPORT.md`
    - 人工试玩清单 → `docs/PLAYTEST_CHECKLIST.md`
    - 专家池 → `docs/EXPERT_POOL.md`

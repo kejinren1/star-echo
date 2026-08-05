@@ -121,6 +121,9 @@ var _charge_dir: Vector2 = Vector2.ZERO
 # 接触伤害冷却（避免每帧对玩家造成伤害）
 var _contact_cd: float = 0.0
 
+# 元素状态机（Day 3 · D3-T2b）：status_type -> {"time_left": float, "dps": float}
+var _status: Dictionary = {}
+
 # ========== 生命周期 ==========
 
 func _ready() -> void:
@@ -129,6 +132,10 @@ func _ready() -> void:
 	_setup_animation()
 
 func _physics_process(delta: float) -> void:
+	if not is_alive or _is_dying:
+		return
+	_update_status(delta)
+	# 持续伤害可能直接击杀，后续行为逻辑不应再跑
 	if not is_alive or _is_dying:
 		return
 	_update_behavior(delta)
@@ -184,6 +191,61 @@ func _resize_collision_shape() -> void:
 	var shape := RectangleShape2D.new()
 	shape.size = col_size
 	col.shape = shape
+
+# ========== 元素状态机（Day 3 · D3-T2b） ==========
+# 承载「燃烧/冰冻/中毒…」一类持续状态。本日只落地最小可用形态：
+#   · 单一状态不叠层，重复附着取「更长剩余时间 + 更高 dps」，避免无上限滚雪球
+#   · DoT 伤害不走 take_damage()：一是元素持续伤害按设计无视护甲，
+#     二是 take_damage() 每次都 create_tween() 播受击闪烁，逐帧调用会爆 tween
+
+## 附着一个元素状态（由弹丸/技能调用）
+func apply_status(status_type: String, duration: float, dps: float) -> void:
+	if not is_alive or _is_dying:
+		return
+	if status_type.is_empty() or duration <= 0.0:
+		return
+	var existing: Dictionary = _status.get(status_type, {})
+	_status[status_type] = {
+		"time_left": maxf(float(existing.get("time_left", 0.0)), duration),
+		"dps": maxf(float(existing.get("dps", 0.0)), dps),
+	}
+
+## 查询是否处于某状态（供 UI / 测试断言）
+func has_status(status_type: String) -> bool:
+	return _status.has(status_type)
+
+## 查询某状态剩余时间，未附着返回 0
+func get_status_time_left(status_type: String) -> float:
+	if not _status.has(status_type):
+		return 0.0
+	return float(_status[status_type].get("time_left", 0.0))
+
+## 逐帧结算所有状态的持续伤害与剩余时间
+func _update_status(delta: float) -> void:
+	if _status.is_empty():
+		return
+	var expired: Array[String] = []
+	for status_type: String in _status:
+		var entry: Dictionary = _status[status_type]
+		var dps: float = float(entry.get("dps", 0.0))
+		if dps > 0.0:
+			_apply_status_damage(dps * delta)
+		entry["time_left"] = float(entry.get("time_left", 0.0)) - delta
+		if entry["time_left"] <= 0.0:
+			expired.append(status_type)
+		if not is_alive:
+			break
+	for status_type in expired:
+		_status.erase(status_type)
+
+## 持续伤害入口：无视护甲、不播受击闪烁，仅在致死时走正常死亡流程
+func _apply_status_damage(amount: float) -> void:
+	if not is_alive or amount <= 0.0:
+		return
+	health -= amount
+	health_changed.emit(health, max_health)
+	if health <= 0.0:
+		die()
 
 ## 受击闪烁
 func _play_hit_flash() -> void:

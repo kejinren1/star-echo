@@ -10,11 +10,21 @@ extends Area2D
 @export var pierce: int = 0                   ## 穿透次数 (0 = 碰到即销毁)
 @export var knockback: float = 0.0            ## 击退力
 
+@export_group("爆炸与元素附着（Day 3）")
+## 以下 5 项默认值即「现有行为」：explosion_radius = 0 表示不爆炸，
+## status_type = "" 表示不附着状态 —— 既有武器弹丸零回归
+@export var explosion_radius: float = 0.0     ## 爆炸半径（0 = 不爆炸）
+@export var explosion_damage: float = 0.0     ## 爆炸范围伤害
+@export var status_type: String = ""          ## 附着的元素状态 id（"" = 不附着）
+@export var status_duration: float = 0.0      ## 状态持续时间（秒）
+@export var status_dps: float = 0.0           ## 状态每秒伤害
+
 # ========== 内部状态 ==========
 
 var direction: Vector2 = Vector2.ZERO
 var _hit_count: int = 0
 var _lifetime_timer: float = 0.0
+var _exploded: bool = false                   ## 防重复爆炸（命中 / 寿命耗尽两条路径都会触发）
 
 # ========== 生命周期 ==========
 
@@ -39,6 +49,8 @@ func _physics_process(delta: float) -> void:
 	global_position += direction * speed * delta
 	_lifetime_timer += delta
 	if _lifetime_timer >= lifetime:
+		# 打空也要炸（火球落地爆炸）
+		_explode()
 		queue_free()
 
 # ========== 碰撞处理 ==========
@@ -49,7 +61,33 @@ func _on_body_entered(body: Node) -> void:
 		body.take_damage(damage)
 		_hit_count += 1
 		if _hit_count > pierce:
+			_explode()
 			queue_free()
+
+# ========== 爆炸 AOE 与元素附着（Day 3 · D3-T2） ==========
+
+## 在当前位置结算一次范围伤害 + 元素附着
+## 判定方式为「遍历敌人容器算距离」而非物理查询：与 weapon_controller._find_nearest_enemy()
+## 同一范式，且无头测试下不依赖物理帧，结果可复现
+func _explode() -> void:
+	if _exploded or explosion_radius <= 0.0:
+		return
+	_exploded = true
+
+	if GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
+		for enemy in GameManager.enemy_spawner.enemies_container.get_children():
+			if not is_instance_valid(enemy) or not enemy.is_alive:
+				continue
+			if global_position.distance_to(enemy.global_position) > explosion_radius:
+				continue
+			if explosion_damage > 0.0 and enemy.has_method("take_damage"):
+				enemy.take_damage(explosion_damage)
+			if not status_type.is_empty() and enemy.has_method("apply_status"):
+				enemy.apply_status(status_type, status_duration, status_dps)
+
+	# 专属爆炸 VFX 属 Day 23，本日复用现成 crit 特效
+	if GameManager.vfx_container:
+		VfxPlayer.spawn(GameManager.vfx_container, global_position, "crit")
 
 # ========== 工具 ==========
 
@@ -84,3 +122,13 @@ func initialize(props: Dictionary) -> void:
 		pierce = props["pierce"]
 	if props.has("knockback"):
 		knockback = props["knockback"]
+	if props.has("explosion_radius"):
+		explosion_radius = props["explosion_radius"]
+	if props.has("explosion_damage"):
+		explosion_damage = props["explosion_damage"]
+	if props.has("status_type"):
+		status_type = props["status_type"]
+	if props.has("status_duration"):
+		status_duration = props["status_duration"]
+	if props.has("status_dps"):
+		status_dps = props["status_dps"]
