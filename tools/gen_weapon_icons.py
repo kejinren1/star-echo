@@ -41,6 +41,10 @@ GREEN_D = (60, 140, 80, 255)
 LT = (255, 230, 100, 255)        # 闪电黄
 WHITE = (240, 244, 255, 255)
 BROWN = (150, 100, 62, 255)      # 木柄
+PURPLE = (178, 102, 224, 255)    # 等离子紫（D8 新增）
+PURPLE_D = (128, 62, 176, 255)
+SHIELD = (90, 150, 230, 255)     # 力场蓝（D8 新增）
+SHIELD_L = (150, 200, 255, 255)
 
 
 class Icon:
@@ -364,6 +368,246 @@ def ic_auto_turret():
     return i
 
 
+# ================= 18 帧实绘（D8-9 全量） =================
+
+def ic_fist():
+    """拳套：拳面 + 指节 + 腕带（melee·t1 攻速极快）。"""
+    i = Icon()
+    i.disc(16, 14, 8, MELEE)             # 拳面
+    i.disc(16, 14, 5, MELEE_D)           # 内凹
+    for k in range(4):                   # 指节
+        i.rect(11 + k * 3, 7, 2, 2, WHITE)
+    i.rect_o(11, 22, 10, 5, BROWN)       # 腕带
+    i.rect(12, 23, 8, 3, (120, 74, 40, 255))
+    return i
+
+
+def ic_stick():
+    """木棍：斜棍 + 深色端头（melee·t1 高击退）。"""
+    i = Icon()
+    i.line(4, 26, 24, 6, BROWN, 3)       # 斜棍
+    i.line(6, 24, 23, 8, (120, 74, 40, 255), 1)  # 暗部
+    i.line(8, 23, 22, 10, (180, 140, 96, 255), 1)  # 高光
+    i.rect_o(22, 4, 8, 6, (170, 130, 90, 255))   # 端头
+    return i
+
+
+def ic_dagger():
+    """匕首：细刃 + 金色护手 + 短柄（melee·t1 高暴击）。"""
+    i = Icon()
+    i.tri([(16, 2), (11, 16), (21, 16)], MELEE)  # 刃
+    i.line(13, 8, 18, 12, WHITE, 1)              # 刃面高光
+    i.rect_o(10, 16, 12, 2, GOLD)                # 护手
+    i.rect(11, 17, 10, 1, (200, 160, 60, 255))
+    i.rect_o(13, 18, 6, 9, BROWN)                # 柄
+    i.rect(14, 20, 4, 6, (120, 74, 40, 255))
+    return i
+
+
+def ic_hammer():
+    """大锤：重锤头 + 高光 + 长柄（melee·t3 范围AOE）。"""
+    i = Icon()
+    i.rect_o(7, 5, 18, 11, MELEE)        # 锤头
+    i.rect(8, 6, 16, 9, MELEE_D)
+    i.rect(10, 7, 6, 2, WHITE)           # 高光
+    i.rect(9, 12, 14, 2, MELEE)
+    i.rect_o(14, 16, 4, 12, BROWN)       # 柄
+    i.rect(15, 18, 2, 9, (120, 74, 40, 255))
+    return i
+
+
+def ic_flaming_knuckles():
+    """烈焰拳套：拳套 + 红焰（melee·t3 燃烧）。"""
+    i = Icon()
+    i.disc(13, 17, 7, MELEE)
+    i.disc(13, 17, 4, MELEE_D)
+    i.rect(11, 10, 2, 3, WHITE)          # 指节
+    i.rect(14, 10, 2, 3, WHITE)
+    i.tri([(22, 20), (26, 12), (29, 22)], RED)   # 外焰
+    i.tri([(24, 19), (27, 13), (29, 20)], GOLD)  # 内焰
+    i.tri([(23, 14), (26, 10), (28, 16)], RED_D)
+    return i
+
+
+def ic_slingshot():
+    """弹弓：Y 叉 + 皮筋 + 弹丸（ranged·t1 弹射）。"""
+    i = Icon()
+    i.line(16, 26, 10, 8, BROWN, 2)      # 左叉
+    i.line(16, 26, 22, 8, BROWN, 2)      # 右叉
+    i.rect_o(13, 26, 6, 4, (120, 74, 40, 255))  # 握柄
+    i.line(10, 8, 22, 8, RANGED_D, 2)    # 皮筋
+    i.disc(16, 5, 3, RANGED)             # 弹丸
+    i.rect(15, 4, 2, 2, RANGED_D)
+    return i
+
+
+def ic_crossbow():
+    """弩：弩臂 + 弓弦 + 箭（ranged·t2 穿透3）。"""
+    i = Icon()
+    i.rect_o(12, 10, 8, 12, RANGED)      # 弩身
+    i.rect(13, 11, 6, 10, RANGED_D)
+    i.line(6, 8, 12, 12, MELEE, 2)       # 左弩臂
+    i.line(26, 8, 20, 12, MELEE, 2)      # 右弩臂
+    i.line(6, 8, 26, 8, OUTLINE, 1)      # 弓弦
+    i.line(16, 22, 16, 3, MELEE_D, 1)    # 箭杆
+    i.tri([(16, 2), (13, 7), (19, 7)], MELEE)    # 箭头
+    return i
+
+
+def ic_rocket_launcher():
+    """火箭筒：筒身 + 红弹头 + 瞄具（ranged·t3 爆炸AOE）。"""
+    i = Icon()
+    i.rect_o(3, 12, 20, 8, MELEE)        # 筒身
+    i.rect(4, 13, 18, 6, MELEE_D)
+    i.rect_o(23, 11, 6, 10, RED)         # 弹头
+    i.rect(24, 12, 4, 8, RED_D)
+    i.tri([(30, 16), (27, 13), (27, 19)], GOLD)  # 弹头尖
+    i.rect_o(10, 20, 8, 5, RANGED)       # 握把
+    i.rect(11, 21, 6, 3, RANGED_D)
+    i.rect_o(19, 8, 4, 3, ENG)           # 瞄具
+    return i
+
+
+def ic_minigun():
+    """多管机枪：3 管 + 机匣 + 弹链匣（ranged·t4 极限射速）。"""
+    i = Icon()
+    i.rect_o(3, 11, 9, 10, MELEE)        # 机匣
+    i.rect(4, 12, 7, 8, MELEE_D)
+    i.rect_o(12, 8, 17, 4, MELEE)        # 上管
+    i.rect_o(12, 12, 17, 4, MELEE_D)     # 中管
+    i.rect_o(12, 16, 17, 4, MELEE)       # 下管
+    i.rect(13, 9, 15, 2, WHITE)          # 管口高光
+    i.rect_o(8, 21, 8, 5, RANGED)        # 弹链匣
+    i.rect(9, 22, 6, 3, RANGED_D)
+    return i
+
+
+def ic_lightning_shiv():
+    """雷刃：短刃 + 闪电黄纹（elemental·t2 连锁3）。"""
+    i = Icon()
+    i.tri([(16, 2), (11, 18), (21, 18)], ELEM)   # 刃
+    i.line(14, 6, 16, 12, LT, 1)                 # 闪电纹
+    i.line(16, 9, 14, 13, LT, 1)
+    i.line(15, 4, 13, 8, LT, 1)
+    i.rect_o(11, 18, 10, 2, ELEM_D)              # 护手
+    i.rect_o(14, 20, 4, 7, BROWN)                # 柄
+    i.rect(15, 21, 2, 5, (120, 74, 40, 255))
+    return i
+
+
+def ic_venom_staff():
+    """毒杖：杖 + 绿滴尖端（elemental·t2 中毒5秒）。"""
+    i = Icon()
+    i.rect_o(14, 8, 3, 16, BROWN)        # 杖身
+    i.rect(15, 9, 1, 14, (120, 74, 40, 255))
+    i.disc(15, 6, 4, GREEN)              # 毒珠
+    i.disc(15, 6, 2, GREEN_D)
+    i.rect(14, 3, 2, 2, (180, 255, 160, 255))    # 高光
+    i.rect_o(12, 24, 7, 4, (120, 74, 40, 255))   # 杖尾
+    return i
+
+
+def ic_storm_staff():
+    """风暴杖：杖 + 闪电球（elemental·t3 范围闪电）。"""
+    i = Icon()
+    i.rect_o(14, 12, 3, 12, BROWN)       # 杖身
+    i.rect(15, 13, 1, 10, (120, 74, 40, 255))
+    i.disc(15, 7, 6, ELEM)               # 雷球
+    i.disc(15, 7, 3, ELEM_D)
+    i.line(9, 7, 21, 7, LT, 1)           # 电弧
+    i.line(15, 1, 15, 13, LT, 1)
+    i.line(11, 3, 19, 11, LT, 1)
+    return i
+
+
+def ic_frost_nova():
+    """冰霜新星：冰晶六芒 + 光环（elemental·t3 冻结AOE）。"""
+    import math
+    i = Icon()
+    i.disc(16, 16, 5, ICE)               # 中心
+    i.disc(16, 16, 3, WHITE)
+    i.tri([(16, 3), (13, 10), (19, 10)], ICE)    # 六芒上
+    i.tri([(16, 29), (13, 22), (19, 22)], ICE)   # 六芒下
+    i.tri([(3, 16), (10, 13), (10, 19)], ICE)    # 六芒左
+    i.tri([(29, 16), (22, 13), (22, 19)], ICE)   # 六芒右
+    for a in range(0, 360, 20):          # 光环
+        x = 16 + int(13 * math.cos(math.radians(a)))
+        y = 16 + int(13 * math.sin(math.radians(a)))
+        i.set(x, y, ICE_D)
+    return i
+
+
+def ic_plasma_cannon():
+    """等离子炮：炮管 + 紫球（elemental·t4 穿透所有）。"""
+    i = Icon()
+    i.rect_o(3, 13, 16, 6, MELEE)        # 炮管
+    i.rect(4, 14, 14, 4, MELEE_D)
+    i.disc(22, 16, 6, PURPLE)            # 等离子球
+    i.disc(22, 16, 3, PURPLE_D)
+    i.rect(21, 13, 2, 2, WHITE)          # 高光
+    i.rect_o(18, 9, 5, 3, MELEE)         # 散热片
+    i.rect_o(6, 19, 8, 5, BROWN)         # 握把
+    i.rect(7, 20, 6, 3, (120, 74, 40, 255))
+    return i
+
+
+def ic_wrench():
+    """扳手：开口头 + 柄（engineering·t2 修复结构物）。"""
+    i = Icon()
+    i.disc(10, 10, 6, ENG)               # 开口环
+    i.disc(10, 10, 3, OUTLINE)           # 开口（深孔）
+    i.rect_o(12, 13, 11, 4, ENG)         # 柄
+    i.rect(13, 14, 9, 2, ENG_D)
+    i.rect_o(20, 17, 5, 8, ENG)          # 尾部
+    i.rect(21, 18, 3, 6, ENG_D)
+    i.rect(9, 7, 2, 2, WHITE)            # 环高光
+    return i
+
+
+def ic_laser_turret():
+    """激光炮台：基座 + 炮管 + 红激光（engineering·t2 持续激光）。"""
+    i = Icon()
+    i.rect_o(10, 22, 12, 6, ENG)         # 基座
+    i.rect(11, 23, 10, 4, ENG_D)
+    i.rect_o(13, 16, 6, 6, ENG)          # 转台
+    i.rect(14, 17, 4, 4, (255, 220, 130, 255))
+    i.rect_o(11, 8, 10, 6, ENG)          # 炮管
+    i.rect(12, 9, 8, 4, (255, 220, 130, 255))
+    i.line(4, 11, 9, 11, RED, 1)         # 激光束
+    i.disc(11, 11, 2, RED)               # 激光源
+    i.set(4, 11, GOLD)                   # 光点
+    return i
+
+
+def ic_mech_arm():
+    """机械臂：关节臂 + 钳爪（engineering·t3 挥击+导弹）。"""
+    i = Icon()
+    i.rect_o(6, 16, 12, 5, ENG)          # 上臂
+    i.rect(7, 17, 10, 3, ENG_D)
+    i.disc(18, 18, 4, MELEE)             # 关节
+    i.disc(18, 18, 2, MELEE_D)
+    i.rect_o(19, 13, 8, 5, ENG)          # 前臂
+    i.rect(20, 14, 6, 3, (255, 220, 130, 255))
+    i.tri([(28, 10), (24, 13), (28, 14)], MELEE)  # 上钳
+    i.tri([(28, 22), (24, 19), (28, 18)], MELEE)  # 下钳
+    i.rect(8, 15, 3, 1, WHITE)           # 臂高光
+    return i
+
+
+def ic_force_field():
+    """力场护盾：蓝球 + 光晕（engineering·t3 减伤50%）。"""
+    import math
+    i = Icon()
+    i.disc(16, 16, 8, SHIELD)            # 护盾球
+    i.disc(16, 16, 5, SHIELD_L)
+    i.disc(16, 16, 2, WHITE)
+    for a in range(0, 360, 15):          # 光晕环
+        x = 16 + int(11 * math.cos(math.radians(a)))
+        y = 16 + int(11 * math.sin(math.radians(a)))
+        i.set(x, y, (70, 120, 200, 255))
+    return i
+
+
 # ================= 占位帧（分类色 + 类别简形） =================
 
 def ic_placeholder(cat):
@@ -405,41 +649,41 @@ def build():
     # id → 绘制函数；None = 分类色占位
     frames = {
         # melee 0-7
-        0: None,    # fist
-        1: None,    # stick
-        2: None,    # dagger
+        0: ic_fist,
+        1: ic_stick,
+        2: ic_dagger,
         3: ic_sword,
-        4: None,    # hammer
+        4: ic_hammer,
         5: ic_chainsaw,
-        6: None,    # flaming_knuckles
+        6: ic_flaming_knuckles,
         7: ic_star_blade,
         # ranged 8-16
         8: ic_pistol,
-        9: None,    # slingshot
-        10: None,   # crossbow
+        9: ic_slingshot,
+        10: ic_crossbow,
         11: ic_smg,
         12: ic_shotgun,
         13: ic_sniper,
-        14: None,   # rocket_launcher
-        15: None,   # minigun
+        14: ic_rocket_launcher,
+        15: ic_minigun,
         16: ic_holy_staff,
         # elemental 17-25
         17: ic_wand,
         18: ic_icicle,
-        19: None,   # lightning_shiv
+        19: ic_lightning_shiv,
         20: ic_flamethrower,
-        21: None,   # venom_staff
-        22: None,   # storm_staff
-        23: None,   # frost_nova
-        24: None,   # plasma_cannon
+        21: ic_venom_staff,
+        22: ic_storm_staff,
+        23: ic_frost_nova,
+        24: ic_plasma_cannon,
         25: ic_star_flame,
         # engineering 26-32
         26: ic_turret,
         27: ic_landmine,
-        28: None,   # wrench
-        29: None,   # laser_turret
-        30: None,   # mech_arm
-        31: None,   # force_field
+        28: ic_wrench,
+        29: ic_laser_turret,
+        30: ic_mech_arm,
+        31: ic_force_field,
         32: ic_auto_turret,
     }
     cat_of = {}

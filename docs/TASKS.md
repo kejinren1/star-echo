@@ -7,8 +7,10 @@
 > ✅ **Day 5 已收口（2026-08-05 23:5x · #3）**：`day5_weapon_check.gd` **15 断言 0 失败** + baseline **BASELINE CLEAN** + 回归三件套全绿，提交 `5092874`（6 槽 / 查表升级 / 环绕武器 / 混合升级面板）。
 > ✅ **Day 6 已收口（2026-08-06 01:5x · #3）**：阶段 A 集成测试完成 —— T-A 经验链路数据化（23 敌 exp_value + 透传 + 端到端探针 **14/14 CLEAN**）+ 回归四件套全绿（day2 32 / day3 16 / day4 21 / day5 15）+ 平衡校准（**实测曲线 Lv1→2=30**，chaser 2→3 / charger 3→4）+ 阶段 A 报告 `docs/REPORT_PHASE_A.md` + baseline **BASELINE CLEAN**，提交见本轮收口 commit。**P1 D6-T4 经验飘字亦已实装**（未顺延）。
 > ✅ **Day 7 已收口（2026-08-06 03:3x · #3）**：阶段 B 首段完成 —— 11 把通用武器补 levels 8 条 + max_level=8（D7-T1）+ 33 把全部补 icon_index 分类映射（D7-T5）+ weapon.gd crit_chance/crit_damage 字段 + build_weapon_from_data 4 键消费 + _on_upgrade 3 行可选键消费（D7-T2）+ weapons.png 4 帧→40 帧 15 帧实绘+18 帧占位+7 帧空余（D7-T3）+ icon_atlas.gd 帧数 4→40（D7-T4）+ `day7_weapon_data_check` 探针 **13/13 CLEAN** + 回归五件套（day2 32 / day3 16 / day4 21 / day5 16 / day6 14）+ day5 探针同步更新（pistol 通用成长 → 合成裸武器 兜底测试）+ baseline **BASELINE CLEAN**，提交 `fc2a636`。
+> ✅ **Day 8-9 已收口（2026-08-06 05:3x · #3）**：阶段 B 续段完成 —— 18 把全量武器补 `levels` 8 条 + `max_level=8`（D8-T1：`gen_weapons_day7.py` LEVELS +18 把 + verify 抽查扩展到 6 把 + force_field damage 恒 0 特例校验 + 顶层未动原则）+ 18 帧占位图标实绘替换（D8-T2：`gen_weapon_icons.py` +18 函数 + 新增 PURPLE/SHIELD 色 + 透明键 + 帧 33-39 空余保留）+ `day8_weapon_data_check.gd` 探针 **19/19 CLEAN**（JSON 全量 / 特例 / 装配 / 图标 / 回归 五段）+ 回归六件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13）+ baseline **BASELINE CLEAN** + `gen_weapons_day7.py verify` → **33/33 levels + icon_index CLEAN**。30DAY_PLAN D7-D9「15 武器数据 + 精灵」至此**全量完成（33/33 把 Lv1-8 + 33 帧实绘图标）**。
+> 🎯 **Day 8–9 已拆解（2026-08-06 05:1x · #2 第 9 轮）**：阶段 B 续段 = **18 把全量武器 levels + 18 帧图标实绘 + 全量数据回归**（见 Day 8-9 区）——W2 给 18 把通用武器补 `levels` 8 条 + `max_level:8`（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field，扩展 `gen_weapons_day7.py` LEVELS 表幂等 apply）；W3 18 帧占位图标逐帧替换实绘（扩展 `gen_weapon_icons.py`，含 force_field 护盾 / minigun 多管等特征）；W1 新建 `day8_weapon_data_check.gd` 探针（≥13 断言含 force_field damage 恒 0 特例）；W5 回归六件套。**纯数据 + 图标 + 探针日，零装配代码改动**（D7-T2 已铺路）。
 > 🎯 **Day 7 已预拆解（2026-08-06 03:1x · #2 第 8 轮）**：阶段 B 首段 = **MVP 15 武器数据 + 装配消费 + 图标集**（见 Day 7 区）——W2 给 11 把通用武器补 `levels` 8 条（sword/chainsaw/pistol/smg/shotgun/sniper/wand/icicle/flamethrower/turret/landmine）+ 33 把补 `icon_index`；W1 装配消费补齐（crit_chance/crit_damage/pierce/icon_index）+ IconAtlas 帧数 4→40；W3 `weapons.png` 4 帧→40 帧（15 实绘 + 25 占位）；W5 新建 `day7_weapon_data_check.gd` 探针 + 回归。剩余 18 把归 Day 8-9（下轮拆解）。
-> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）　✅ **Day 7 收口**（`fc2a636`，13/13 CLEAN + 回归五件套全绿）
+> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）　✅ **Day 7 收口**（`fc2a636`，13/13 CLEAN + 回归五件套全绿）　✅ **Day 8-9 收口**（`85b31f0`，19/19 CLEAN + 33/33 武器 Lv1-8 + 33 帧实绘图标 + 回归六件套全绿）
 > 🔴 **Day 4 首段必做 BUG-001 F1/F2**（用户 19:50 反馈「第 2 关后全员静止」、19:53 确认留待下一轮 = 本日首段；已固化为 `D4-T7` / `D4-T8`，见 Day 4 区）
 > ✅ **Day 3 已收口（2026-08-05 19:2x · #3）** —— `day3_skill_check.gd` **16 断言 0 失败（DAY3 SKILL CHECK CLEAN）** + `baseline_check` **BASELINE CLEAN** + `day2_hero_check` 回归 32/0 CLEAN，已 `git commit`（Day3 收口提交）。
 > **19:15 修复记录**（此前 19:10 #1 实测 18 断言 4 失败 → 已全部闭环）：
@@ -864,10 +866,101 @@
 - `tools/day5_weapon_check.gd`（同步更新：通用成长兜底改用合成裸武器）
 - `docs/TASKS.md`（Day 7 标题 ✅ + T1~T6/EXIT 全部 [x] + 完整 id↔icon_index 映射表）
 
-### Day 8–9 — 剩余 14 武器补全 + 全量数据回归（#2 下轮拆解）
-- [ ] 剩余 14 把通用武器补 `levels` 8 条 + `max_level: 8`（fist / stick / dagger / hammer / flaming_knuckles / slingshot / crossbow / rocket_launcher / minigun / lightning_shiv / venom_staff / storm_staff / frost_nova / plasma_cannon / wrench / laser_turret / mech_arm / force_field —— 共 18 把，按产能分批，**MVP 15 已覆盖核心**）
-- [ ] 25 帧占位图标逐帧替换为实绘（W3）
-- [ ] 每日常规 `baseline_check`
+### Day 8–9 — 18 把武器全量补全 + 图标实绘 + 全量数据回归　✅【2026-08-06 05:3x · #3 收口】
+
+> **承接**：Day 7 收口（`fc2a636`）——MVP 15 把 levels + 33 把 icon_index + 40 帧图标（15 实绘 + 18 占位 + 7 空余）。本区间消灭全部剩余缺口：**18 把通用武器补 levels + 18 帧占位图标实绘** → 30DAY_PLAN D7-D9「15 武器数据 + 精灵」至此**全量完成（33/33）**。
+> **护栏**：改前 `git commit` 存档；改后 `python tools/baseline_check.py` 必须 `BASELINE CLEAN`。
+> **文件域**：W1 写 `tools/`（探针 `day8_weapon_data_check.gd`）；W2 写 `data/weapons.json` + `tools/gen_weapons_day7.py`（扩展）；W3 写 `assets/sprites/ui/weapons.png` + `tools/gen_weapon_icons.py`（扩展）；W5 写 `docs/TEST_REPORT.md`。**无跨域冲突**。
+> **角色矩阵**（DAY_ROLE_ASSIGNMENTS Day 7-9 行细化）：W1 ◐探针 / W2 ●18 把 levels / W3 ●18 帧实绘 / W5 ●回归六件套；W4 —（无职责）。
+> **本轮实测基线（#3 免重复排查，05:1x #2 第 9 轮新核）**：
+> - `weapons.json` 33 把：**15 把有 levels**（D7 完成）/ **18 把无 levels**（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field）→ 本区间补齐后 **33/33 全量**
+> - 18 把顶层字段（本轮已导出）：全部有 `damage/cooldown/range/scaling/tier/price/icon_index`；melee/ranged/elemental 另有 `crit_chance/crit_damage`；elemental 另有 `element_type`；engineering 4 把（wrench/laser_turret/mech_arm/force_field）**无 crit 字段**
+> - **18 把顶层均无 `projectiles` 字段** → levels 字段集 = `{level, damage, cooldown, range, upgrade}` 5 键（四维 + 文案），与 D7 范式一致
+> - **特例 1 force_field**（t3 engineering）：顶层 `damage: 0` / `cooldown: 2.0` / `range: 120` / special「生成护盾区域, 减伤50%」→ levels damage 恒 0（护盾无伤害，单调不减天然满足），只升 cd（→1.5）与 rng（→160）
+> - **特例 2 minigun**（t4 ranged）：顶层 `cd: 0.08`（全表最低）→ levels cd 微降（→0.055），damage 4→~19（×1.25 型）
+> - 已补 levels 武器 Lv8 锚点（D7 实值，新曲线对齐用）：pistol 22/0.33/308 · sniper 40→158 ×3.95 / 1.18/475 · landmine 20→80 ×4.0 / 0.76/124 · chainsaw 8→33 ×4.1 / 0.08/180 · flamethrower 2→10 ×5.0 / 0.04/198 → **DPS 上限参照**：重击型（hammer/rocket/plasma）走 ×4 左右总量，控单发爆炸
+> - `weapons.png` = 1280×32 **40 帧**：帧 3/5/7/8/11/12/13/16/17/18/20/25/26/27/32 已实绘（MVP 15），帧 **0/1/2/4/6/9/10/14/15/19/21/22/23/24/28/29/30/31 仍为分类色占位**（🔲），帧 33-39 全透明空余
+> - 装配链路已通（D7-T2）：`build_weapon_from_data` 消费 `damage/cooldown/range/projectiles/levels/max_level/crit_chance/crit_damage/pierce/icon_index` → 18 把补 levels 后**无需任何代码改动**，纯数据 + 图标 + 探针日
+> - 工具结构（复用）：`gen_weapons_day7.py` = `LEVELS` dict（dmg/cd/rng/proj/up 五数组）+ `build_levels(wid, top)`（Lv1 强制取顶层）+ `apply()`（幂等：`"levels" not in w` 才写）+ `verify()`（遍历 `LEVELS.keys()`）→ **+18 把只需扩 LEVELS 表**，apply/verify 自动覆盖
+> - 工具结构（复用）：`gen_weapon_icons.py` = `Icon` 类像素原语（set/rect/rect_o/line/diamond/disc/tri）+ 40 帧画布 + 帧表 → **+18 帧只需新增 18 个实绘函数并在帧表注册**
+
+#### 本日总定案（先读，避免执行期临场决策）
+| 议题 | 定案 | 依据 |
+|------|------|------|
+| 18 把清单 | **18 把**（修正原粗条目「14 把」文字矛盾，以括号清单 + 实测为准）：melee 5（fist/stick/dagger/hammer/flaming_knuckles）· ranged 4（slingshot/crossbow/rocket_launcher/minigun）· elemental 5（lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon）· engineering 4（wrench/laser_turret/mech_arm/force_field） | 实测 weapons.json 33 − 15 = 18 |
+| levels 字段集 | `{level, damage, cooldown, range, upgrade}` 5 键（**无 projectiles**——18 把顶层均无此字段；**不放** crit/pierce 进阶键，顶层 crit 已装配消费） | 18 把顶层字段实测；D7 范式统一；防过度设计 |
+| levels 成长规范 | Lv1 条与顶层完全一致；damage 逐级 ×1.18–1.32（t1 轻快型 ×1.25 附近 / t3-4 重击型 ×1.22 附近控 DPS）；cooldown 每 2 级 −5–8%；range 每 2-3 级 +3–6% 取整；**Lv8 建议目标**见下表（W2 可微调，必须过单调校验） | D7 定案表 + 实测曲线形态 |
+| force_field 特例 | damage 恒 0（护盾无伤害）；levels 只升 cd（2.0→1.5）与 rng（120→160）；upgrade 文案「护盾范围扩大 / 冷却缩短」 | 顶层 damage:0 实测；护盾型语义 |
+| 工具策略 | **扩展 `gen_weapons_day7.py`**（LEVELS +18 把；docstring 更新为 Day 7–9 全量；apply 幂等只补无 levels 武器；verify 自动覆盖 33 把）——不新建 day89 工具，防双源漂移 | 工具幂等设计实测（`"levels" not in w`）；Day 7 收口记录不变 |
+| 图标策略 | **扩展 `gen_weapon_icons.py`**：18 帧占位（idx 0/1/2/4/6/9/10/14/15/19/21/22/23/24/28/29/30/31）逐帧替换为实绘；分类色系对齐 D7（melee 银灰 / ranged 棕 / elemental 蓝紫+元素点缀 / engineering 橙黄）；**不动已收口 15 帧**（帧序/尺寸锚点）；33-39 空余帧保持透明 | D7-T3 定案 + PLAYTEST backlog（D7 帧偏简 → 本批实绘细节 ≥ 2-3 色阶） |
+| 探针策略 | 新建 `tools/day8_weapon_data_check.gd`（照搬 day7 探针骨架 `extends SceneTree`）：JSON 全量 33 把 + force_field/minigun 特例 + 装配抽查 3 把 + 图标 18 帧非透明 + 回归 day7 15 把；**day7 探针不动**（历史锚点 13/13） | 防破坏 Day 7 收口记录；覆盖新增缺口 |
+| 回归范围 | 六件套：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13（day5 为 D7 收口后 16 断言口径） | D7-EXIT 实测 |
+
+**18 把 Lv8 建议目标（W2 照此生成 LEVELS 数组，可微调；必须满足 damage 单调不减 / cooldown 单调不增）**：
+
+| id | 分类 | tier | Lv1（=顶层） | Lv8 建议 damage / cooldown / range | 特性（顶层 special） |
+|---|---|---|---|---|---|
+| fist | melee | 1 | 3 / 0.30 / 120 | ~14 / 0.22 / 150 | 攻速极快 |
+| stick | melee | 1 | 6 / 0.55 / 160 | ~28 / 0.41 / 200 | 高击退 |
+| dagger | melee | 1 | 4 / 0.25 / 130 | ~19 / 0.19 / 160 | 高暴击伤害（顶层 15%/250% 已装配消费） |
+| hammer | melee | 3 | 30 / 1.20 / 200 | ~140 / 0.90 / 250 | 范围AOE（×1.22 型控 DPS） |
+| flaming_knuckles | melee | 3 | 10 / 0.30 / 130 | ~47 / 0.22 / 160 | 燃烧 3 秒（fire） |
+| slingshot | ranged | 1 | 4 / 0.35 / 220 | ~19 / 0.26 / 270 | 弹射 2 次 |
+| crossbow | ranged | 2 | 15 / 0.90 / 300 | ~70 / 0.68 / 370 | 穿透 3 |
+| rocket_launcher | ranged | 3 | 25 / 1.20 / 280 | ~117 / 0.90 / 340 | 爆炸AOE（×1.22 型控 DPS） |
+| minigun | ranged | 4 | 4 / 0.08 / 260 | ~19 / 0.055 / 310 | 每3发1发长冷却 |
+| lightning_shiv | elemental | 2 | 6 / 0.35 / 220 | ~28 / 0.26 / 270 | 连锁 3（lightning） |
+| venom_staff | elemental | 2 | 4 / 0.60 / 200 | ~19 / 0.45 / 250 | 中毒 5 秒（poison） |
+| storm_staff | elemental | 3 | 12 / 0.80 / 300 | ~56 / 0.60 / 370 | 范围闪电（lightning） |
+| frost_nova | elemental | 3 | 8 / 1.00 / 180 | ~37 / 0.76 / 220 | 自身AOE 冻结 1 秒（ice） |
+| plasma_cannon | elemental | 4 | 20 / 1.00 / 350 | ~94 / 0.76 / 430 | 穿透所有（plasma） |
+| wrench | engineering | 2 | 8 / 0.50 / 150 | ~37 / 0.38 / 185 | 修复结构物 |
+| laser_turret | engineering | 2 | 3 / 0.15 / 250 | ~14 / 0.11 / 310 | 持续激光 15 秒 |
+| mech_arm | engineering | 3 | 15 / 0.60 / 180 | ~70 / 0.45 / 225 | 挥击+小型导弹 |
+| force_field | engineering | 3 | 0 / 2.00 / 120 | **0** / 1.50 / 160 | 护盾减伤 50%（damage 恒 0） |
+
+#### D8-T1【W2 · P0】18 把武器 levels 数据补全（`data/weapons.json` + `tools/gen_weapons_day7.py`）
+- [x] 扩展 `tools/gen_weapons_day7.py` 的 `LEVELS` 表：按「定案表 + Lv8 建议目标」为 **18 把**补 `levels` 8 条 + `max_level: 8`；字段集 = `{level, damage, cooldown, range, upgrade}`（绝对状态值，**Lv1 条与顶层字段一致**；force_field damage 恒 0）✅
+- [x] 升级描述 `upgrade` 逐级填写（force_field 全程「护盾范围扩大 / 冷却缩短」，**严禁**「伤害提升」）✅
+- [x] 幂等应用：`python tools/gen_weapons_day7.py apply` 只补无 levels 的 18 把（15 把 + 4 签名 只核验不改）；`verify` 模式 **DAY7 WEAPONS JSON VERIFY CLEAN** ✅
+- [x] ✅ **不改**顶层 `damage/cooldown/range/scaling/special/crit_chance/crit_damage/price/tier/element_type/icon_index`（商店/首装数值口径保持现状；levels 是叠加层）
+- 测试点：JSON 校验通过 ✅；**33/33 把 levels 8 条** + max_level==8 ✅；Lv1==顶层（抽查 fist/rocket_launcher/force_field/sword/pistol/turret 6 把）✅；18 把 damage 单调不减 / cooldown 单调不增 ✅；force_field damage 全 0 合法 ✅
+- 产出：`data/weapons.json`（+18 把 levels）+ `tools/gen_weapons_day7.py`（LEVELS +18 把，docstring 更新为 Day 7–9）
+
+#### D8-T2【W3 · P0】18 帧占位图标替换为实绘（`assets/sprites/ui/weapons.png` + `tools/gen_weapon_icons.py`）
+- [x] 扩展 `tools/gen_weapon_icons.py`：为 18 把（idx 0/1/2/4/6/9/10/14/15/19/21/22/23/24/28/29/30/31）各实现一帧**实绘**（像素原语 set/rect/rect_o/line/diamond/disc/tri + 分类色系 + 1px 深色描边 + 透明键左上角(0,0)）✅
+- [x] ✅ **打磨细节（PLAYTEST backlog）**：每帧 ≥ 2-3 色阶 + 特征高光点（fist 指节 / stick 暗部高光 / dagger 金护手 / hammer 锤头高光 / flaming_knuckles 红金焰 / slingshot 弹丸 / crossbow 箭头 / rocket_launcher 红弹头尖 / minigun 3 管 + 弹链匣 / lightning_shiv 闪电纹 / venom_staff 绿毒珠 / storm_staff 紫雷球+黄电弧 / frost_nova 六芒+光环 / plasma_cannon 紫球+散热片 / wrench 开口环+高光 / laser_turret 红激光束 / mech_arm 关节+钳爪 / force_field 蓝球+光晕）
+- [x] ✅ **不动**已收口 15 帧的帧序/尺寸/内容（锚点）；33-39 空余帧保持全透明
+- [x] 重跑生成后**先合成预览图（拆 4 组 g0-g3 放大 4 倍）人工查整体效果再 commit** ✅
+- 测试点：PNG 尺寸 1280×32 不变 ✅；18 帧中心 16×16 区域非全透明 ✅；(0,0) 透明键 ✅；33-39 全透明 ✅
+- 产出：`assets/sprites/ui/weapons.png`（40 帧：33 实绘 + 7 空余，**零占位**）+ `tools/gen_weapon_icons.py`（+18 实绘 + PURPLE/SHIELD 新色）
+
+#### D8-T3【W1 · P0】全量数据探针（新建 `tools/day8_weapon_data_check.gd`）
+- [x] 照搬 `day7_weapon_data_check.gd` 骨架（`extends SceneTree` + 分帧推进），覆盖 5 段 ✅
+  1. **JSON 全量层**：33/33 把 levels 8 条 + max_level==8 ✅；18 把 Lv1 与顶层 damage/cooldown/range 一致（抽查 fist/rocket_launcher/force_field）✅；18 把 damage 单调不减 + cooldown 单调不增（全扫）✅
+  2. **特例层**：force_field levels damage 全 0（护盾型放行）✅；minigun Lv1 cooldown == 0.08（顶层一致）✅
+  3. **装配层**：`build_weapon_from_data("fist")` → base_damage 3 / icon_index 0 ✅；`build_weapon_from_data("force_field")` → base_damage 0 不崩 / icon_index 31 / `upgrade()` 后 damage 仍 0 ✅；`build_weapon_from_data("rocket_launcher")` → icon_index 14 ✅
+  4. **图标层**：18 帧中心 16×16 区域非全透明 ✅；(0,0) 透明键 ✅；帧 33-39 全透明 ✅
+  5. **回归层**：sword Lv8 damage 50 ✅ / se_star_flame Lv8 projectiles 3 ✅ / se_star_blade Lv8 blade_count 4 ✅；33 把 icon_index 与 D7-T5 完稿映射表一致 ✅
+- [x] 断言数 19（≥13），全部通过输出 `DAY8 WEAPON DATA CHECK CLEAN`（exit 0）✅
+- 测试点：`godot --headless` 跑该脚本 exit 0 ✅
+- 产出：`tools/day8_weapon_data_check.gd`（新建 19 断言）
+
+#### D8-EXIT【W5】当日出口
+- [x] `python tools/baseline_check.py` → **BASELINE CLEAN**（import + runtime 双阶段，exit 0 / stderr 0）✅
+- [x] `tools/day8_weapon_data_check.gd` 全部断言通过 → **DAY8 WEAPON DATA CHECK CLEAN（19 断言）** ✅
+- [x] 回归六件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13）✅
+- [x] `python tools/gen_weapons_day7.py verify` → **DAY7 WEAPONS JSON VERIFY CLEAN**（33/33 levels + icon_index）✅
+- [x] **护栏**：`git commit`（阶段 B 全量数据收口：33/33 武器 Lv1-8 + 33 帧实绘图标）✅
+- ⚠️ 主观项「18 帧图标观感 / 全武器升级曲线体感」→ 由 #5 收进 `PLAYTEST_CHECKLIST.md`，不阻塞出口
+
+**Day 8-9 收口交付物（预期）**：
+- `data/weapons.json`（33/33 把 levels 8 条 + max_level 8，全量齐）
+- `assets/sprites/ui/weapons.png`（40 帧：33 实绘 + 7 空余，零占位）
+- `tools/gen_weapons_day7.py`（LEVELS +18 把，docstring 更新 Day 7–9）
+- `tools/gen_weapon_icons.py`（+18 帧实绘）
+- `tools/day8_weapon_data_check.gd`（新建 ≥13 断言）
+- `docs/TASKS.md`（Day 8-9 标题 ✅ + T1~T3/EXIT 全部 [x]）
 
 ### Day 10 — 武器进化
 - [ ] **D10-PRE【W2】星刃进化链补全**（由 Day 2 `D2-T5` 转入，08-05 06:35 #2 收敛为单一来源）：3 把签名武器中 `se_star_flame→se_flame_core→se_star_fall` ✅、`se_auto_turret→se_mech_core→se_turret_array` ✅ 两条链完整，**唯独 `se_star_blade` ❌ 缺 `evolution` 且无专属核心**。本日决策：新增 `se_blade_core` 补齐第三条链，or 明确接受莱恩无进化。**禁止挂 `elemental_core` 凑数**（语义错位，Day 2 已否决）
