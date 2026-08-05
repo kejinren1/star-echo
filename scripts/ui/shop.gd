@@ -118,7 +118,7 @@ func _create_card(item: Resource, index: int) -> Control:
 	# 名称
 	var name_label := Label.new()
 	name_label.text = item.get("item_name") if item and item.has_method("get") else "???"
-	name_label.theme_override_font_sizes["font_size"] = 8
+	name_label.add_theme_font_size_override("font_size", 8)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(name_label)
 
@@ -126,7 +126,7 @@ func _create_card(item: Resource, index: int) -> Control:
 	var price_label := Label.new()
 	var price = item.get("price") if item and item.has_method("get") else 0
 	price_label.text = "%dG" % price
-	price_label.theme_override_font_sizes["font_size"] = 8
+	price_label.add_theme_font_size_override("font_size", 8)
 	hbox.add_child(price_label)
 
 	# 点击购买
