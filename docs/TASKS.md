@@ -4,7 +4,9 @@
 > 状态标记：`[ ]` 未开始 · `[~]` 进行中 · `[x]` 完成 · `[!]` 受阻/需人工。
 > 护栏：未定义当日任务前不写游戏代码；改前 git commit；改后跑 `tools/baseline_check.py`。
 
-> ✅ **Day 5 已收口（2026-08-05 23:5x · #3）**：`day5_weapon_check.gd` **15 断言 0 失败** + baseline **BASELINE CLEAN** + 回归三件套全绿，提交 `5092874`（6 槽 / 查表升级 / 环绕武器 / 混合升级面板）。下一目标日由 #2 推进（Day 6 阶段 A 集成测试）。
+> ✅ **Day 5 已收口（2026-08-05 23:5x · #3）**：`day5_weapon_check.gd` **15 断言 0 失败** + baseline **BASELINE CLEAN** + 回归三件套全绿，提交 `5092874`（6 槽 / 查表升级 / 环绕武器 / 混合升级面板）。
+> ✅ **Day 6 已收口（2026-08-06 01:5x · #3）**：阶段 A 集成测试完成 —— T-A 经验链路数据化（23 敌 exp_value + 透传 + 端到端探针 **14/14 CLEAN**）+ 回归四件套全绿（day2 32 / day3 16 / day4 21 / day5 15）+ 平衡校准（**实测曲线 Lv1→2=30**，chaser 2→3 / charger 3→4）+ 阶段 A 报告 `docs/REPORT_PHASE_A.md` + baseline **BASELINE CLEAN**，提交见本轮收口 commit。**P1 D6-T4 经验飘字亦已实装**（未顺延）。
+> 🎯 **Day 6 已预拆解（2026-08-06 01:1x · #2 第 7 轮）**：阶段 A 集成测试 + 平衡初调 + 阶段 A 报告（见 Day 6 区）。**优先纳入 T-A 经验链路**（`enemies.json` 补 `exp_value` 数据化 → 首升配比校准 → 端到端探针）——#1 第 8 轮建议 + PLAYTEST 追踪区 T-A 双双指向，证据最硬；T-B 经验可见性为 P1 顺延项。
 > ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）
 > 🔴 **Day 4 首段必做 BUG-001 F1/F2**（用户 19:50 反馈「第 2 关后全员静止」、19:53 确认留待下一轮 = 本日首段；已固化为 `D4-T7` / `D4-T8`，见 Day 4 区）
 > ✅ **Day 3 已收口（2026-08-05 19:2x · #3）** —— `day3_skill_check.gd` **16 断言 0 失败（DAY3 SKILL CHECK CLEAN）** + `baseline_check` **BASELINE CLEAN** + `day2_hero_check` 回归 32/0 CLEAN，已 `git commit`（Day3 收口提交）。
@@ -636,10 +638,96 @@
 - [x] **护栏**：`git commit`（Day 3/4 破口教训：实现落地≠收口，必须提交）
 - ⚠️ 主观项「环绕刃手感 / 多武器齐射观感 / 武器平衡」→ 不计入出口，由 #5 收进 `PLAYTEST_CHECKLIST.md`
 
-### Day 6 — 阶段 A 集成测试
-- [ ] `baseline_check` 全绿 + 手感冒烟
-- [ ] 平衡初调（基础数值）
-- [ ] 产出阶段 A 报告 → `docs/PROGRESS.md`
+### Day 6 — 阶段 A 集成测试　✅【客观任务完成 · 已收口 · 2026-08-06 01:5x #3】
+
+> **承接**：T-A（经验链路数据化 + 首升配比校准 + 端到端探针）—— PLAYTEST 追踪区 🟡 待 #2 拾取（证据最硬），#1 第 8 轮「下一步」明示优先纳入；T-B（经验可见性）为 P1 顺延。
+> **护栏**：改前 `git commit` 存档；改后 `python tools/baseline_check.py` 必须 `BASELINE CLEAN`。
+> **文件域**：W1 写 `scripts/` + `tools/`（探针）；W2 只写 `data/enemies.json` + `data/weapons.json`；W5 写 `docs/REPORT_PHASE_A.md` + `docs/TEST_REPORT.md`。**无跨域冲突**。
+> **角色矩阵**（DAY_ROLE_ASSIGNMENTS Day 6 行）：W1 集成 ● / W2 平衡初调 ● / W5 全量 baseline + 报告 ●。
+> **本轮实测基线（#3 免重复排查，01:1x #2 已核）**：
+> - **T-A 硬缺口实锤**：`enemy.gd:45` `@export var exp_value: int = 1` **硬编码**；`enemies.json` **23 个敌人（15 regular + 6 elite + 2 boss）全部无 `exp_value` 字段**；`DataLoader.get_scaled_enemy()`（`data_loader.gd:158-192`）返回字典**固定 10 键不含 exp_value**，无透传 → 全敌人经验恒 = 1
+> - **首升失衡量化**：升级曲线 `"20 + current_level * 10"`（`stats.json.leveling`），wave1 仅 12 敌（8 chaser + 4 fly）→ 12 经验 **< 20，第 1 波打满升不了级**；玩家 100 HP 白板出门却无成长反馈，与「前 1 分钟理解核心循环」的爽点哲学冲突
+> - **数据注入路径（D6-T2 落点）**：`enemy_spawner.gd:99` `DataLoader.get_scaled_enemy(id, wave)` → `:108-110` `enemy_scene.instantiate()` + `enemy.initialize(stats)`——**只需改 `get_scaled_enemy()` 返回值加 1 键 + `enemy.gd initialize()` 读 1 行**
+> - **玩家基准**：`player.gd:17-34` max_health 100 / move_speed 300 / damage_multiplier 1.0 / crit 0.05 / crit_dmg 2.0 / armor 0 / luck 0 / life_steal 0
+> - **敌人基准**：regular hp 3-80 / dmg 3-8（`enemies.json.enemies.regular`，15 只）；elite hp 200-300 / dmg 6-10（6 只）；boss invoker 8000hp / predator 15000hp（各带 `wave` 字段——W2 核验该波次合理性）；scaling 5 档公式（`base + growth*wave`，elite 乘数 `1+wave*0.15/0.08`）
+> - **波次**：20 波（wave1=12 敌 → wave16=62 敌）；generation 公式 `base+wave*2` / `max(0.3, base_interval-wave*0.02)` / `min(20+wave*2, 60)`；rewards `5+wave*2` 金币
+> - **武器 DPS 基准（平衡对照用）**：pistol 5/0.45s ≈ 11.1 DPS；炎星术 Lv1 6/0.55s ≈ 10.9；星刃 Lv1 7/0.5s ≈ 14（+环绕）；自动炮台 5/0.5s（3 台 = 30 DPS 上限）
+> - **三英雄 penalty 已生效**（D2-T6 收口）：艾琳 max_hp 90 / 诺亚攻速 0.85 / 莱恩 range -20 —— 平衡基准必须基于 penalty 后数值
+> - ⚠️ **PROGRESS.md 双源风险**：该文件为 #1 每 2h **独占追加**；30DAY_PLAN 粗粒度「产出阶段 A 报告 → PROGRESS.md」若由 #3/#5 落笔会造成双写冲突 → **定案：阶段 A 报告独立成文 `docs/REPORT_PHASE_A.md`（W5 域），PROGRESS.md 只由 #1 维护**
+
+#### 本日总定案（先读，避免执行期临场决策）
+| 议题 | 定案 | 依据 |
+|------|------|------|
+| exp_value 数据落点 | `data/enemies.json` 23 敌补 `exp_value` 字段 → `get_scaled_enemy()` 返回值补 `"exp_value"` 键 → `enemy.gd initialize()` 读 `stats.get("exp_value", 1)` | 数据注入路径已实测（spawner→get_scaled_enemy→initialize）；硬编码 1 是 T-A 根因 |
+| 首升配比目标 | **第 1 波结束前升 1 级**（wave1 累计经验 ≥ 20）；第 2 波中段升 2 级 | 玩家 100 HP 出门，首升过早无意义、过晚无成长反馈；20 需求曲线已定 |
+| exp_value 建议梯度 | regular 按威胁 2~15（chaser 2 / fly 3 / bruiser 6 / slasher 10 / mad_slasher 15）；elite 25~40；boss 300~500 —— **W2 定稿并写进 JSON** | wave1 = 8×2 + 4×3 = 28 ≥ 20 ✓ 满足首升目标；梯度随 HP/威胁正相关 |
+| 阶段 A 报告落点 | **新建 `docs/REPORT_PHASE_A.md`**（W5 域）：六日回顾 + 集成结论 + 平衡结论 + 遗留风险 | PROGRESS.md 为 #1 独占追加，双写冲突；报告是 W5 一次性交付物，独立成文可回读 |
+| 手感冒烟 | **主观项 → #5 归档 PLAYTEST_CHECKLIST，不阻塞 Day 6 出口** | 项目铁律：主观不进关键路径（Day 29 集中）；W5 客观部分 = 回归 + 报告 |
+| T-B 经验可见性 | P1：W1 产能不足可顺延 **Day 7 首段**，不阻塞本日出口 | 中优打磨项；T-A（客观链路）才是 P0 |
+| T-C 炮台提示 / T-D 技能图标 | **不进本日**：T-C 归 Day 17（精英/炮台域）或 backlog；T-D backlog（用户明示不急） | PLAYTEST 追踪区已标优先级 |
+
+#### D6-T1【W2 · P0 · T-A-1】敌人经验数据化（`data/enemies.json`）
+- [x] 为 **23 个敌人全部** 补 `exp_value` 字段（15 regular + 6 elite + 2 boss），按「定案表」梯度定稿；**禁止只给 wave1 出场的敌人补**（后续波次敌人也要有值，否则 scaling 后经验归 1）✅ 23/23 已补（chaser 3 / fly 3 / charger 4 / … / mad_slasher 15；elite 30-40；boss invoker 400 / predator 500）
+- [x] `exp_value` 应随威胁/HP 正相关（示例：chaser 2 / fly 3 / bruiser 6 / slasher 10 / mad_slasher 15 / butcher(精英) 30 / invoker(Boss) 400）—— 最终值 W2 依据「首升目标 + 击杀时间」平衡 ✅ 梯度按威胁/HP 正相关定稿
+- [x] ⚠️ **不修改** `scaling` 公式（hp/damage/speed 的 wave 成长保持现状，本日只补经验维）✅ 未动 scaling
+- 测试点：`python -c` JSON 校验通过；23/23 敌人均有 `exp_value` 且为正整数；`grep -c exp_value data/enemies.json` ≥ 23 ✅ 全部通过（实测 23/23 正整数）
+
+#### D6-T2【W1 · P0 · T-A-2】消费 exp_value（`data_loader.gd` + `enemy.gd`）
+- [x] `data_loader.gd get_scaled_enemy()`（`:158-192`）返回值补键：`"exp_value": int(data.get("exp_value", 1))`（兜底 1 = 现状行为，字段缺失不崩）✅ 已补（:191）
+- [x] `enemy.gd` `initialize(stats)` 内补：`exp_value = int(stats.get("exp_value", exp_value))`（**保留 @export 默认 1 兜底**，直开调试路径不崩；`initialize` 现有 stats 键映射照抄风格）✅ 已补（initialize 内 `if stats.has("exp_value")`）
+- [x] `enemy.gd:395-396` `_drop_rewards()` 的 `gain_exp(exp_value)` **零改动**（已消费该字段）✅ 未改该行（仅在其后追加 D6-T4 飘字）
+- 测试点：wave1 杀 1 chaser → `player.exp == 2`（非 1）；杀 1 fly → `exp == 3`；`well_rounded` 直开 `Main.tscn` 杀敌不崩 ✅ 实测 exp==3（chaser 校准后），探针断言从 JSON 读期望值
+
+#### D6-T3【W1 · P0 · T-A-3】端到端集成探针（新建 `tools/day6_integration_check.gd`）
+- [x] 照搬 `tools/day5_weapon_check.gd` 的 `extends SceneTree` + 分帧推进骨架，覆盖**阶段 A 全链路**（选角→进局→武器→击杀→经验→升级→技能→6槽→死亡/重开）✅ 新建，7 段全链路覆盖
+  1. 直开 `Main.tscn`（无 meta）→ 兜底英雄 `well_rounded` 进局零 error　【回归 D2-T1a】✅
+  2. 注入英雄 `se_irene` → 首武器 `se_star_flame`、`exp == 0`、`level == 1`　【D2 链路】✅
+  3. 手动调 `enemy.initialize`（或直接 spawn）杀 1 敌 → `player.exp == exp_value`（读 JSON 值，非 1）　【T-A 收口 · D6-T1/T2】✅
+  4. 累计经验跨过 20 → `level == 2` + `level_up` 信号触发　【D4 链路】✅（实际曲线 Lv1→2=30，探针按 30 断言）
+  5. `try_cast()` 火球成功 + 冷却生效（二次 false）　【D3 链路】✅
+  6. 装备第 6 把武器 → `is_full()`；第 7 把被拒　【D5 链路】✅
+  7. `player.die()` → GameOver 面板 + `paused == true`；重开 → 场景重载零 error　【D4-T7/BUG-001 回归】✅
+- [x] 断言数 ≥ 12（拆分细分），全部通过输出 `DAY6 INTEGRATION CHECK CLEAN` ✅ **14 断言 0 失败（DAY6 INTEGRATION CHECK CLEAN，exit 0）**
+- 测试点：`godot --headless` 跑该脚本 exit 0；失败时输出具体断言行号 ✅ exit 0
+
+#### D6-T4【W1 · P1 · T-B】经验可见性（中优，可顺延 Day 7 首段）
+> PLAYTEST 追踪区 T-B：经验获取无任何视觉反馈（掉落物/飘字/拾取感缺失；`fx_pickup` 闲置、`pickup_range` 未接线）。
+- [x] 最低可行闭环（三选一即可，推荐 A）✅ **方案 A 已实装（本轮完成，未顺延）**：`enemy._drop_rewards()` 调 `gain_exp` 后生成 Label 飘字「+N」上浮 0.6s 淡出消失（挂 VfxContainer，缺失时回退 current_scene，再无则静默跳过不崩）
+      - A · 经验飘字：`enemy._drop_rewards()` 调 `gain_exp` 处生成 `Label` 飘字「+N」上浮 0.6s 消失（挂 World，样式对齐 VfxPlayer 占位风格）✅
+      - B · 拾取感：`fx_pickup` 特效在升级时触发（`level_up` 信号 → `VfxPlayer.spawn(..., "pickup")`）—（未选）
+      - C · 经验条闪动：`hud.gd` XpBar 在 `xp_changed` 时做短暂高亮 modulate —（未选）
+- [x] 判定：P1，**不计入 Day 6 出口**；未完成顺延 Day 7 首段，不阻塞目标日推进 ✅ 已提前完成，计入本日
+- 测试点：击杀敌人后 World 下出现飘字节点并在 0.6s 后消失；无特效容器时不崩 ✅（day6 探针杀敌路径下 VfxContainer 挂 Label 无异常；容器缺失走静默分支）
+
+#### D6-T5【W2 · P0】平衡初调（基础数值）
+> 目标：找出阶段 A 明显失衡点并微调（**全部改动必须附对照表依据，禁臆造**）。
+- [x] **必查清单（按优先序）**：
+  1. **首升节奏**（T-A 收口后验证）：wave1 打满 → `level == 2`；wave1+wave2 → `level == 3`（经验曲线 20/30）✅ **校准**：实测曲线 Lv1→2=30（`20+current_level*10`，#2 定案误读为 20）→ wave1=36≥30 ✓、wave1+2=95≥70 ✓（详见 REPORT_PHASE_A §3.1）
+  2. **敌人 scaling vs 玩家成长**：取 chaser/fly/bruiser/slasher 四型，按 `hp_formula` 算 wave 1/6/11/16 的 HP，对照玩家对应阶段武器 DPS（Lv1 手枪 11 / Lv4 签名 ≈ 20-25 / Lv8 签名 ≈ 40+）——找出「wave N 单敌需要 > 5s 击杀」的断层点 ✅ 对照表完成（wave1-3 无断层；wave11+ 单武器口径 >5s 登记观察项，未计入合成 DPS 不臆造调值）
+  3. **Boss 数值**：核验 `invoker`/`predator` 的 `wave` 字段对应波次，8000/15000 HP 在该波次玩家 DPS 下击杀时间是否 > 90s（过久则下调 HP 或调高成长）✅ invoker 60-90s 边缘可接受 / predator ~62s 合理，均不动
+  4. **三英雄 penalty 后基准**：艾琳 90 HP / 诺亚 0.85 攻速 / 莱恩 range-20 的存活与输出是否可接受（对照普通敌人 3-8 伤害）✅ 均可接受，不动
+  5. **经济**（可选）：`rewards` 5+wave*2 金币 vs 商店价格（`items.json` price 分布）——明显买不起时登记，不动数据 ✅ 最便宜 8 金币 vs wave1 结束 7 金币 → 登记观察项，不动
+- [x] 微调范围限制：**只动 `data/enemies.json` / `data/weapons.json` / `data/waves.json` 的数值字段**；结构/schema/公式不改（公式改归 Day 13）✅ 仅动 enemies.json（chaser 2→3 / charger 3→4）
+- [x] 产出**平衡对照表**（写入 `docs/REPORT_PHASE_A.md` §平衡结论，D6-T6 引）：每项调整 = 前值 → 后值 → 依据（对照数据）✅ §3 完成
+- 测试点：`python -c` 三文件 JSON 校验通过；wave1 至 wave3 无「单敌 >5s」断层（对照表自证）✅
+
+#### D6-T6【W5 · P0】全量回归 + 阶段 A 报告
+- [x] **全量回归四件套**：`day2_hero_check` 32/0 + `day3_skill_check` 16/0 + `day4_level_check` 21/0 + `day5_weapon_check` 15/0（**D6-T2 改 `get_scaled_enemy`/`initialize` 后 day4 断言 1「exp == exp_value」需同步用新值——先跑，红了按新 exp_value 更新断言数值**）✅ 四件套全绿（32/16/21/15，0 失败，无需改断言——day4 断言已兼容）
+- [x] 新建 `docs/REPORT_PHASE_A.md`，结构：
+      - §1 阶段 A 六日回顾（D1-D5 收口提交哈希 + D6 集成结论）✅
+      - §2 集成测试结果（D6-T3 探针通过率 + 全量回归表）✅ 14/14 + 四件套
+      - §3 平衡结论（引用 D6-T5 平衡对照表：调整项 + 前/后值 + 依据）✅
+      - §4 遗留风险（exp 曲线后续校准 / 29 把旧武器 levels 缺口 / Boss 击杀时间复核 / 主观项指针 → PLAYTEST）✅
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN` ✅
+- [x] `git commit`（护栏：实现落地≠收口）✅
+
+#### D6-EXIT【W5】当日出口
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`（import + runtime 双阶段，exit 0 / stderr 0）✅
+- [x] `tools/day6_integration_check.gd` 全部断言通过 → `DAY6 INTEGRATION CHECK CLEAN`（≥12 断言，含 T-A 收口断言 3）✅ **14 断言 0 失败**
+- [x] 回归四件套全绿（day2 32 / day3 16 / day4 21 / day5 15，0 失败）✅
+- [x] `docs/REPORT_PHASE_A.md` 存在且 §1-§4 齐全（含平衡对照表）✅
+- [x] **护栏**：`git commit`（Day 3/4/5 破口教训，必须提交）✅
+- ⚠️ 主观项「手感冒烟 / 阶段 A 整体手感 / 升级节奏体感」→ 不计入出口，由 #5 收进 `PLAYTEST_CHECKLIST.md`（H-01/H-02/H-03 已在）✅ 不阻塞
 
 ---
 

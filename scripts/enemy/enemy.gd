@@ -394,6 +394,27 @@ func _drop_rewards() -> void:
 	# D4-T1：经验直接结算（不造磁吸宝石实体，见 TASKS Day 4 总定案）
 	if GameManager.player and GameManager.player.has_method("gain_exp"):
 		GameManager.player.gain_exp(exp_value)
+		# D6-T4（T-B · P1）：击杀经验飘字「+N」（方案 A；容器缺失时静默跳过不崩）
+		_spawn_exp_popup(exp_value)
+
+## D6-T4：击杀经验飘字（0.6s 上浮 + 淡出后消失）
+func _spawn_exp_popup(amount: int) -> void:
+	var container: Node = GameManager.vfx_container if GameManager.vfx_container else null
+	if container == null:
+		container = get_tree().current_scene
+	if container == null:
+		return  # 无容器（如纯数据测试）静默跳过
+	var label := Label.new()
+	label.text = "+%d" % amount
+	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_color_override("font_color", Color(0.45, 0.85, 1.0))
+	container.add_child(label)
+	label.global_position = global_position + Vector2(randf_range(-10.0, 10.0), -28.0)
+	var tween := label.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "global_position:y", label.global_position.y - 26.0, 0.6)
+	tween.tween_property(label, "modulate:a", 0.0, 0.6)
+	tween.chain().tween_callback(label.queue_free)
 
 # ========== 初始化接口 ==========
 
@@ -413,6 +434,8 @@ func initialize(stats: Dictionary) -> void:
 		coin_value = stats["coin_value"]
 	if stats.has("armor"):
 		armor = stats["armor"]
+	if stats.has("exp_value"):
+		exp_value = int(stats["exp_value"])
 	if stats.has("behavior"):
 		var behav_str: String = stats["behavior"]
 		behavior = BEHAVIOR_MAP.get(behav_str, Behavior.CHASE)

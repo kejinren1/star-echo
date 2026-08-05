@@ -189,6 +189,8 @@ func get_scaled_enemy(enemy_id: String, wave: int) -> Dictionary:
 		"behavior": data.get("behavior", "chase"),
 		"armor": data.get("armor", 0),
 		"phases": data.get("phases", []),
+		# D6-T2：经验值透传（T-A 收口；缺字段兜底 1 = 历史行为，不崩）
+		"exp_value": int(data.get("exp_value", 1)),
 	}
 
 ## 获取所有敌人 ID
