@@ -19,6 +19,12 @@ extends Area2D
 @export var status_duration: float = 0.0      ## 状态持续时间（秒）
 @export var status_dps: float = 0.0           ## 状态每秒伤害
 
+@export_group("外观（默认 = 既有基础子弹，技能可覆写）")
+## 试玩反馈补强（2026-08-05）：技能弹丸与基础子弹共用同一纹理导致肉眼无法区分
+## （用户反馈「怎么还是基础的子弹」）→ 新增颜色/半径参数化，默认值 = 原有霓虹黄 8px
+@export var bullet_color: Color = Color(1.0, 0.92, 0.2)  ## 弹体颜色（默认霓虹黄）
+@export var bullet_radius: float = 3.4                   ## 弹体半径（默认 3.4 = 8px 纹理）
+
 # ========== 内部状态 ==========
 
 var direction: Vector2 = Vector2.ZERO
@@ -91,18 +97,21 @@ func _explode() -> void:
 
 # ========== 工具 ==========
 
-## 运行时绘制一颗霓虹黄小子弹纹理
+## 运行时绘制一颗圆形弹体纹理（颜色/半径可参数化，默认霓虹黄）
 func _make_bullet_texture() -> Texture2D:
-	var img := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	var size := maxi(int(ceil(bullet_radius * 2.0)) + 2, 8)
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
-	for y in range(8):
-		for x in range(8):
-			var d := Vector2(x + 0.5, y + 0.5).distance_to(Vector2(4.0, 4.0))
-			if d <= 3.4:
-				if d <= 1.6:
-					img.set_pixel(x, y, Color(1.0, 1.0, 0.9, 1.0))
+	var center := Vector2(size * 0.5, size * 0.5)
+	var core_color := bullet_color.lightened(0.45)
+	for y in range(size):
+		for x in range(size):
+			var d := Vector2(x + 0.5, y + 0.5).distance_to(center)
+			if d <= bullet_radius:
+				if d <= bullet_radius * 0.47:
+					img.set_pixel(x, y, core_color)
 				else:
-					img.set_pixel(x, y, Color(1.0, 0.92, 0.2, 1.0))
+					img.set_pixel(x, y, bullet_color)
 	return ImageTexture.create_from_image(img)
 
 ## 设置弹丸方向
@@ -132,3 +141,7 @@ func initialize(props: Dictionary) -> void:
 		status_duration = props["status_duration"]
 	if props.has("status_dps"):
 		status_dps = props["status_dps"]
+	if props.has("bullet_color"):
+		bullet_color = props["bullet_color"]
+	if props.has("bullet_radius"):
+		bullet_radius = props["bullet_radius"]

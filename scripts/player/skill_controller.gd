@@ -119,6 +119,9 @@ func _cast_fireball() -> void:
 		"status_type": str(skill_data.get("element_type", "fire")),
 		"status_duration": burn_duration,
 		"status_dps": dps,
+		# 试玩反馈补强（2026-08-05）：火球须肉眼可辨（红色大弹体），否则与基础子弹混同
+		"bullet_color": Color(1.0, 0.35, 0.15),
+		"bullet_radius": 6.0,
 	})
 	container.add_child(proj)
 	proj.global_position = player.global_position
