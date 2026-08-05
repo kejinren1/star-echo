@@ -27,8 +27,15 @@ window/size/viewport_width=640
 window/size/viewport_height=360
 window/size/window_width_override=1280
 window/size/window_height_override=720
-window/stretch/mode="viewport"
+; 2026-08-05 试玩反馈：viewport 模式把 UI 文本按 640x360 栅格化再 2x 放大 → 字体发糊。
+; 改 canvas_items + integer：UI/文本按窗口 1280x720 渲染（锐利），世界像素精灵仍整数倍放大（像素完美）。
+window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
+
+[gui]
+
+; 全局默认字体 = 系统字体（微软雅黑优先，矢量渲染 + 完整中文），替换 Godot 内置默认字体
+theme/custom="res://assets/ui/theme.tres"
 
 [input]
 
