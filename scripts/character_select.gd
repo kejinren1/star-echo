@@ -12,7 +12,7 @@ signal character_chosen(character_id: String)
 # ========== 配置 ==========
 
 ## Star Echo 三英雄 id（与 data/characters.json 约定一致）
-const HERO_IDS: Array[String] = ["se_irene", "se_noa", "se_ren"]
+const HERO_IDS: Array[String] = ["se_irene", "se_noa", "se_ren", "se_siia"]
 
 ## 选择结果存放的 meta key（挂在 get_tree().root 上）
 const SELECTION_META: StringName = &"se_selected_character"

@@ -237,6 +237,48 @@
       },
       "unlock_condition": "默认解锁",
       "star_echo": true
+    },
+    {
+      "id": "se_siia",
+      "name": "医师·希亚",
+      "name_en": "Siia the Healer",
+      "class": "Healer",
+      "description": "星骸回响中的医师，以神圣之力治愈同伴、庇护弱者；光耀法杖驱散异变生命。",
+      "passive": {
+        "hp_regen": 2,
+        "max_hp": 15,
+        "luck": 5
+      },
+      "sprite": "siia",
+      "starting_weapon": "se_holy_staff",
+      "weapon_restrictions": [],
+      "penalty": {
+        "damage_percent": -15,
+        "speed_percent": -5
+      },
+      "skill": {
+        "id": "se_skill_holy_shield",
+        "name": "神圣庇护",
+        "name_en": "Holy Shield",
+        "type": "active",
+        "cooldown": 14.0,
+        "duration": 5.0,
+        "effects": {
+          "shield": 30,
+          "heal": 10
+        },
+        "description": "5 秒内获得 30 点护盾并每秒恢复 10 点生命"
+      },
+      "growth": {
+        "type": "heal_support",
+        "per_level": {
+          "hp_regen": 0.3,
+          "luck": 1
+        },
+        "description": "治疗成长：每级 +0.3 生命回复 / +1 幸运"
+      },
+      "unlock_condition": "默认解锁",
+      "star_echo": true
     }
   ]
 }
