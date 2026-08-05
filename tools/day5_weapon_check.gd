@@ -178,21 +178,27 @@ func _check_level_table() -> void:
 	else:
 		_fail("slots / Lv2 查表失败：期望 %.1f，实得 %.1f" % [expected_lv2_dmg, actual_dmg])
 
-## 断言 3：pistol（无 levels 表）走通用成长（5 * 1.25）
+## 断言 3：合成裸武器（无 level_table）→ 通用成长兜底（base_damage×1.25 / fire_rate×1.1）
+## Day 7 改动：旧版用 pistol 测兜底，Day 7 给 pistol 补了 8 条 levels → 改用合成裸 Weapon.new()
+## 验证升级链路对无 levels 表数据仍走通用成长（不崩）
 func _check_generic_growth() -> void:
-	var w: Resource = _controller.call("build_weapon_from_data", "pistol")
-	if w == null:
-		_fail("slots / pistol 构建失败")
-		return
+	var w := Weapon.new()
+	w.base_damage = 5.0
+	w.fire_rate = 2.0
 	if not w.level_table.is_empty():
-		_fail("slots / pistol 不应有 level_table")
+		_fail("slots / 合成裸武器不应有 level_table")
 		return
 	w.call("upgrade")
-	if absf(float(w.get("base_damage")) - 5.0 * 1.25) <= EPSILON:
-		_checked += 1
-		print("  PASS  slots / pistol 通用成长 base_damage == 6.25")
-	else:
-		_fail("slots / pistol 通用成长期望 6.25，实得 %.2f" % float(w.get("base_damage")))
+	if absf(float(w.get("base_damage")) - 5.0 * 1.25) > EPSILON:
+		_fail("slots / 通用成长 base_damage 期 6.25，实得 %.2f" % float(w.get("base_damage")))
+		return
+	_checked += 1
+	print("  PASS  slots / 裸武器 base_damage 通用成长 5 → 6.25（×1.25 兜底）")
+	if absf(float(w.get("fire_rate")) - 2.0 * 1.1) > EPSILON:
+		_fail("slots / 通用成长 fire_rate 期 2.2，实得 %.2f" % float(w.get("fire_rate")))
+		return
+	_checked += 1
+	print("  PASS  slots / 裸武器 fire_rate 通用成长 2.0 → 2.2（×1.1 兜底）")
 
 ## 断言 4a + 4b：面板混合选项池含武器升级项 + 注入式应用升级
 func _check_panel_pool() -> void:

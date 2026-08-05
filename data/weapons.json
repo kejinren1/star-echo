@@ -8,14 +8,17 @@
         "tier": 1,
         "price": 10,
         "damage": 3,
-        "cooldown": 0.30,
+        "cooldown": 0.3,
         "range": 120,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "melee_damage": 1.0 },
+        "scaling": {
+          "melee_damage": 1.0
+        },
         "knockback": 5,
         "life_steal": 0,
-        "special": "攻速极快"
+        "special": "攻速极快",
+        "icon_index": 0
       },
       {
         "id": "stick",
@@ -28,9 +31,12 @@
         "range": 160,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "melee_damage": 1.0 },
+        "scaling": {
+          "melee_damage": 1.0
+        },
         "knockback": 20,
-        "special": "高击退"
+        "special": "高击退",
+        "icon_index": 1
       },
       {
         "id": "dagger",
@@ -43,9 +49,12 @@
         "range": 130,
         "crit_chance": 0.15,
         "crit_damage": 2.5,
-        "scaling": { "melee_damage": 0.8 },
+        "scaling": {
+          "melee_damage": 0.8
+        },
         "knockback": 3,
-        "special": "高暴击伤害"
+        "special": "高暴击伤害",
+        "icon_index": 2
       },
       {
         "id": "sword",
@@ -54,13 +63,75 @@
         "tier": 2,
         "price": 35,
         "damage": 12,
-        "cooldown": 0.50,
+        "cooldown": 0.5,
         "range": 180,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "melee_damage": 1.0 },
+        "scaling": {
+          "melee_damage": 1.0
+        },
         "knockback": 10,
-        "special": "可劈砍多个敌人"
+        "special": "可劈砍多个敌人",
+        "icon_index": 3,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 12,
+            "cooldown": 0.5,
+            "range": 180,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 15,
+            "cooldown": 0.5,
+            "range": 185,
+            "upgrade": "伤害 +3"
+          },
+          {
+            "level": 3,
+            "damage": 19,
+            "cooldown": 0.47,
+            "range": 190,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 23,
+            "cooldown": 0.47,
+            "range": 196,
+            "upgrade": "伤害 +4"
+          },
+          {
+            "level": 5,
+            "damage": 28,
+            "cooldown": 0.44,
+            "range": 202,
+            "upgrade": "攻速提升, 射程扩展"
+          },
+          {
+            "level": 6,
+            "damage": 34,
+            "cooldown": 0.44,
+            "range": 208,
+            "upgrade": "伤害 +6"
+          },
+          {
+            "level": 7,
+            "damage": 41,
+            "cooldown": 0.4,
+            "range": 214,
+            "upgrade": "伤害 +7, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 50,
+            "cooldown": 0.36,
+            "range": 220,
+            "upgrade": "满级: 劈砍范围最大化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "hammer",
@@ -69,13 +140,16 @@
         "tier": 3,
         "price": 60,
         "damage": 30,
-        "cooldown": 1.20,
+        "cooldown": 1.2,
         "range": 200,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "melee_damage": 1.0 },
+        "scaling": {
+          "melee_damage": 1.0
+        },
         "knockback": 40,
-        "special": "范围AOE伤害"
+        "special": "范围AOE伤害",
+        "icon_index": 4
       },
       {
         "id": "chainsaw",
@@ -84,14 +158,76 @@
         "tier": 3,
         "price": 70,
         "damage": 8,
-        "cooldown": 0.10,
+        "cooldown": 0.1,
         "range": 150,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "melee_damage": 0.7 },
+        "scaling": {
+          "melee_damage": 0.7
+        },
         "knockback": 5,
         "life_steal": 3,
-        "special": "持续伤害, 自带生命偷取"
+        "special": "持续伤害, 自带生命偷取",
+        "icon_index": 5,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 8,
+            "cooldown": 0.1,
+            "range": 150,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 10,
+            "cooldown": 0.1,
+            "range": 154,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 3,
+            "damage": 12,
+            "cooldown": 0.095,
+            "range": 158,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 15,
+            "cooldown": 0.095,
+            "range": 162,
+            "upgrade": "伤害 +3"
+          },
+          {
+            "level": 5,
+            "damage": 18,
+            "cooldown": 0.09,
+            "range": 166,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 22,
+            "cooldown": 0.09,
+            "range": 170,
+            "upgrade": "伤害 +4"
+          },
+          {
+            "level": 7,
+            "damage": 27,
+            "cooldown": 0.085,
+            "range": 175,
+            "upgrade": "伤害 +5, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 33,
+            "cooldown": 0.08,
+            "range": 180,
+            "upgrade": "满级: 电锯切割最大化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "flaming_knuckles",
@@ -100,14 +236,18 @@
         "tier": 3,
         "price": 65,
         "damage": 10,
-        "cooldown": 0.30,
+        "cooldown": 0.3,
         "range": 130,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "melee_damage": 0.5, "elemental_damage": 0.5 },
+        "scaling": {
+          "melee_damage": 0.5,
+          "elemental_damage": 0.5
+        },
         "knockback": 5,
         "special": "施加燃烧状态3秒",
-        "element_type": "fire"
+        "element_type": "fire",
+        "icon_index": 6
       },
       {
         "id": "se_star_blade",
@@ -121,7 +261,9 @@
         "range": 110,
         "crit_chance": 0.08,
         "crit_damage": 1.8,
-        "scaling": { "melee_damage": 1.0 },
+        "scaling": {
+          "melee_damage": 1.0
+        },
         "knockback": 8,
         "life_steal": 1,
         "blade_count": 1,
@@ -132,15 +274,80 @@
         "signature_of": "se_ren",
         "max_level": 8,
         "levels": [
-          { "level": 1, "damage": 7, "cooldown": 0.45, "blade_count": 1, "orbit_radius": 110, "orbit_speed": 180, "upgrade": "基础形态" },
-          { "level": 2, "damage": 9, "cooldown": 0.45, "blade_count": 1, "orbit_radius": 115, "orbit_speed": 190, "upgrade": "伤害 +2" },
-          { "level": 3, "damage": 11, "cooldown": 0.42, "blade_count": 2, "orbit_radius": 120, "orbit_speed": 200, "upgrade": "星刃数量 +1" },
-          { "level": 4, "damage": 14, "cooldown": 0.42, "blade_count": 2, "orbit_radius": 125, "orbit_speed": 210, "upgrade": "伤害 +3" },
-          { "level": 5, "damage": 17, "cooldown": 0.38, "blade_count": 3, "orbit_radius": 132, "orbit_speed": 220, "upgrade": "星刃数量 +1, 转速提升" },
-          { "level": 6, "damage": 21, "cooldown": 0.38, "blade_count": 3, "orbit_radius": 138, "orbit_speed": 235, "upgrade": "伤害 +4, 半径扩大" },
-          { "level": 7, "damage": 26, "cooldown": 0.34, "blade_count": 4, "orbit_radius": 145, "orbit_speed": 250, "upgrade": "星刃数量 +1" },
-          { "level": 8, "damage": 32, "cooldown": 0.30, "blade_count": 4, "orbit_radius": 150, "orbit_speed": 270, "upgrade": "满级: 可进化(需对应核心)" }
-        ]
+          {
+            "level": 1,
+            "damage": 7,
+            "cooldown": 0.45,
+            "blade_count": 1,
+            "orbit_radius": 110,
+            "orbit_speed": 180,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 9,
+            "cooldown": 0.45,
+            "blade_count": 1,
+            "orbit_radius": 115,
+            "orbit_speed": 190,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 3,
+            "damage": 11,
+            "cooldown": 0.42,
+            "blade_count": 2,
+            "orbit_radius": 120,
+            "orbit_speed": 200,
+            "upgrade": "星刃数量 +1"
+          },
+          {
+            "level": 4,
+            "damage": 14,
+            "cooldown": 0.42,
+            "blade_count": 2,
+            "orbit_radius": 125,
+            "orbit_speed": 210,
+            "upgrade": "伤害 +3"
+          },
+          {
+            "level": 5,
+            "damage": 17,
+            "cooldown": 0.38,
+            "blade_count": 3,
+            "orbit_radius": 132,
+            "orbit_speed": 220,
+            "upgrade": "星刃数量 +1, 转速提升"
+          },
+          {
+            "level": 6,
+            "damage": 21,
+            "cooldown": 0.38,
+            "blade_count": 3,
+            "orbit_radius": 138,
+            "orbit_speed": 235,
+            "upgrade": "伤害 +4, 半径扩大"
+          },
+          {
+            "level": 7,
+            "damage": 26,
+            "cooldown": 0.34,
+            "blade_count": 4,
+            "orbit_radius": 145,
+            "orbit_speed": 250,
+            "upgrade": "星刃数量 +1"
+          },
+          {
+            "level": 8,
+            "damage": 32,
+            "cooldown": 0.3,
+            "blade_count": 4,
+            "orbit_radius": 150,
+            "orbit_speed": 270,
+            "upgrade": "满级: 可进化(需对应核心)"
+          }
+        ],
+        "icon_index": 7
       }
     ],
     "ranged": [
@@ -155,8 +362,70 @@
         "range": 250,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 1.0 },
-        "special": "穿透1个敌人(-50%伤害)"
+        "scaling": {
+          "ranged_damage": 1.0
+        },
+        "special": "穿透1个敌人(-50%伤害)",
+        "icon_index": 8,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 5,
+            "cooldown": 0.45,
+            "range": 250,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 6,
+            "cooldown": 0.45,
+            "range": 258,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 3,
+            "damage": 8,
+            "cooldown": 0.42,
+            "range": 266,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 10,
+            "cooldown": 0.42,
+            "range": 274,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 5,
+            "damage": 12,
+            "cooldown": 0.39,
+            "range": 282,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 15,
+            "cooldown": 0.39,
+            "range": 290,
+            "upgrade": "伤害 +3"
+          },
+          {
+            "level": 7,
+            "damage": 18,
+            "cooldown": 0.36,
+            "range": 298,
+            "upgrade": "伤害 +3, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 22,
+            "cooldown": 0.33,
+            "range": 308,
+            "upgrade": "满级: 穿透强化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "slingshot",
@@ -167,10 +436,13 @@
         "damage": 4,
         "cooldown": 0.35,
         "range": 220,
-        "crit_chance": 0.10,
+        "crit_chance": 0.1,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 1.0 },
-        "special": "弹射2次"
+        "scaling": {
+          "ranged_damage": 1.0
+        },
+        "special": "弹射2次",
+        "icon_index": 9
       },
       {
         "id": "smg",
@@ -183,8 +455,70 @@
         "range": 240,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 0.8 },
-        "special": "极快射速"
+        "scaling": {
+          "ranged_damage": 0.8
+        },
+        "special": "极快射速",
+        "icon_index": 11,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 3,
+            "cooldown": 0.12,
+            "range": 240,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 4,
+            "cooldown": 0.12,
+            "range": 247,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 3,
+            "damage": 5,
+            "cooldown": 0.11,
+            "range": 254,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 6,
+            "cooldown": 0.11,
+            "range": 261,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 5,
+            "damage": 8,
+            "cooldown": 0.1,
+            "range": 268,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 10,
+            "cooldown": 0.1,
+            "range": 275,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 7,
+            "damage": 12,
+            "cooldown": 0.09,
+            "range": 282,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 15,
+            "cooldown": 0.085,
+            "range": 290,
+            "upgrade": "满级: 极限射速"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "shotgun",
@@ -194,12 +528,82 @@
         "price": 35,
         "damage": 4,
         "projectiles": 5,
-        "cooldown": 0.80,
+        "cooldown": 0.8,
         "range": 180,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 1.0 },
-        "special": "发射5颗弹丸"
+        "scaling": {
+          "ranged_damage": 1.0
+        },
+        "special": "发射5颗弹丸",
+        "icon_index": 12,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 4,
+            "cooldown": 0.8,
+            "range": 180,
+            "projectiles": 5,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 5,
+            "cooldown": 0.8,
+            "range": 185,
+            "projectiles": 5,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 3,
+            "damage": 6,
+            "cooldown": 0.75,
+            "range": 190,
+            "projectiles": 6,
+            "upgrade": "弹丸数 +1"
+          },
+          {
+            "level": 4,
+            "damage": 8,
+            "cooldown": 0.75,
+            "range": 195,
+            "projectiles": 6,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 5,
+            "damage": 10,
+            "cooldown": 0.7,
+            "range": 200,
+            "projectiles": 6,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 12,
+            "cooldown": 0.7,
+            "range": 205,
+            "projectiles": 7,
+            "upgrade": "弹丸数 +1"
+          },
+          {
+            "level": 7,
+            "damage": 15,
+            "cooldown": 0.65,
+            "range": 210,
+            "projectiles": 7,
+            "upgrade": "伤害 +3, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 18,
+            "cooldown": 0.6,
+            "range": 218,
+            "projectiles": 8,
+            "upgrade": "满级: 弹幕最大化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "crossbow",
@@ -208,12 +612,15 @@
         "tier": 2,
         "price": 40,
         "damage": 15,
-        "cooldown": 0.90,
+        "cooldown": 0.9,
         "range": 300,
         "crit_chance": 0.15,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 1.0 },
-        "special": "穿透3个敌人, 缩放攻击范围"
+        "scaling": {
+          "ranged_damage": 1.0
+        },
+        "special": "穿透3个敌人, 缩放攻击范围",
+        "icon_index": 10
       },
       {
         "id": "sniper",
@@ -222,12 +629,74 @@
         "tier": 3,
         "price": 55,
         "damage": 40,
-        "cooldown": 1.50,
+        "cooldown": 1.5,
         "range": 400,
         "crit_chance": 0.25,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 1.0 },
-        "special": "超远射程, 高暴击"
+        "scaling": {
+          "ranged_damage": 1.0
+        },
+        "special": "超远射程, 高暴击",
+        "icon_index": 13,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 40,
+            "cooldown": 1.5,
+            "range": 400,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 50,
+            "cooldown": 1.5,
+            "range": 410,
+            "upgrade": "伤害 +10"
+          },
+          {
+            "level": 3,
+            "damage": 62,
+            "cooldown": 1.42,
+            "range": 420,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 76,
+            "cooldown": 1.42,
+            "range": 430,
+            "upgrade": "伤害 +14"
+          },
+          {
+            "level": 5,
+            "damage": 92,
+            "cooldown": 1.34,
+            "range": 440,
+            "upgrade": "伤害 +16, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 110,
+            "cooldown": 1.34,
+            "range": 450,
+            "upgrade": "伤害 +18"
+          },
+          {
+            "level": 7,
+            "damage": 132,
+            "cooldown": 1.26,
+            "range": 462,
+            "upgrade": "伤害 +22, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 158,
+            "cooldown": 1.18,
+            "range": 475,
+            "upgrade": "满级: 致命一击"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "rocket_launcher",
@@ -236,12 +705,15 @@
         "tier": 3,
         "price": 70,
         "damage": 25,
-        "cooldown": 1.20,
+        "cooldown": 1.2,
         "range": 280,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 1.0 },
-        "special": "爆炸AOE(半径60)"
+        "scaling": {
+          "ranged_damage": 1.0
+        },
+        "special": "爆炸AOE(半径60)",
+        "icon_index": 14
       },
       {
         "id": "minigun",
@@ -254,8 +726,11 @@
         "range": 260,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 0.8 },
-        "special": "每3发有1发长冷却"
+        "scaling": {
+          "ranged_damage": 0.8
+        },
+        "special": "每3发有1发长冷却",
+        "icon_index": 15
       },
       {
         "id": "se_holy_staff",
@@ -269,7 +744,9 @@
         "range": 240,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "ranged_damage": 1.0 },
+        "scaling": {
+          "ranged_damage": 1.0
+        },
         "projectiles": 1,
         "special": "发射圣光弹，治疗向武器的稳定远程打击",
         "star_echo": true,
@@ -340,7 +817,8 @@
             "projectiles": 3,
             "upgrade": "满级: 圣光弹威力最大化"
           }
-        ]
+        ],
+        "icon_index": 16
       }
     ],
     "elemental": [
@@ -351,13 +829,75 @@
         "tier": 1,
         "price": 15,
         "damage": 3,
-        "cooldown": 0.40,
+        "cooldown": 0.4,
         "range": 240,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.8 },
+        "scaling": {
+          "elemental_damage": 0.8
+        },
         "element_type": "fire",
-        "special": "施加燃烧(3秒)"
+        "special": "施加燃烧(3秒)",
+        "icon_index": 17,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 3,
+            "cooldown": 0.4,
+            "range": 240,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 4,
+            "cooldown": 0.4,
+            "range": 248,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 3,
+            "damage": 5,
+            "cooldown": 0.37,
+            "range": 256,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 6,
+            "cooldown": 0.37,
+            "range": 264,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 5,
+            "damage": 8,
+            "cooldown": 0.35,
+            "range": 272,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 10,
+            "cooldown": 0.35,
+            "range": 280,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 7,
+            "damage": 12,
+            "cooldown": 0.32,
+            "range": 288,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 15,
+            "cooldown": 0.3,
+            "range": 298,
+            "upgrade": "满级: 燃烧强化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "icicle",
@@ -366,13 +906,75 @@
         "tier": 1,
         "price": 15,
         "damage": 5,
-        "cooldown": 0.50,
+        "cooldown": 0.5,
         "range": 250,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.8 },
+        "scaling": {
+          "elemental_damage": 0.8
+        },
         "element_type": "ice",
-        "special": "施加减速(2秒)"
+        "special": "施加减速(2秒)",
+        "icon_index": 18,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 5,
+            "cooldown": 0.5,
+            "range": 250,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 6,
+            "cooldown": 0.5,
+            "range": 258,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 3,
+            "damage": 8,
+            "cooldown": 0.47,
+            "range": 266,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 10,
+            "cooldown": 0.47,
+            "range": 274,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 5,
+            "damage": 12,
+            "cooldown": 0.44,
+            "range": 282,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 15,
+            "cooldown": 0.44,
+            "range": 290,
+            "upgrade": "伤害 +3"
+          },
+          {
+            "level": 7,
+            "damage": 18,
+            "cooldown": 0.41,
+            "range": 298,
+            "upgrade": "伤害 +3, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 22,
+            "cooldown": 0.38,
+            "range": 308,
+            "upgrade": "满级: 减速强化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "lightning_shiv",
@@ -383,11 +985,14 @@
         "damage": 6,
         "cooldown": 0.35,
         "range": 220,
-        "crit_chance": 0.10,
+        "crit_chance": 0.1,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.8 },
+        "scaling": {
+          "elemental_damage": 0.8
+        },
         "element_type": "lightning",
-        "special": "连锁3个敌人"
+        "special": "连锁3个敌人",
+        "icon_index": 19
       },
       {
         "id": "flamethrower",
@@ -400,9 +1005,71 @@
         "range": 160,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.6 },
+        "scaling": {
+          "elemental_damage": 0.6
+        },
         "element_type": "fire",
-        "special": "持续喷射, 施加燃烧"
+        "special": "持续喷射, 施加燃烧",
+        "icon_index": 20,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 2,
+            "cooldown": 0.05,
+            "range": 160,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 3,
+            "cooldown": 0.05,
+            "range": 165,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 3,
+            "damage": 4,
+            "cooldown": 0.048,
+            "range": 170,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 5,
+            "cooldown": 0.048,
+            "range": 175,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 5,
+            "damage": 6,
+            "cooldown": 0.045,
+            "range": 180,
+            "upgrade": "伤害 +1, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 7,
+            "cooldown": 0.045,
+            "range": 185,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 7,
+            "damage": 8,
+            "cooldown": 0.042,
+            "range": 190,
+            "upgrade": "伤害 +1, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 10,
+            "cooldown": 0.04,
+            "range": 198,
+            "upgrade": "满级: 持续喷焰"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "venom_staff",
@@ -411,13 +1078,16 @@
         "tier": 2,
         "price": 35,
         "damage": 4,
-        "cooldown": 0.60,
+        "cooldown": 0.6,
         "range": 200,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.8 },
+        "scaling": {
+          "elemental_damage": 0.8
+        },
         "element_type": "poison",
-        "special": "施加中毒(5秒)"
+        "special": "施加中毒(5秒)",
+        "icon_index": 21
       },
       {
         "id": "storm_staff",
@@ -426,13 +1096,16 @@
         "tier": 3,
         "price": 60,
         "damage": 12,
-        "cooldown": 0.80,
+        "cooldown": 0.8,
         "range": 300,
-        "crit_chance": 0.10,
+        "crit_chance": 0.1,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.8 },
+        "scaling": {
+          "elemental_damage": 0.8
+        },
         "element_type": "lightning",
-        "special": "范围闪电(半径80)"
+        "special": "范围闪电(半径80)",
+        "icon_index": 22
       },
       {
         "id": "frost_nova",
@@ -441,13 +1114,16 @@
         "tier": 3,
         "price": 55,
         "damage": 8,
-        "cooldown": 1.00,
+        "cooldown": 1.0,
         "range": 180,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.8 },
+        "scaling": {
+          "elemental_damage": 0.8
+        },
         "element_type": "ice",
-        "special": "以自身为中心AOE, 冻结1秒"
+        "special": "以自身为中心AOE, 冻结1秒",
+        "icon_index": 23
       },
       {
         "id": "plasma_cannon",
@@ -456,13 +1132,16 @@
         "tier": 4,
         "price": 90,
         "damage": 20,
-        "cooldown": 1.00,
+        "cooldown": 1.0,
         "range": 350,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 1.0 },
+        "scaling": {
+          "elemental_damage": 1.0
+        },
         "element_type": "plasma",
-        "special": "穿透所有敌人"
+        "special": "穿透所有敌人",
+        "icon_index": 24
       },
       {
         "id": "se_star_flame",
@@ -476,7 +1155,9 @@
         "range": 260,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "elemental_damage": 0.8 },
+        "scaling": {
+          "elemental_damage": 0.8
+        },
         "element_type": "fire",
         "projectiles": 1,
         "special": "发射炎星火弹, 命中施加燃烧(3秒)",
@@ -491,15 +1172,72 @@
           "description": "召唤大型火焰陨石造成范围 AOE"
         },
         "levels": [
-          { "level": 1, "damage": 6, "cooldown": 0.55, "range": 260, "projectiles": 1, "upgrade": "基础形态" },
-          { "level": 2, "damage": 8, "cooldown": 0.55, "range": 270, "projectiles": 1, "upgrade": "伤害 +2" },
-          { "level": 3, "damage": 10, "cooldown": 0.50, "range": 280, "projectiles": 1, "upgrade": "攻速提升, 燃烧 4 秒" },
-          { "level": 4, "damage": 12, "cooldown": 0.50, "range": 290, "projectiles": 2, "upgrade": "弹丸数 +1" },
-          { "level": 5, "damage": 15, "cooldown": 0.45, "range": 300, "projectiles": 2, "upgrade": "伤害 +3, 攻速提升" },
-          { "level": 6, "damage": 18, "cooldown": 0.45, "range": 310, "projectiles": 2, "upgrade": "命中产生小范围爆燃(半径40)" },
-          { "level": 7, "damage": 22, "cooldown": 0.40, "range": 320, "projectiles": 3, "upgrade": "弹丸数 +1" },
-          { "level": 8, "damage": 27, "cooldown": 0.35, "range": 340, "projectiles": 3, "upgrade": "满级: 可进化为炎星陨落(需烈焰核心)" }
-        ]
+          {
+            "level": 1,
+            "damage": 6,
+            "cooldown": 0.55,
+            "range": 260,
+            "projectiles": 1,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 8,
+            "cooldown": 0.55,
+            "range": 270,
+            "projectiles": 1,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 3,
+            "damage": 10,
+            "cooldown": 0.5,
+            "range": 280,
+            "projectiles": 1,
+            "upgrade": "攻速提升, 燃烧 4 秒"
+          },
+          {
+            "level": 4,
+            "damage": 12,
+            "cooldown": 0.5,
+            "range": 290,
+            "projectiles": 2,
+            "upgrade": "弹丸数 +1"
+          },
+          {
+            "level": 5,
+            "damage": 15,
+            "cooldown": 0.45,
+            "range": 300,
+            "projectiles": 2,
+            "upgrade": "伤害 +3, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 18,
+            "cooldown": 0.45,
+            "range": 310,
+            "projectiles": 2,
+            "upgrade": "命中产生小范围爆燃(半径40)"
+          },
+          {
+            "level": 7,
+            "damage": 22,
+            "cooldown": 0.4,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "弹丸数 +1"
+          },
+          {
+            "level": 8,
+            "damage": 27,
+            "cooldown": 0.35,
+            "range": 340,
+            "projectiles": 3,
+            "upgrade": "满级: 可进化为炎星陨落(需烈焰核心)"
+          }
+        ],
+        "icon_index": 25
       }
     ],
     "engineering": [
@@ -510,10 +1248,72 @@
         "tier": 1,
         "price": 15,
         "damage": 4,
-        "cooldown": 0.50,
+        "cooldown": 0.5,
         "range": 200,
-        "scaling": { "engineering": 0.8 },
-        "special": "放置自动炮台, 存在20秒"
+        "scaling": {
+          "engineering": 0.8
+        },
+        "special": "放置自动炮台, 存在20秒",
+        "icon_index": 26,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 4,
+            "cooldown": 0.5,
+            "range": 200,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 5,
+            "cooldown": 0.5,
+            "range": 206,
+            "upgrade": "伤害 +1"
+          },
+          {
+            "level": 3,
+            "damage": 6,
+            "cooldown": 0.47,
+            "range": 212,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 8,
+            "cooldown": 0.47,
+            "range": 218,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 5,
+            "damage": 10,
+            "cooldown": 0.44,
+            "range": 224,
+            "upgrade": "伤害 +2, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 12,
+            "cooldown": 0.44,
+            "range": 230,
+            "upgrade": "伤害 +2"
+          },
+          {
+            "level": 7,
+            "damage": 15,
+            "cooldown": 0.4,
+            "range": 238,
+            "upgrade": "伤害 +3, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 18,
+            "cooldown": 0.37,
+            "range": 246,
+            "upgrade": "满级: 炮台火力最大化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "landmine",
@@ -522,10 +1322,72 @@
         "tier": 1,
         "price": 12,
         "damage": 20,
-        "cooldown": 1.00,
+        "cooldown": 1.0,
         "range": 100,
-        "scaling": { "engineering": 0.8 },
-        "special": "放置地雷, 敌人靠近爆炸"
+        "scaling": {
+          "engineering": 0.8
+        },
+        "special": "放置地雷, 敌人靠近爆炸",
+        "icon_index": 27,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 20,
+            "cooldown": 1.0,
+            "range": 100,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 25,
+            "cooldown": 1.0,
+            "range": 103,
+            "upgrade": "伤害 +5"
+          },
+          {
+            "level": 3,
+            "damage": 31,
+            "cooldown": 0.94,
+            "range": 106,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 4,
+            "damage": 38,
+            "cooldown": 0.94,
+            "range": 109,
+            "upgrade": "伤害 +7"
+          },
+          {
+            "level": 5,
+            "damage": 46,
+            "cooldown": 0.88,
+            "range": 112,
+            "upgrade": "伤害 +8, 攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 56,
+            "cooldown": 0.88,
+            "range": 115,
+            "upgrade": "伤害 +10"
+          },
+          {
+            "level": 7,
+            "damage": 67,
+            "cooldown": 0.82,
+            "range": 119,
+            "upgrade": "伤害 +11, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 80,
+            "cooldown": 0.76,
+            "range": 124,
+            "upgrade": "满级: 爆炸范围最大化"
+          }
+        ],
+        "max_level": 8
       },
       {
         "id": "wrench",
@@ -534,10 +1396,14 @@
         "tier": 2,
         "price": 25,
         "damage": 8,
-        "cooldown": 0.50,
+        "cooldown": 0.5,
         "range": 150,
-        "scaling": { "melee_damage": 0.5, "engineering": 0.5 },
-        "special": "攻击同时修复附近结构物"
+        "scaling": {
+          "melee_damage": 0.5,
+          "engineering": 0.5
+        },
+        "special": "攻击同时修复附近结构物",
+        "icon_index": 28
       },
       {
         "id": "laser_turret",
@@ -548,8 +1414,11 @@
         "damage": 3,
         "cooldown": 0.15,
         "range": 250,
-        "scaling": { "engineering": 0.8 },
-        "special": "持续激光, 存在15秒"
+        "scaling": {
+          "engineering": 0.8
+        },
+        "special": "持续激光, 存在15秒",
+        "icon_index": 29
       },
       {
         "id": "mech_arm",
@@ -558,10 +1427,14 @@
         "tier": 3,
         "price": 55,
         "damage": 15,
-        "cooldown": 0.60,
+        "cooldown": 0.6,
         "range": 180,
-        "scaling": { "melee_damage": 0.5, "engineering": 0.5 },
-        "special": "挥击+发射小型导弹"
+        "scaling": {
+          "melee_damage": 0.5,
+          "engineering": 0.5
+        },
+        "special": "挥击+发射小型导弹",
+        "icon_index": 30
       },
       {
         "id": "force_field",
@@ -570,10 +1443,13 @@
         "tier": 3,
         "price": 60,
         "damage": 0,
-        "cooldown": 2.00,
+        "cooldown": 2.0,
         "range": 120,
-        "scaling": { "engineering": 0.8 },
-        "special": "生成护盾区域, 减伤50%"
+        "scaling": {
+          "engineering": 0.8
+        },
+        "special": "生成护盾区域, 减伤50%",
+        "icon_index": 31
       },
       {
         "id": "se_auto_turret",
@@ -583,11 +1459,13 @@
         "tier": 1,
         "price": 15,
         "damage": 5,
-        "cooldown": 0.50,
+        "cooldown": 0.5,
         "range": 220,
         "crit_chance": 0.05,
         "crit_damage": 1.5,
-        "scaling": { "engineering": 0.8 },
+        "scaling": {
+          "engineering": 0.8
+        },
         "summon_count": 1,
         "duration": 20,
         "special": "召唤自动炮台自主索敌射击, 存在20秒",
@@ -602,15 +1480,80 @@
           "description": "诺亚机械强化: 炮台常驻不消失并同时部署多台"
         },
         "levels": [
-          { "level": 1, "damage": 5, "cooldown": 0.50, "range": 220, "summon_count": 1, "duration": 20, "upgrade": "基础形态" },
-          { "level": 2, "damage": 7, "cooldown": 0.50, "range": 225, "summon_count": 1, "duration": 22, "upgrade": "伤害 +2, 存在时间 +2s" },
-          { "level": 3, "damage": 9, "cooldown": 0.46, "range": 230, "summon_count": 2, "duration": 22, "upgrade": "炮台数量 +1" },
-          { "level": 4, "damage": 11, "cooldown": 0.46, "range": 240, "summon_count": 2, "duration": 24, "upgrade": "伤害 +2, 射程提升" },
-          { "level": 5, "damage": 14, "cooldown": 0.42, "range": 250, "summon_count": 2, "duration": 26, "upgrade": "攻速提升" },
-          { "level": 6, "damage": 17, "cooldown": 0.42, "range": 255, "summon_count": 3, "duration": 26, "upgrade": "炮台数量 +1" },
-          { "level": 7, "damage": 21, "cooldown": 0.36, "range": 265, "summon_count": 3, "duration": 28, "upgrade": "伤害 +4, 攻速提升" },
-          { "level": 8, "damage": 26, "cooldown": 0.32, "range": 280, "summon_count": 3, "duration": 30, "upgrade": "满级: 可进化为机械炮阵(需机械核心)" }
-        ]
+          {
+            "level": 1,
+            "damage": 5,
+            "cooldown": 0.5,
+            "range": 220,
+            "summon_count": 1,
+            "duration": 20,
+            "upgrade": "基础形态"
+          },
+          {
+            "level": 2,
+            "damage": 7,
+            "cooldown": 0.5,
+            "range": 225,
+            "summon_count": 1,
+            "duration": 22,
+            "upgrade": "伤害 +2, 存在时间 +2s"
+          },
+          {
+            "level": 3,
+            "damage": 9,
+            "cooldown": 0.46,
+            "range": 230,
+            "summon_count": 2,
+            "duration": 22,
+            "upgrade": "炮台数量 +1"
+          },
+          {
+            "level": 4,
+            "damage": 11,
+            "cooldown": 0.46,
+            "range": 240,
+            "summon_count": 2,
+            "duration": 24,
+            "upgrade": "伤害 +2, 射程提升"
+          },
+          {
+            "level": 5,
+            "damage": 14,
+            "cooldown": 0.42,
+            "range": 250,
+            "summon_count": 2,
+            "duration": 26,
+            "upgrade": "攻速提升"
+          },
+          {
+            "level": 6,
+            "damage": 17,
+            "cooldown": 0.42,
+            "range": 255,
+            "summon_count": 3,
+            "duration": 26,
+            "upgrade": "炮台数量 +1"
+          },
+          {
+            "level": 7,
+            "damage": 21,
+            "cooldown": 0.36,
+            "range": 265,
+            "summon_count": 3,
+            "duration": 28,
+            "upgrade": "伤害 +4, 攻速提升"
+          },
+          {
+            "level": 8,
+            "damage": 26,
+            "cooldown": 0.32,
+            "range": 280,
+            "summon_count": 3,
+            "duration": 30,
+            "upgrade": "满级: 可进化为机械炮阵(需机械核心)"
+          }
+        ],
+        "icon_index": 32
       }
     ]
   }

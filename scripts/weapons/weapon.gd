@@ -28,6 +28,10 @@ signal weapon_fired
 @export var knockback: float = 0.0              ## 击退力
 @export var spread_angle: float = 0.0           ## 散射角度 (度)
 @export var lifetime: float = 2.0               ## 弹丸存活时间
+## 暴击率 (0~1) / 暴击伤害倍率（D7-T2：build 时从 JSON 读，旧武器默认 0.0/1.0）
+## 暴击结算判定归 Day 13 公式统一，本字段仅装配层透传
+@export var crit_chance: float = 0.0
+@export var crit_damage: float = 1.0
 
 @export_group("成长属性")
 @export var level: int = 1                      ## 武器等级
@@ -102,6 +106,14 @@ func _on_upgrade() -> void:
 		orbit_data["blade_count"] = int(entry.get("blade_count", orbit_data.get("blade_count", 1)))
 		orbit_data["orbit_radius"] = float(entry.get("orbit_radius", orbit_data.get("orbit_radius", 110.0)))
 		orbit_data["orbit_speed"] = float(entry.get("orbit_speed", orbit_data.get("orbit_speed", 180.0)))
+	# D7-T2：消费 levels 中可选进阶键（crit_chance/crit_damage/pierce）——
+	# 本日 11 把 levels 未放进阶键，兼容未来 Day 8-9 放键不漏消费（2 行级低风险）
+	if entry.has("crit_chance"):
+		crit_chance = float(entry["crit_chance"])
+	if entry.has("crit_damage"):
+		crit_damage = float(entry["crit_damage"])
+	if entry.has("pierce"):
+		pierce = maxi(int(entry["pierce"]), 0)
 
 # ========== 属性查询 ==========
 

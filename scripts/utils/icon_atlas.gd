@@ -8,7 +8,7 @@ extends RefCounted
 const SHEET_CONFIG: Dictionary = {
 	"weapons": {
 		"path": "res://assets/sprites/ui/weapons.png",
-		"frame_count": 4,
+		"frame_count": 40,                       ## D7-T4: 4 → 40（33 把武器 + 7 帧空余）
 		"frame_size": Vector2i(32, 32),
 	},
 	"items": {

@@ -119,6 +119,12 @@ func build_weapon_from_data(weapon_id: String) -> Weapon:
 	w.attack_range = float(data.get("range", 200.0))
 	w.projectile_count = maxi(int(data.get("projectiles", 1)), 1)
 	w.knockback = float(data.get("knockback", 0.0))
+	# D7-T2：装配消费补齐（crit_chance/crit_damage/pierce/icon_index），
+	# 沿用 data.get(..., 默认) 兜底范式，字段缺失不崩；旧武器默认 0.0/1.0/0/0
+	w.crit_chance = float(data.get("crit_chance", 0.0))
+	w.crit_damage = float(data.get("crit_damage", 1.0))
+	w.pierce = maxi(int(data.get("pierce", 0)), 0)
+	w.icon_index = maxi(int(data.get("icon_index", 0)), 0)
 	# projectile_speed 保留 Weapon 默认 400；lifetime 由 _spawn_projectile() 按 range/speed 推导，不手设
 	w.level = 1
 	# D5-T2：逐级状态表 + max_level 口径（防 levels 表 8 条而 max_level 缺省时只能升到 5）
