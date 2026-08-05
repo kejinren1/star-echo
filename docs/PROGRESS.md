@@ -503,3 +503,92 @@
 - 📌 口径提醒：`TEST_REPORT` 19:05 的「在途探针 14/14」为**单元级**（直接调用 `_explode`/`apply_status`），与集成断言（完整飞行→命中→爆炸）是**不同层级**，两者结果不矛盾
 
 *本日报由自动化 #1 生成 · 仅分析、记录与任务重排，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
+
+---
+
+## 2026-08-05 21:15 · 目标日 Day 3 收口 ✅ → 推进 Day 4（阶段 A）· 进度日报
+
+### 〇、一句话结论
+
+**Day 3 正式收口**（16 断言 0 失败 + `BASELINE CLEAN` + 已 commit `0dc2ece`），整体 **19.2% → 20.5%**，目标日推进至 **Day 4（经验/升级/Build 初版）**。
+本轮为「收口复核型」轮次：git 复核确认 #3 已闭环 F1–F4 全部 4 项失败并提交；同时确认 **Day 4 完全未开工**（stats.json 旧口径 / 无 exp 系统 / 无炮台 / 无 HUD 冷却），以及 **BUG-001（用户 19:50 上报的「第 2 关后全员静止」）尚未修复** —— 已排为 Day 4 首段最高优先级。
+
+### 一、总览
+
+| 指标 | 数值 |
+|---|---|
+| 目标开发日 | **Day 3 收口 ✅ → 下一个 = Day 4**（经验/升级/Build 初版 + BUG-001 修复）· 阶段 A |
+| 日历进度 | 2026-08-05 = 窗口 **Day 1 / 30** |
+| **实测整体完成度** | **≈20.5%**（Day 等效 **6.15 / 30**，上轮 5.75） |
+| 进度身位 | **超前 ≈5.15 个开发日** |
+| 基线状态 | ✅ `BASELINE CLEAN`（21:1x 复验：import + runtime 双 PASS，exit 0 / stderr 0） |
+| 工程资产 | 21 GDScript · 11 场景 · 8 JSON · 工具 `day3_skill_check.gd` 已入库 |
+| 最新提交 | `752dc5c`（BUG-001 triage 登记）→ 上一条 `0dc2ece`（Day3 finalize） |
+
+### 二、各阶段完成度（Day 等效加权 · 沿用既有口径）
+
+| 阶段 | 区间 | 得分 | 完成度 | 环比 |
+|---|---|---|---|---|
+| **A 核心循环** | Day 1–6 | 3.10 / 6 | **51.7%** | ↑ 45.0%（Day3 0.60 → **1.00** 收口） |
+| **B Build 系统** | Day 7–13 | 0.45 / 7 | 6.4% | — |
+| **C 肉鸽系统** | Day 14–20 | 0.50 / 7 | 7.1% | — |
+| **D 美术剧情** | Day 21–26 | 1.75 / 6 | 29.2% | — |
+| **E 养成发布** | Day 27–30 | 0.35 / 4 | 8.8% | — |
+| **合计** | Day 1–30 | **6.15 / 30** | **20.5%** | ↑ 19.2% |
+
+> 阶段 A 明细：Day1 1.00 · Day2 1.00 · **Day3 1.00（收口）** · Day4 0.05（仅拆解就绪，代码 0 落地）· Day5 0.05 · Day6 0
+> Day 4 记账原则：**BUG-001 F1/F2 属本日首段前置项**，未修复前 Day 4 代码侧记 0.05（拆解就绪），修复后按落地情况重估。
+
+### 三、已完成（本轮确认 / 新增）
+
+- ✅ **Day 3 全量收口（git 复核实证）**：`0dc2ece` "Day3 finalize: headless fireball hit verified at 60px, skill check 16/16 CLEAN" —— 上轮 4 项失败（F1/F2 火球集成、F3 诺亚断言口径、F4 双重还原）全部闭环；回归 `day2_hero_check` 32/0 CLEAN；提交 `0dc2ece`
+- ✅ **护栏状态好转**：`scripts/` `scenes/` `data/` 全部入库（上轮 R10 破口已解除）；工作区仅剩 `docs/` + `tools/` 变更（见风险表）
+- ✅ **playtest 反馈已消化并提交**（19:10 之后）：`916a443` 火球视觉区分（红 12px）· `b3e189a` 系统字体修复 · `9360a6e`/`fc401a0` 启动脚本路径修复 —— **主观项反馈闭环效率提升**
+- ✅ **BUG-001 工单登记**（`8f83aaf` 根因分析 + `752dc5c` triage）：用户 19:50 上报「第 2 关后人物与怪物全部无法移动」，19:52 完成代码级根因排查（玩家死亡无 GameOver UI + 波次切换不清理残敌），**用户 19:53 确认留待 Day 4 首段执行**
+- ✅ **D21-T0 美术交接登记**（`d29d666`）：用户 19:46 提供 ChatGPT 二次元像素概念图（含第四角色「希亚」医师），优先级 ①头像→②人物模型→③特效，顺延下个工作日
+
+### 四、进行中
+
+- 🎯 **Day 4 完全未开工（实测确认）**：
+  - `stats.json.leveling.upgrade_options` **仍是旧口径**（`melee_damage/ranged_damage/elemental_damage/dodge/harvesting/engineering`）→ `D4-T2` 需重写为大纲 10 属性
+  - `player.gd` grep `exp/level/gain_exp` **0 命中**（无经验字段）→ `D4-T1` 未做
+  - `scripts/weapons/turret.gd` + `scenes/Turret.tscn` **不存在** → `D4-T5`（承接 D3-T4 炮台）未做
+  - `hud.gd`/`HUD.tscn` grep `SkillSlot/cooldown_changed` **0 命中** → `D4-T6` 未做
+- 🔴 **BUG-001 未修复**：`game_over` 信号仍无 UI 消费方（仅 `game_manager.gd:91` emit）；波次切换清理残敌逻辑不存在 —— **Day 4 首段最高优先级**（用户已在等）
+- 📌 **希亚数据未预建**：`characters.json` 仍 9 英雄，`se_siia/se_holy_staff/se_skill_holy_shield` **0 命中** —— `D21-T0` D 部分（W2 数据预建）待下个工作日或 W2 空闲产能提前做
+
+### 五、阻塞与风险
+
+| ID | 风险 | 等级 | 状态 / 处置 |
+|---|---|---|---|
+| **R11** | **BUG-001 未修复**：玩家死亡「静默卡死」+ 商店期间残敌攻击。F1（GameOver UI）/ F2（波次清理残敌）均未落地 | 🔴 **高** | ⏳ **Day 4 首段（#3 下一轮）执行**，用户已确认；验收：故意阵亡弹「你已阵亡」面板可重开；商店无残敌 |
+| **R4** | **「攻击力」口径未拍板** —— 但 Day 4 拆解已**隐含采用统一口径**（10 属性表仅出 `damage` 通道，三系伤害留 `bonus_stats` 收纳） | 🟡 中（降级） | ⏳ **建议 Owner 快速确认拆解隐含方案**，无需再阻塞 Day 4 开工（D4-T2 按 10 属性表执行即可） |
+| **R3** | **schema 债务**：`weapons` 缺 `levels` **29/32**、`items` 缺 `slot` **0/47** —— **距 Day 5（6 槽 + Lv1-8）仅剩 1 个开发日窗口** | 🟠 高 | ⏳ **W2 空闲产能本轮优先**：Day 4 期间提前定 schema，勿等 Day 5 撞墙 |
+| R10 | 未入库变更：`docs/PLAYTEST_CHECKLIST.md` + `docs/TEST_REPORT.md`（#4/#5 输出）+ `tools/shot_ui.gd` + `tools/ui_shot.png`（截图工具） | 🟡 低 | ⏳ 非游戏代码域，收尾时随 docs 一并提交 |
+| R8 | `docs/30DAY_PLAN_STARECHO.md` 残留副本未清 | ⚪ 低 | ⏳ 挂账第 6 轮，需手动清理 |
+| — | 主观项堆积：技能手感/火球打击感/炮台摆位/字体观感等 → 已由 #5 归档 `PLAYTEST_CHECKLIST.md` | ⚪ 低 | 📌 不阻塞主循环，Day 29 集中处理 |
+
+### 六、W1–W5 角色状态
+
+| 工作流 | 独占域 | 本轮状态 | 负载研判 |
+|---|---|---|---|
+| **W1** godot-dev | `scripts/` `scenes/` | Day 3 全量收口已提交；**Day 4 承担 5 项 P0（T1 经验核心 / T2 吸血 / T3 面板 / T4 炮台 / T5 升级）** + **BUG-001 F1/F2** | 🔴 **重载**：BUG-001 排首段，其余按 T1→T2→T3→T4→T5 顺序 |
+| **W2** GameDesigner | `data/*.json` | Day 3 `burn_duration` 已交付；**Day 4 仅 T2（stats.json 重写，可独立先行）** | 🟡 **产能闲置**：优先定 R3 schema + 可提前预建希亚数据（D21-T0 D） |
+| **W3** pixel-artist | `assets/sprites/` | **D21-T0 概念图交接已登记**（`d29d666`），正式实装顺延下个工作日 | 🟡 有明确新任务（下个工作日），本日可预研参考图 |
+| **W4** NarrativeDesigner | `data/events.json` + 叙事 doc | 无任务；Day 16/25 已预交付 | ⚪ 空闲 |
+| **W5** QA | 只读 + `TEST_REPORT.md` | ✅ baseline CLEAN（21:1x 复验）· Day3 收口 16/16 · Day2 回归 32/32 | 🟢 正常；待建 `tools/day4_level_check.gd` |
+
+### 七、下一步（按优先级）
+
+1. **#3 下一轮（Day 4 首段）**：**先修 BUG-001 F1（GameOver UI）+ F2（波次清理残敌）**（用户 19:53 确认）→ 再按 `D4-T1 → T2 → T3 → T4 → T5` 推进经验/升级/Build 初版 → `baseline_check` → `git commit`
+2. **W2（可与 #3 并行）**：`D4-T2` 重写 `stats.json.leveling.upgrade_options` 为 10 属性档（独立文件域 `data/stats.json`，不冲突）；**空闲产能优先定 R3 schema**（`weapons.levels` 范式 / `items.slot`）
+3. **W2 可选**：预建希亚数据（`se_siia` + `se_holy_staff` + `se_skill_holy_shield`），为 D21-T0 美术实装铺路
+4. **Owner 人工（快速确认）**：R4 统一攻击力口径 —— 如认可 Day 4 拆解隐含方案（强化面板仅 `damage` 通道）可一句话放行
+5. **W5 收尾**：提交 `docs/` + `tools/shot_ui.gd`（R10）+ 清理 `30DAY_PLAN_STARECHO.md` 残留副本（R8）
+
+### 八、流程记录
+
+- ✅ **收尾复核铁律执行**：出报前完成 `git status` + 关键 grep（GameOver / exp / turret / SkillSlot / se_siia）+ **实跑 baseline_check** 三重复核 —— 本轮核心结论（Day 3 收口、Day 4 零开工、BUG-001 未修）均以磁盘实测为准，未依赖文档推断
+- ✅ 与 #2 分工无冲突：本日 `TASKS.md` 头部目标日块由 #2/#3 更新，本任务仅做状态确认与风险分析，**未改写 `TASKS.md`**（本轮无重排需求）
+
+*本日报由自动化 #1 生成 · 仅分析、记录与任务重排，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
