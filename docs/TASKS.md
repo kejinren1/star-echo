@@ -4,8 +4,8 @@
 > 状态标记：`[ ]` 未开始 · `[~]` 进行中 · `[x]` 完成 · `[!]` 受阻/需人工。
 > 护栏：未定义当日任务前不写游戏代码；改前 git commit；改后跑 `tools/baseline_check.py`。
 
-> **🎯 当前目标开发日：Day 4 — 经验 / 升级 / Build 初版**（预拆到函数级：2026-08-05 19:08 · #2 第 4 轮 ／ 本轮补充 BUG-001 承接：2026-08-05 21:1x · #2 第 5 轮 ／ 最后复核：21:1x · #1）
-> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN）
+> ✅ **Day 5 已收口（2026-08-05 23:5x · #3）**：`day5_weapon_check.gd` **15 断言 0 失败** + baseline **BASELINE CLEAN** + 回归三件套全绿，提交 `5092874`（6 槽 / 查表升级 / 环绕武器 / 混合升级面板）。下一目标日由 #2 推进（Day 6 阶段 A 集成测试）。
+> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）
 > 🔴 **Day 4 首段必做 BUG-001 F1/F2**（用户 19:50 反馈「第 2 关后全员静止」、19:53 确认留待下一轮 = 本日首段；已固化为 `D4-T7` / `D4-T8`，见 Day 4 区）
 > ✅ **Day 3 已收口（2026-08-05 19:2x · #3）** —— `day3_skill_check.gd` **16 断言 0 失败（DAY3 SKILL CHECK CLEAN）** + `baseline_check` **BASELINE CLEAN** + `day2_hero_check` 回归 32/0 CLEAN，已 `git commit`（Day3 收口提交）。
 > **19:15 修复记录**（此前 19:10 #1 实测 18 断言 4 失败 → 已全部闭环）：
@@ -526,20 +526,115 @@
 - [x] **护栏**：`git commit`（Day 3 破口不得重演——实现落地≠收口）
 - ⚠️ 主观项「升级弹窗手感 / 三选一体验 / 炮台摆位是否顺手」→ 不计入出口，由 #5 收进 `PLAYTEST_CHECKLIST.md`
 
-### Day 5 — 武器 6 槽挂载
+### Day 5 — 武器 6 槽挂载　✅【客观任务完成 · 已收口 · 2026-08-05 23:5x #3】
 
-> 📌 **实测基线（#2 第 5 轮 21:1x 预调研 · #3 下轮拆解直接复用，勿重复排查）**：
-> - `weapon_controller.gd:22` `equipped_weapons: Array[Resource]` **无槽位上限**——`equip_weapon`(`:66`) 只查重不查容量 → 6 槽上限需新增（`MAX_SLOTS = 6`，超限拒绝或替换，定案待拆解轮）
-> - `weapon_controller.gd:59` `_process` 已遍历 `equipped_weapons` 齐射 → 多武器自动攻击**雏形已具**，Day 5 非从零搭建
-> - `weapon.gd:33-34` `level: int = 1` / `max_level: int = 5`（`build_weapon_from_data` 默认 `max_level: 5`）——**与大纲 Lv1-8 口径不一致**，拆解轮需决策（改 JSON `max_level` 或改默认值）
-> - `weapon.gd:64-72` `upgrade() -> bool`（`level >= max_level` 时返回 false）+ `_on_upgrade()` 钩子**已存在**——升级入口齐，`_on_upgrade` 的数值成长实现待拆解轮核实
-> - `weapon.gd:79-83` `get_damage() / get_attack_interval()` 读数函数已存在（升级成长大概率挂这里）
-> - **环绕武器**：`weapon.gd` **无 orbit 字段**（`blade_count/orbit_radius/orbit_speed` 只在 `weapons.json` 数据侧）→ 需新建环绕渲染（挂 Player 子节点 + `_process` 绕心旋转 + 接触伤害），**必须消费** `player.bonus_stats["orbit_blade_count"]`（Day 3 莱恩技能已写入临时 +3，此处收口）
+> **✅ 收口记录（2026-08-05 23:5x · #3）**：`day5_weapon_check.gd` **15 项断言 0 失败（DAY5 WEAPON CHECK CLEAN）** + `baseline_check` **BASELINE CLEAN** + 回归三件套（`day4_level_check` 21/0 · `day3_skill_check` 16/0 · `day2_hero_check` 32/0）全绿，已 `git commit`（`5092874`）。
+> **实现偏差（2 处，均有据）**：
+>    - D5-EXIT 断言 2 计数口径：Lv1→Lv8 为 7 次成功升级（非 8），第 8 次调用返回 false（max_level=8 封顶），测试按逻辑实现；TASKS 原文「第 9 次」为计数笔误。
+>    - D5-T4 断言 7（卸下清理）：`unequip_weapon → _sync_orbit_weapon → orbit_node.queue_free()` 为延迟释放，测试拆「卸下 → 空转一帧 → 断言」两帧完成（与 day4 炮台到期同款手法）。
+> **产出**：`scripts/weapons/orbit_weapon.gd`（新建，环绕刃驱动 + D3-T5 埋点消费收口）｜ `weapon.gd`（level_table/orbit_data + 查表升级）｜ `weapon_controller.gd`（6 槽 + 查表构建 + orbit 分流）｜ `level_up_panel.gd`（混合选项池）｜ `tools/day5_weapon_check.gd`（新建）
+> **护栏**：改前 `git commit` 存档；改后 `python tools/baseline_check.py` 必须 `BASELINE CLEAN`。
+> **文件域**：W1 写 `scripts/` + `scenes/`；W2 只写 `data/weapons.json`（核验/微调）；**无跨域冲突**。
+> **目标**（30DAY_PLAN D5）：自动攻击与武器挂载 6 槽逻辑（对齐大纲 6 武器上限 + Lv1-8 升级）。
+> **本轮实测基线（#3 免重复排查，23:1x #2 已核）**：
+> - `weapon_controller.gd:22` `equipped_weapons: Array[Resource] = []` **无槽位上限**；`equip_weapon`(`:66-68`) 只查重不查容量 → 6 槽上限需新增
+> - `weapon_controller.gd:57-61` `_process` 已遍历 `equipped_weapons` 齐射 → 多武器自动攻击**雏形已具**，Day 5 非从零搭建
+> - `weapon.gd:33-34` `level: int = 1` / `max_level: int = 5` 默认 5；`build_weapon_from_data`(`weapon_controller.gd:98`) `max_level = int(data.get("max_level", 5))`——**签名武器 JSON 已带 `max_level: 8` + `levels` 8 条**（`se_star_blade` 实测 8/8；Lv1 伤7→Lv8 伤32，含 blade_count 逐级成长：Lv1:1把→Lv3:2把→Lv5:3把→Lv7:4把）；29 把旧武器无 `max_level`/`levels`（数据缺口，归 Day 7-9）
+> - `weapon.gd:64-69` `upgrade() -> bool`（`level >= max_level` 返回 false）+ `_on_upgrade()`(`:72-74`：`base_damage *= 1.25; fire_rate *= 1.1` 通用成长) **已存在**——但**未消费 JSON `levels[]` 表**，签名武器逐级曲线将失效
+> - `weapon.gd:79-84` `get_damage() / get_attack_interval()` 读数函数已存在（查表在 `_on_upgrade` 覆写底层字段后，读数函数无需改）
+> - `weapon.gd` **无 orbit 字段**；`se_star_blade` JSON 含 `blade_count/orbit_radius/orbit_speed` → 环绕渲染**全新建**
+> - `weapons.json` 结构：`weapons: {melee|ranged|elemental|engineering: [数组]}`（**四类为数组**，非 dict；签名武器在对应类数组内）
+> - **环绕埋点**：`skill_controller.gd:178-199` 莱恩技能写 `player.bonus_stats["orbit_blade_count"] += 3`（释放）`-= 3`（到期还原）——Day 5 环绕武器**必须消费此键**，只读不写
+> - `level_up_panel.gd`：`setup()` → `_roll_options(3)` 从 `stats.json.leveling.upgrade_options` 摊平 shuffle 取 3；`_apply_option` 走 `apply_stat_modifier` 三档（percent/ratio/add）——**武器升级入口需扩展此面板**
+> - ⚠️ **D4 回归风险**：`day4_level_check.gd` 断言 4/5 依赖「选攻击/范围属性选项」——混合池后随机 3 个可能不含目标属性 → **断言必须同步改为注入式验证**（见 D5-T3）
 
-- [ ] 自动攻击 + 武器挂载 6 槽逻辑（对齐大纲上限）
-- [ ] 武器 Lv1-8 升级（伤害/数量/范围/攻速）
-- [ ] **环绕武器机制**（`se_star_blade` 的 `blade_count/orbit_radius/orbit_speed` 数据已齐）——实现时**必须消费** `player.bonus_stats["orbit_blade_count"]`：Day 3 莱恩技能已往该键写入临时 +3，届时自动生效（Day 3 埋点，此处收口）
-- [ ] `baseline_check` 通过
+#### 本日总定案（先读，避免执行期临场决策）
+| 议题 | 定案 | 依据 |
+|------|------|------|
+| 6 槽超限策略 | `equip_weapon()` 满槽返回 `false` **拒绝**（已装备不受影响）；「替换旧武器」交互归 Day 11-12 商店体系 | 最小可验闭环；替换 UI 需要背包/商店支撑，本日不臆造 |
+| 升级数据源 | **`levels[]` 查表优先**：`_on_upgrade()` 读 `levels[level-1]` 绝对覆盖（damage / cooldown→fire_rate 取倒数 / projectiles / range / orbit 键）；表空回退现有通用成长（×1.25 / ×1.1） | 签名武器 8 级曲线为权威数据；通用成长只是旧武器兜底 |
+| max_level 口径 | `max_level = maxi(int(data.get("max_level", 5)), level_table.size())`——防 levels 表 8 条而 max_level 缺省时只能升到 5 | `build_weapon_from_data:98` 现取默认 5，与表长可能不一致 |
+| 升级入口 | **扩展 LevelUpPanel 混合选项池**：属性（stats.json，现状保留）+ 武器升级（已装备且 `level < max_level` 的武器，每把 1 个「升级『X』」选项）随机取 3 | Brotato 范式；当前无商店体系，升级面板是唯一在局升级入口 |
+| 环绕武器实现 | 新建 `scripts/weapons/orbit_weapon.gd`（extends Node2D）挂 **Player 子节点**；WeaponController 检测 `orbit_data` 非空 → 跳过弹丸发射，由 orbit 节点独立驱动；接触伤害用**容器遍历**（复用 `_find_nearest_enemy` 范式，禁物理查询） | 环绕刃无弹道，发射逻辑不适用；无头测试下物理帧不可靠（D3 教训） |
+| bonus_stats 消费 | 实际刃数 = `orbit_data.blade_count + int(player.bonus_stats.get("orbit_blade_count", 0))`——**D3 埋点收口点** | 莱恩技能 +3 在此自动生效，无需改 skill_controller |
+| 环绕视觉 | 运行时绘制占位刃（Polygon2D 三角形，对齐 `projectile.gd _make_bullet_texture()` 范式）；真精灵登记 Day 21-22 美术债 | 无头可测；素材归 W3 域 |
+
+#### D5-T1【W1 · P0】6 槽上限 + 装备管理（`scripts/weapons/weapon_controller.gd`）
+- [x] 新增 `const MAX_SLOTS: int = 6`
+- [x] `equip_weapon(weapon)` 改返回 `bool`：`weapon in equipped_weapons` 或 `equipped_weapons.size() >= MAX_SLOTS` → 返回 `false` 不追加；否则追加返回 `true`（⚠️ 现有调用方 `_equip_default_weapon`/`equip_from_data` 不检查返回值，保持兼容即可）
+- [x] 新增查询 `func get_slot_count() -> int` / `func is_full() -> bool`（测试与后续 UI 用）
+- 测试点：连装 6 把 → `is_full() == true`；第 7 把 `equip_weapon` 返回 false 且 `size() == 6` 不变
+
+#### D5-T2【W1 · P0】武器 Lv1-8 升级机制（`scripts/weapons/weapon.gd` + `weapon_controller.gd`）
+- [x] `weapon.gd` 新增字段：`var level_table: Array = []`（存 JSON `levels[]`）与 `var orbit_data: Dictionary = {}`（存 `blade_count/orbit_radius/orbit_speed`）
+- [x] `build_weapon_from_data`（`weapon_controller.gd:79-100`）补读：
+      - `w.level_table = data.get("levels", [])`（数组，逐级状态表）
+      - `w.max_level = maxi(int(data.get("max_level", 5)), w.level_table.size())`（防短表）
+      - 若 `data` 含 `blade_count`（orbit 武器）：`w.orbit_data = {"blade_count": int(...), "orbit_radius": float(...), "orbit_speed": float(...)}`（取 data 当前值；升级时由 levels 表覆写）
+- [x] `weapon.gd:_on_upgrade()` 改查表（**核心改动**）：
+      ```
+      if level_table.is_empty():
+          base_damage *= 1.25   # 旧武器通用成长兜底
+          fire_rate *= 1.1
+          return
+      var idx := level - 1
+      if idx < 0 or idx >= level_table.size(): return
+      var entry: Dictionary = level_table[idx]
+      if entry.has("damage"): base_damage = float(entry["damage"])
+      if entry.has("cooldown"): fire_rate = 1.0 / maxf(float(entry["cooldown"]), 0.01)   # 取倒数（D2 同款口径）
+      if entry.has("projectiles"): projectile_count = maxi(int(entry["projectiles"]), 1)
+      if entry.has("range"): attack_range = float(entry["range"])
+      if entry.has("blade_count") or entry.has("orbit_radius") or entry.has("orbit_speed"):
+          orbit_data["blade_count"] = int(entry.get("blade_count", orbit_data.get("blade_count", 1)))
+          orbit_data["orbit_radius"] = float(entry.get("orbit_radius", orbit_data.get("orbit_radius", 110.0)))
+          orbit_data["orbit_speed"] = float(entry.get("orbit_speed", orbit_data.get("orbit_speed", 180.0)))
+      ```
+      ⚠️ `upgrade()` 先 `level += 1` 再 `_on_upgrade()`（`weapon.gd:64-69`）→ `level - 1` 恰为新等级索引，**勿再偏移**；levels 表为「该等级的绝对状态值」非 delta
+- [x] `get_damage()/get_attack_interval()` 保持现状（查表已覆写底层字段，读数函数零改动）
+- 测试点：`se_star_flame` 从 Lv1 连续 `upgrade()` 到 Lv8 全 true，第 9 次 false；Lv2 后 `base_damage == levels[1].damage`；`pistol`（无 levels 表）升级走通用成长（`base_damage == 5 * 1.25`）
+
+#### D5-T3【W1 · P0】升级入口：LevelUpPanel 混合选项池（`scripts/ui/level_up_panel.gd`）
+- [x] `_roll_options(count)` 选项池 = 属性池（`upgrade_options` 摊平，现状保留）**+** 武器升级池：
+      - 取 `GameManager.player.get_node_or_null("WeaponController")`（取不到则仅属性池，不崩）
+      - 遍历 `equipped_weapons`，对 `weapon.level < weapon.max_level` 的武器生成 `{"label": "升级「%s」" % weapon.weapon_name, "type": "weapon_upgrade", "weapon": weapon}`
+- [x] `_apply_option()` 加分支：`opt.get("type", "") == "weapon_upgrade"` → `opt.weapon.upgrade()`（先 `has_method` 守卫），**不调 `apply_stat_modifier`**；其余保持 D4 三档
+- [x] ⚠️ **D4 回归联动（必须）**：`day4_level_check.gd` 断言 4/5（选「攻击+10%」→ `damage_multiplier==1.1` / 选「范围+8%」→ `range_multiplier==1.08`）依赖纯属性池随机——混合池后随机 3 个可能不含目标选项 → **同步改为注入式**：直接构造 `_options` 为固定选项再调 `_apply_option`（白盒验证），或固定随机种子，保证 D4 回归稳定不偶发失败
+- 测试点：升级 → 面板出现且 `paused == true`；选项池含「升级『星刃』」类选项；选择后 `equipped_weapons[i].level == 2`、`paused == false`、面板消失；D4 属性选项仍可应用（注入式回归）
+
+#### D5-T4【W1 · P0】环绕武器机制（新建 `scripts/weapons/orbit_weapon.gd` + WeaponController 分流）
+- [x] 新建 `orbit_weapon.gd`（`extends Node2D`，`class_name OrbitWeapon`）：
+      - 字段：`var weapon: Resource` / `var player: Node2D` / `var _angles: Array = []`（每刃当前角，度）/ `var _hit_cd: Array = []`（每刃命中冷却计时）
+      - `func setup(w: Resource, p: Node2D) -> void`：存引用并调 `_sync_blades()`
+      - `func _sync_blades() -> void`：实际刃数 = `weapon.orbit_data.get("blade_count", 1) + int(player.bonus_stats.get("orbit_blade_count", 0))`；增删子 `Polygon2D`（三角形 8×12px，`set_polygon` 运行时绘制，颜色对齐现有占位风格）到数量一致
+      - `func _process(delta) -> void`：① `is_instance_valid(player)` 守卫（玩家可能已死），失效即 `set_process(false)`；② 每刃 `_angles[i] += weapon.orbit_data.get("orbit_speed", 180.0) * delta`；刃全局位置 = `player.global_position + Vector2.from_angle(deg_to_rad(_angles[i])) * orbit_radius`；③ 命中判定：遍历 `GameManager.enemy_spawner.enemies_container.get_children()`，`is_instance_valid(e) and e.is_alive` 且 `刃位置.distance_to(e.global_position) <= 12.0` 且 `_hit_cd[i] <= 0` → `e.take_damage(weapon.get_damage() * player.damage_multiplier)`，`_hit_cd[i] = weapon.get_attack_interval()`；④ `_hit_cd[i] -= delta`；⑤ 刃数变化（升级/技能）时自动 `_sync_blades()`
+      - ⚠️ **不做**：刃与刃碰撞、刃挡子弹、反弹——无数据支撑，不臆造
+- [x] `weapon_controller.gd` 集成：
+      - 新字段 `var orbit_node: Node2D = null`
+      - `_process` 遍历时：`if weapon.orbit_data and not weapon.orbit_data.is_empty(): continue`（**跳过弹丸发射**，环绕武器不自发弹丸）
+      - 新增 `func _sync_orbit_weapon() -> void`：扫描 `equipped_weapons` 找第一个 `orbit_data` 非空 weapon → 无则清理 `orbit_node`（`queue_free()` + 置 null）；有则：`orbit_node` 为 null 时创建 `OrbitWeapon.new()`、`owner_node.add_child(orbit_node)`（挂 **Player 子节点**，跟随移动）、命名 `"OrbitWeapon"`；再 `orbit_node.setup(weapon, owner_node)`
+      - `equip_weapon()/unequip_weapon()` 末尾调 `_sync_orbit_weapon()`
+      - ⚠️ `Player.tscn` **不需要**预置 OrbitWeapon 节点——运行时由 `_sync_orbit_weapon` 创建；直开 `Main.tscn` 无环绕武器时该节点不存在，零影响
+- 测试点：装备 `se_star_blade` → Player 下 `OrbitWeapon` 存在且刃 Polygon2D 数 == 1（Lv1 `blade_count`）；手动 `player.bonus_stats["orbit_blade_count"] = 3` → 下帧刃数 == 4（**D3 埋点消费收口**）；刃旋转经过敌人 → 敌人 `health` 下降 `7 × damage_multiplier`；卸下星刃 → OrbitWeapon 被清理；玩家移动后刃**跟随玩家**（挂 Player 下）
+
+#### D5-T5【W2 · P0】数据核验（`data/weapons.json`）
+- [x] 核验 3 把签名武器（`se_star_flame`/`se_auto_turret`/`se_star_blade`）`max_level == 8` 且 `levels` 恰 8 条、逐级 `level` 字段递增（`se_star_blade` 已实测 8/8 ✅；另两把按同口径核验）
+- [x] 核验 `se_star_blade` levels 表含 `blade_count/orbit_radius/orbit_speed` 逐级成长（Lv1:1把→Lv3:2把→Lv5:3把→Lv7:4把，已实测 ✅）
+- [x] **不批量给旧武器补 `levels`**（属 Day 7-9「12 通用武器 Lv1-8 数据」排期）；本日仅登记缺口
+- 测试点：JSON 校验通过；3 把签名武器 `max_level == 8` 且 `levels.size() == 8`；`pistol` 无 levels 表（走通用成长兜底）
+
+#### D5-EXIT【W5】当日出口
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`（import + runtime 双阶段，exit 0 / stderr 0）
+- [x] 新建 `tools/day5_weapon_check.gd` 无头断言（照搬 `day4_level_check.gd` 的 `extends SceneTree` + 分帧推进骨架），覆盖：
+  1. 连装 6 把 → `is_full() == true`，第 7 把被拒（`size() == 6`）　【P0 · D5-T1】
+  2. `se_star_flame` 连续 `upgrade()` Lv1→Lv8 全 true，第 9 次 false；Lv2 后 `base_damage == levels[1].damage`（查表生效）　【P0 · D5-T2】
+  3. `pistol`（无 levels 表）升级走通用成长（`base_damage == 5 * 1.25`）　【P0 · D5-T2 兜底】
+  4. 升级面板选项池含武器升级项；选「升级『星刃』」→ 星刃 `level == 2`、`paused == false`、面板消失　【P0 · D5-T3】
+  5. 装备星刃 → Player 下 OrbitWeapon 刃数 == 1（Lv1 `blade_count`）；`bonus_stats["orbit_blade_count"] = 3` → 刃数 == 4（**D3 埋点收口**）　【P0 · D5-T4】
+  6. 刃接触敌人 → 敌人掉血（`7 × damage_multiplier`）　【P0 · D5-T4】
+  7. 卸下星刃 → Player 下无 OrbitWeapon 节点　【P0 · D5-T4】
+- [x] **回归三件套**：`day4_level_check` 21 断言 0 失败（**注意 D5-T3 要求的注入式改造**）+ `day3_skill_check` 16/0 + `day2_hero_check` 32/0
+- [x] **护栏**：`git commit`（Day 3/4 破口教训：实现落地≠收口，必须提交）
+- ⚠️ 主观项「环绕刃手感 / 多武器齐射观感 / 武器平衡」→ 不计入出口，由 #5 收进 `PLAYTEST_CHECKLIST.md`
 
 ### Day 6 — 阶段 A 集成测试
 - [ ] `baseline_check` 全绿 + 手感冒烟
