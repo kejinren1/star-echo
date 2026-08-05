@@ -23,7 +23,7 @@
 | 1 | A | 框架基线 & 差异清单 | ◐核对输入映射 | ●`DIFF_FRAMEWORK_STARECHO.md` | — | — | ●baseline 复验 |
 | 2 | A | 角色选择 + 3 英雄 | ●角色选择场景/UI + hero id 消费 | ●绑定起始武器数据 | ●3 英雄精灵 | — | ●baseline |
 | 3 | A | 主动技能机制 | ●技能框架+火球/炮台/爆发+HUD | ◐补 `burn_duration` | — | — | ●baseline + `day3_skill_check` |
-| 4 | A | 经验/升级/Build 初版 | ●XP/升级/强化面板 | ●10 属性数据 + 成长 | — | — | ●baseline |
+| 4 | A | 经验/升级/Build 初版 | ●XP/升级/强化面板/炮台(承接D3-T4) | ●10 属性强化口径重写 | — | — | ●baseline + `day4_level_check` |
 | 5 | A | 武器 6 槽挂载 | ●自动攻击 + 6 槽 + 升级逻辑 | ●武器 Lv1-8 曲线 | — | — | ●baseline |
 | 6 | A | 阶段 A 集成测试 | ●集成 | ●平衡初调 | — | — | ●全量 baseline + 手感冒烟 + 报告 |
 | 7–9 | B | 15 武器数据 + 精灵 | ◐武器装配逻辑 | ●15 武器 Lv1-8 数据 + 曲线 | ●武器精灵 | — | ●每日 baseline |
@@ -61,6 +61,13 @@
   - W5（●）：`D3-EXIT` = `baseline_check` + 新建 `tools/day3_skill_check.gd`（6 类断言）+ **回归 `day2_hero_check.gd`**（防 `projectile.gd` 改动波及既有武器）
   - 文件域校验：W1 只写 `scripts/` `scenes/`、W2 只写 `data/characters.json`，**无跨域写冲突**
   - ⚠️ 已知可见性边界：莱恩「+3 环绕刃」本日仅埋点进 `bonus_stats`，**环绕刃渲染属 Day 5 武器挂载**，W5 验收不得以「看不到刃」判失败
+- **Day 4 切分细化（2026-08-05 19:08 · #2 第 4 轮预拆解）**：Day 4 = 承接 Day 3 顺延项（`D3-T4` 炮台 / `D3-T6` HUD 冷却）+ 经验/升级/Build 初版本体，W1 仍为主力——
+  - W1（●）：`D4-T1` 经验获取与升级核心（`enemy._drop_rewards` 补 `exp_value` 消费 + `player.gain_exp/_check_level_up` + GameManager 暂停）· `D4-T3` 吸血属性通道（大纲 10 属性补齐）· `D4-T4` LevelUpPanel 三选一强化 UI（新建场景+脚本）· `D4-T5` 承接炮台实体（`turret.gd`+`Turret.tscn`，Day 3 顺延断言 3 在此收口）· `D4-T6` HUD 冷却指示（P1）
+  - W2（◐轻）：仅 `D4-T2` —— 重写 `stats.json.leveling.upgrade_options` 为大纲 10 属性档（现为框架旧口径 melee/ranged/elemental 三系 + dodge/harvesting/engineering，与 `apply_stat_modifier` 实际支持键不符）
+  - W3（—）：炮台占位图走运行时绘制，真精灵归 Day 21–22；VFX 归 Day 23
+  - W5（●）：`D4-EXIT` = `baseline_check` + 新建 `tools/day4_level_check.gd`（8 类断言，含炮台数 == 3 收口）+ 回归 `day3_skill_check` / `day2_hero_check`
+  - 关键决策（已在 TASKS.md Day 4 定案表）：经验直接结算不造宝石实体｜经验曲线用 `Expression` 解析 `stats.json` 字符串｜升级暂停游戏（`paused=true` + `PROCESS_MODE_WHEN_PAUSED` 面板）｜range 口径统一走倍率通道｜吸血为 10 属性唯一新增通道
+  - 文件域校验：W1 只写 `scripts/` `scenes/`、W2 只写 `data/stats.json`，**无跨域写冲突**
 - **Day 2 遗留收敛（06:35）**：`D2-T5`（星刃 `evolution`）原为 `[~]` 在进行中，会导致目标日定位被永久钉死在已完工的 Day 2 → **改标 `[!]` 并转出为 Day 10 `D10-PRE`**，单一来源。
 - **主观验收隔离**：手感/难度曲线/数值趣味/UI/视听/剧情调性等主观项不进关键路径，由 W5 汇总至 `docs/PLAYTEST_CHECKLIST.md`，Day 29 集中人工试玩，不拖慢自动化。
 - **动态调度权**：本表为快照；【项目进度管理专家】依据 `docs/TASKS.md` 实际进度与阻塞，每轮可重排上表（例如把滞后的 W2 任务临时借 W1 协作），并回写 `TASKS.md` 对应日。

@@ -413,3 +413,93 @@
 *本日报由自动化 #1 生成 · 仅分析、记录与任务重排，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
 
 ---
+
+## 2026-08-05 19:10 · 目标日 Day 3（阶段 A）· 进度日报
+
+### 〇、一句话结论
+
+**Day 3 代码已全量落地（P0 六项 6/6），但出口断言实测 4/18 失败 + 未 commit → 暂不可收口。**
+本轮为「收尾复核型」轮次：实测跑通 `tools/day3_skill_check.gd`（#2 19:08 误判其"未创建"，实为 19:09 落盘），定位 4 项失败根因并回写 `TASKS.md`。整体进度 17.8% → **19.2%**。
+
+### 一、总览
+
+| 指标 | 数值 |
+|---|---|
+| 目标开发日 | **Day 3**（主动技能机制）· 阶段 A |
+| 日历进度 | 2026-08-05 = 窗口 **Day 1 / 30** |
+| **实测整体完成度** | **≈19.2%**（Day 等效 **5.75 / 30**，上轮 5.35） |
+| 进度身位 | **超前 ≈4.75 个开发日** |
+| 基线状态 | ✅ `BASELINE CLEAN`（19:10 复验：import + runtime 双 PASS，exit 0 / stderr 0） |
+| 工程资产 | 21 GDScript（+`skill_controller.gd`）· 11 场景 · 8 JSON |
+| 最新提交 | `0154d17` Day3 wip（仅含 T2/T2b）＋ **T1/T3/T5/T7 未提交** |
+
+### 二、各阶段完成度（Day 等效加权 · 沿用既有口径）
+
+| 阶段 | 区间 | 得分 | 完成度 | 环比 |
+|---|---|---|---|---|
+| **A 核心循环** | Day 1–6 | 2.70 / 6 | **45.0%** | ↑ 38.3%（Day3 0.20 → **0.60**） |
+| **B Build 系统** | Day 7–13 | 0.45 / 7 | 6.4% | — |
+| **C 肉鸽系统** | Day 14–20 | 0.50 / 7 | 7.1% | — |
+| **D 美术剧情** | Day 21–26 | 1.75 / 6 | 29.2% | — |
+| **E 养成发布** | Day 27–30 | 0.35 / 4 | 8.8% | — |
+| **合计** | Day 1–30 | **5.75 / 30** | **19.2%** | ↑ 17.8% |
+
+> 阶段 A 明细：Day1 1.00 · Day2 1.00 · **Day3 0.60**（实现 90% 但 EXIT 4/18 失败 + 未 commit，**不能按 1.0 收口**）· Day4 0.05 · Day5 0.05 · Day6 0
+> Day 3 记账原则：客观交付物已落盘（按 0.90 计），但出口断言失败 + 护栏破口各扣分，记 **0.60** —— 修复后重估为 1.00。
+
+### 三、已完成（本轮新增）
+
+- ✅ **Day 3 P0 六项代码全量落地实测确认**（`grep` + 读源码 + 运行验证）：
+  - `D3-T1` 技能控制器骨架：`scripts/player/skill_controller.gd`（新建，信号 `cooldown_changed/skill_cast`、`setup/_ensure_loaded/_process` 冷却、`can_cast/try_cast` 分派表）；`player.gd:223` `_try_cast_skill` 转发；`main.gd:83 _setup_skill` 注入；`Player.tscn` 挂 SkillController 节点
+  - `D3-T2` 弹丸爆炸 AOE：`projectile.gd` `explosion_radius/status_type/_explode/_exploded` 守卫双路径（已提交 `0154d17`）
+  - `D3-T2b` 敌人状态机：`enemy.gd` `apply_status/has_status/get_status_time_left/_update_status/_apply_status_damage`（已提交 `0154d17`）
+  - `D3-T3` 艾琳火球：`_cast_fireball`（dps 唯一算法读 `elements.json` dot/dot_scaling，T7b 案 A 落地；`bonus_stats.elemental_damage` 消费闭环）
+  - `D3-T5` 莱恩星刃爆发：`_cast_blade_burst/_restore_blade_burst`（乘法逆元还原 + `orbit_blade_count` 埋点）
+  - `D3-T7` `characters.json:143` 补 `burn_duration:4.0`（未提交）
+- ✅ **`tools/day3_skill_check.gd` 已存在并实测执行**（18 断言 · 结果见第五节）
+- ✅ **TASKS.md 回写**：修正 #2 19:08 的「断言脚本未创建」过时判断，登记 4 项失败明细 + #3 收口动作
+- ✅ **基线护栏**：`BASELINE CLEAN`（19:10 复验，import + runtime 双 PASS）
+
+### 四、进行中
+
+- 🔴 **Day 3 出口未闭环** —— 实现 100% 落地，卡在 EXIT 断言 4/18 失败 + 未 commit（详见第五节 F1–F4）
+- 🎯 **Day 4 已由 #2 预拆解**（19:08）：承接 `D3-T4` 炮台 + `D3-T6` HUD + 经验/升级/Build 初版本体 —— 防「#3 收口 Day 3 后无米下锅」
+
+### 五、阻塞与风险
+
+| ID | 风险 | 等级 | 状态 / 处置 |
+|---|---|---|---|
+| **R9** | **D3-EXIT 断言 4/18 失败（本轮实测取证 · Day 3 收口唯一硬门槛）**：<br>**F1/F2** 艾琳火球爆炸后敌人 health 1000→1000 + 燃烧未附着 —— headless 下火球**飞行未命中**（候选根因：`get_global_mouse_position` 返回值不可控 / 敌人摆位与瞄准方向不一致）；`_explode`/`apply_status` 逻辑本身经 19:05 #4 单元探针 **14/14 验证正确**，断点在「飞行→命中」集成链路<br>**F3** 诺亚 `try_cast` 首次=false —— `_cast_deploy_turret` 占位返回 false（符合 T4 顺延定案），但断言 CASES 仍期望 true → **断言口径与顺延冲突**（建议：诺亚列为顺延跳过）<br>**F4** 莱恩还原失败（期望 1.5 实得 1.0）—— **重叠释放双重还原**：断言两段流程制造两个并行 `_restore_blade_burst` await → 2.25×0.6667×0.6667=1.0。真实游戏 **CD(10s)>duration(5s) 不可触发**，属潜在缺陷（未来减 CD 即现），建议引用计数/未到期 buff 校验 | 🔴 高 | ⏳ **#3 下一轮修复**：F3 改断言 · F4 防御性修复 · F1/F2 排查集成链路 → 重跑断言 → 回归 `day2_hero_check` → commit |
+| **R10** | **护栏破口（第 2 次）**：Day 3 的 T1 接线（`main.gd`/`player.gd`/`Player.tscn`）+ `characters.json` T7 + `skill_controller.gd` + `day3_skill_check.gd` **全部未提交**（Day 2 曾同款破口，`edd0e9a` 补救后复发） | 🟡 中 | ⏳ 随 R9 修复一并 commit |
+| **R4** | **「攻击力」三系 vs 统一口径未拍板** —— Day 4 强化面板 10 属性直接依赖，**距今仅 1 个开发日**（#2 19:08 已预拆解 Day 4 强化项） | 🔴 **紧急** | ⏳ **连续 4 轮未决 · 需 Owner 人工拍板** |
+| **R3** | **schema 债务**：`weapons` 缺 `levels` **29/32**、`items` 缺 `slot` **0/47** —— 阻塞 Day 5（6 槽+Lv1-8）/ Day 7–9 / Day 11–12 | 🟠 高（距 Day 5 仅 2 日） | ⏳ W2 空闲产能可提前定 schema |
+| R8 | `docs/30DAY_PLAN_STARECHO.md` 残留副本未清 | ⚪ 低 | ⏳ 挂账第 5 轮，需手动清理 |
+| — | 探针残留：`_day3_probe_tmp.gd` / `_json_check_tmp.py` / `_smoke_tmp.gd`（#2 19:08 亦登记） | ⚪ 低 | ⏳ #3 收口时清理 |
+
+> 主观项（技能手感/火球打击感/炮台摆位）由 #5 归档 `PLAYTEST_CHECKLIST.md`，不计入本日出口。
+
+### 六、W1–W5 角色状态
+
+| 工作流 | 独占域 | 本轮状态 | 负载研判 |
+|---|---|---|---|
+| **W1** godot-dev | `scripts/` `scenes/` | Day 3 P0 六项全落地（T1 骨架+接线/T2 AOE/T2b 状态机/T3 火球/T5 星刃爆发），**EXIT 4 项失败待修** | 🔴 **收口冲刺**：下轮修 4 项即可闭环 |
+| **W2** GameDesigner | `data/*.json` | T7 `burn_duration` 已落地（未提交）；Day 4 预拆解已完成 | 🟡 空闲产能：可提前定 R3 schema |
+| **W3** pixel-artist | `assets/sprites/` | Day 3/4 无任务 | ⚪ 空闲（可预支 6 英雄立绘 / Day 23 VFX） |
+| **W4** NarrativeDesigner | `data/events.json` + 叙事 doc | 无任务；Day 16/25 已预交付 | ⚪ 空闲 |
+| **W5** QA | 只读 + `TEST_REPORT.md` | ✅ 19:05 全量轮 PASS：baseline CLEAN · JSON 8/8 · 跨引用 0 悬空 · 场景 11/11 · Day2 回归 32/32 · **Day3 在途探针 14/14** | 🟢 正常；唯一 action item = 在途改动尽快入库（与 R10 同源） |
+
+### 七、下一步（按优先级）
+
+1. **#3 下一轮**：修 `day3_skill_check.gd` 4 项失败（F3 断言口径 · F4 双重还原防御 · F1/F2 排查火球集成链路）→ 重跑 18 断言全绿 → 回归 `day2_hero_check` 32 断言 → `baseline_check` → **git commit**（R9+R10 一并解除）→ Day 3 收口
+2. **Owner 人工决策（紧急）**：**R4「攻击力」口径** —— Day 4 强化面板已由 #2 预拆解，开工前必须拍板
+3. **W2 空闲产能**：提前定义 `weapons.level_curve` / `items.slot` schema（R3，拆除阶段 B 连环阻塞）
+4. **W3 空闲产能（P2）**：补 6 遗留英雄立绘 或 预备 Day 23 火球/召唤 VFX
+5. **收尾**：清理探针残留 + `30DAY_PLAN_STARECHO.md` 副本（R8）
+
+### 八、流程记录
+
+- ✅ **收尾复核铁律执行**：出报前完成 `git status` + 关键 grep + **实跑断言脚本**三重复核 —— 本轮正是靠实跑发现 #2「断言脚本未创建」判断过时（19:09 落盘晚于 #2 快照），并捕获 4 项失败的真实根因；若只读文档会得出「Day 3 接近收口」的错误结论
+- ✅ **冲突处置**：`TASKS.md` 被 #2 19:08 并发改写，Edit 冲突后**重读再改**（沿用历史铁律），本次仅做增量修正不覆盖 #2 的 Day 4 预拆解
+- 📌 口径提醒：`TEST_REPORT` 19:05 的「在途探针 14/14」为**单元级**（直接调用 `_explode`/`apply_status`），与集成断言（完整飞行→命中→爆炸）是**不同层级**，两者结果不矛盾
+
+*本日报由自动化 #1 生成 · 仅分析、记录与任务重排，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*

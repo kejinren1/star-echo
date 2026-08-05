@@ -151,11 +151,10 @@ func _arm_fireball_case() -> void:
 	_enemy = (load(ENEMY_SCENE) as PackedScene).instantiate()
 	container.add_child(_enemy)
 	var to_mouse: Vector2 = _player.global_position.direction_to(Vector2.ZERO)
-	# 无头下 Area2D body_entered 物理碰撞不可靠，火球不会被路径上的敌人"命中"：
-	# 它在 lifetime(1.4s) × speed(280) = 392px 处寿命耗尽才爆炸（explosion_radius=90）。
-	# 故把敌人摆在飞行终点 392px 处，保证寿命耗尽爆炸必然波及（实测 60px 摆位
-	# 爆炸点距敌人 332px > 90，燃烧永不附着 → FAIL，见 2026-08-05 19:15 修正）。
-	_enemy.global_position = _player.global_position + to_mouse * 392.0
+	# 敌人摆在玩家朝鼠标 (0,0) 方向 60px 处（探针实测：headless 下 Area2D
+	# body_entered 物理碰撞可靠，弹丸飞行途中即命中爆炸；392px 摆位反而超出
+	# 实际爆炸点（headless 物理帧率偏低，lifetime×speed 飞不满 392px）→ FAIL）
+	_enemy.global_position = _player.global_position + to_mouse * 60.0
 	_enemy.max_health = 1000.0
 	_enemy.health = 1000.0
 	_enemy_hp_before = float(_enemy.health)

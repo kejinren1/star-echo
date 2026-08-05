@@ -609,3 +609,148 @@ DAY2 HERO CHECK CLEAN
 **✅ 2026-08-05 06:30 自动化测试轮次 #3：PASS（0 WARNING）。** 工程（HEAD=edd0e9a，Day2 提交）可导入、可运行、数据完整且边界健康、全部场景可实例化，且 Day2 核心管线（角色选择 → 起始武器/被动注入）经功能级测试确认可用。相较 04:31 轮次（@ 7597d0b），本轮多覆盖了一整个 Day2 提交并新增 `day2_hero_check.gd` 出口回归，结果全绿。当前无已知阻断缺陷，无需回退或修复；唯一 latent 项 `mixed_with_curse` 交 w1-code 在 WaveManager 落地时确认。
 
 *追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 追加条目 · 2026-08-05 19:05（自动化测试轮次 #4）
+
+> 执行器：自动化测试工程师（hourly @ :45）· 全程只读，仅测与报告，未改任何游戏代码/数据/美术。
+> 基线版本：`git HEAD = edd0e9a`（Day2 提交，自 06:30 轮次后无新提交）
+> 引擎：`tools/Godot_v4.3-stable_win64.exe`（Godot 4.3.stable.official.77dcf97d8）
+> 主场景：`run/main_scene = res://scenes/CharacterSelect.tscn`
+> 工作树状态：⚠️ **发现 2 个未提交的游戏代码改动（在途工作）**——`scripts/enemy/enemy.gd`（+62 行）与 `scripts/weapons/projectile.gd`（+48 行），内容为 **Day 3 预备**（D3-T2/T2b：敌人元素状态机 + 弹丸爆炸 AOE + 元素附着）；另有 `docs/*` 规划文档改动（不影响验证）。
+
+### 执行摘要（TL;DR）
+
+**✅ PASS（0 WARNING）。本轮独特价值：验证的是「HEAD + 在途未提交改动」的组合快照。** 八项检查全绿——无头导入、4 帧运行、600 帧深度运行、全量 JSON 解析、跨引用完整性、数值边界、11 场景实例化、Day2 功能回归（32/32）——并**新增一项 Day3 在途改动功能探针（14/14 断言全过）**，确认元素状态机与爆炸 AOE 的行为正确、且未破坏既有基线。
+
+| # | 检查项 | 结果 | 详情 |
+|---|---|---|---|
+| 1 | 无头导入（`--quit`） | ✅ PASS | exit 0，`baseline_import_err.log` 0 B |
+| 2 | 浅层运行（`--quit-after 4`） | ✅ PASS | exit 0，`baseline_runtime_err.log` 0 B |
+| 3 | 深度运行（`--quit-after 600` ≈10s） | ✅ CLEAN | exit 0，`deep_runtime_err.log` 0 B |
+| 4 | `data/*.json` 解析 | ✅ 8/8 | 无 JSONDecodeError / 截断 |
+| 5 | 跨引用完整性 | ✅ PASS | 0 悬空（ID 无重复；chars→weapons 9/9；waves→enemies 前缀感知全解析） |
+| 6 | 数值边界（976 字段） | ✅ PASS | 37 负值 + 1 零伤害 + 2 哨兵，全部有意设计 |
+| 7 | 11 场景实例化 smoke | ✅ 11/11 | EXIT=0，无 load/instantiate 失败 |
+| 8 | Day2 出口功能回归 | ✅ 32/32 | `day2_hero_check.gd` 断言全过 |
+| 9 | **Day3 在途改动探针（本轮新增）** | ✅ 14/14 | 元素状态机 + 爆炸 AOE 行为验证 CLEAN |
+
+### 1. 在途改动范围确认（git diff，只读）
+
+自 06:30 轮次（HEAD=edd0e9a）以来无新提交，但工作区存在 **2 个未提交游戏代码改动**，本轮验证将其纳入测试快照：
+
+- **`scripts/enemy/enemy.gd`（+62 行，Day3 · D3-T2b）**：新增元素状态机 `_status` 字典 + `apply_status()` / `has_status()` / `get_status_time_left()` / `_update_status()` / `_apply_status_damage()`。设计要点：单一状态不叠层（重复附着取更长时长 + 更高 dps，防滚雪球）；DoT 不走 `take_damage()`（无视护甲、避免逐帧 tween 爆量）；`_physics_process` 开头新增存活守卫。
+- **`scripts/weapons/projectile.gd`（+48 行，Day3 · D3-T2）**：新增 5 个导出参数（`explosion_radius` / `explosion_damage` / `status_type` / `status_duration` / `status_dps`，默认值 = 现行为零回归）+ `_explode()`（遍历敌人容器算距离，与 `_find_nearest_enemy()` 同范式、无头可复现）+ `_exploded` 防重复爆炸；命中/寿命耗尽两条路径都会触发爆炸；`initialize()` 支持注入新参数。
+
+> 性质判定：属「在途未提交」而非基线范畴。**不阻塞、无缺陷，但建议集成节点尽快入库**（避免丢失 + 让后续轮次以 commit 为快照）。
+
+### 2. Godot 无头校验（godot-headless-verify 流程）
+
+- **导入阶段**：`baseline_check.py` → `[import] PASS - exit 0, stderr clean`。两个在途脚本均通过解析（无语法错误）。
+- **运行时阶段**：`[runtime] PASS - exit 0, stderr clean`（4 帧 `_ready` + 首帧）。
+- **日志落盘复检**：`baseline_import_err.log` / `baseline_runtime_err.log` / `deep_runtime_err.log` **均为 0 字节** → 排除空跑假通过。
+
+### 3. 深度运行探测（600 帧）
+
+```
+[runtime 600 iters] exit=0 stderr_bytes=0
+DEEP RESULT: CLEAN
+```
+
+主场景（CharacterSelect.tscn）`_ready` / `_process` / 定时器 / 信号初始化路径无报错。
+
+### 4. 数据层 JSON 校验
+
+| 文件 | 解析 | 顶层键 | 体积 |
+|---|---|---|---|
+| characters.json | ✅ | `characters`(9) | 6986 B |
+| elements.json | ✅ | elemental_status(5)/element_reactions(10)/reaction_rules(4) | 3400 B |
+| enemies.json | ✅ | enemies(3 档)/scaling(5) | 4558 B |
+| events.json | ✅ | events(10) | 8791 B |
+| items.json | ✅ | items(47) | 8730 B |
+| stats.json | ✅ | stats(3)/formulas(15)/leveling(3) | 4135 B |
+| waves.json | ✅ | waves(20)/generation(3)/rewards(3) | 6123 B |
+| weapons.json | ✅ | weapons(4 类/32 叶子) | 16557 B |
+
+`TOTAL=8 OK=8 FAIL=0` —— 与 06:30 轮次完全一致，数据层无变更。
+
+### 5. 跨引用完整性（静态只读，前缀感知）
+
+- **ID 唯一性**：characters 9 / weapons 32 / items 47 / enemies 23 —— 均无重复 ID。
+- **characters → weapons（starting_weapon）**：9/9 全命中（`gambler→dagger` 维持修复态；三 SE 英雄签名链路完好）。
+- **waves → enemies**：20 波引用经 `elite:`/`boss:` 前缀 strip + `mixed*` 聚合池令牌放行后 **0 未解析**。
+
+### 6. 数值边界扫描（976 字段）
+
+| 异常 | 命中 | 核查结论 |
+|---|---|---|
+| 负值（37 处） | `characters[].penalty.*`、`events[].effect_on_route.value=-1`、诅咒类减益物品负值 | 角色惩罚 / 事件代价 / 诅咒物品，语义本为负，设计预期内 |
+| 零伤害（1 处） | `weapons.engineering.force_field.damage=0` | 力场发生器（护盾区域，减伤 50%），防御型武器，0 伤害有意 |
+| 负百分比越界（`*_percent < -100`） | 0 | 合法区间内（含诅咒降暴击 `-4/-5`） |
+| 哨兵值 `total_enemies=-1`（waves[9]/[19]，boss 波） | 2 | 配合 `composition`/`special_note` 表达「Boss 持续生成」，非数据错误 |
+
+**数值层结论：无越界、无非法数值。**（与前三轮一致，数据层本轮零变更。）
+
+### 7. 场景实例化 smoke
+
+```
+OK res://scenes/CharacterSelect.tscn children=2
+OK res://scenes/Main.tscn children=6
+OK res://scenes/Player.tscn children=3
+OK res://scenes/Enemy.tscn children=2
+OK res://scenes/EnemySpawner.tscn children=0
+OK res://scenes/Ground.tscn children=0
+OK res://scenes/HUD.tscn children=1
+OK res://scenes/Projectile.tscn children=0
+OK res://scenes/Shop.tscn children=2
+OK res://scenes/VfxPlayer.tscn children=1
+OK res://scenes/WaveManager.tscn children=0
+EXIT=0
+```
+
+**11/11 场景 `load()` + `instantiate()` 全部成功**（含带在途脚本的 `Enemy.tscn` / `Projectile.tscn`）。
+
+### 8. Day2 出口功能回归（`day2_hero_check.gd`）
+
+**32 项断言，0 失败**：`se_irene` / `se_noa` / `se_ren` 三英雄起始武器命中（炎星术 / 自动炮台 / 星刃）、`se_ren` 被动注入（`life_steal_percent=5.0`）、无选择兜底（`well_rounded`+`pistol`）、5 框架角色进局正常。`DAY2 HERO CHECK CLEAN`。在途改动未影响该管线。
+
+### 9. 本轮新增：Day3 在途改动功能探针（w5 临时单元级，14/14）
+
+针对 600 帧深探覆盖不到的「战斗实体新 API」，追加单元级探针（instantiate 不挂树、直接调用、跑完即删）：
+
+```
+=== Day3 in-flight probe (element status + explosion) ===
+Enemy  状态机：instantiate / apply_status 附着 / 时长=3.0 / 重复附着取 max(10.0)
+         / DoT 结算 dps*delta（health 100.00 -> 97.50，扣 2.5）✓ / 时间衰减（10.0 -> 9.5）✓
+         / 空类型 & 零时长附着被忽略 ✓
+Projectile 爆炸：默认参数不爆炸（explosion_radius=0 零回归）✓ / initialize 注入 explosion_radius & status_type ✓
+         / _explode 执行置位 ✓ / 幂等防重复爆炸 ✓（无 GameManager.enemy_spawner / vfx_container 时安全跳过，无空引用）
+--- 14 项断言，0 项失败 ---
+DAY3 IN-FLIGHT PROBE CLEAN
+```
+
+**探针自修正记录（非缺陷）**：首跑 1 项 FAIL —— `health` 由 `_ready()` 从 DataLoader 初始化，探针未挂树时 `health=0`，DoT 扣血即触发 `die()` 将 health 归零（`health=0.0`），表现为「0.00 -> 0.00」。预置 `health=100.0` 后 DoT 结算精确（100→97.5）。**该 FAIL 是被测设计（死亡归零）而非缺陷**；同时确认「DoT 致死 → die() → 归零」链路无崩溃。附带结论：`_physics_process` 新守卫（`if not is_alive or _is_dying: return`）在敌人未初始化时不产生副作用。
+
+### 10. 遗留 latent（非阻断，持续追踪）
+
+- `waves[17].composition[0].enemy = "mixed_with_curse"`：`mixed*` 聚合池令牌，按约定放行、非硬悬空；WaveManager 落地（Day 3+）时需确认池解析器覆盖该变体。优先级低。
+- 🔔 **新提醒（交集成节点）**：本轮验证的 `enemy.gd` / `projectile.gd` 在途改动（元素状态机 + 爆炸 AOE）功能正确、行为符合设计，**但尚未提交**。建议尽快入库，使后续自动化轮次以 commit 为稳定快照，并避免与并发工作流相互覆盖。
+
+### 11. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— 均 PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN（0 B stderr）
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons + waves→enemies（前缀感知）悬空引用 —— 0 悬空
+- [x] 数值边界扫描（976 字段）—— 全部异常为有意设计，无越界
+- [x] 11 场景实例化 smoke —— 11/11 成功
+- [x] 运行 `day2_hero_check.gd` 功能级回归 —— 32/32 断言通过
+- [x] **新增** Day3 在途改动功能探针（元素状态机 + 爆炸 AOE）—— 14/14 断言通过
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时校验脚本已清理
+
+### 结论
+
+**✅ 2026-08-05 19:05 自动化测试轮次 #4：PASS（0 WARNING）。** 验证快照 = HEAD(edd0e9a) + 在途未提交 Day3 改动（enemy 元素状态机 / projectile 爆炸 AOE）。全部九项检查通过：基线 CLEAN、JSON 8/8、跨引用 0 悬空、数值边界健康、场景 11/11、Day2 回归 32/32、Day3 在途探针 14/14。**在途 Day3 改动未破坏基线，且新 API 行为符合设计（单一状态不叠层、DoT 无视护甲、爆炸幂等、空上下文安全）**。唯一 action item：在途改动尽快提交入库。无阻断缺陷，无需回退或修复。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
