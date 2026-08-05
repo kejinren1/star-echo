@@ -8,10 +8,10 @@
 > ✅ **Day 6 已收口（2026-08-06 01:5x · #3）**：阶段 A 集成测试完成 —— T-A 经验链路数据化（23 敌 exp_value + 透传 + 端到端探针 **14/14 CLEAN**）+ 回归四件套全绿（day2 32 / day3 16 / day4 21 / day5 15）+ 平衡校准（**实测曲线 Lv1→2=30**，chaser 2→3 / charger 3→4）+ 阶段 A 报告 `docs/REPORT_PHASE_A.md` + baseline **BASELINE CLEAN**，提交见本轮收口 commit。**P1 D6-T4 经验飘字亦已实装**（未顺延）。
 > ✅ **Day 7 已收口（2026-08-06 03:3x · #3）**：阶段 B 首段完成 —— 11 把通用武器补 levels 8 条 + max_level=8（D7-T1）+ 33 把全部补 icon_index 分类映射（D7-T5）+ weapon.gd crit_chance/crit_damage 字段 + build_weapon_from_data 4 键消费 + _on_upgrade 3 行可选键消费（D7-T2）+ weapons.png 4 帧→40 帧 15 帧实绘+18 帧占位+7 帧空余（D7-T3）+ icon_atlas.gd 帧数 4→40（D7-T4）+ `day7_weapon_data_check` 探针 **13/13 CLEAN** + 回归五件套（day2 32 / day3 16 / day4 21 / day5 16 / day6 14）+ day5 探针同步更新（pistol 通用成长 → 合成裸武器 兜底测试）+ baseline **BASELINE CLEAN**，提交 `fc2a636`。
 > ✅ **Day 8-9 已收口（2026-08-06 05:3x · #3）**：阶段 B 续段完成 —— 18 把全量武器补 `levels` 8 条 + `max_level=8`（D8-T1：`gen_weapons_day7.py` LEVELS +18 把 + verify 抽查扩展到 6 把 + force_field damage 恒 0 特例校验 + 顶层未动原则）+ 18 帧占位图标实绘替换（D8-T2：`gen_weapon_icons.py` +18 函数 + 新增 PURPLE/SHIELD 色 + 透明键 + 帧 33-39 空余保留）+ `day8_weapon_data_check.gd` 探针 **19/19 CLEAN**（JSON 全量 / 特例 / 装配 / 图标 / 回归 五段）+ 回归六件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13）+ baseline **BASELINE CLEAN** + `gen_weapons_day7.py verify` → **33/33 levels + icon_index CLEAN**。30DAY_PLAN D7-D9「15 武器数据 + 精灵」至此**全量完成（33/33 把 Lv1-8 + 33 帧实绘图标）**。
-> 🎯 **Day 10 已拆解（2026-08-06 07:1x · #2 第 10 轮）**：阶段 B 进化机制 = **3 签名进化链 + 结果武器数据 + 进化池 + 替换/消耗 + 探针**（见 Day 10 区）——D10-PRE 定案**新增 `se_blade_core` 补齐星刃链**（se_star_blade→se_blade_core→se_blade_storm，3 签名链对齐）；W2 新增 3 把结果武器（se_star_fall 炎星陨落/爆炸 AOE、se_turret_array 机械炮阵/机制归 Day 13、se_blade_storm 星刃风暴/6 刃环绕）带 `evolution_result` 标记 + `se_blade_core` 核心（平曲线 levels、icon 33/34/35）；W1 Inventory id 维度装配（item_id + add_item_from_data/has_item_id/remove_item_id）+ `replace_weapon`（build→升满级→原子替换→_sync 一次）+ LevelUpPanel 进化池（满级+持有核心→进化选项，**先替换成功再消耗核心**）+ 爆炸透传（weapon.gd explosion_radius + projectile 已支持）；W3 结果武器图标 3 帧；W5 新建 `day10_evolution_check.gd`（≥15 断言）+ 回归七件套。**scripts/ 全域零 evolution 引用 → 全新实现**；核心获取归 Day 11-12 商店（shop.gd 为 TODO 骨架）。
+> ✅ **Day 10 已收口（2026-08-06 07:3x · #3）**：阶段 B 进化机制完成 —— 3 把结果武器数据（se_star_fall 炎星陨落 / se_turret_array 机械炮阵 / se_blade_storm 星刃风暴，elemental/engineering/melee，tier 4，evolution_result + 平曲线 levels 8 条 + icon_index 33/34/35）+ items.json +se_blade_core 补齐星刃进化链（D10-PRE 定案）+ weapon.gd +explosion_radius/explosion_damage + weapon_controller.gd +replace_weapon（find→build→升满→原子替换→_sync 一次）+ level_up_panel.gd 进化池 + evolution 分支（先替换成功、后消耗核心）+ weapons.png 帧 33/34/35 实绘 + icon_index 0-32→0-35 + 探针 `day10_evolution_check.gd` 20/20 CLEAN + 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）+ baseline **BASELINE CLEAN** + `gen_weapons_day7 verify` 36/36 CLEAN，提交 `ca7c0a2`。
 > 🎯 **Day 8–9 已拆解（2026-08-06 05:1x · #2 第 9 轮）**：阶段 B 续段 = **18 把全量武器 levels + 18 帧图标实绘 + 全量数据回归**（见 Day 8-9 区）——W2 给 18 把通用武器补 `levels` 8 条 + `max_level:8`（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field，扩展 `gen_weapons_day7.py` LEVELS 表幂等 apply）；W3 18 帧占位图标逐帧替换实绘（扩展 `gen_weapon_icons.py`，含 force_field 护盾 / minigun 多管等特征）；W1 新建 `day8_weapon_data_check.gd` 探针（≥13 断言含 force_field damage 恒 0 特例）；W5 回归六件套。**纯数据 + 图标 + 探针日，零装配代码改动**（D7-T2 已铺路）。
 > 🎯 **Day 7 已预拆解（2026-08-06 03:1x · #2 第 8 轮）**：阶段 B 首段 = **MVP 15 武器数据 + 装配消费 + 图标集**（见 Day 7 区）——W2 给 11 把通用武器补 `levels` 8 条（sword/chainsaw/pistol/smg/shotgun/sniper/wand/icicle/flamethrower/turret/landmine）+ 33 把补 `icon_index`；W1 装配消费补齐（crit_chance/crit_damage/pierce/icon_index）+ IconAtlas 帧数 4→40；W3 `weapons.png` 4 帧→40 帧（15 实绘 + 25 占位）；W5 新建 `day7_weapon_data_check.gd` 探针 + 回归。剩余 18 把归 Day 8-9（下轮拆解）。
-> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）　✅ **Day 7 收口**（`fc2a636`，13/13 CLEAN + 回归五件套全绿）　✅ **Day 8-9 收口**（`> ✅ **Day 8-9 收口**（`d1e72f1`，19/19 CLEAN + 33/33 武器 Lv1-8 + 33 帧实绘图标 + 回归六件套全绿）`，19/19 CLEAN + 33/33 武器 Lv1-8 + 33 帧实绘图标 + 回归六件套全绿）
+> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）　✅ **Day 7 收口**（`fc2a636`，13/13 CLEAN + 回归五件套全绿）　✅ **Day 8-9 收口**（`d1e72f1`，19/19 CLEAN + 33/33 武器 Lv1-8 + 33 帧实绘图标 + 回归六件套全绿）　✅ **Day 10 收口**（`ca7c0a2`，20/20 CLEAN + 36/36 武器 Lv1-8 + 3 把结果武器 + 3 条进化链 + 进化池 + 爆炸 AOE + 回归七件套全绿）
 > 🔴 **Day 4 首段必做 BUG-001 F1/F2**（用户 19:50 反馈「第 2 关后全员静止」、19:53 确认留待下一轮 = 本日首段；已固化为 `D4-T7` / `D4-T8`，见 Day 4 区）
 > ✅ **Day 3 已收口（2026-08-05 19:2x · #3）** —— `day3_skill_check.gd` **16 断言 0 失败（DAY3 SKILL CHECK CLEAN）** + `baseline_check` **BASELINE CLEAN** + `day2_hero_check` 回归 32/0 CLEAN，已 `git commit`（Day3 收口提交）。
 > **19:15 修复记录**（此前 19:10 #1 实测 18 断言 4 失败 → 已全部闭环）：
@@ -963,7 +963,7 @@
 - `tools/day8_weapon_data_check.gd`（新建 ≥13 断言）
 - `docs/TASKS.md`（Day 8-9 标题 ✅ + T1~T3/EXIT 全部 [x]）
 
-### Day 10 — 武器进化　🎯【2026-08-06 07:1x · #2 第 10 轮拆解】
+### Day 10 — 武器进化　✅【2026-08-06 07:3x · #3 收口】
 
 > **承接**：Day 8-9 收口（`d1e72f1`）——33/33 把武器 Lv1-8 + max_level 8 全量就绪 → **进化机制的输入侧（Lv8）已齐**。本日落地「Lv8 + 对应核心装备 = 进化武器」（30DAY_PLAN D10），并收口 Day 2 `D2-T5` 的星刃进化链（单一来源已收敛至此）。
 > **护栏**：改前 `git commit` 存档；改后 `python tools/baseline_check.py` 必须 `BASELINE CLEAN`。
@@ -996,48 +996,48 @@
 | HUD / 图标 | 本日不涉 HUD 槽位刷新（inventory 与 weapon_controller 两套统一归 Day 11-12）；核心物品不配 items.png 图标（进化选项纯文字） | hud.gd:150-158 实测；items.png 4 帧现状 |
 
 #### D10-PRE【W2 · P0】星刃进化链补全（决策已定案，数据并入 D10-T1）
-- [ ] **决策（本轮拍板，禁止执行期推翻）**：新增 `se_blade_core`（星刃核心）+ 结果武器 `se_blade_storm`（星刃风暴）→ 3 条签名进化链对齐：`se_star_flame→se_flame_core→se_star_fall` ✅ / `se_auto_turret→se_mech_core→se_turret_array` ✅ / `se_star_blade→se_blade_core→se_blade_storm`（本日补齐）
-- [ ] 依据：D2-T5（08-05 06:35 转出，单一来源）意图 = 3 签名武器 evolution 对齐；Day 2 已明确否决挂 `elemental_core` 凑数；莱恩无进化则三角色进化体验断裂
-- [ ] 产出 = D10-T1 中 `items.json` +`se_blade_core` 与 `weapons.json` +`se_blade_storm` 两处（见下）
-- 测试点：`se_star_blade` 有 `evolution` 字段；`se_blade_core` 在 items.json 且 tags 含 `evolution_core`；交叉引用一致
+- [x] **决策（本轮拍板，禁止执行期推翻）**：新增 `se_blade_core`（星刃核心）+ 结果武器 `se_blade_storm`（星刃风暴）→ 3 条签名进化链对齐：`se_star_flame→se_flame_core→se_star_fall` ✅ / `se_auto_turret→se_mech_core→se_turret_array` ✅ / `se_star_blade→se_blade_core→se_blade_storm`（本日补齐）
+- [x] 依据：D2-T5（08-05 06:35 转出，单一来源）意图 = 3 签名武器 evolution 对齐；Day 2 已明确否决挂 `elemental_core` 凑数；莱恩无进化则三角色进化体验断裂
+- [x] 产出 = D10-T1 中 `items.json` +`se_blade_core` 与 `weapons.json` +`se_blade_storm` 两处（见下）
+- 测试点：`se_star_blade` 有 `evolution` 字段；`se_blade_core` 在 items.json 且 tags 含 `evolution_core`；交叉引用一致 ✅
 
 #### D10-T1【W2 · P0】结果武器 3 把 + 核心 1 个数据（`data/weapons.json` + `data/items.json` + `tools/gen_weapons_day7.py`）
-- [ ] `weapons.json` 新增 **3 把结果武器**（顶层字段范式同 D7/D8-9 + `star_echo: true` + **`evolution_result: true`** + `max_level: 8` + `icon_index` 33/34/35 + `levels` 8 条平曲线）：
+- [x] `weapons.json` 新增 **3 把结果武器**（顶层字段范式同 D7/D8-9 + `star_echo: true` + **`evolution_result: true`** + `max_level: 8` + `icon_index` 33/34/35 + `levels` 8 条平曲线）：
   - `se_star_fall`「炎星陨落」（elemental / fire / tier 4）：顶层 `damage ~45 / cooldown 1.2 / range 320 / projectiles 3 / explosion_radius 90`（+`explosion_damage` 由装配兜底=base_damage）；special「召唤大型火焰陨石, 命中爆炸 AOE」
   - `se_turret_array`「机械炮阵」（engineering / tier 4）：顶层 `damage ~30 / cooldown 0.5 / range 320 / projectiles 3`；special「诺亚机械强化: 炮台常驻不消失并同时部署多台（机制归 Day 13）」；**不加 blade/orbit 字段**
   - `se_blade_storm`「星刃风暴」（melee / tier 4）：顶层 `damage ~45 / cooldown 0.9 / range 150 / blade_count 6 / orbit_radius 120 / orbit_speed 220`；special「环绕刃群强化: 6 刃环绕」→ **本日唯一行为立即可见的进化**（build 已消费 orbit_data ✅）
-- [ ] **平曲线规范**：`levels` 8 条全部 == 顶层四维（damage 单调不减 / cooldown 单调不增 / Lv1==顶层 天然满足）；`upgrade` 文案 Lv1-7「进化形态」、Lv8「进化形态（满级）」
-- [ ] 扩展 `tools/gen_weapons_day7.py` `LEVELS` 表 +3 把（id 直入表；apply 幂等自动补 levels + max_level；verify 自动覆盖 **36 把**）
-- [ ] `items.json` 新增 `se_blade_core`（范式对齐 se_flame_core/se_mech_core）：`legendary / price 120 / effects {melee_damage: 8, crit_damage_percent: 20} / tags ["melee", "evolution_core"] / star_echo: true / evolution {weapon_id: "se_star_blade", requires_level: 8, result_id: "se_blade_storm", result_name: "星刃风暴", description}`
-- [ ] ⚠️ **不改** 33 把既有武器任何字段（顶层/levels/icon_index）；evolution_result 标记仅限 3 把新武器
-- 测试点：JSON 校验通过；3 把新武器 levels 8 条 + max_level 8 + Lv1==顶层 + 单调合法；se_blade_storm 含 blade_count 6；icon_index 33/34/35 与既有 0-32 无冲突；**3 核心（se_flame_core/se_mech_core/se_blade_core）的 evolution.requires_item/result_id 与对应武器 evolution 交叉引用一致**
+- [x] **平曲线规范**：`levels` 8 条全部 == 顶层四维（damage 单调不减 / cooldown 单调不增 / Lv1==顶层 天然满足）；`upgrade` 文案 Lv1-7「进化形态」、Lv8「进化形态（满级）」
+- [x] 扩展 `tools/gen_weapons_day7.py` `LEVELS` 表 +3 把（id 直入表；apply 幂等自动补 levels + max_level；verify 自动覆盖 **36 把**）
+- [x] `items.json` 新增 `se_blade_core`（范式对齐 se_flame_core/se_mech_core）：`legendary / price 120 / effects {melee_damage: 8, crit_damage_percent: 20} / tags ["melee", "evolution_core"] / star_echo: true / evolution {weapon_id: "se_star_blade", requires_level: 8, result_id: "se_blade_storm", result_name: "星刃风暴", description}`
+- [x] ⚠️ **不改** 33 把既有武器任何字段（顶层/levels/icon_index）；evolution_result 标记仅限 3 把新武器
+- 测试点：JSON 校验通过 ✅；3 把新武器 levels 8 条 + max_level 8 + Lv1==顶层 + 单调合法 ✅；se_blade_storm 含 blade_count 6 ✅；icon_index 33/34/35 与既有 0-32 无冲突 ✅；**3 核心（se_flame_core/se_mech_core/se_blade_core）的 evolution.requires_item/result_id 与对应武器 evolution 交叉引用一致 ✅**
 - 产出：`data/weapons.json`（36 把）+ `data/items.json`（48 项）+ `tools/gen_weapons_day7.py`（LEVELS +3）
 
 #### D10-T2【W1 · P0】Inventory id 维度装配（`scripts/items/item.gd` + `scripts/systems/inventory.gd`）
-- [ ] `item.gd` 补导出字段 `item_id: String = ""`（回指 items.json id；供 id 查询/匹配，对齐 Weapon `META_SOURCE_ID` 思想但用显式字段更简单）
-- [ ] `inventory.gd` 新增 3 方法：
+- [x] `item.gd` 补导出字段 `item_id: String = ""`（回指 items.json id；供 id 查询/匹配，对齐 Weapon `META_SOURCE_ID` 思想但用显式字段更简单）
+- [x] `inventory.gd` 新增 3 方法：
   - `add_item_from_data(item_id: String) -> bool`：`DataLoader.get_item(item_id)` 空则 `push_warning` + false；构造 Item 资源（`item_id` / `item_name = name` / `price` / `rarity` / `icon_index` 兜底 0 / `stat_bonuses = effects`）→ `add_item(resource)`（>MAX_ITEMS 20 时 false）
   - `has_item_id(item_id: String) -> bool`：遍历 items 匹配 `item_id`
   - `remove_item_id(item_id: String) -> bool`：找到首个匹配 index → `remove_item(index)` + true；无则 false
-- [ ] ⚠️ **不引入** weapon_controller 侧改动（inventory 与 weapon_controller 两套体系统一归 Day 11-12）
-- 测试点：`add_item_from_data("se_flame_core")` → has_item_id true → remove_item_id true → has_item_id false；未知 id → false 且 push_warning
+- [x] ⚠️ **不引入** weapon_controller 侧改动（inventory 与 weapon_controller 两套体系统一归 Day 11-12）
+- 测试点：`add_item_from_data("se_flame_core")` → has_item_id true → remove_item_id true → has_item_id false ✅；未知 id → false 且 push_warning ✅
 
 #### D10-T3【W1 · P0】WeaponController 进化替换 + 爆炸透传（`scripts/weapons/weapon_controller.gd` + `scripts/weapons/weapon.gd`）
-- [ ] `weapon_controller.gd` 新增 `replace_weapon(target: Resource, replacement_id: String) -> Weapon`：
+- [x] `weapon_controller.gd` 新增 `replace_weapon(target: Resource, replacement_id: String) -> Weapon`：
   1. `build_weapon_from_data(replacement_id)` → null 返回 null（不崩、不改原武器）
   2. 升满级：`while w.level < w.max_level: w.upgrade()`（≤7 次；_on_upgrade 查表绝对覆盖，平曲线结果 = 进化强度）
   3. 原子替换：`equipped_weapons[equipped_weapons.find(target)] = w`（target 不在列表 → 返回 null）；`_sync_orbit_weapon()` **一次**（避免 equip/unequip 两次 sync）
   4. 返回 w
-- [ ] `weapon.gd` 补导出字段 `explosion_radius: float = 0.0` / `explosion_damage: float = 0.0`（对齐 D7-T2 crit 字段先例）
-- [ ] `build_weapon_from_data` 补消费 `explosion_radius`（`data.get(..., 0.0)` 兜底）；`_spawn_projectile` 的 `proj.initialize` 补传 `explosion_radius` / `explosion_damage`（后者兜底 = base_damage，`explosion_radius <= 0` 时 projectile 既有逻辑天然不爆炸，零回归）
-- [ ] ⚠️ 不进本日：inventory/weapon_controller 统一（Day 11-12）；turret.gd 召唤机制（Day 13）
-- 测试点：`build_weapon_from_data("se_star_fall")` → `explosion_radius == 90`；满级 se_star_flame → `replace_weapon("se_star_fall")` → 槽位数不变 / 旧引用被替换 / 新武器 `level == max_level` / `source_id == "se_star_fall"`；未知 replacement_id → null 且原武器不动
+- [x] `weapon.gd` 补导出字段 `explosion_radius: float = 0.0` / `explosion_damage: float = 0.0`（对齐 D7-T2 crit 字段先例）
+- [x] `build_weapon_from_data` 补消费 `explosion_radius`（`data.get(..., 0.0)` 兜底）；`_spawn_projectile` 的 `proj.initialize` 补传 `explosion_radius` / `explosion_damage`（后者兜底 = base_damage，`explosion_radius <= 0` 时 projectile 既有逻辑天然不爆炸，零回归）
+- [x] ⚠️ 不进本日：inventory/weapon_controller 统一（Day 11-12）；turret.gd 召唤机制（Day 13）
+- 测试点：`build_weapon_from_data("se_star_fall")` → `explosion_radius == 90` ✅；满级 se_star_flame → `replace_weapon("se_star_fall")` → 槽位数不变 / 旧引用被替换 / 新武器 `level == max_level` / `source_id == "se_star_fall"` ✅；未知 replacement_id → null 且原武器不动 ✅
 
 #### D10-T4【W1 · P0】升级面板进化池（`scripts/ui/level_up_panel.gd`）
-- [ ] `_roll_options` 追加**进化池**（武器升级池之后）：遍历已装备武器（`weapon_controller.equipped_weapons`），当 `weapon.level >= weapon.max_level` 且 `weapon.has_meta(WeaponController.META_SOURCE_ID)`：
+- [x] `_roll_options` 追加**进化池**（武器升级池之后）：遍历已装备武器（`weapon_controller.equipped_weapons`），当 `weapon.level >= weapon.max_level` 且 `weapon.has_meta(WeaponController.META_SOURCE_ID)`：
   - `source_id` → `DataLoader.get_weapon(source_id)` → `evolution` 字典存在 → `requires_item` 非空
   - `GameManager.inventory.has_item_id(evolution.requires_item)` → 追加 `{type: "evolution", label: "进化『%s』" % evolution.result_name, weapon: weapon, evolution: evolution}`
-- [ ] `_apply_option` 加 **evolution 分支**（先替换后消耗）：
+- [x] `_apply_option` 加 **evolution 分支**（先替换后消耗）：
   ```gdscript
   if str(opt.get("type", "")) == "evolution":
       var evo: Dictionary = opt.get("evolution", {})
@@ -1050,36 +1050,36 @@
               push_warning("[LevelUpPanel] 进化替换失败，核心未消耗: %s" % evo.get("result_id", ""))
       return
   ```
-- [ ] ⚠️ 满级武器已天然不在武器升级池（`level < max_level` 条件）→ 进化/升级选项互斥 ✅；全局武器池过滤 `evolution_result` 归 Day 13
-- 测试点（注入式，照搬 `day4_level_check.gd` 范式）：满级 se_star_flame（build + 循环 upgrade）+ `inventory.add_item_from_data("se_flame_core")` → `_roll_options(8)` 含 `type == "evolution"` 且 label 含「炎星陨落」；`_apply_option` 后 equipped_weapons 含 se_star_fall 且核心已消耗；**无核心时不含进化选项**
+- [x] ⚠️ 满级武器已天然不在武器升级池（`level < max_level` 条件）→ 进化/升级选项互斥 ✅；全局武器池过滤 `evolution_result` 归 Day 13
+- 测试点（注入式，照搬 `day4_level_check.gd` 范式）：满级 se_star_flame（build + 循环 upgrade）+ `inventory.add_item_from_data("se_flame_core")` → `_roll_options(8)` 含 `type == "evolution"` 且 label 含「炎星陨落」✅；`_apply_option` 后 equipped_weapons 含 se_star_fall 且核心已消耗 ✅；**无核心时不含进化选项** ✅
 
 #### D10-T5【W3 · P0】结果武器图标 3 帧（`assets/sprites/ui/weapons.png` + `tools/gen_weapon_icons.py`）
-- [ ] 扩展 `tools/gen_weapon_icons.py`：帧 **33/34/35** 实绘（复用 Icon 像素原语 + 分类色系 + 1px 深色描边 + 透明键左上角 (0,0)）：
+- [x] 扩展 `tools/gen_weapon_icons.py`：帧 **33/34/35** 实绘（复用 Icon 像素原语 + 分类色系 + 1px 深色描边 + 透明键左上角 (0,0)）：
   - 33 `se_star_fall`：火陨石球 + 焰尾 + 火星（红橙）
   - 34 `se_turret_array`：3 管炮阵列（橙黄）
   - 35 `se_blade_storm`：环绕 3 刃残影（银/青）
-- [ ] 帧 36-39 保持全透明空余；**不动 0-32 已收口帧**（帧序/尺寸锚点）
-- [ ] 生成后**先合成预览图（拆 4 组放大 4 倍）人工查整体效果再 commit**（对齐 D8-T2 打磨惯例）
-- 测试点：PNG 1280×32 不变；(0,0) 透明键；33/34/35 中心 16×16 非全透明；36-39 全透明
+- [x] 帧 36-39 保持全透明空余；**不动 0-32 已收口帧**（帧序/尺寸锚点）
+- [x] 生成后**先合成预览图（拆帧放大 4 倍）人工查整体效果再 commit**（对齐 D8-T2 打磨惯例）
+- 测试点：PNG 1280×32 不变 ✅；(0,0) 透明键 ✅；33/34/35 中心 16×16 非全透明 ✅；36-39 全透明 ✅
 - 产出：`assets/sprites/ui/weapons.png`（40 帧：36 实绘 + 4 空余）+ `tools/gen_weapon_icons.py`（+3 帧）
 
 #### D10-T6【W1 · P0】进化探针（新建 `tools/day10_evolution_check.gd`）
-- [ ] 照搬 `day8_weapon_data_check.gd` 骨架（`extends SceneTree` + 分帧推进），覆盖 5 段：
+- [x] 照搬 `day8_weapon_data_check.gd` 骨架（`extends SceneTree` + 分帧推进），覆盖 5 段：
   1. **数据层**：3 条进化链齐全（se_star_flame / se_auto_turret / se_star_blade 均有 evolution）；`requires_item` ∈ items.json 且 tags 含 `evolution_core`；`result_id` ∈ weapons.json 且带 `evolution_result`；3 把结果武器 levels 8 条 + max_level 8 + Lv1==顶层 + 单调合法
   2. **装配层**：`build_weapon_from_data("se_star_fall")` → explosion_radius 90；`build_weapon_from_data("se_blade_storm")` → orbit_data.blade_count 6；`build_weapon_from_data("se_turret_array")` → 正常装配
   3. **背包层**：`add_item_from_data("se_flame_core")` → has_item_id true → remove_item_id true → false；未知 id → false
   4. **进化链路层**：满级 se_star_flame（循环 upgrade 至 max_level）→ `replace_weapon("se_star_fall")` → 槽位数不变 / level == max_level / source_id == "se_star_fall"；inventory 注入核心 → `_roll_options` 含 evolution 选项 → `_apply_option` → 武器替换 + 核心消耗（再次 has_item_id false）
-  5. **回归层**：sword Lv8 damage 50 / se_star_flame Lv8 projectiles 3 / se_star_blade Lv8 blade_count 4（历史锚点）；33 把 icon_index 与 D7-T5 完稿映射表一致（新增 3 把不破坏 0-32）
-- [ ] 断言数 ≥15，全部通过输出 `DAY10 EVOLUTION CHECK CLEAN`（exit 0）
-- 测试点：`godot --headless` 跑该脚本 exit 0 ✅；失败输出断言行号
-- 产出：`tools/day10_evolution_check.gd`（新建 ≥15 断言）
+  5. **回归层**：sword Lv8 damage 50 / se_star_flame Lv8 projectiles 3 / se_star_blade Lv8 blade_count 4（历史锚点）；36 把 icon_index 与 D7-T5+D10-T1 完稿映射表一致（新增 3 把不破坏 0-32）
+- [x] 断言数 ≥15，全部通过输出 `DAY10 EVOLUTION CHECK CLEAN`（exit 0）— 实际 20 项
+- 测试点：`godot --headless` 跑该脚本 exit 0 ✅；失败输出断言行号 ✅
+- 产出：`tools/day10_evolution_check.gd`（新建 20 项断言）
 
 #### D10-EXIT【W5】当日出口
-- [ ] `python tools/baseline_check.py` → **BASELINE CLEAN**（import + runtime 双阶段，exit 0 / stderr 0）
-- [ ] `tools/day10_evolution_check.gd` 全部断言通过 → **DAY10 EVOLUTION CHECK CLEAN**
-- [ ] 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）
-- [ ] `python tools/gen_weapons_day7.py verify` → **DAY7 WEAPONS JSON VERIFY CLEAN**（36/36 把 levels + icon_index）
-- [ ] **护栏**：`git commit`（阶段 B 进化机制收口）
+- [x] `python tools/baseline_check.py` → **BASELINE CLEAN**（import + runtime 双阶段，exit 0 / stderr 0）✅
+- [x] `tools/day10_evolution_check.gd` 全部断言通过 → **DAY10 EVOLUTION CHECK CLEAN** ✅
+- [x] 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）✅
+- [x] `python tools/gen_weapons_day7.py verify` → **DAY7 WEAPONS JSON VERIFY CLEAN**（36/36 把 levels + icon_index）✅
+- [x] **护栏**：`git commit`（阶段 B 进化机制收口）✅ `ca7c0a2`
 - ⚠️ 主观项「进化爽感 / 陨石特效观感」→ 由 #5 收进 `PLAYTEST_CHECKLIST.md`，不阻塞出口；「se_turret_array 炮台常驻/多台行为」未生效 → **登记 Day 13**，W5 不得以「进化后炮台行为未见效」判失败
 
 **Day 10 收口交付物（预期）**：
