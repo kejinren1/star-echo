@@ -32,6 +32,10 @@ signal weapon_fired
 ## 暴击结算判定归 Day 13 公式统一，本字段仅装配层透传
 @export var crit_chance: float = 0.0
 @export var crit_damage: float = 1.0
+## 爆炸半径（>0 时弹丸命中触发 AOE；D10-T3 装配层透传，projectile.gd 已支持）
+@export var explosion_radius: float = 0.0
+## 爆炸伤害（<=0 时装配层兜底 = base_damage）
+@export var explosion_damage: float = 0.0
 
 @export_group("成长属性")
 @export var level: int = 1                      ## 武器等级

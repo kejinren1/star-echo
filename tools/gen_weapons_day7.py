@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Day 7–9 数据工具：weapons.json levels 补全 + icon_index 补全（幂等，可重复运行）。
+"""Day 7–10 数据工具：weapons.json levels 补全 + icon_index 补全 + 结果武器插入（幂等，可重复运行）。
 
 对应 docs/TASKS.md：
   · D7-T1【W2】11 把通用武器补 `levels` 8 条 + `max_level: 8`
@@ -8,6 +8,8 @@
   · D8-T1【W2】18 把全量武器补 `levels` 8 条 + `max_level: 8`（fist/stick/dagger/hammer/flaming_knuckles/
     slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/
     plasma_cannon/wrench/laser_turret/mech_arm/force_field）→ 33/33 全量齐
+  · D10-T1【W2】3 把结果武器插入（se_star_fall / se_turret_array / se_blade_storm，evolution_result 标记 +
+    平曲线 levels 8 条 + icon_index 33/34/35）→ 36/36 全量齐（33 既有 + 3 结果）
 
 定案要点（与 TASKS D7/D8-9 定案表一致）：
   · levels 字段集 = {level, damage, cooldown, range, projectiles?, upgrade}（绝对状态值）
@@ -212,9 +214,30 @@ LEVELS = {
         "rng": [120, 126, 132, 138, 144, 150, 155, 160],
         "up": ["基础形态", "护盾范围扩大", "冷却缩短", "护盾范围扩大", "冷却缩短, 范围扩大", "护盾范围扩大", "冷却缩短, 范围扩大", "满级: 护盾领域最大化"],
     },
+    # ============ D10-T1：3 把结果武器（平曲线：8 条全 == 顶层四维，进化即满级） ============
+    "se_star_fall": {
+        "dmg": [45, 45, 45, 45, 45, 45, 45, 45],
+        "cd": [1.20, 1.20, 1.20, 1.20, 1.20, 1.20, 1.20, 1.20],
+        "rng": [320, 320, 320, 320, 320, 320, 320, 320],
+        "proj": [3, 3, 3, 3, 3, 3, 3, 3],
+        "up": ["进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态（满级）"],
+    },
+    "se_turret_array": {
+        "dmg": [30, 30, 30, 30, 30, 30, 30, 30],
+        "cd": [0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50],
+        "rng": [320, 320, 320, 320, 320, 320, 320, 320],
+        "proj": [3, 3, 3, 3, 3, 3, 3, 3],
+        "up": ["进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态（满级）"],
+    },
+    "se_blade_storm": {
+        "dmg": [45, 45, 45, 45, 45, 45, 45, 45],
+        "cd": [0.90, 0.90, 0.90, 0.90, 0.90, 0.90, 0.90, 0.90],
+        "rng": [150, 150, 150, 150, 150, 150, 150, 150],
+        "up": ["进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态", "进化形态（满级）"],
+    },
 }
 
-# ---- 33 把 icon_index（分类内顺序索引，与 weapons.json 数组顺序一致） ----
+# ---- 36 把 icon_index（分类内顺序索引 + 结果武器 33/34/35，与 weapons.json 数组顺序一致） ----
 ICON_INDEX = {
     # melee 0-7
     "fist": 0, "stick": 1, "dagger": 2, "sword": 3, "hammer": 4,
@@ -229,6 +252,29 @@ ICON_INDEX = {
     # engineering 26-32
     "turret": 26, "landmine": 27, "wrench": 28, "laser_turret": 29,
     "mech_arm": 30, "force_field": 31, "se_auto_turret": 32,
+    # 结果武器 33-35（D10-T1，占用原空余帧）
+    "se_star_fall": 33, "se_turret_array": 34, "se_blade_storm": 35,
+}
+
+# ---- 3 把结果武器顶层定义（D10-T1；levels 平曲线由 LEVELS 表生成；evolution_result 标记） ----
+EVO_WEAPONS = {
+    "se_star_fall": {
+        "cat": "elemental", "name": "炎星陨落", "tier": 4,
+        "damage": 45, "cooldown": 1.2, "range": 320, "projectiles": 3,
+        "explosion_radius": 90, "element_type": "fire",
+        "special": "召唤大型火焰陨石, 命中爆炸 AOE",
+    },
+    "se_turret_array": {
+        "cat": "engineering", "name": "机械炮阵", "tier": 4,
+        "damage": 30, "cooldown": 0.5, "range": 320, "projectiles": 3,
+        "special": "诺亚机械强化: 炮台常驻不消失并同时部署多台（机制归 Day 13）",
+    },
+    "se_blade_storm": {
+        "cat": "melee", "name": "星刃风暴", "tier": 4,
+        "damage": 45, "cooldown": 0.9, "range": 150,
+        "blade_count": 6, "orbit_radius": 120, "orbit_speed": 220,
+        "special": "环绕刃群强化: 6 刃环绕",
+    },
 }
 
 # 4 把签名武器（已有 levels，只核验不改）
@@ -265,16 +311,41 @@ def verify(weapons: dict, errors: list) -> None:
         for w in arr:
             all_w.append((cat, w))
 
-    # 1) 33 把全部有 icon_index 且 0 <= v <= 32
+    # 1) 36 把全部有 icon_index 且 0 <= v <= 35（33 既有 + 3 结果武器 33/34/35）
     for cat, w in all_w:
         if "icon_index" not in w:
             errors.append("缺 icon_index: %s" % w.get("id"))
         else:
             v = int(w["icon_index"])
-            if not (0 <= v <= 32):
+            if not (0 <= v <= 35):
                 errors.append("icon_index 越界: %s=%d" % (w.get("id"), v))
 
-    # 2) 29 把通用武器（11 + 18）levels 8 条 + max_level >= 8
+    # 1b) 3 把结果武器：evolution_result + star_echo + tier 4 + Lv1 == 顶层（D10-T1）
+    for wid, spec in EVO_WEAPONS.items():
+        w = next((x[1] for x in all_w if x[1].get("id") == wid), None)
+        if w is None:
+            errors.append("结果武器缺失: %s" % wid)
+            continue
+        if not w.get("evolution_result"):
+            errors.append("结果武器 %s 缺 evolution_result 标记" % wid)
+        if not w.get("star_echo"):
+            errors.append("结果武器 %s 缺 star_echo" % wid)
+        if int(w.get("tier", 0)) != 4:
+            errors.append("结果武器 %s tier 应 4, 实得 %s" % (wid, w.get("tier")))
+        lv = w.get("levels", [])
+        if len(lv) == 8:
+            if float(lv[0].get("damage", -1)) != float(w.get("damage")):
+                errors.append("结果武器 %s Lv1.damage != 顶层" % wid)
+            if float(lv[-1].get("damage", -1)) != float(w.get("damage")):
+                errors.append("结果武器 %s Lv8.damage != 顶层（平曲线破坏）" % wid)
+            if int(w.get("icon_index", -1)) not in (33, 34, 35):
+                errors.append("结果武器 %s icon_index 应 33/34/35, 实得 %s" % (wid, w.get("icon_index")))
+        if wid == "se_blade_storm" and int(w.get("blade_count", 0)) != 6:
+            errors.append("se_blade_storm blade_count 应 6, 实得 %s" % w.get("blade_count"))
+        if wid == "se_star_fall" and float(w.get("explosion_radius", 0)) != 90:
+            errors.append("se_star_fall explosion_radius 应 90, 实得 %s" % w.get("explosion_radius"))
+
+    # 2) 32 把 LEVELS 表武器（11 + 18 + 3 结果）levels 8 条 + max_level >= 8
     for wid in LEVELS.keys():
         w = next((x[1] for x in all_w if x[1].get("id") == wid), None)
         if w is None:
@@ -286,8 +357,8 @@ def verify(weapons: dict, errors: list) -> None:
         if int(w.get("max_level", 0)) < 8:
             errors.append("%s max_level 应 >= 8, 实得 %s" % (wid, w.get("max_level")))
 
-    # 3) 抽查 6 把 Lv1 与顶层一致 + levels 单调性（D7 三把 + D8 三把：fist/rocket_launcher/force_field）
-    for wid in ["sword", "pistol", "turret", "fist", "rocket_launcher", "force_field"]:
+    # 3) 抽查 7 把 Lv1 与顶层一致 + levels 单调性（D7 三把 + D8 三把 + D10 se_star_fall）
+    for wid in ["sword", "pistol", "turret", "fist", "rocket_launcher", "force_field", "se_star_fall"]:
         w = next((x[1] for x in all_w if x[1].get("id") == wid), None)
         if w is None:
             continue
@@ -365,19 +436,45 @@ def verify(weapons: dict, errors: list) -> None:
         seen[v] = wid
 
 
+def _ensure_evo_weapons(weapons: dict) -> None:
+    """幂等插入 3 把结果武器（已存在则跳过；levels/icon_index 由 apply 主流程补全）。"""
+    for wid, spec in EVO_WEAPONS.items():
+        exists = any(w.get("id") == wid for arr in weapons.values() for w in arr)
+        if exists:
+            continue
+        entry = {
+            "id": wid,
+            "name": spec["name"],
+            "tier": spec["tier"],
+            "damage": spec["damage"],
+            "cooldown": spec["cooldown"],
+            "range": spec["range"],
+            "special": spec["special"],
+            "star_echo": True,
+            "evolution_result": True,
+        }
+        for key in ("projectiles", "blade_count", "orbit_radius", "orbit_speed",
+                    "explosion_radius", "element_type"):
+            if key in spec:
+                entry[key] = spec[key]
+        weapons[spec["cat"]].append(entry)
+
+
 def apply() -> int:
     """内存中生成 → 校验 → 通过才写盘（失败不落盘）。"""
     with open(W_PATH, "r", encoding="utf-8") as fh:
         data = json.load(fh)
     weapons = data["weapons"]
 
+    _ensure_evo_weapons(weapons)
+
     for cat, arr in weapons.items():
         for w in arr:
             wid = w.get("id", "")
-            # D7-T5: 33 把全部补 icon_index（幂等：已有且一致则不覆盖）
+            # D7-T5: 36 把全部补 icon_index（幂等：已有且一致则不覆盖）
             if wid in ICON_INDEX:
                 w["icon_index"] = ICON_INDEX[wid]
-            # D7-T1: 11 把通用武器补 levels + max_level（幂等：已有则不重写）
+            # D7-T1/D8-T1/D10-T1: 补 levels + max_level（幂等：已有则不重写）
             if wid in LEVELS and "levels" not in w:
                 w["levels"] = build_levels(wid, w)
                 w["max_level"] = 8
@@ -392,7 +489,7 @@ def apply() -> int:
     with open(W_PATH, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
-    print("weapons.json 已更新: 29 把补 levels + 33 把补 icon_index, 校验通过")
+    print("weapons.json 已更新: 36 把 levels 8 条 + icon_index 全量, 校验通过")
     return 0
 
 

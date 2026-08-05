@@ -10,6 +10,11 @@ signal item_added(item: Resource)
 signal item_removed(index: int)
 signal inventory_full(category: String)
 
+# ========== 资源引用 ==========
+
+## preload 而非依赖 class_name：item.gd 暂无 class_name Item，preload 更稳
+const Item: GDScript = preload("res://scripts/items/item.gd")
+
 # ========== 常量 ==========
 
 const MAX_WEAPONS: int = 6                    ## 最大武器槽
@@ -55,6 +60,40 @@ func remove_item(index: int) -> void:
 		item_removed.emit(index)
 
 # ========== 属性计算 ==========
+
+## 按 items.json id 构造道具并入库（D10-T2）
+## 未知 id → push_warning + false；道具槽满（>= MAX_ITEMS）→ false
+func add_item_from_data(item_id: String) -> bool:
+	if item_id.is_empty():
+		return false
+	var data: Dictionary = DataLoader.get_item(item_id)
+	if data.is_empty():
+		push_warning("[Inventory] items.json 无此道具: %s" % item_id)
+		return false
+	var item: Resource = Item.new()
+	item.item_id = item_id
+	item.item_name = str(data.get("name", item_id))
+	item.price = int(data.get("price", 0))
+	item.rarity = str(data.get("rarity", "common"))
+	item.icon_index = maxi(int(data.get("icon_index", 0)), 0)
+	item.stat_bonuses = data.get("effects", {})
+	return add_item(item)
+
+## 按 id 查询是否持有（D10-T2）
+func has_item_id(item_id: String) -> bool:
+	for item in items:
+		if item and item.get("item_id") == item_id:
+			return true
+	return false
+
+## 按 id 移除首个匹配道具（D10-T2）；找到并移除返回 true，无则 false
+func remove_item_id(item_id: String) -> bool:
+	for i in items.size():
+		var item: Resource = items[i]
+		if item and item.get("item_id") == item_id:
+			remove_item(i)
+			return true
+	return false
 
 ## 计算所有道具提供的某项属性加成总值
 func get_stat_bonus(stat_name: String) -> float:

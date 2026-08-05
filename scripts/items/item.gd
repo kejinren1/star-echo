@@ -5,6 +5,7 @@ extends Resource
 # ========== 导出属性 ==========
 
 @export_group("基本信息")
+@export var item_id: String = ""              ## 回指 items.json id（D10-T2：供 id 查询/匹配）
 @export var item_name: String = "未知道具"       ## 道具名称
 @export var description: String = ""            ## 描述文本
 @export var icon: Texture2D                     ## 图标 (备用, 优先使用 icon_index)

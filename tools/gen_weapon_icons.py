@@ -608,6 +608,73 @@ def ic_force_field():
     return i
 
 
+# ================= 3 帧结果武器实绘（D10-T5，帧 33/34/35） =================
+
+def ic_star_fall():
+    """炎星陨落：火陨石球 + 焰尾 + 火星（elemental·进化）。"""
+    i = Icon()
+    # 陨石主体（红→金→白高光）
+    i.disc(16, 16, 9, RED)
+    i.disc(16, 16, 6, GOLD)
+    i.disc(16, 16, 3, WHITE)
+    # 焰尾（左下，双层）
+    i.tri([(9, 22), (3, 29), (13, 26)], RED_D)
+    i.tri([(11, 24), (6, 31), (15, 28)], GOLD)
+    # 外焰
+    i.tri([(21, 9), (25, 4), (26, 10)], RED_D)
+    i.tri([(25, 8), (28, 5), (28, 11)], GOLD)
+    # 火星
+    i.set(24, 18, RED)
+    i.set(27, 14, GOLD)
+    i.set(5, 9, GOLD)
+    i.set(8, 5, RED)
+    i.set(28, 22, RED_D)
+    return i
+
+
+def ic_turret_array():
+    """机械炮阵：3 管炮阵列 + 基座（engineering·进化）。"""
+    i = Icon()
+    # 基座
+    i.rect_o(8, 22, 16, 6, ENG)
+    i.rect(9, 23, 14, 4, ENG_D)
+    # 转台
+    i.rect_o(13, 17, 6, 5, ENG)
+    i.rect(14, 18, 4, 3, (255, 220, 130, 255))
+    # 3 管炮（左/中/右）
+    i.rect_o(5, 12, 5, 10, ENG)
+    i.rect(6, 13, 3, 8, (255, 220, 130, 255))
+    i.rect_o(14, 10, 5, 12, ENG)
+    i.rect(15, 11, 3, 10, (255, 220, 130, 255))
+    i.rect_o(23, 12, 5, 10, ENG)
+    i.rect(24, 13, 3, 8, (255, 220, 130, 255))
+    # 炮口火花
+    i.set(4, 11, RED)
+    i.set(13, 9, GOLD)
+    i.set(22, 11, RED)
+    return i
+
+
+def ic_blade_storm():
+    """星刃风暴：环绕 3 刃残影 + 轨道环（melee·进化）。"""
+    import math
+    i = Icon()
+    # 轨道环（冰青点）
+    for a in range(0, 360, 12):
+        x = 16 + int(13 * math.cos(math.radians(a)))
+        y = 16 + int(13 * math.sin(math.radians(a)))
+        i.set(x, y, (90, 160, 200, 255))
+    # 3 刃残影（上主刃银白 / 左下右下暗银）
+    i.tri([(16, 2), (12, 10), (20, 10)], MELEE)
+    i.line(15, 4, 15, 8, WHITE, 1)
+    i.tri([(5, 19), (9, 14), (13, 21)], MELEE_D)
+    i.tri([(27, 19), (23, 14), (19, 21)], MELEE_D)
+    # 中心星核
+    i.disc(16, 16, 3, GOLD)
+    i.disc(16, 16, 1, WHITE)
+    return i
+
+
 # ================= 占位帧（分类色 + 类别简形） =================
 
 def ic_placeholder(cat):
@@ -685,6 +752,10 @@ def build():
         30: ic_mech_arm,
         31: ic_force_field,
         32: ic_auto_turret,
+        # 结果武器 33-35（D10-T5）
+        33: ic_star_fall,
+        34: ic_turret_array,
+        35: ic_blade_storm,
     }
     cat_of = {}
     for idx in range(0, 8):

@@ -4,7 +4,7 @@
 ##     tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day8_weapon_data_check.gd
 ##
 ## 校验内容（对应 docs/TASKS.md D8-T3 / D8-EXIT）：
-##   1. JSON 全量层：33/33 把 levels 8 条 + max_level >= 8；
+##   1. JSON 全量层：36/36 把 levels 8 条 + max_level >= 8（D7+D10：33 既有 + 3 结果武器）；
 ##      18 把 Lv1 与顶层 damage/cooldown/range 一致（抽查 fist/rocket_launcher/force_field）；
 ##      18 把 damage 单调不减 + cooldown 单调不增（全扫）
 ##   2. 特例层：force_field levels damage 全 0；minigun Lv1 cooldown == 0.08
@@ -13,9 +13,9 @@
 ##              build_weapon_from_data("rocket_launcher") → icon_index 14；
 ##              force_field upgrade() 后 damage 仍 0
 ##   4. 图标层：18 帧（0/1/2/4/6/9/10/14/15/19/21/22/23/24/28/29/30/31）中心 16×16 非全透明；
-##              (0,0) 透明键；帧 33-39 全透明
+##              (0,0) 透明键；帧 36-39 全透明（D10-T5 占 33/34/35）
 ##   5. 回归层：day7 15 把 levels 未被破坏（sword Lv8 damage 50 / se_star_flame Lv8 projectiles 3 /
-##              se_star_blade Lv8 blade_count 4）；33 把 icon_index 与 D7-T5 映射表一致
+##              se_star_blade Lv8 blade_count 4）；36 把 icon_index 与 D7-T5+D10-T1 映射表一致
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -36,7 +36,7 @@ const ELEVEN_LEVELS: Array = [
 ]
 ## 4 把签名武器（D7 锚点）
 const SIGNATURE: Array = ["se_star_flame", "se_auto_turret", "se_star_blade", "se_holy_staff"]
-## D7-T5 完整 33 把 icon_index 映射表（回归层）
+## D7-T5 + D10-T1 完整 36 把 icon_index 映射表（回归层；D10 +3 把结果武器 33/34/35）
 const ICON_INDEX_MAP: Dictionary = {
 	"fist": 0, "stick": 1, "dagger": 2, "sword": 3, "hammer": 4,
 	"chainsaw": 5, "flaming_knuckles": 6, "se_star_blade": 7,
@@ -47,6 +47,8 @@ const ICON_INDEX_MAP: Dictionary = {
 	"se_star_flame": 25,
 	"turret": 26, "landmine": 27, "wrench": 28, "laser_turret": 29,
 	"mech_arm": 30, "force_field": 31, "se_auto_turret": 32,
+	# 结果武器（D10-T1，占用原空余帧 33/34/35）
+	"se_star_fall": 33, "se_turret_array": 34, "se_blade_storm": 35,
 }
 ## PNG 路径（headless 下用 ProjectSettings.globalize_path 转绝对路径）
 const WEAPONS_PNG_PATH: String = "res://assets/sprites/ui/weapons.png"
@@ -112,7 +114,7 @@ func _advance(sub: int) -> int:
 # ========== Part 1: JSON 全量层 ==========
 
 func _part_json_full() -> void:
-	# 33/33 把 levels 8 条 + max_level >= 8
+	# 36/36 把 levels 8 条 + max_level >= 8
 	var cats: Array = ["melee", "ranged", "elemental", "engineering"]
 	var total: int = 0
 	for cat in cats:
@@ -125,8 +127,8 @@ func _part_json_full() -> void:
 				_fail("JSON: %s levels 应 8 条, 实得 %d" % [str(wid), lv.size()])
 			if int(data.get("max_level", 0)) < 8:
 				_fail("JSON: %s max_level 应 >= 8, 实得 %s" % [str(wid), str(data.get("max_level"))])
-	if total == 33 and _failures == 0:
-		_pass("JSON / 33 把 levels 8 条 + max_level≥8 全部满足")
+	if total == 36 and _failures == 0:
+		_pass("JSON / 36 把 levels 8 条 + max_level≥8 全部满足（D7+D10 合并：33 既有 + 3 结果武器）")
 
 	# 抽查 3 把（fist/rocket_launcher/force_field）Lv1 == 顶层
 	for wid in ["fist", "rocket_launcher", "force_field"]:
@@ -287,8 +289,8 @@ func _part_icons() -> void:
 	if _failures == 0:
 		_pass("图标 / 18 帧中心 16×16 非全透明 + (0,0) 透明键")
 
-	# 帧 33-39 全透明
-	for idx in range(33, 40):
+	# 帧 36-39 全透明（D10-T5：33/34/35 被 3 把结果武器占用为实绘帧）
+	for idx in range(36, 40):
 		var x0: int = idx * 32
 		var any_px: bool = false
 		for dx in range(32):
@@ -301,7 +303,7 @@ func _part_icons() -> void:
 		if any_px:
 			_fail("图标: 帧 %d 应为全透明空余帧但有像素" % idx)
 	if _failures == 0:
-		_pass("图标 / 帧 33-39 全透明（空余帧）")
+		_pass("图标 / 帧 36-39 全透明（空余帧）")
 
 
 # ========== Part 5: 回归层 ==========
@@ -335,7 +337,7 @@ func _part_regression() -> void:
 		else:
 			_pass("回归 / se_star_blade Lv8 blade_count == 4（day7 未破坏）")
 
-	# 33 把 icon_index 与 D7-T5 映射表一致
+	# 36 把 icon_index 与 D7-T5+D10-T1 映射表一致
 	for wid in ICON_INDEX_MAP.keys():
 		var data: Dictionary = _loader.call("get_weapon", wid)
 		var expected: int = int(ICON_INDEX_MAP[wid])
@@ -343,7 +345,7 @@ func _part_regression() -> void:
 		if actual != expected:
 			_fail("回归: %s icon_index 应 %d, 实得 %d" % [str(wid), expected, actual])
 	if _failures == 0:
-		_pass("回归 / 33 把 icon_index 与 D7-T5 映射表一致")
+		_pass("回归 / 36 把 icon_index 与 D7-T5+D10-T1 映射表一致")
 
 
 # ========== 断言 ==========

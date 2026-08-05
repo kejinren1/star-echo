@@ -44,6 +44,8 @@ func setup() -> void:
 
 ## 选项池 = 属性池（stats.json.upgrade_options 摊平，现状保留）+ 武器升级池
 ## （已装备且未满级的武器各占 1 个「升级『X』」选项，Brotato 范式；D5-T3）
+## + 进化池（D10-T4：满级武器 + 持有对应进化核心 → 「进化『result_name』」选项；
+## 满级武器天然不满足升级池 `level < max_level` 条件 → 进化/升级选项互斥）
 ## → shuffle → 取前 count 个（天然不重复）
 func _roll_options(count: int) -> Array:
 	var pool: Array = []
@@ -63,6 +65,29 @@ func _roll_options(count: int) -> Array:
 					"type": "weapon_upgrade",
 					"weapon": weapon,
 				})
+		# D10-T4 进化池：满级 + 有 source_id + JSON evolution 存在 + 背包持核心
+		if GameManager.inventory:
+			for weapon in weapons:
+				if not weapon or weapon.level < weapon.max_level:
+					continue
+				# weapon_controller.gd 无 class_name，用字面量 meta 键（与 META_SOURCE_ID 一致）
+				if not weapon.has_meta(&"source_id"):
+					continue
+				var source_id: String = str(weapon.get_meta(&"source_id"))
+				var wdata: Dictionary = DataLoader.get_weapon(source_id)
+				if wdata.is_empty():
+					continue
+				var evolution: Dictionary = wdata.get("evolution", {})
+				var requires_item: String = str(evolution.get("requires_item", ""))
+				if requires_item.is_empty():
+					continue
+				if GameManager.inventory.has_item_id(requires_item):
+					pool.append({
+						"label": "进化『%s』" % str(evolution.get("result_name", "")),
+						"type": "evolution",
+						"weapon": weapon,
+						"evolution": evolution,
+					})
 	pool.shuffle()
 	return pool.slice(0, count)
 
@@ -80,11 +105,22 @@ func _on_option_pressed(index: int) -> void:
 ##   ratio   → 传 value/100（百分数转 0~1 后加算）
 ##   add     → 直传 value（加算）
 ## D5-T3：新增 weapon_upgrade 分支（升级武器本身，不调 apply_stat_modifier）
+## D10-T4：新增 evolution 分支（先替换成功、后消耗核心，防不可逆损失）
 func _apply_option(opt: Dictionary) -> void:
 	if str(opt.get("type", "")) == "weapon_upgrade":
 		var weapon: Resource = opt.get("weapon")
 		if weapon and weapon.has_method("upgrade"):
 			weapon.upgrade()
+		return
+	if str(opt.get("type", "")) == "evolution":
+		var evo: Dictionary = opt.get("evolution", {})
+		var wc: Node = player.get_node_or_null("WeaponController") if player else null
+		if wc and wc.has_method("replace_weapon"):
+			var replaced: Resource = wc.replace_weapon(opt.get("weapon"), str(evo.get("result_id", "")))
+			if replaced != null:
+				GameManager.inventory.remove_item_id(str(evo.get("requires_item", "")))  # 替换成功才消耗核心
+			else:
+				push_warning("[LevelUpPanel] 进化替换失败，核心未消耗: %s" % evo.get("result_id", ""))
 		return
 	if player == null or not player.has_method("apply_stat_modifier"):
 		return

@@ -1,55 +1,689 @@
 {
   "items": [
-    { "id": "coffee", "name": "咖啡", "rarity": "common", "price": 20, "effects": { "attack_speed_percent": 8 }, "tags": ["attack_speed"] },
-    { "id": "helmet", "name": "头盔", "rarity": "common", "price": 15, "effects": { "armor": 2 }, "tags": ["armor"] },
-    { "id": "head_injury", "name": "创伤", "rarity": "common", "price": 25, "effects": { "damage_percent": 6, "range": -8 }, "tags": ["damage"] },
-    { "id": "injection", "name": "注射器", "rarity": "common", "price": 20, "effects": { "damage_percent": 7, "max_hp": -2 }, "tags": ["damage"] },
-    { "id": "sneakers", "name": "速跑鞋", "rarity": "common", "price": 20, "effects": { "speed_percent": 5 }, "tags": ["speed"] },
-    { "id": "glasses", "name": "望远镜", "rarity": "common", "price": 20, "effects": { "range": 10 }, "tags": ["range"] },
-    { "id": "fertilizer", "name": "肥料", "rarity": "common", "price": 15, "effects": { "harvesting": 3 }, "tags": ["harvesting"] },
-    { "id": "alien_worm", "name": "外星虫", "rarity": "common", "price": 15, "effects": { "max_hp": 3, "hp_regen": 1 }, "tags": ["max_hp", "hp_regen"] },
-    { "id": "feather", "name": "羽毛", "rarity": "common", "price": 18, "effects": { "dodge_percent": 5, "ranged_damage": -3 }, "tags": ["dodge"] },
-    { "id": "charcoal", "name": "木炭", "rarity": "common", "price": 20, "effects": { "elemental_damage": 3, "melee_damage": -2 }, "tags": ["elemental"] },
-    { "id": "boxing_glove", "name": "拳击手套", "rarity": "common", "price": 18, "effects": { "melee_damage": 3, "knockback": 5 }, "tags": ["melee"] },
-    { "id": "lens", "name": "透镜", "rarity": "common", "price": 20, "effects": { "ranged_damage": 4 }, "tags": ["ranged"] },
-    { "id": "insanity", "name": "疯狂", "rarity": "common", "price": 20, "effects": { "crit_chance_percent": 5, "dodge_percent": -5 }, "tags": ["crit"] },
-    { "id": "jelly", "name": "果冻", "rarity": "common", "price": 15, "effects": { "max_hp": 5 }, "tags": ["max_hp"] },
-    { "id": "book", "name": "书本", "rarity": "common", "price": 8, "effects": { "engineering": 2 }, "tags": ["engineering"] },
-
-    { "id": "adrenaline", "name": "肾上腺素", "rarity": "uncommon", "price": 50, "effects": { "dodge_percent": 5, "dodge_heal_chance": 50, "dodge_heal_amount": 5 }, "tags": ["dodge"] },
-    { "id": "black_belt", "name": "黑带", "rarity": "uncommon", "price": 50, "effects": { "melee_damage": 5, "knockback": 10, "xp_gain_percent": 10 }, "tags": ["melee"] },
-    { "id": "banner", "name": "旗帜", "rarity": "uncommon", "price": 55, "effects": { "range": 15, "attack_speed_percent": 5 }, "tags": ["range", "attack_speed"] },
-    { "id": "blood_leech", "name": "血蛭", "rarity": "uncommon", "price": 45, "effects": { "life_steal_percent": 3, "hp_regen": 2 }, "tags": ["life_steal"] },
-    { "id": "bone_dice", "name": "骰子", "rarity": "uncommon", "price": 30, "effects": { "damage_percent": 5, "luck": 5 }, "tags": ["damage", "luck"] },
-    { "id": "campfire", "name": "营火", "rarity": "uncommon", "price": 40, "effects": { "elemental_damage": 4, "hp_regen": 2 }, "tags": ["elemental", "hp_regen"] },
-    { "id": "compass", "name": "罗盘", "rarity": "uncommon", "price": 40, "effects": { "speed_percent": 5, "engineering": 3 }, "tags": ["speed", "engineering"] },
-    { "id": "blindfold", "name": "眼罩", "rarity": "uncommon", "price": 45, "effects": { "crit_chance_percent": 8, "miss_chance_percent": 5 }, "tags": ["crit"] },
-    { "id": "bait", "name": "诱饵", "rarity": "uncommon", "price": 25, "effects": { "damage_percent": 8, "special_enemies_next_wave": true }, "tags": ["damage"] },
-    { "id": "medal", "name": "奖章", "rarity": "uncommon", "price": 55, "effects": { "max_hp": 3, "damage_percent": 3, "armor": 1, "speed_percent": 3, "crit_chance_percent": -4 }, "tags": ["damage"] },
-    { "id": "mushroom", "name": "蘑菇", "rarity": "uncommon", "price": 25, "effects": { "hp_regen": 3, "max_hp": -5 }, "tags": ["hp_regen"] },
-    { "id": "saw", "name": "锯子", "rarity": "uncommon", "price": 45, "effects": { "melee_damage": 6, "attack_speed_percent": 5, "ranged_damage": -3 }, "tags": ["melee", "attack_speed"] },
-
-    { "id": "alloy", "name": "合金", "rarity": "rare", "price": 80, "effects": { "melee_damage": 3, "ranged_damage": 3, "elemental_damage": 3, "engineering": 3, "crit_chance_percent": 5, "dodge_percent": -6 }, "tags": ["melee", "ranged", "engineering", "crit", "elemental"] },
-    { "id": "ball_and_chain", "name": "铁球链", "rarity": "rare", "price": 75, "effects": { "damage_percent": 15, "armor": 3, "knockback": 5, "speed_percent": -3 }, "tags": ["damage", "armor"] },
-    { "id": "glass_cannon", "name": "玻璃大炮", "rarity": "rare", "price": 75, "effects": { "damage_percent": 25, "armor": -3 }, "tags": ["damage"] },
-    { "id": "silver_bullet", "name": "银弹", "rarity": "rare", "price": 70, "effects": { "boss_elite_damage_percent": 25 }, "tags": ["damage"] },
-    { "id": "triangle_of_power", "name": "力量三角", "rarity": "rare", "price": 65, "effects": { "damage_percent": 20, "armor": 1, "damage_reduction_on_hit_percent": 2 }, "tags": ["damage"] },
-    { "id": "adrenaline_shot", "name": "肾上腺素注射", "rarity": "rare", "price": 70, "effects": { "attack_speed_percent": 15, "speed_percent": 10, "max_hp": -10 }, "tags": ["attack_speed", "speed"] },
-    { "id": "guardian_shield", "name": "护卫盾", "rarity": "rare", "price": 65, "effects": { "armor": 4, "max_hp": 10, "speed_percent": -5 }, "tags": ["armor", "max_hp"] },
-    { "id": "radar", "name": "雷达", "rarity": "rare", "price": 70, "effects": { "range": 20, "xp_gain_percent": 10 }, "tags": ["range"] },
-    { "id": "elemental_core", "name": "元素核心", "rarity": "rare", "price": 75, "effects": { "elemental_damage": 8, "element_reaction_damage_percent": 30 }, "tags": ["elemental"] },
-    { "id": "blueprint", "name": "工程图", "rarity": "rare", "price": 70, "effects": { "engineering": 8, "structure_duration_percent": 50 }, "tags": ["engineering"] },
-
-    { "id": "anvil", "name": "铁砧", "rarity": "legendary", "price": 120, "effects": { "shop_weapon_upgrade": true, "no_weapon_armor_bonus": 2 }, "tags": [] },
-    { "id": "ashes", "name": "灰烬", "rarity": "legendary", "price": 100, "effects": { "attack_speed_percent": 15, "damage_percent": 10, "range": 10 }, "tags": ["attack_speed", "damage"] },
-    { "id": "focus", "name": "焦点", "rarity": "legendary", "price": 110, "effects": { "damage_percent": 30, "attack_speed_per_different_weapon_percent": -3 }, "tags": ["damage"] },
-    { "id": "heavy_bullets", "name": "重型子弹", "rarity": "legendary", "price": 100, "effects": { "ranged_damage": 5, "damage_percent": 10, "range": 10, "attack_speed_percent": -5, "crit_chance_percent": -5 }, "tags": ["ranged"] },
-    { "id": "spider", "name": "蜘蛛", "rarity": "legendary", "price": 110, "effects": { "damage_percent": 12, "attack_speed_per_different_weapon_percent": 6, "dodge_percent": -3, "harvesting": -5 }, "tags": ["damage"] },
-    { "id": "potato", "name": "土豆", "rarity": "legendary", "price": 95, "effects": { "max_hp": 3, "hp_regen": 2, "life_steal_percent": 1, "damage_percent": 5, "attack_speed_percent": 5, "speed_percent": 3, "dodge_percent": 3, "armor": 1, "luck": 5 }, "tags": [] },
-    { "id": "elemental_master", "name": "元素大师徽章", "rarity": "legendary", "price": 115, "effects": { "elemental_damage": 10, "reaction_heal": 5, "element_duration_percent": 50 }, "tags": ["elemental"] },
-    { "id": "mech_heart", "name": "机械之心", "rarity": "legendary", "price": 105, "effects": { "engineering": 10, "structure_damage_percent": 50, "auto_turret_per_wave": 1 }, "tags": ["engineering"] },
-
-    { "id": "se_flame_core", "name": "烈焰核心", "rarity": "legendary", "price": 120, "effects": { "elemental_damage": 8, "fire_damage_percent": 25, "burn_duration_percent": 30 }, "tags": ["elemental", "evolution_core"], "star_echo": true, "evolution": { "weapon_id": "se_star_flame", "requires_level": 8, "result_id": "se_star_fall", "result_name": "炎星陨落", "description": "炎星术 Lv8 + 烈焰核心 → 炎星陨落: 召唤大型火焰陨石 AOE" } },
-    { "id": "se_mech_core", "name": "机械核心", "rarity": "legendary", "price": 120, "effects": { "engineering": 8, "structure_damage_percent": 40, "structure_duration_percent": 50, "summon_count": 1 }, "tags": ["engineering", "evolution_core"], "star_echo": true, "evolution": { "weapon_id": "se_auto_turret", "requires_level": 8, "result_id": "se_turret_array", "result_name": "机械炮阵", "description": "诺亚机械强化: 自动炮台 Lv8 + 机械核心 → 机械炮阵, 炮台常驻并多台同场" } }
+    {
+      "id": "coffee",
+      "name": "咖啡",
+      "rarity": "common",
+      "price": 20,
+      "effects": {
+        "attack_speed_percent": 8
+      },
+      "tags": [
+        "attack_speed"
+      ]
+    },
+    {
+      "id": "helmet",
+      "name": "头盔",
+      "rarity": "common",
+      "price": 15,
+      "effects": {
+        "armor": 2
+      },
+      "tags": [
+        "armor"
+      ]
+    },
+    {
+      "id": "head_injury",
+      "name": "创伤",
+      "rarity": "common",
+      "price": 25,
+      "effects": {
+        "damage_percent": 6,
+        "range": -8
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "injection",
+      "name": "注射器",
+      "rarity": "common",
+      "price": 20,
+      "effects": {
+        "damage_percent": 7,
+        "max_hp": -2
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "sneakers",
+      "name": "速跑鞋",
+      "rarity": "common",
+      "price": 20,
+      "effects": {
+        "speed_percent": 5
+      },
+      "tags": [
+        "speed"
+      ]
+    },
+    {
+      "id": "glasses",
+      "name": "望远镜",
+      "rarity": "common",
+      "price": 20,
+      "effects": {
+        "range": 10
+      },
+      "tags": [
+        "range"
+      ]
+    },
+    {
+      "id": "fertilizer",
+      "name": "肥料",
+      "rarity": "common",
+      "price": 15,
+      "effects": {
+        "harvesting": 3
+      },
+      "tags": [
+        "harvesting"
+      ]
+    },
+    {
+      "id": "alien_worm",
+      "name": "外星虫",
+      "rarity": "common",
+      "price": 15,
+      "effects": {
+        "max_hp": 3,
+        "hp_regen": 1
+      },
+      "tags": [
+        "max_hp",
+        "hp_regen"
+      ]
+    },
+    {
+      "id": "feather",
+      "name": "羽毛",
+      "rarity": "common",
+      "price": 18,
+      "effects": {
+        "dodge_percent": 5,
+        "ranged_damage": -3
+      },
+      "tags": [
+        "dodge"
+      ]
+    },
+    {
+      "id": "charcoal",
+      "name": "木炭",
+      "rarity": "common",
+      "price": 20,
+      "effects": {
+        "elemental_damage": 3,
+        "melee_damage": -2
+      },
+      "tags": [
+        "elemental"
+      ]
+    },
+    {
+      "id": "boxing_glove",
+      "name": "拳击手套",
+      "rarity": "common",
+      "price": 18,
+      "effects": {
+        "melee_damage": 3,
+        "knockback": 5
+      },
+      "tags": [
+        "melee"
+      ]
+    },
+    {
+      "id": "lens",
+      "name": "透镜",
+      "rarity": "common",
+      "price": 20,
+      "effects": {
+        "ranged_damage": 4
+      },
+      "tags": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "insanity",
+      "name": "疯狂",
+      "rarity": "common",
+      "price": 20,
+      "effects": {
+        "crit_chance_percent": 5,
+        "dodge_percent": -5
+      },
+      "tags": [
+        "crit"
+      ]
+    },
+    {
+      "id": "jelly",
+      "name": "果冻",
+      "rarity": "common",
+      "price": 15,
+      "effects": {
+        "max_hp": 5
+      },
+      "tags": [
+        "max_hp"
+      ]
+    },
+    {
+      "id": "book",
+      "name": "书本",
+      "rarity": "common",
+      "price": 8,
+      "effects": {
+        "engineering": 2
+      },
+      "tags": [
+        "engineering"
+      ]
+    },
+    {
+      "id": "adrenaline",
+      "name": "肾上腺素",
+      "rarity": "uncommon",
+      "price": 50,
+      "effects": {
+        "dodge_percent": 5,
+        "dodge_heal_chance": 50,
+        "dodge_heal_amount": 5
+      },
+      "tags": [
+        "dodge"
+      ]
+    },
+    {
+      "id": "black_belt",
+      "name": "黑带",
+      "rarity": "uncommon",
+      "price": 50,
+      "effects": {
+        "melee_damage": 5,
+        "knockback": 10,
+        "xp_gain_percent": 10
+      },
+      "tags": [
+        "melee"
+      ]
+    },
+    {
+      "id": "banner",
+      "name": "旗帜",
+      "rarity": "uncommon",
+      "price": 55,
+      "effects": {
+        "range": 15,
+        "attack_speed_percent": 5
+      },
+      "tags": [
+        "range",
+        "attack_speed"
+      ]
+    },
+    {
+      "id": "blood_leech",
+      "name": "血蛭",
+      "rarity": "uncommon",
+      "price": 45,
+      "effects": {
+        "life_steal_percent": 3,
+        "hp_regen": 2
+      },
+      "tags": [
+        "life_steal"
+      ]
+    },
+    {
+      "id": "bone_dice",
+      "name": "骰子",
+      "rarity": "uncommon",
+      "price": 30,
+      "effects": {
+        "damage_percent": 5,
+        "luck": 5
+      },
+      "tags": [
+        "damage",
+        "luck"
+      ]
+    },
+    {
+      "id": "campfire",
+      "name": "营火",
+      "rarity": "uncommon",
+      "price": 40,
+      "effects": {
+        "elemental_damage": 4,
+        "hp_regen": 2
+      },
+      "tags": [
+        "elemental",
+        "hp_regen"
+      ]
+    },
+    {
+      "id": "compass",
+      "name": "罗盘",
+      "rarity": "uncommon",
+      "price": 40,
+      "effects": {
+        "speed_percent": 5,
+        "engineering": 3
+      },
+      "tags": [
+        "speed",
+        "engineering"
+      ]
+    },
+    {
+      "id": "blindfold",
+      "name": "眼罩",
+      "rarity": "uncommon",
+      "price": 45,
+      "effects": {
+        "crit_chance_percent": 8,
+        "miss_chance_percent": 5
+      },
+      "tags": [
+        "crit"
+      ]
+    },
+    {
+      "id": "bait",
+      "name": "诱饵",
+      "rarity": "uncommon",
+      "price": 25,
+      "effects": {
+        "damage_percent": 8,
+        "special_enemies_next_wave": true
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "medal",
+      "name": "奖章",
+      "rarity": "uncommon",
+      "price": 55,
+      "effects": {
+        "max_hp": 3,
+        "damage_percent": 3,
+        "armor": 1,
+        "speed_percent": 3,
+        "crit_chance_percent": -4
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "mushroom",
+      "name": "蘑菇",
+      "rarity": "uncommon",
+      "price": 25,
+      "effects": {
+        "hp_regen": 3,
+        "max_hp": -5
+      },
+      "tags": [
+        "hp_regen"
+      ]
+    },
+    {
+      "id": "saw",
+      "name": "锯子",
+      "rarity": "uncommon",
+      "price": 45,
+      "effects": {
+        "melee_damage": 6,
+        "attack_speed_percent": 5,
+        "ranged_damage": -3
+      },
+      "tags": [
+        "melee",
+        "attack_speed"
+      ]
+    },
+    {
+      "id": "alloy",
+      "name": "合金",
+      "rarity": "rare",
+      "price": 80,
+      "effects": {
+        "melee_damage": 3,
+        "ranged_damage": 3,
+        "elemental_damage": 3,
+        "engineering": 3,
+        "crit_chance_percent": 5,
+        "dodge_percent": -6
+      },
+      "tags": [
+        "melee",
+        "ranged",
+        "engineering",
+        "crit",
+        "elemental"
+      ]
+    },
+    {
+      "id": "ball_and_chain",
+      "name": "铁球链",
+      "rarity": "rare",
+      "price": 75,
+      "effects": {
+        "damage_percent": 15,
+        "armor": 3,
+        "knockback": 5,
+        "speed_percent": -3
+      },
+      "tags": [
+        "damage",
+        "armor"
+      ]
+    },
+    {
+      "id": "glass_cannon",
+      "name": "玻璃大炮",
+      "rarity": "rare",
+      "price": 75,
+      "effects": {
+        "damage_percent": 25,
+        "armor": -3
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "silver_bullet",
+      "name": "银弹",
+      "rarity": "rare",
+      "price": 70,
+      "effects": {
+        "boss_elite_damage_percent": 25
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "triangle_of_power",
+      "name": "力量三角",
+      "rarity": "rare",
+      "price": 65,
+      "effects": {
+        "damage_percent": 20,
+        "armor": 1,
+        "damage_reduction_on_hit_percent": 2
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "adrenaline_shot",
+      "name": "肾上腺素注射",
+      "rarity": "rare",
+      "price": 70,
+      "effects": {
+        "attack_speed_percent": 15,
+        "speed_percent": 10,
+        "max_hp": -10
+      },
+      "tags": [
+        "attack_speed",
+        "speed"
+      ]
+    },
+    {
+      "id": "guardian_shield",
+      "name": "护卫盾",
+      "rarity": "rare",
+      "price": 65,
+      "effects": {
+        "armor": 4,
+        "max_hp": 10,
+        "speed_percent": -5
+      },
+      "tags": [
+        "armor",
+        "max_hp"
+      ]
+    },
+    {
+      "id": "radar",
+      "name": "雷达",
+      "rarity": "rare",
+      "price": 70,
+      "effects": {
+        "range": 20,
+        "xp_gain_percent": 10
+      },
+      "tags": [
+        "range"
+      ]
+    },
+    {
+      "id": "elemental_core",
+      "name": "元素核心",
+      "rarity": "rare",
+      "price": 75,
+      "effects": {
+        "elemental_damage": 8,
+        "element_reaction_damage_percent": 30
+      },
+      "tags": [
+        "elemental"
+      ]
+    },
+    {
+      "id": "blueprint",
+      "name": "工程图",
+      "rarity": "rare",
+      "price": 70,
+      "effects": {
+        "engineering": 8,
+        "structure_duration_percent": 50
+      },
+      "tags": [
+        "engineering"
+      ]
+    },
+    {
+      "id": "anvil",
+      "name": "铁砧",
+      "rarity": "legendary",
+      "price": 120,
+      "effects": {
+        "shop_weapon_upgrade": true,
+        "no_weapon_armor_bonus": 2
+      },
+      "tags": []
+    },
+    {
+      "id": "ashes",
+      "name": "灰烬",
+      "rarity": "legendary",
+      "price": 100,
+      "effects": {
+        "attack_speed_percent": 15,
+        "damage_percent": 10,
+        "range": 10
+      },
+      "tags": [
+        "attack_speed",
+        "damage"
+      ]
+    },
+    {
+      "id": "focus",
+      "name": "焦点",
+      "rarity": "legendary",
+      "price": 110,
+      "effects": {
+        "damage_percent": 30,
+        "attack_speed_per_different_weapon_percent": -3
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "heavy_bullets",
+      "name": "重型子弹",
+      "rarity": "legendary",
+      "price": 100,
+      "effects": {
+        "ranged_damage": 5,
+        "damage_percent": 10,
+        "range": 10,
+        "attack_speed_percent": -5,
+        "crit_chance_percent": -5
+      },
+      "tags": [
+        "ranged"
+      ]
+    },
+    {
+      "id": "spider",
+      "name": "蜘蛛",
+      "rarity": "legendary",
+      "price": 110,
+      "effects": {
+        "damage_percent": 12,
+        "attack_speed_per_different_weapon_percent": 6,
+        "dodge_percent": -3,
+        "harvesting": -5
+      },
+      "tags": [
+        "damage"
+      ]
+    },
+    {
+      "id": "potato",
+      "name": "土豆",
+      "rarity": "legendary",
+      "price": 95,
+      "effects": {
+        "max_hp": 3,
+        "hp_regen": 2,
+        "life_steal_percent": 1,
+        "damage_percent": 5,
+        "attack_speed_percent": 5,
+        "speed_percent": 3,
+        "dodge_percent": 3,
+        "armor": 1,
+        "luck": 5
+      },
+      "tags": []
+    },
+    {
+      "id": "elemental_master",
+      "name": "元素大师徽章",
+      "rarity": "legendary",
+      "price": 115,
+      "effects": {
+        "elemental_damage": 10,
+        "reaction_heal": 5,
+        "element_duration_percent": 50
+      },
+      "tags": [
+        "elemental"
+      ]
+    },
+    {
+      "id": "mech_heart",
+      "name": "机械之心",
+      "rarity": "legendary",
+      "price": 105,
+      "effects": {
+        "engineering": 10,
+        "structure_damage_percent": 50,
+        "auto_turret_per_wave": 1
+      },
+      "tags": [
+        "engineering"
+      ]
+    },
+    {
+      "id": "se_flame_core",
+      "name": "烈焰核心",
+      "rarity": "legendary",
+      "price": 120,
+      "effects": {
+        "elemental_damage": 8,
+        "fire_damage_percent": 25,
+        "burn_duration_percent": 30
+      },
+      "tags": [
+        "elemental",
+        "evolution_core"
+      ],
+      "star_echo": true,
+      "evolution": {
+        "weapon_id": "se_star_flame",
+        "requires_level": 8,
+        "result_id": "se_star_fall",
+        "result_name": "炎星陨落",
+        "description": "炎星术 Lv8 + 烈焰核心 → 炎星陨落: 召唤大型火焰陨石 AOE"
+      }
+    },
+    {
+      "id": "se_mech_core",
+      "name": "机械核心",
+      "rarity": "legendary",
+      "price": 120,
+      "effects": {
+        "engineering": 8,
+        "structure_damage_percent": 40,
+        "structure_duration_percent": 50,
+        "summon_count": 1
+      },
+      "tags": [
+        "engineering",
+        "evolution_core"
+      ],
+      "star_echo": true,
+      "evolution": {
+        "weapon_id": "se_auto_turret",
+        "requires_level": 8,
+        "result_id": "se_turret_array",
+        "result_name": "机械炮阵",
+        "description": "诺亚机械强化: 自动炮台 Lv8 + 机械核心 → 机械炮阵, 炮台常驻并多台同场"
+      }
+    },
+    {
+      "id": "se_blade_core",
+      "name": "星刃核心",
+      "rarity": "legendary",
+      "price": 120,
+      "effects": {
+        "melee_damage": 8,
+        "crit_damage_percent": 20
+      },
+      "tags": [
+        "melee",
+        "evolution_core"
+      ],
+      "star_echo": true,
+      "evolution": {
+        "weapon_id": "se_star_blade",
+        "requires_level": 8,
+        "result_id": "se_blade_storm",
+        "result_name": "星刃风暴",
+        "description": "星刃 Lv8 + 星刃核心 → 星刃风暴: 6 刃环绕强化"
+      }
+    }
   ]
 }

@@ -642,7 +642,88 @@
             "upgrade": "满级: 可进化(需对应核心)"
           }
         ],
-        "icon_index": 7
+        "icon_index": 7,
+        "evolution": {
+          "requires_item": "se_blade_core",
+          "requires_level": 8,
+          "result_id": "se_blade_storm",
+          "result_name": "星刃风暴",
+          "description": "环绕刃群强化: 6 刃环绕"
+        }
+      },
+      {
+        "id": "se_blade_storm",
+        "name": "星刃风暴",
+        "tier": 4,
+        "damage": 45,
+        "cooldown": 0.9,
+        "range": 150,
+        "special": "环绕刃群强化: 6 刃环绕",
+        "star_echo": true,
+        "evolution_result": true,
+        "blade_count": 6,
+        "orbit_radius": 120,
+        "orbit_speed": 220,
+        "icon_index": 35,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 2,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 3,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 4,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 5,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 6,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 7,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 8,
+            "damage": 45,
+            "cooldown": 0.9,
+            "range": 150,
+            "upgrade": "进化形态（满级）"
+          }
+        ],
+        "max_level": 8
       }
     ],
     "ranged": [
@@ -2064,6 +2145,88 @@
           }
         ],
         "icon_index": 25
+      },
+      {
+        "id": "se_star_fall",
+        "name": "炎星陨落",
+        "tier": 4,
+        "damage": 45,
+        "cooldown": 1.2,
+        "range": 320,
+        "special": "召唤大型火焰陨石, 命中爆炸 AOE",
+        "star_echo": true,
+        "evolution_result": true,
+        "projectiles": 3,
+        "explosion_radius": 90,
+        "element_type": "fire",
+        "icon_index": 33,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 2,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 3,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 4,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 5,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 6,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 7,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 8,
+            "damage": 45,
+            "cooldown": 1.2,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态（满级）"
+          }
+        ],
+        "max_level": 8
       }
     ],
     "engineering": [
@@ -2616,6 +2779,86 @@
           }
         ],
         "icon_index": 32
+      },
+      {
+        "id": "se_turret_array",
+        "name": "机械炮阵",
+        "tier": 4,
+        "damage": 30,
+        "cooldown": 0.5,
+        "range": 320,
+        "special": "诺亚机械强化: 炮台常驻不消失并同时部署多台（机制归 Day 13）",
+        "star_echo": true,
+        "evolution_result": true,
+        "projectiles": 3,
+        "icon_index": 34,
+        "levels": [
+          {
+            "level": 1,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 2,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 3,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 4,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 5,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 6,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 7,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态"
+          },
+          {
+            "level": 8,
+            "damage": 30,
+            "cooldown": 0.5,
+            "range": 320,
+            "projectiles": 3,
+            "upgrade": "进化形态（满级）"
+          }
+        ],
+        "max_level": 8
       }
     ]
   }

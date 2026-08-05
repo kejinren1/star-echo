@@ -10,7 +10,7 @@
 ##              build_weapon_from_data("sword") → upgrade() 后 Lv2 属性 == levels[1]
 ##   3. 图标层：IconAtlas.get_icon("weapons", 39) 非 null、(40) null 且 push_warning 不崩
 ##   4. 回归层：equip_from_data("se_star_flame") 首武器正常 + icon_index 25 + 来源标记
-##   5. 校验层：33 把全部有 icon_index 且 0 ≤ v ≤ 32（穷举）
+##   5. 校验层：36 把全部有 icon_index 且 0 ≤ v ≤ 35（穷举；D10-T1 +3 把结果武器 33/34/35）
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -305,16 +305,16 @@ func _verify_icon_index_enum() -> void:
 		for wid in ids:
 			var data: Dictionary = _loader.call("get_weapon", wid)
 			var v: int = int(data.get("icon_index", -1))
-			if v < 0 or v > 32:
+			if v < 0 or v > 35:
 				_fail("icon_index: %s 越界 (%d)" % [str(wid), v])
 			if seen.has(v):
 				_fail("icon_index: 重复 %d (新的 %s, 已有 %s)" % [v, str(wid), seen[v]])
 			seen[v] = str(wid)
 			total += 1
-	if total == 33:
-		_pass("枚举 / 33 把武器 icon_index 互不重复且 0≤v≤32")
+	if total == 36:
+		_pass("枚举 / 36 把武器 icon_index 互不重复且 0≤v≤35（D7+D10 合并：33 既有 + 3 结果武器）")
 	else:
-		_fail("icon_index: 武器总数应为 33, 实得 %d" % total)
+		_fail("icon_index: 武器总数应为 36, 实得 %d" % total)
 	# MVP 15 把索引互不重复
 	for wid in MVP_FIFTEEN:
 		var data: Dictionary = _loader.call("get_weapon", wid)

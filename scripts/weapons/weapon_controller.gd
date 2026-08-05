@@ -125,6 +125,9 @@ func build_weapon_from_data(weapon_id: String) -> Weapon:
 	w.crit_damage = float(data.get("crit_damage", 1.0))
 	w.pierce = maxi(int(data.get("pierce", 0)), 0)
 	w.icon_index = maxi(int(data.get("icon_index", 0)), 0)
+	# D10-T3：爆炸 AOE 字段（se_star_fall 陨石）；0 默认 = 不爆炸（projectile 既有逻辑天然跳过）
+	w.explosion_radius = float(data.get("explosion_radius", 0.0))
+	w.explosion_damage = float(data.get("explosion_damage", 0.0))
 	# projectile_speed 保留 Weapon 默认 400；lifetime 由 _spawn_projectile() 按 range/speed 推导，不手设
 	w.level = 1
 	# D5-T2：逐级状态表 + max_level 口径（防 levels 表 8 条而 max_level 缺省时只能升到 5）
@@ -152,6 +155,28 @@ func equip_from_data(weapon_id: String) -> bool:
 	equipped_weapons.clear()
 	equip_weapon(w)
 	return true
+
+## 进化替换（D10-T3）：把已装备的 target 武器原子替换为 replacement_id 构建的新武器
+## 1) 目标不在已装备列表 → null（不崩、不改任何武器）
+## 2) build_weapon_from_data 失败（未知 id）→ null（原武器不动）
+## 3) 新武器循环升级至满级（≤7 次，_on_upgrade 查表绝对覆盖；结果武器平曲线 = 进化强度）
+## 4) 原位替换 + _sync_orbit_weapon() 一次（避免 equip/unequip 两次 sync）
+## 返回新武器（成功）或 null（失败）；调用方在成功后才可消耗进化核心
+func replace_weapon(target: Resource, replacement_id: String) -> Weapon:
+	if target == null or replacement_id.is_empty():
+		return null
+	var idx: int = equipped_weapons.find(target)
+	if idx < 0:
+		push_warning("[WeaponController] replace_weapon: 目标武器不在已装备列表")
+		return null
+	var w := build_weapon_from_data(replacement_id)
+	if w == null:
+		return null
+	while w.level < w.max_level:
+		w.upgrade()
+	equipped_weapons[idx] = w
+	_sync_orbit_weapon()
+	return w
 
 ## 取回首把武器的数据来源 id（无来源标记时返回空串，供测试断言）
 func get_primary_weapon_id() -> String:
@@ -217,6 +242,10 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 		"lifetime": travel_time,
 		"pierce": weapon.pierce,
 		"knockback": weapon.knockback,
+		# D10-T3：爆炸 AOE 透传（projectile.initialize 已支持 :155-158）；
+		# explosion_damage 兜底 = base_damage；radius <= 0 时 projectile 不爆炸，零回归
+		"explosion_radius": weapon.explosion_radius,
+		"explosion_damage": weapon.explosion_damage if weapon.explosion_damage > 0.0 else dmg,
 	})
 	_projectile_container.add_child(proj)
 	proj.global_position = owner_node.global_position
