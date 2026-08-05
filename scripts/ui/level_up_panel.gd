@@ -42,13 +42,27 @@ func setup() -> void:
 
 # ========== 选项生成 ==========
 
-## 摊平 upgrade_options 四组 → shuffle → 取前 count 个（天然不重复）
+## 选项池 = 属性池（stats.json.upgrade_options 摊平，现状保留）+ 武器升级池
+## （已装备且未满级的武器各占 1 个「升级『X』」选项，Brotato 范式；D5-T3）
+## → shuffle → 取前 count 个（天然不重复）
 func _roll_options(count: int) -> Array:
 	var pool: Array = []
 	var leveling: Dictionary = DataLoader.get_leveling()
 	for group in leveling.get("upgrade_options", []):
 		for opt in group.get("options", []):
 			pool.append(opt)
+	var weapon_controller: Node = null
+	if player:
+		weapon_controller = player.get_node_or_null("WeaponController")
+	if weapon_controller:
+		var weapons: Array = weapon_controller.get("equipped_weapons")
+		for weapon in weapons:
+			if weapon and weapon.level < weapon.max_level:
+				pool.append({
+					"label": "升级「%s」" % weapon.weapon_name,
+					"type": "weapon_upgrade",
+					"weapon": weapon,
+				})
 	pool.shuffle()
 	return pool.slice(0, count)
 
@@ -65,7 +79,13 @@ func _on_option_pressed(index: int) -> void:
 ##   percent → 传 1.0 + value/100 并标记 multiplicative（乘算通道）
 ##   ratio   → 传 value/100（百分数转 0~1 后加算）
 ##   add     → 直传 value（加算）
+## D5-T3：新增 weapon_upgrade 分支（升级武器本身，不调 apply_stat_modifier）
 func _apply_option(opt: Dictionary) -> void:
+	if str(opt.get("type", "")) == "weapon_upgrade":
+		var weapon: Resource = opt.get("weapon")
+		if weapon and weapon.has_method("upgrade"):
+			weapon.upgrade()
+		return
 	if player == null or not player.has_method("apply_stat_modifier"):
 		return
 	var stat: String = str(opt.get("stat", ""))

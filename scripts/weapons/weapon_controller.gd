@@ -10,17 +10,24 @@ signal weapon_fired(weapon: Resource)
 # ========== 资源引用 ==========
 
 const ProjectileScene: PackedScene = preload("res://scenes/Projectile.tscn")
+## preload 而非依赖 class_name：无头 `--script` 模式（main.gd:20 同策略）对新类
+## 首次引入更稳；orbit_weapon.gd 的 class_name OrbitWeapon 保留供其它引用
+const OrbitWeaponScript: GDScript = preload("res://scripts/weapons/orbit_weapon.gd")
 
 # ========== 常量 ==========
 
 ## 由 JSON 构建的武器打在 meta 上的来源 id key（供测试/UI 反查）
 const META_SOURCE_ID: StringName = &"source_id"
 
+## 武器槽上限（大纲：最多 6 槽；D5-T1）
+const MAX_SLOTS: int = 6
+
 # ========== 属性 ==========
 
 var owner_node: Node2D                        ## 武器所有者（玩家）
 var equipped_weapons: Array[Resource] = []    ## 已装备武器列表
 var _projectile_container: Node2D             ## 弹丸容器
+var orbit_node: Node2D = null                 ## 环绕武器节点（D5-T4，运行时创建，挂 Player 子节点）
 
 # ========== 生命周期 ==========
 
@@ -57,19 +64,38 @@ func _equip_default_weapon() -> void:
 func _process(delta: float) -> void:
 	# 每帧检查所有武器是否可以攻击
 	for weapon in equipped_weapons:
-		if weapon and weapon.has_method("can_fire") and weapon.can_fire(delta):
+		if not weapon or not weapon.has_method("can_fire"):
+			continue
+		# 环绕武器不自发弹丸（D5-T4：由 OrbitWeapon 节点独立驱动旋转 + 接触伤害）
+		if weapon.orbit_data and not weapon.orbit_data.is_empty():
+			continue
+		if weapon.can_fire(delta):
 			_fire_weapon(weapon)
 
 # ========== 武器管理 ==========
 
-## 装备武器
-func equip_weapon(weapon: Resource) -> void:
-	if weapon not in equipped_weapons:
-		equipped_weapons.append(weapon)
+## 装备武器（D5-T1 返回 bool）：
+## 已在列表 / 槽位已满（>= MAX_SLOTS）→ 拒绝返回 false，已装备不受影响；
+## 「替换旧武器」交互归 Day 11-12 商店体系，本日不做
+func equip_weapon(weapon: Resource) -> bool:
+	if weapon in equipped_weapons or equipped_weapons.size() >= MAX_SLOTS:
+		return false
+	equipped_weapons.append(weapon)
+	_sync_orbit_weapon()
+	return true
 
 ## 卸下武器
 func unequip_weapon(weapon: Resource) -> void:
 	equipped_weapons.erase(weapon)
+	_sync_orbit_weapon()
+
+## 当前已装备武器数
+func get_slot_count() -> int:
+	return equipped_weapons.size()
+
+## 槽位是否已满
+func is_full() -> bool:
+	return equipped_weapons.size() >= MAX_SLOTS
 
 # ========== 数据驱动装备（Day 2：角色起始武器接线） ==========
 
@@ -95,7 +121,16 @@ func build_weapon_from_data(weapon_id: String) -> Weapon:
 	w.knockback = float(data.get("knockback", 0.0))
 	# projectile_speed 保留 Weapon 默认 400；lifetime 由 _spawn_projectile() 按 range/speed 推导，不手设
 	w.level = 1
-	w.max_level = int(data.get("max_level", 5))
+	# D5-T2：逐级状态表 + max_level 口径（防 levels 表 8 条而 max_level 缺省时只能升到 5）
+	w.level_table = data.get("levels", []) as Array
+	w.max_level = maxi(int(data.get("max_level", 5)), w.level_table.size())
+	# D5-T2：环绕武器（se_star_blade 类）→ 存 orbit 数据；升级时由 levels 表覆写
+	if data.has("blade_count"):
+		w.orbit_data = {
+			"blade_count": int(data.get("blade_count", 1)),
+			"orbit_radius": float(data.get("orbit_radius", 110.0)),
+			"orbit_speed": float(data.get("orbit_speed", 180.0)),
+		}
 	w.set_meta(META_SOURCE_ID, weapon_id)
 	return w
 
@@ -180,3 +215,25 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 	_projectile_container.add_child(proj)
 	proj.global_position = owner_node.global_position
 	proj.set_direction(aim_dir)
+
+# ========== 环绕武器（D5-T4） ==========
+
+## 扫描已装备武器，维护 OrbitWeapon 节点（挂 Player 子节点，跟随移动）：
+##   无 orbit 武器 → 清理已有节点；有 → 创建/复用节点并 setup
+## 由 equip_weapon / unequip_weapon 末尾调用；Player.tscn 无需预置该节点
+func _sync_orbit_weapon() -> void:
+	var orbit_weapon: Resource = null
+	for weapon in equipped_weapons:
+		if weapon and weapon.orbit_data and not weapon.orbit_data.is_empty():
+			orbit_weapon = weapon
+			break
+	if orbit_weapon == null:
+		if orbit_node and is_instance_valid(orbit_node):
+			orbit_node.queue_free()
+		orbit_node = null
+		return
+	if orbit_node == null or not is_instance_valid(orbit_node):
+		orbit_node = OrbitWeaponScript.new()
+		owner_node.add_child(orbit_node)
+		orbit_node.name = "OrbitWeapon"
+	orbit_node.setup(orbit_weapon, owner_node)

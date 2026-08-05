@@ -33,6 +33,15 @@ signal weapon_fired
 @export var level: int = 1                      ## 武器等级
 @export var max_level: int = 5                  ## 最大等级
 
+# ========== 逐级数据（Day 5 · D5-T2） ==========
+
+## JSON `levels[]` 逐级状态表（8 条 = Lv1~Lv8 的绝对状态值，非 delta）；
+## 为空时升级走通用成长兜底（×1.25 / ×1.1，旧武器）
+var level_table: Array = []
+## 环绕武器数据（blade_count/orbit_radius/orbit_speed），仅在 JSON 带 blade_count 时非空；
+## 升级时由 levels 表覆写（D5-T2）
+var orbit_data: Dictionary = {}
+
 # ========== 内部状态 ==========
 
 var _cooldown: float = 0.0                      ## 冷却计时器
@@ -68,10 +77,31 @@ func upgrade() -> bool:
 	_on_upgrade()
 	return true
 
-## 升级时的属性提升（子类重写）
+## 升级时的属性提升（D5-T2 改查表）：
+## 优先读 `levels[level-1]`（upgrade() 已先 level += 1，故 level-1 恰为新等级索引），
+## 逐键绝对覆盖底层字段；表空时回退旧武器通用成长（×1.25 / ×1.1）
 func _on_upgrade() -> void:
-	base_damage *= 1.25
-	fire_rate *= 1.1
+	if level_table.is_empty():
+		base_damage *= 1.25
+		fire_rate *= 1.1
+		return
+	var idx: int = level - 1
+	if idx < 0 or idx >= level_table.size():
+		return
+	var entry: Dictionary = level_table[idx]
+	if entry.has("damage"):
+		base_damage = float(entry["damage"])
+	if entry.has("cooldown"):
+		# JSON 用「冷却秒数」，Weapon 用「每秒次数」（D2 同款口径：取倒数）
+		fire_rate = 1.0 / maxf(float(entry["cooldown"]), 0.01)
+	if entry.has("projectiles"):
+		projectile_count = maxi(int(entry["projectiles"]), 1)
+	if entry.has("range"):
+		attack_range = float(entry["range"])
+	if entry.has("blade_count") or entry.has("orbit_radius") or entry.has("orbit_speed"):
+		orbit_data["blade_count"] = int(entry.get("blade_count", orbit_data.get("blade_count", 1)))
+		orbit_data["orbit_radius"] = float(entry.get("orbit_radius", orbit_data.get("orbit_radius", 110.0)))
+		orbit_data["orbit_speed"] = float(entry.get("orbit_speed", orbit_data.get("orbit_speed", 180.0)))
 
 # ========== 属性查询 ==========
 
