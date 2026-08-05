@@ -140,6 +140,7 @@
         "damage": 30,
         "radius": 90,
         "element_type": "fire",
+        "burn_duration": 4.0,
         "description": "向鼠标方向抛射巨型火球，命中爆炸并施加燃烧(4秒)"
       },
       "growth": {

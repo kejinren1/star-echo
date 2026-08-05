@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://b5a1player001"]
+[gd_scene load_steps=7 format=3 uid="uid://b5a1player001"]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Texture2D" path="res://assets/sprites/characters/fighter_idle.png" id="2_idle"]
 [ext_resource type="Texture2D" path="res://assets/sprites/characters/fighter_walk.png" id="3_walk"]
 [ext_resource type="Script" path="res://scripts/weapons/weapon_controller.gd" id="4_wctrl"]
+[ext_resource type="Script" path="res://scripts/player/skill_controller.gd" id="5_skill"]
 
 [sub_resource type="RectangleShape2D" id="shape_player"]
 size = Vector2(24, 28)
@@ -22,3 +23,6 @@ shape = SubResource("shape_player")
 
 [node name="WeaponController" type="Node" parent="."]
 script = ExtResource("4_wctrl")
+
+[node name="SkillController" type="Node" parent="."]
+script = ExtResource("5_skill")

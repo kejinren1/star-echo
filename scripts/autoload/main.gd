@@ -74,7 +74,18 @@ func _setup_character() -> void:
 	if player and player.has_method("apply_character"):
 		player.apply_character(data)
 
+	# 技能数据装载：须在 apply_character 之后（技能可能读 bonus_stats），起始武器之前
+	_setup_skill(data)
+
 	_equip_starting_weapon(str(data.get("starting_weapon", "")))
+
+## 把角色 skill 数据注入 SkillController（节点缺失只告警，不阻断开局）
+func _setup_skill(char_data: Dictionary) -> void:
+	var controller: Node = player.get_node_or_null("SkillController") if player else null
+	if controller == null or not controller.has_method("setup"):
+		push_warning("[Main] 未找到 SkillController，主动技能未装载")
+		return
+	controller.setup(char_data)
 
 ## 决定本局英雄 id：优先角色选择结果，其次兜底英雄
 func _resolve_character_id() -> String:
