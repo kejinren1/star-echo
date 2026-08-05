@@ -576,6 +576,41 @@
 - [ ] anime 方向调和（高饱和幻想色 + 华丽特效预留）—— 规范已定，**素材侧待 Day 23 VFX 一并落地**
 - [!] 承接 D2-T3：9 张英雄 PNG 中 6 张缺 `.import`（仅 `fighter_idle/walk` 有），本日统一验收
 
+#### D21-T0【W3 · 概念图驱动的美术实装 · 2026-08-05 用户交接 · 顺延下个工作日】
+
+> **参考图**：`docs/art_refs/concept_2026-08-05_chatgpt_star_echo.png`（290 KB，用户 2026-08-05 19:46 提供，ChatGPT 生成的二次元像素风概念集）
+> **优先级（按用户指令）**：①头像 → ②人物模型 → ③特效
+> **关键发现**：参考图引入**第四角色「希亚」（医师 / 治疗 / 辅助，白蓝紫配色，初始武器「光耀法杖」，主动技能「神圣庇护」）**——项目当前 `characters.json` 仅 3 英雄（艾琳/诺亚/莱恩），数据层需先预建希亚条目，美工才能实装。
+
+**A. 头像（pixel portrait，32×32 静态）**
+- [ ] 艾琳 / 诺亚 / 莱恩 —— 替换 `assets/sprites/characters/{elin|noah|lain}_portrait.png`（现有 9 张 PNG 中 portrait 已存但来自 7d39e75，参考图是新方向基准）
+- [ ] 希亚（新增）—— 落点 `assets/sprites/characters/se_siia_portrait.png`
+- [ ] 遗留 6 英雄（well_rounded/brawler/ranger/mage/engineer/gambler，D2-T7 美术债）—— 沿用参考图艺术方向补齐或明确接受占位
+
+**B. 人物模型（pixel 32×32，4 状态 strip：待机/移动/攻击/技能）**
+- [ ] 艾琳 / 诺亚 / 莱恩 —— 替换 `assets/sprites/characters/{elin|noah|lain}_{idle|walk}.png`（Day 6 接入 Player.gd）
+- [ ] 希亚（新增）—— 落点 `assets/sprites/characters/se_siia_{idle|walk}.png`
+- [ ] 9 张新 PNG（4 角色 + 1 第四角色 × portrait/idle/walk）—— 同步生成 `.import`（编辑器一开即补；无头不生成）
+- [ ] 攻击 / 技能帧 strip —— **当前不存在**（Player.gd 仅 idle/walk 接入），参考图已给姿态方向；新增 `assets/sprites/characters/{hero}_attack.png` 与 `{hero}_skill.png`，Player.tscn 需扩展 `_setup_animation()` 支持新动画
+
+**C. 特效与图标（Day 23 VFX 子集，本任务可提前实装静态图标）**
+- [ ] 武器图标：炎星术 / 自动炮台 / 星刃 / 光耀法杖 —— 落点 `assets/sprites/weapons/{se_star_flame|se_auto_turret|se_star_blade|se_holy_staff}_icon.png`（IconAtlas.weapons 索引新增 1 项）
+- [ ] 技能图标：炽星火球 / 机械矩阵 / 剑域绽放 / 神圣庇护 —— 落点 `assets/sprites/skills/{skill_id}_icon.png`（HUD 冷却指示 SkillSlot，D3-T6 顺延）
+- [ ] 阵营图标：回响者联盟 / 星骸教会 / 深渊议会 / 机械帝国 / 自由佣兵团 —— 落点 `assets/sprites/factions/{id}.png`
+- [ ] 场景概念图（梧蓝工区 / 腐化森林 / 熔岩矿城 / 虚空回廊）—— 落点 `assets/sprites/backgrounds/{id}.png`，供 Day 23+ 选关场景参考
+
+**D. 数据预建（希亚新增 · W2 · 先于美术）**
+- [ ] `data/characters.json` 新增 `se_siia` 条目：职业 "Healer" / 定位 "治疗 / 辅助" / 起始武器 `se_holy_staff` / 初始 sprite `"siia"` / 主动技能 `se_skill_holy_shield`
+- [ ] `data/weapons.json` 新增 `se_holy_staff`（光耀法杖 · 武器数据）
+- [ ] `data/items.json` / `data/events.json` 按需补希亚相关条目
+- [ ] `docs/ART_ANIME_SPEC.md` 与 `docs/LORE.md` 同步更新（希亚背景故事、职业说明）
+
+**E. 验收口径（提交后 #4 自动化测试）**
+- 4 角色在角色选择界面 4 张 portrait 正常显示（希亚非占位）
+- 进局后 hero.gd `_setup_animation()` 接入新角色 idle/walk 无 warning，缺图走占位降级
+- IconAtlas.weapons 索引 ≥ 4，技能图标在 HUD SkillSlot 可读
+- `data/characters.json` 4 角色无 schema 缺失、9/9 hero_id 命中；希亚进局零 error（无 skill/id 时 try_cast 静默 false 不刷 warning）
+
 ### Day 23 — 华丽技能特效
 - [ ] 火球 / 召唤 / 环绕 / 进化陨石 / 毒雨 VFX（粒子 + 闪白 + 霓虹点缀）
 
