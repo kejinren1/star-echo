@@ -8,6 +8,8 @@ signal died
 signal health_changed(current_hp: float, max_hp: float)
 signal stats_changed
 signal took_damage(amount: float)
+signal level_up(new_level: int)                 ## 升级（D4-T1：经验满触发）
+signal xp_changed(current: float, need: float)  ## 经验变化（D4-T1：HUD 刷新用）
 
 # ========== 导出属性 ==========
 
@@ -25,6 +27,7 @@ signal took_damage(amount: float)
 @export var crit_damage: float = 2.0         ## 暴击伤害倍率
 @export var range_multiplier: float = 1.0    ## 攻击范围倍率
 @export var pickup_range: float = 80.0       ## 拾取范围
+@export var life_steal: float = 0.0          ## 吸血：命中伤害回血比例 (0~1)（D4-T3）
 
 @export_group("经济属性")
 @export var coin_bonus: float = 0.0          ## 金币加成 (0~1)
@@ -58,6 +61,7 @@ const STAT_MAP: Dictionary = {
 	"range_percent": {"stat": "range", "mode": "percent"},
 	"luck": {"stat": "luck", "mode": "add"},
 	"pickup_range": {"stat": "pickup_range", "mode": "add"},
+	"life_steal_percent": {"stat": "life_steal", "mode": "ratio"},  ## D4-T3：莱恩 passive 5 → 0.05 进通道
 }
 
 ## 刻意不进 STAT_MAP 的键（进 bonus_stats 等后续系统消费），附不映射的原因
@@ -73,6 +77,11 @@ var bonus_stats: Dictionary = {}             ## 引擎尚未实现的被动/惩�
 var health: float                            ## 当前生命值
 var is_alive: bool = true
 var _invulnerable_timer: float = 0.0         ## 无敌帧计时
+
+# 经验与升级（D4-T1）
+var exp: float = 0.0                         ## 当前经验值
+var level: int = 1                           ## 当前等级（1 起）
+var _xp_curve_cache: Expression = null       ## 经验曲线表达式缓存（解析一次，避免逐级重复 parse）
 
 # 动画
 var _anim: AnimatedSprite2D
@@ -266,6 +275,53 @@ func die() -> void:
 	died.emit()
 	GameManager.end_game(false)
 
+# ========== 经验与升级（Day 4 · D4-T1） ==========
+## 经验曲线唯一权威：stats.json.leveling.xp_per_level 字符串表达式
+## （"20 + current_level * 10"），用 Godot Expression 解析并绑定 current_level=level，
+## 禁止在代码里硬编码第二份曲线（双源漂移）。
+
+## 获得经验（由 enemy._drop_rewards 击杀掉落调用）
+func gain_exp(amount: float) -> void:
+	if not is_alive or amount <= 0.0:
+		return
+	exp += amount
+	_check_level_up()
+	xp_changed.emit(exp, get_xp_to_next_level())
+	stats_changed.emit()
+
+## 当前等级升到下一级所需经验（HUD / 测试读取）
+func get_xp_to_next_level() -> float:
+	var need: float = _eval_xp_curve()
+	return maxf(need, 1.0)
+
+## 检查升级：while 循环，一次大量经验可连升多级
+func _check_level_up() -> void:
+	while exp >= get_xp_to_next_level():
+		exp -= get_xp_to_next_level()
+		level += 1
+		level_up.emit(level)
+
+## 解析并求值经验曲线表达式；任何异常回退默认曲线并告警，禁止崩溃
+func _eval_xp_curve() -> float:
+	var expr_text: String = ""
+	var leveling: Dictionary = DataLoader.get_leveling()
+	if not leveling.is_empty():
+		expr_text = str(leveling.get("xp_per_level", ""))
+	if expr_text.is_empty():
+		expr_text = "20 + current_level * 10"
+	if _xp_curve_cache == null:
+		_xp_curve_cache = Expression.new()
+		var err: Error = _xp_curve_cache.parse(expr_text, ["current_level"])
+		if err != OK:
+			push_warning("[Player] 经验曲线表达式解析失败(%s): %s，回退默认曲线" % [err, expr_text])
+			_xp_curve_cache = null
+			return 20.0 + float(level) * 10.0
+	var result: Variant = _xp_curve_cache.execute([float(level)], _xp_curve_cache)
+	if _xp_curve_cache.has_execute_failed():
+		push_warning("[Player] 经验曲线求值失败，回退默认曲线")
+		return 20.0 + float(level) * 10.0
+	return float(result)
+
 # ========== 属性修改接口 ==========
 
 ## 应用属性修改 (供道具系统调用)
@@ -299,6 +355,8 @@ func apply_stat_modifier(stat_name: String, value: float, is_multiplicative: boo
 			dodge = clampf(apply_value(dodge, value, is_multiplicative), 0.0, 0.9)
 		"luck":
 			luck = apply_value(luck, value, is_multiplicative)
+		"life_steal":
+			life_steal = clampf(apply_value(life_steal, value, is_multiplicative), 0.0, 1.0)
 		"coin_bonus":
 			coin_bonus = apply_value(coin_bonus, value, is_multiplicative)
 	stats_changed.emit()

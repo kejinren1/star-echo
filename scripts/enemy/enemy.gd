@@ -391,6 +391,9 @@ func die() -> void:
 func _drop_rewards() -> void:
 	if GameManager.economy:
 		GameManager.economy.add_coins(coin_value)
+	# D4-T1：经验直接结算（不造磁吸宝石实体，见 TASKS Day 4 总定案）
+	if GameManager.player and GameManager.player.has_method("gain_exp"):
+		GameManager.player.gain_exp(exp_value)
 
 # ========== 初始化接口 ==========
 

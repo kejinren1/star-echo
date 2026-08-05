@@ -25,6 +25,10 @@ var _current_wave: int = 1
 # ========== 生命周期 ==========
 
 func _process(delta: float) -> void:
+	# D4-T8（BUG-001-F2）：商店/结算期间禁止继续生成（波次定时结束但队列未清空时
+	# 残留队列会在 SHOP 状态继续刷怪 → 商店中玩家被围殴）
+	if GameManager.current_state != GameManager.GameState.BATTLE:
+		return
 	if not _is_spawning or spawn_queue.is_empty():
 		return
 	_spawn_timer -= delta

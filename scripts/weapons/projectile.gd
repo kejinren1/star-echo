@@ -65,6 +65,7 @@ func _on_body_entered(body: Node) -> void:
 	# 命中敌人则造成伤害
 	if body.is_in_group("enemies") and body.has_method("take_damage"):
 		body.take_damage(damage)
+		_apply_life_steal(damage)
 		_hit_count += 1
 		if _hit_count > pierce:
 			_explode()
@@ -88,12 +89,32 @@ func _explode() -> void:
 				continue
 			if explosion_damage > 0.0 and enemy.has_method("take_damage"):
 				enemy.take_damage(explosion_damage)
+				_apply_life_steal(explosion_damage)
 			if not status_type.is_empty() and enemy.has_method("apply_status"):
 				enemy.apply_status(status_type, status_duration, status_dps)
 
 	# 专属爆炸 VFX 属 Day 23，本日复用现成 crit 特效
 	if GameManager.vfx_container:
 		VfxPlayer.spawn(GameManager.vfx_container, global_position, "crit")
+
+# ========== 吸血结算（Day 4 · D4-T3） ==========
+
+## 命中伤害生效后按玩家 life_steal 比例回血（线弹命中 / 爆炸 AOE 共用）
+## 独立公开方法：无头测试可白盒直调，不依赖物理碰撞帧
+func apply_life_steal(damage_dealt: float) -> void:
+	var p: Node = GameManager.player
+	if p == null or damage_dealt <= 0.0:
+		return
+	if not ("life_steal" in p) or float(p.life_steal) <= 0.0:
+		return
+	var heal_amount: float = damage_dealt * float(p.life_steal)
+	if p.has_method("heal"):
+		p.heal(heal_amount)
+	else:
+		p.health = minf(float(p.health) + heal_amount, float(p.max_health))
+
+func _apply_life_steal(damage_dealt: float) -> void:
+	apply_life_steal(damage_dealt)
 
 # ========== 工具 ==========
 

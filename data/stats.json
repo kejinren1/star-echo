@@ -48,10 +48,38 @@
     "xp_per_level": "20 + current_level * 10",
     "choices_per_level": 3,
     "upgrade_options": [
-      { "group": "damage", "options": ["+5 melee_damage", "+5 ranged_damage", "+5 elemental_damage"] },
-      { "group": "offense", "options": ["+5% attack_speed", "+5% crit_chance", "+5 range"] },
-      { "group": "defense", "options": ["+5 max_hp", "+1 armor", "+5% dodge"] },
-      { "group": "economy", "options": ["+3 harvesting", "+5 luck", "+3 engineering"] }
+      {
+        "group": "damage",
+        "options": [
+          { "label": "攻击 +10%", "stat": "damage", "mode": "percent", "value": 10 },
+          { "label": "攻速 +5%", "stat": "attack_speed", "mode": "percent", "value": 5 },
+          { "label": "暴伤 +10%", "stat": "crit_damage", "mode": "percent", "value": 10 }
+        ]
+      },
+      {
+        "group": "offense",
+        "options": [
+          { "label": "范围 +8%", "stat": "range", "mode": "percent", "value": 8 },
+          { "label": "暴击率 +3%", "stat": "crit_chance", "mode": "ratio", "value": 3 },
+          { "label": "移速 +5%", "stat": "move_speed", "mode": "percent", "value": 5 }
+        ]
+      },
+      {
+        "group": "defense",
+        "options": [
+          { "label": "生命 +10", "stat": "max_health", "mode": "add", "value": 10 },
+          { "label": "护甲 +1", "stat": "armor", "mode": "add", "value": 1 },
+          { "label": "吸血 +2%", "stat": "life_steal", "mode": "ratio", "value": 2 }
+        ]
+      },
+      {
+        "group": "economy",
+        "options": [
+          { "label": "幸运 +5", "stat": "luck", "mode": "add", "value": 5 },
+          { "label": "暴伤 +10%", "stat": "crit_damage", "mode": "percent", "value": 10 },
+          { "label": "攻击 +10%", "stat": "damage", "mode": "percent", "value": 10 }
+        ]
+      }
     ]
   }
 }

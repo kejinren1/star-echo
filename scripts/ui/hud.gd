@@ -12,6 +12,10 @@ extends CanvasLayer
 @onready var timer_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/TimerLabel
 @onready var coins_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/CoinsLabel
 
+## 技能冷却槽（D4-T6）：SkillSlot 整体压暗 + 子 Label 显示剩余秒数
+@onready var skill_slot: TextureRect = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot
+@onready var skill_label: Label = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot/SkillLabel
+
 ## 武器槽位背景节点 (6 个 TextureRect, texture = slot_weapon.png)
 @onready var weapon_slots: Array[TextureRect] = [
 	$MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot0,
@@ -53,6 +57,9 @@ func _ready() -> void:
 	# 连接玩家信号
 	if GameManager.player:
 		GameManager.player.health_changed.connect(_on_health_changed)
+		# D4-T1：经验条刷新（kill → gain_exp 后 xp_changed 触发）
+		if GameManager.player.has_signal("xp_changed"):
+			GameManager.player.xp_changed.connect(_on_xp_changed)
 
 	# 连接背包信号
 	if GameManager.inventory:
@@ -66,6 +73,9 @@ func _ready() -> void:
 		weapon_icons.append(slot.get_node("Icon") as TextureRect)
 	for slot in item_slots:
 		item_icons.append(slot.get_node("Icon") as TextureRect)
+
+	# D4-T6：延迟一帧连接 SkillController（Main._ready 装载英雄数据需先完成）
+	_connect_skill_controller()
 
 # ========== 信号处理 ==========
 
@@ -90,6 +100,37 @@ func _on_health_changed(current_hp: float, max_hp: float) -> void:
 	health_bar.max_value = max_hp
 	health_bar.value = current_hp
 	health_label.text = "%d/%d" % [int(current_hp), int(max_hp)]
+
+## D4-T1：经验变化刷新 XpBar（update_xp 原有接口接上调用方）
+func _on_xp_changed(current: float, need: float) -> void:
+	update_xp(current, need)
+
+# ========== 技能冷却指示（Day 4 · D4-T6） ==========
+
+## 延迟连接 SkillController（Main._ready 需先装载英雄数据；取不到只告警不崩）
+func _connect_skill_controller() -> void:
+	await get_tree().process_frame
+	if GameManager.player == null:
+		return
+	var controller: Node = GameManager.player.get_node_or_null("SkillController")
+	if controller == null or not controller.has_signal("cooldown_changed"):
+		push_warning("[HUD] 未找到 SkillController，技能冷却指示不可用")
+		return
+	controller.cooldown_changed.connect(_on_skill_cooldown_changed)
+	# 注意：Node.get() 只收 1 参数（无默认值），手动判空取 _cd_total
+	var total: float = 0.0
+	if controller.get("_cd_total") != null:
+		total = float(controller.get("_cd_total"))
+	_on_skill_cooldown_changed(0.0, total)
+
+## 冷却显示：left <= 0 就绪满亮度；否则显示剩余秒数并压暗
+func _on_skill_cooldown_changed(left: float, _total: float) -> void:
+	if left <= 0.0:
+		skill_label.text = "就绪"
+		skill_slot.modulate = Color.WHITE
+	else:
+		skill_label.text = "%.1f" % left
+		skill_slot.modulate = Color(1, 1, 1, 0.4)
 
 # ========== 背包槽位更新 ==========
 

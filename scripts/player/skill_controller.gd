@@ -15,6 +15,7 @@ signal skill_cast(skill_id: String)                 ## 成功释放一次技能
 # ========== 资源引用 ==========
 
 const ProjectileScene: PackedScene = preload("res://scenes/Projectile.tscn")
+const TurretScene: PackedScene = preload("res://scenes/Turret.tscn")
 
 # ========== 状态 ==========
 
@@ -138,13 +139,34 @@ func _calc_burn_dps() -> float:
 		elemental_damage = float(player.bonus_stats.get("elemental_damage", 0.0))
 	return dot + elemental_damage * dot_scaling
 
-## 诺亚「紧急部署」（D3-T4 · 本轮按 #1 重排顺延 Day 4 首段）：静默桩
-## 返回 false → 不进冷却、零 stderr 噪音（baseline 护栏要求 stderr 干净）
+## 诺亚「紧急部署」（D4-T5，承接 D3-T4）：在身侧部署 `summon_count + bonus_stats.summon_count` 台
+## 临时炮台（skill summon_count=2 + 诺亚 passive summon_count=1 → 3 台），持续 duration 秒。
+## 数值全部来自 DataLoader.get_weapon(summon_id)，禁止硬编码。
+## 返回 true = 部署成功进入冷却；数据缺失/无 World = false（不进冷却，零 stderr 噪音）
 func _cast_deploy_turret() -> bool:
-	if not _warned_not_impl:
-		_warned_not_impl = true
-		print_verbose("[SkillController] 紧急部署未实现（D3-T4 顺延 Day 4）")
-	return false
+	var summon_id: String = str(skill_data.get("summon_id", "se_auto_turret"))
+	var weapon_data: Dictionary = DataLoader.get_weapon(summon_id)
+	if weapon_data.is_empty():
+		push_warning("[SkillController] 炮台武器数据缺失: %s" % summon_id)
+		return false
+	var base_count: int = int(skill_data.get("summon_count", 2))
+	var bonus_count: int = 0
+	if player and "bonus_stats" in player:
+		bonus_count = int(float(player.bonus_stats.get("summon_count", 0.0)))
+	var count: int = maxi(base_count + bonus_count, 1)
+	var duration: float = float(skill_data.get("duration", 15.0))
+	var world: Node = player.get_parent()
+	if world == null:
+		return false
+	for i in count:
+		var turret: Node2D = TurretScene.instantiate()
+		if turret.has_method("setup"):
+			turret.setup(weapon_data, duration, player)
+		world.add_child(turret)
+		# 摆位：玩家为心、半径 40px 圆周均布（不挂 Player 子节点，炮台不随玩家移动）
+		var angle: float = TAU * float(i) / float(count)
+		turret.global_position = player.global_position + Vector2.from_angle(angle) * 40.0
+	return true
 
 ## 莱恩「星刃爆发」（D3-T5）：攻速 buff + 环绕刃数字段埋点
 ## 本日可见性边界：环绕刃渲染机制尚不存在（属 Day 5 武器 6 槽挂载），

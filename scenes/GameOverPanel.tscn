@@ -1,0 +1,90 @@
+[gd_scene load_steps=4 format=3 uid="uid://b5b0gameover01"]
+
+[ext_resource type="Script" path="res://scripts/ui/game_over_panel.gd" id="1_panel"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/panel_shop.png" id="2_pshop"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/btn_confirm.png" id="3_confirm"]
+
+[node name="GameOverPanel" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_panel")
+
+[node name="BG" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.08, 0.12, 0.85)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="NinePatchRect" parent="CenterContainer"]
+custom_minimum_size = Vector2(300, 170)
+layout_mode = 2
+texture = ExtResource("2_pshop")
+patch_margin_left = 12
+patch_margin_top = 12
+patch_margin_right = 12
+patch_margin_bottom = 12
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "你已阵亡"
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="Reason" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "你在波次 1 阵亡了"
+theme_override_font_sizes/font_size = 9
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="CenterContainer/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="RestartButton" type="TextureButton" parent="CenterContainer/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+texture_normal = ExtResource("3_confirm")
+texture_hover = ExtResource("3_confirm")
+texture_pressed = ExtResource("3_confirm")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RestartLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/RestartButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -8.0
+offset_right = 50.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "重新开始"
+theme_override_font_sizes/font_size = 10
+mouse_filter = 2

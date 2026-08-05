@@ -99,19 +99,20 @@ func _run_special(delta: float) -> void:
 				_check_fireball_case()
 				_finish_case()
 		"noa":
-			# 炮台顺延 Day 4：try_cast 应返回 false 且零 error（占位分支），不进冷却
+			# D4-T5 起炮台已真实实现（顺延收口见 day4_level_check 断言 7）：
+			# 首次 try_cast 应返回 true（部署成功进冷却），紧接第二次 false
 			var first: bool = bool(_skill.call("try_cast"))
 			if first:
-				_fail("noa / 炮台占位应返回 false（D3-T4 顺延）")
-			else:
 				_checked += 1
-				print("  PASS  noa / try_cast = false（占位顺延，零 error）")
+				print("  PASS  noa / 紧急部署 try_cast = true（D4-T5 已实现）")
+			else:
+				_fail("noa / 紧急部署 try_cast 应为 true")
 			var second: bool = bool(_skill.call("try_cast"))
 			if second:
-				_fail("noa / 占位失败不应进入冷却")
+				_fail("noa / 冷却未生效，第二次 try_cast 仍返回 true")
 			else:
 				_checked += 1
-				print("  PASS  noa / 占位失败未进冷却")
+				print("  PASS  noa / 冷却生效，第二次 = false")
 			_finish_case()
 		"blade":
 			if not _armed:

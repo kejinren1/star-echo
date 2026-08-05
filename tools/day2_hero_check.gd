@@ -37,7 +37,8 @@ const CASES: Array = [
 		"hero": "se_ren",
 		"expect": {
 			"id": "se_ren", "weapon": "se_star_blade", "weapon_name": "星刃",
-			"crit_chance": 0.15, "bonus_key": "life_steal_percent", "bonus_value": 5.0,
+			# D4-T3 起 life_steal_percent 从 bonus_stats 移入 life_steal 属性通道（5% → 0.05）
+			"crit_chance": 0.15, "life_steal": 0.05,
 		},
 	},
 	{
@@ -127,7 +128,7 @@ func _check(test_case: Dictionary) -> void:
 		_assert_near("%s / fire_rate" % label, weapon.fire_rate, float(expect["fire_rate"]))
 
 	# --- 被动 / 惩罚注入 ---
-	for stat: String in ["max_health", "attack_speed", "crit_chance"]:
+	for stat: String in ["max_health", "attack_speed", "crit_chance", "life_steal"]:
 		if expect.has(stat):
 			_assert_near("%s / %s" % [label, stat], float(player.get(stat)), float(expect[stat]))
 

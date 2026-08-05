@@ -41,6 +41,10 @@ func _ready() -> void:
 	GameManager.inventory = inventory
 	GameManager.vfx_container = vfx_container
 
+	# D4-T1：升级 → 暂停 + 弹强化面板（GameManager 侧消费）
+	if player and player.has_signal("level_up") and not player.level_up.is_connected(GameManager._on_player_level_up):
+		player.level_up.connect(GameManager._on_player_level_up)
+
 	# 配置敌人生成器
 	enemy_spawner.set_container(enemies_container)
 
