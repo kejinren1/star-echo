@@ -10,7 +10,11 @@
       },
       "tags": [
         "attack_speed"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "attack",
+      "icon_index": 0
     },
     {
       "id": "helmet",
@@ -22,7 +26,11 @@
       },
       "tags": [
         "armor"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "defense",
+      "icon_index": 5
     },
     {
       "id": "head_injury",
@@ -48,7 +56,11 @@
       },
       "tags": [
         "damage"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "attack",
+      "icon_index": 1
     },
     {
       "id": "sneakers",
@@ -60,7 +72,11 @@
       },
       "tags": [
         "speed"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "stat",
+      "icon_index": 10
     },
     {
       "id": "glasses",
@@ -98,7 +114,11 @@
       "tags": [
         "max_hp",
         "hp_regen"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "defense",
+      "icon_index": 6
     },
     {
       "id": "feather",
@@ -162,7 +182,11 @@
       },
       "tags": [
         "crit"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "stat",
+      "icon_index": 11
     },
     {
       "id": "jelly",
@@ -174,7 +198,11 @@
       },
       "tags": [
         "max_hp"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "defense",
+      "icon_index": 7
     },
     {
       "id": "book",
@@ -222,13 +250,17 @@
       "rarity": "uncommon",
       "price": 55,
       "effects": {
-        "range": 15,
-        "attack_speed_percent": 5
+        "attack_speed_percent": 5,
+        "range_percent": 8
       },
       "tags": [
         "range",
         "attack_speed"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "special",
+      "icon_index": 16
     },
     {
       "id": "blood_leech",
@@ -241,7 +273,11 @@
       },
       "tags": [
         "life_steal"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "special",
+      "icon_index": 15
     },
     {
       "id": "bone_dice",
@@ -255,7 +291,11 @@
       "tags": [
         "damage",
         "luck"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "attack",
+      "icon_index": 4
     },
     {
       "id": "campfire",
@@ -325,7 +365,11 @@
       },
       "tags": [
         "damage"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "attack",
+      "icon_index": 2
     },
     {
       "id": "mushroom",
@@ -338,7 +382,11 @@
       },
       "tags": [
         "hp_regen"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "defense",
+      "icon_index": 8
     },
     {
       "id": "saw",
@@ -384,13 +432,16 @@
       "effects": {
         "damage_percent": 15,
         "armor": 3,
-        "knockback": 5,
         "speed_percent": -3
       },
       "tags": [
         "damage",
         "armor"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "stat",
+      "icon_index": 14
     },
     {
       "id": "glass_cannon",
@@ -403,7 +454,11 @@
       },
       "tags": [
         "damage"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "attack",
+      "icon_index": 3
     },
     {
       "id": "silver_bullet",
@@ -444,7 +499,11 @@
       "tags": [
         "attack_speed",
         "speed"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "stat",
+      "icon_index": 13
     },
     {
       "id": "guardian_shield",
@@ -459,7 +518,11 @@
       "tags": [
         "armor",
         "max_hp"
-      ]
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "defense",
+      "icon_index": 9
     },
     {
       "id": "radar",
@@ -586,7 +649,11 @@
         "armor": 1,
         "luck": 5
       },
-      "tags": []
+      "tags": [],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "stat",
+      "icon_index": 12
     },
     {
       "id": "elemental_master",
@@ -637,7 +704,11 @@
         "result_id": "se_star_fall",
         "result_name": "炎星陨落",
         "description": "炎星术 Lv8 + 烈焰核心 → 炎星陨落: 召唤大型火焰陨石 AOE"
-      }
+      },
+      "is_passive": true,
+      "slot": "passive",
+      "category": "special",
+      "icon_index": 17
     },
     {
       "id": "se_mech_core",
@@ -661,7 +732,11 @@
         "result_id": "se_turret_array",
         "result_name": "机械炮阵",
         "description": "诺亚机械强化: 自动炮台 Lv8 + 机械核心 → 机械炮阵, 炮台常驻并多台同场"
-      }
+      },
+      "is_passive": true,
+      "slot": "passive",
+      "category": "special",
+      "icon_index": 18
     },
     {
       "id": "se_blade_core",
@@ -683,7 +758,11 @@
         "result_id": "se_blade_storm",
         "result_name": "星刃风暴",
         "description": "星刃 Lv8 + 星刃核心 → 星刃风暴: 6 刃环绕强化"
-      }
+      },
+      "is_passive": true,
+      "slot": "passive",
+      "category": "special",
+      "icon_index": 19
     }
   ]
 }

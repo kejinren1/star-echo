@@ -62,6 +62,7 @@ const STAT_MAP: Dictionary = {
 	"luck": {"stat": "luck", "mode": "add"},
 	"pickup_range": {"stat": "pickup_range", "mode": "add"},
 	"life_steal_percent": {"stat": "life_steal", "mode": "ratio"},  ## D4-T3：莱恩 passive 5 → 0.05 进通道
+	"crit_damage_percent": {"stat": "crit_damage", "mode": "percent"},  ## D11-12-T3：se_blade_core 20 → ×1.2（2.0→2.4）
 }
 
 ## 刻意不进 STAT_MAP 的键（进 bonus_stats 等后续系统消费），附不映射的原因
@@ -133,6 +134,38 @@ func _apply_stat_dict(source: Dictionary) -> void:
 				apply_stat_modifier(stat_name, amount)
 			"percent":
 				apply_stat_modifier(stat_name, 1.0 + amount / 100.0, true)
+			"ratio":
+				apply_stat_modifier(stat_name, amount / 100.0)
+
+## D11-12-T3：被动道具装配（买了必生效）/ 回退（remove=true 反向还原）
+## 与角色 _apply_stat_dict 的区别：未映射键不收集 bonus_stats，而是 push_warning 登记后跳过
+## （被动数据已白名单化，未知键 = 数据缺陷，须显式暴露不静默）。
+## percent 模式 remove 用除法精确还原（乘算非对称：撤销 +8% 是 ÷1.08 而非 ×0.92）。
+func apply_item_bonuses(item: Resource, remove: bool = false) -> void:
+	if item == null or not item.has_method("get_stat"):
+		return
+	var bonuses: Dictionary = item.call("get_all_stats")
+	if bonuses.is_empty():
+		return
+
+	for key: String in bonuses:
+		var amount: float = float(bonuses[key])
+		if not STAT_MAP.has(key):
+			push_warning("[Player] 被动效果键未实现，仅登记: %s" % key)
+			continue
+		var rule: Dictionary = STAT_MAP[key]
+		var stat_name: String = str(rule["stat"])
+		if remove:
+			amount = -amount
+		match str(rule["mode"]):
+			"add":
+				apply_stat_modifier(stat_name, amount)
+			"percent":
+				if remove:
+					# amount 已取负，absf 还原原倍率分母 → 除法撤销
+					apply_stat_modifier(stat_name, 1.0 / (1.0 + absf(amount) / 100.0), true)
+				else:
+					apply_stat_modifier(stat_name, 1.0 + amount / 100.0, true)
 			"ratio":
 				apply_stat_modifier(stat_name, amount / 100.0)
 

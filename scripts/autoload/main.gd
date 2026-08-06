@@ -45,6 +45,14 @@ func _ready() -> void:
 	if player and player.has_signal("level_up") and not player.level_up.is_connected(GameManager._on_player_level_up):
 		player.level_up.connect(GameManager._on_player_level_up)
 
+	# D11-12-T3：被动装配链路 —— inventory 道具增减 → player.apply_item_bonuses（买了必生效 / 移除回退）
+	# 接线放 Main（GameManager 是 autoload，其 _ready 早于 Main 场景子节点就绪）
+	if inventory and player:
+		if not inventory.item_added.is_connected(_on_item_added_bonus):
+			inventory.item_added.connect(_on_item_added_bonus)
+		if not inventory.item_removed.is_connected(_on_item_removed_bonus):
+			inventory.item_removed.connect(_on_item_removed_bonus)
+
 	# 配置敌人生成器
 	enemy_spawner.set_container(enemies_container)
 
@@ -123,3 +131,24 @@ func _on_enemy_died(enemy: Node) -> void:
 	# 播放死亡特效
 	if vfx_container and enemy is Node2D:
 		VfxPlayer.spawn(vfx_container, enemy.global_position, "death")
+
+# ========== 被动装配（D11-12-T3） ==========
+
+## 道具入库 → 装配到玩家（只装配 slot=="passive" 或 stat_bonuses 非空的道具，
+## 防进化核心移除等无 stat 场景误装配；add_item_from_data 构建的 Item 均带 stat_bonuses）
+func _on_item_added_bonus(item: Resource) -> void:
+	if not player or item == null:
+		return
+	var bonuses: Dictionary = item.get("stat_bonuses") if item.has_method("get") else {}
+	var is_passive_slot: bool = str(item.get("slot")) == "passive"
+	if is_passive_slot or not bonuses.is_empty():
+		player.call("apply_item_bonuses", item, false)
+
+## 道具移除 → 回退装配（item_removed 信号已改传 item 本体）
+func _on_item_removed_bonus(item: Resource) -> void:
+	if not player or item == null:
+		return
+	var bonuses: Dictionary = item.get("stat_bonuses") if item.has_method("get") else {}
+	var is_passive_slot: bool = str(item.get("slot")) == "passive"
+	if is_passive_slot or not bonuses.is_empty():
+		player.call("apply_item_bonuses", item, true)

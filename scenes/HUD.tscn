@@ -318,6 +318,48 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="ItemSlot4" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("8_sloti")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot4"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemSlot5" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("8_sloti")
+expand_mode = 1
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot5"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="SkillBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer/BottomBar"]
 layout_mode = 2
 theme_override_constants/separation = 2

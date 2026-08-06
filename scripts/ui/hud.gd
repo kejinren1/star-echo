@@ -1,6 +1,6 @@
 ## HUD 界面脚本
 ## 显示生命值、经验值、金币、波次、计时器等信息
-## 底部显示武器槽 (6) 和道具槽 (4)
+## 底部显示武器槽 (6) 和道具槽 (6)（D11-12-T2：被动槽 4→6）
 extends CanvasLayer
 
 # ========== 节点引用 ==========
@@ -26,12 +26,14 @@ extends CanvasLayer
 	$MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot5,
 ]
 
-## 道具槽位背景节点 (4 个 TextureRect, texture = slot_item.png)
+## 道具槽位背景节点 (6 个 TextureRect, texture = slot_item.png)（D11-12-T2：4→6 对齐大纲 6 被动槽）
 @onready var item_slots: Array[TextureRect] = [
 	$MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot0,
 	$MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot1,
 	$MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot2,
 	$MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot3,
+	$MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot4,
+	$MarginContainer/VBoxContainer/BottomBar/ItemBar/ItemSlot5,
 ]
 
 ## 武器图标节点 (槽位子节点, 显示武器图标)
@@ -143,7 +145,7 @@ func _on_weapon_removed(_index: int) -> void:
 func _on_item_added(_item: Resource) -> void:
 	_refresh_item_slots()
 
-func _on_item_removed(_index: int) -> void:
+func _on_item_removed(_item: Resource) -> void:
 	_refresh_item_slots()
 
 ## 刷新武器槽位显示

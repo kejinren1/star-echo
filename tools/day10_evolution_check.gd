@@ -297,8 +297,11 @@ func _part_evolution_apply_panel() -> void:
 	panel.set("player", _player)
 
 	# 持核心 → _roll_options 应含 evolution 选项
+	# 防 flaky：_roll_options(count) 内部 pool.shuffle() 后取前 count —— 池≈11 项取 8 时
+	# evolution 抽不中概率 ≈27%（C(10,8)/C(11,8)），断言随机红。count 传 99 → 返回全量池
+	# → evolution 持核心时必出现、无核心时必不出现（2026-08-06 12:3x 实测复现 19 项 3 失败）。
 	_inv.call("add_item_from_data", "se_flame_core")
-	var opts: Array = panel.call("_roll_options", 8)
+	var opts: Array = panel.call("_roll_options", 99)
 	var has_evo_opt: bool = false
 	var evo_opt: Dictionary = {}
 	for o in opts:
@@ -315,9 +318,9 @@ func _part_evolution_apply_panel() -> void:
 		else:
 			_pass("链路 / _roll_options 含 evolution「炎星陨落」选项")
 
-	# 无核心 → 进化选项应不存在
+	# 无核心 → 进化选项应不存在（同防 flaky：count 99 返回全量池）
 	_inv.call("remove_item_id", "se_flame_core")
-	var opts2: Array = panel.call("_roll_options", 8)
+	var opts2: Array = panel.call("_roll_options", 99)
 	var has_evo_opt2: bool = false
 	for o in opts2:
 		if str(o.get("type", "")) == "evolution":

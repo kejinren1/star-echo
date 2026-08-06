@@ -125,6 +125,8 @@ func build_weapon_from_data(weapon_id: String) -> Weapon:
 	w.crit_damage = float(data.get("crit_damage", 1.0))
 	w.pierce = maxi(int(data.get("pierce", 0)), 0)
 	w.icon_index = maxi(int(data.get("icon_index", 0)), 0)
+	# D11-12-T4：商店价格透传（weapon.gd 新增 price 字段；商店卡片显示与购买扣费用）
+	w.price = maxi(int(data.get("price", 0)), 0)
 	# D10-T3：爆炸 AOE 字段（se_star_fall 陨石）；0 默认 = 不爆炸（projectile 既有逻辑天然跳过）
 	w.explosion_radius = float(data.get("explosion_radius", 0.0))
 	w.explosion_damage = float(data.get("explosion_damage", 0.0))
@@ -176,7 +178,28 @@ func replace_weapon(target: Resource, replacement_id: String) -> Weapon:
 		w.upgrade()
 	equipped_weapons[idx] = w
 	_sync_orbit_weapon()
+	# D11-12-T5：同步 inventory.weapons（进化后 HUD 读 inventory 显示结果武器；无匹配跳过不崩）
+	_sync_inventory_weapon(target, w)
 	return w
+
+## D11-12-T5：按 meta source_id 匹配 inventory.weapons 旧条目原位替换（直开 Main.tscn 调试路径无匹配 → 静默跳过）
+func _sync_inventory_weapon(old_weapon: Resource, new_weapon: Resource) -> void:
+	if GameManager.inventory == null:
+		return
+	var inv_weapons: Array = GameManager.inventory.get("weapons")
+	if inv_weapons == null:
+		return
+	var old_id: String = ""
+	if old_weapon and old_weapon.has_meta(META_SOURCE_ID):
+		old_id = str(old_weapon.get_meta(META_SOURCE_ID))
+	for i in inv_weapons.size():
+		var w: Resource = inv_weapons[i]
+		if w == null:
+			continue
+		var w_id: String = str(w.get_meta(META_SOURCE_ID, "")) if w.has_meta(META_SOURCE_ID) else ""
+		if w == old_weapon or (not old_id.is_empty() and w_id == old_id):
+			GameManager.inventory.call("replace_weapon_slot", i, new_weapon)
+			return
 
 ## 取回首把武器的数据来源 id（无来源标记时返回空串，供测试断言）
 func get_primary_weapon_id() -> String:

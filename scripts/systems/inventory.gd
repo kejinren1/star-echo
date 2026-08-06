@@ -7,7 +7,7 @@ extends Node
 signal weapon_added(weapon: Resource)
 signal weapon_removed(index: int)
 signal item_added(item: Resource)
-signal item_removed(index: int)
+signal item_removed(item: Resource)   ## D11-12-T3：改传被移除道具本体（被动回退装配需读 stat_bonuses）
 signal inventory_full(category: String)
 
 # ========== 资源引用 ==========
@@ -18,7 +18,7 @@ const Item: GDScript = preload("res://scripts/items/item.gd")
 # ========== 常量 ==========
 
 const MAX_WEAPONS: int = 6                    ## 最大武器槽
-const MAX_ITEMS: int = 20                     ## 最大道具槽
+const MAX_ITEMS: int = 6                      ## 最大被动槽（大纲 6 被动槽；D11-12-T2 原 20→6）
 
 # ========== 属性 ==========
 
@@ -42,6 +42,15 @@ func remove_weapon(index: int) -> void:
 		var removed = weapons.pop_at(index)
 		weapon_removed.emit(index)
 
+## D11-12-T5：原位替换武器条目（weapon_controller.replace_weapon 同步用，进化后 HUD 显示结果武器）
+## 返回是否成功；成功时 emit weapon_added 让 HUD 槽位刷新
+func replace_weapon_slot(index: int, weapon: Resource) -> bool:
+	if index < 0 or index >= weapons.size():
+		return false
+	weapons[index] = weapon
+	weapon_added.emit(weapon)
+	return true
+
 # ========== 道具管理 ==========
 
 ## 添加道具，返回是否成功
@@ -56,8 +65,8 @@ func add_item(item: Resource) -> bool:
 ## 移除道具
 func remove_item(index: int) -> void:
 	if index >= 0 and index < items.size():
-		items.pop_at(index)
-		item_removed.emit(index)
+		var removed: Resource = items.pop_at(index)
+		item_removed.emit(removed)
 
 # ========== 属性计算 ==========
 
@@ -76,6 +85,9 @@ func add_item_from_data(item_id: String) -> bool:
 	item.price = int(data.get("price", 0))
 	item.rarity = str(data.get("rarity", "common"))
 	item.icon_index = maxi(int(data.get("icon_index", 0)), 0)
+	# D11-12-T3：槽位/分类透传（装配链路判断 slot=="passive" 用）
+	item.slot = str(data.get("slot", ""))
+	item.category = str(data.get("category", ""))
 	item.stat_bonuses = data.get("effects", {})
 	return add_item(item)
 

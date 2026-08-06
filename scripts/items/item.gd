@@ -12,6 +12,8 @@ extends Resource
 @export var icon_index: int = 0                  ## 图标在 sprite sheet 中的索引 (IconAtlas 用)
 @export var rarity: String = "common"           ## 稀有度
 @export var price: int = 50                     ## 商店价格
+@export var slot: String = ""                   ## 槽位标识 "passive"/""（D11-12-T3：装配链路用）
+@export var category: String = ""               ## 被动分类 attack/defense/stat/special（D11-12-T1）
 
 @export_group("属性加成")
 @export var stat_bonuses: Dictionary = {}       ## 属性加成 { "max_health": 20.0, "move_speed": 10.0, ... }

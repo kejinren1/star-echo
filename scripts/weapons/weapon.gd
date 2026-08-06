@@ -17,6 +17,7 @@ signal weapon_fired
 @export var icon: Texture2D                     ## 图标 (备用, 优先使用 icon_index)
 @export var icon_index: int = 0                  ## 图标在 sprite sheet 中的索引 (IconAtlas 用)
 @export var rarity: String = "common"           ## 稀有度: common/uncommon/rare/epic/legendary
+@export var price: int = 0                       ## 商店价格（D11-12-T4：build_weapon_from_data 从 JSON 读入，商店卡片显示）
 
 @export_group("战斗属性")
 @export var base_damage: float = 10.0           ## 基础伤害
