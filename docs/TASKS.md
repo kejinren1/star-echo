@@ -1548,6 +1548,7 @@
 - [x] **F-02【碰撞穿过】**：Enemy.tscn `collision_layer=2 / collision_mask=2`（敌间互碰、不挡玩家）；Player.tscn `layer=1 / mask=1`（不检测敌人层 → 穿过怪物不围杀）；`projectile.gd _ready` Area2D `collision_mask=2`（弹丸仍命中敌人，武器伤害零破坏）；敌人接触伤害 `_try_contact_damage` 是距离判断（穿过≠无敌）。
 - [x] **F-04【调试金手指】**：GameManager `debug_cheat` + `toggle_debug_cheat()`（↑+↓ 同按 toggle：**跳关**清残敌+下一波 / **攻击×10** player.debug_mult 写 10（weapon_controller + skill_controller 聚合消费，默认 1 零回归）/ **受伤 0.1%** player.take_damage ×0.001）+ 状态横幅（复用精英横幅范式）；main.gd `_process` ↑+↓ 边缘触发检测。
 - [x] **F-15【围杀根因复核】**（机器实证）：`fa077e0` wave 键修复前 waves.json 运行时旁路（全落默认生成波次无冲锋怪）→ 修复后 wave2 charger×5 / wave3 charger×10 / wave5 horned_charger×8 真实上线 + 冲锋 ×2.5 + 移速未削 + 碰撞阻挡 = 围杀三因；本轮 F-01/F-02/F-04 三管齐下缓解。
+- [x] **F-15 补充调参（2026-08-06 23:0x 用户拍板 · 提交 `1bc0255`）**：`enemy.gd _move_charge` 冲锋倍率 **×2.5 → ×1.5**（配合 F-01 移速×0.5 后，horned_charger 冲速 1062→531→**≈319**，与玩家移速 300 同档、恢复可反应区间，消除「被冲脸瞬秒」）；day17_p0 20/20 + day17_elite 39/39 + baseline CLEAN 复验。
 - [x] **探针 `tools/day17_p0_check.gd` 20/20 CLEAN**（§1 移速四档 / §2 碰撞层与弹丸 mask / §3 金手指 toggle+攻击聚合+技能聚合+受伤0.1% / §4 接触伤害回归+elite scaling 不受影响）。
 - [x] **护栏**：回归十四件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41 / day17 39 / day17_p0 20）+ baseline **BASELINE CLEAN** + verify 36/36。
 - [x] git commit（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）。
