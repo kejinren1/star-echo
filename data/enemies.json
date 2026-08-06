@@ -193,7 +193,13 @@
         "speed": 200,
         "drop": 10,
         "behavior": "aoe_attack",
-        "exp_value": 30
+        "exp_value": 30,
+        "ability": {
+          "type": "aoe",
+          "radius": 90.0,
+          "interval": 3.0,
+          "damage_mult": 1.2
+        }
       },
       {
         "id": "colossus",
@@ -226,7 +232,13 @@
         "speed": 300,
         "drop": 10,
         "behavior": "self_heal",
-        "exp_value": 30
+        "exp_value": 30,
+        "ability": {
+          "type": "self_heal",
+          "threshold": 0.5,
+          "heal_percent": 0.15,
+          "interval": 4.0
+        }
       },
       {
         "id": "croc",
@@ -248,7 +260,13 @@
         "speed": 200,
         "drop": 10,
         "behavior": "spawn",
-        "exp_value": 35
+        "exp_value": 35,
+        "ability": {
+          "type": "spawn",
+          "minion": "chaser",
+          "count": 2,
+          "interval": 5.0
+        }
       }
     ],
     "boss": [

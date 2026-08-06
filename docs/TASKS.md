@@ -16,6 +16,13 @@
 > 🎯 **Day 16 已预拆解（2026-08-06 17:1x · #2 第 15 轮）**：阶段 C 第二节 = **事件节点系统（弹窗 UI + 选项分支 + 奖励结算 + 改线）**（见 Day 16 区）——W1 新建 `EventSelectPanel.tscn` + `event_select_panel.gd`（仿 LevelUpPanel **暂停式**弹窗 + 长文本）+ GameManager 事件接入（`_enter_node(event)` 占位→真实流程 + `resolve_event_choice` + `_apply_event_reward` 10 型分派 + `_apply_route_effect` 5 型改线）+ `route_generator.gd` 扩展 `reroute_remaining`/`force_node_type` 改线静态方法；W2 补 `resonant_shard` 遗物数据（events.json `crystal_vein` 选 A 的 item 奖励实测**悬空**）+ 回归同步（day11_12 总项数断言 48→49）；W5 新建 `tools/day16_event_check.gd` 探针 + 回归十一件套（+day14_15）。**reroute/flag/difficulty 深消费（商店折扣/Boss 护盾/强度档）标注归 Day 17/20/25**，W5 不得判失败。
 > ✅ **Day 16 已收口（2026-08-06 20:2x · #3）**：阶段 C 第二节完成 —— 事件节点系统 ① **`EventSelectPanel.tscn`+`event_select_panel.gd`**（暂停式弹窗·长文本 WORD_SMART·选项 A/B 下附奖励/改线小字·game_over 防悬挂）② **GameManager 事件接入**（`_event_rng` 实例种子随机取、`_start_event` 暂停+弹窗、`resolve_event_choice` A 结算 B 改线）③ **奖励 10 型**（`attack_percent→damage`/`max_hp_percent→max_health` 代码层别名、trade 复合双键、item 遗物直装不占槽、weapon_upgrade 走 _event_rng、**level_up 逐级循环升 value 级**——曲线阈值随等级涨，一次性给阈值×value 只升 1 级）④ **改线 5 型**（reroute 策略表：silent_corridor 增量权重重抽 / shattered_path 强制精英；flag 登记；unlock_node 三策略；add_node 层+2；difficulty 登记——深消费归 Day 17/20/25/27）⑤ **`route_generator.reroute_remaining`/`force_node_type`**（增量权重+wave_index 重映射+末层保护+battle 上限回滚）⑥ **resonant_shard 数据补齐**（items.json 48→49，不设 is_passive → 商店池 53/被动 20 零破坏）⑦ **探针 `day16_event_check.gd` 41/41 CLEAN** + **修复 Day14-15 潜伏 bug**（GameManager 4 处面板 tree_exited 回调加身份校验：旧面板销毁误清新面板引用）+ 回归十二件套全绿 + baseline **BASELINE CLEAN**，提交 `748d2b7`。**day14_15 探针同步更新**（event 节点进入真实事件流程：paused 同 sub 同步 resolve 防探针死锁，51→53 断言）。
 > 🎯 **Day 17 已预拆解（2026-08-06 19:1x · #2 第 16 轮）**：Day 14-15 已收口（`fa077e0`）→ 目标日推进 **Day 16（事件节点，已就绪）**，本轮预拆 **Day 17 = 精英战斗**（见 Day 17 区）——W1 精英特殊能力（enemy.gd AOE/自愈/产卵三行为真实实现）+ **BUG-003 mixed 池令牌解析收口**（spawner 支持 `mixed`/`elite:mixed`/`mixed_with_curse`，wave 15/17/19 此前精英+普通敌全部静默不生成）+ difficulty_delta 消费（Day 16 事件登记 → 本日 ±10%/档）+ 精英节点横幅提示 + 探针；W2 6 精英中 3 只补 `ability` 字段（butcher aoe / monk self_heal / mom spawn，数据驱动仿 burn_duration 先例）；W5 回归十一件套。**Boss phases 状态机归 Day 18-19**，W5 不得判失败。
+> ✅ **Day 17 已收口（2026-08-06 22:5x · #3）**：阶段 C 第三节完成 —— 精英战斗
+> ① **精英 ability 数据化**（butcher aoe / monk self_heal / mom spawn 三只，colossus/rhino/croc 缺省零改动）
+> ② **enemy.gd 精英三行为真实实现**（AOE 距离判断禁物理 / 自愈低血周期恢复 / 产卵同波缩放，ability 空零回归）
+> ③ **BUG-003 收口**（mixed/mixed_with_curse→regular 池、elite:mixed→elite 池，wave 15/17/19 全量生成零 null，swarm ×2 语义保持）
+> ④ **difficulty_delta 消费**（战斗节点入口 → 敌人 ±10%/档）+ 精英节点横幅提示
+> ⑤ **探针 `day17_elite_check.gd` 39/39 CLEAN** + 回归十二件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41）+ baseline **BASELINE CLEAN** + verify 36/36。**day13 探针 flaky 修复**（商店购买段白盒直构造，去随机洗牌依赖 ≈14% 全武器概率）。提交见本轮收口 commit。
+> 🎯 **Day 18-19 已预拆解（2026-08-06 21:1x · #2 第 17 轮）**：Day 16 已收口（`ee7603b`/`748d2b7`）→ 目标日 = **Day 17（精英战斗，已就绪）**，本轮预拆 **Day 18-19 = Boss 多阶段（phases 状态机 + attacks 指令映射）**（见 Day 18-19 区）——W1 `enemy.gd` Boss 阶段状态机（take_damage 阈值切换 + speed_multiplier + 阶段横幅）+ **attacks 字符串指令解析器**（summon/spread/aoe/charge/barrage/all_attacks_2x 全量实测映射）+ **新建 `scripts/enemy/enemy_projectile.gd`**（敌人弹幕独立弹丸，命中玩家，禁物理查询；player projectile.gd 零改动防回归）+ GameManager Boss 接入（boss 节点横幅 + `boss_killed`/`boss_defeated` 登记）+ 探针 `tools/day18_19_boss_check.gd`；W2 ◐核验 Boss phases 数据完整性（只读，数据已完备零改动）；W5 回归十二件套。**大纲「腐化巨树藤蔓/毒雨」vs 数据 invoker/predator phases 差异 → 以数据为准（登记，不臆造新指令）；「森林区域解锁」深消费归 Day 27**。
 > 🎯 **Day 11–12 已拆解（2026-08-06 09:1x · #2 第 11 轮）**：阶段 B 被动+商店 = **20 被动数据（四类）+ 6 被动槽 + 商店真实商品闭环 + 图标扩容**（见 Day 11-12 区）——W2 从现有 48 项筛 20 项为被动池（3 进化核心必选 + 四类划分 + effects 白名单化 + is_passive/slot/category/icon_index 四字段）；W1 6 被动槽（inventory MAX_ITEMS 20→6 + HUD ItemBar 4→6）+ 被动装配链路（player.apply_item_bonuses + GameManager 监听 inventory 信号）+ 商店真实商品购买（武器 33 池 + 被动 20 池随机 4 卡）+ replace_weapon 补 sync inventory；W3 items.png 4→20 帧实绘（gen_item_icons.py 新建）；W5 探针 + 回归八件套。**关键定案：被动只从商店获取（不进升级池）；裸 range 像素键统一 range_percent（200px 基准）；3 核心 effects 禁键仅占位登记不判失败；武器两套完整统一归 Day 13**。
 > ✅ **Day 10 已收口（2026-08-06 07:3x · #3）**：阶段 B 进化机制完成 —— 3 把结果武器数据（se_star_fall 炎星陨落 / se_turret_array 机械炮阵 / se_blade_storm 星刃风暴，elemental/engineering/melee，tier 4，evolution_result + 平曲线 levels 8 条 + icon_index 33/34/35）+ items.json +se_blade_core 补齐星刃进化链（D10-PRE 定案）+ weapon.gd +explosion_radius/explosion_damage + weapon_controller.gd +replace_weapon（find→build→升满→原子替换→_sync 一次）+ level_up_panel.gd 进化池 + evolution 分支（先替换成功、后消耗核心）+ weapons.png 帧 33/34/35 实绘 + icon_index 0-32→0-35 + 探针 `day10_evolution_check.gd` 20/20 CLEAN + 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）+ baseline **BASELINE CLEAN** + `gen_weapons_day7 verify` 36/36 CLEAN，提交 `ca7c0a2`。
 > 🎯 **Day 8–9 已拆解（2026-08-06 05:1x · #2 第 9 轮）**：阶段 B 续段 = **18 把全量武器 levels + 18 帧图标实绘 + 全量数据回归**（见 Day 8-9 区）——W2 给 18 把通用武器补 `levels` 8 条 + `max_level:8`（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field，扩展 `gen_weapons_day7.py` LEVELS 表幂等 apply）；W3 18 帧占位图标逐帧替换实绘（扩展 `gen_weapon_icons.py`，含 force_field 护盾 / minigun 多管等特征）；W1 新建 `day8_weapon_data_check.gd` 探针（≥13 断言含 force_field damage 恒 0 特例）；W5 回归六件套。**纯数据 + 图标 + 探针日，零装配代码改动**（D7-T2 已铺路）。
@@ -1454,7 +1461,7 @@
 - [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
 - [x] 主观项登记：事件文案调性 / 弹窗排版可读性 / 抉择体感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
-### Day 17 — 精英战斗　🎯【已预拆解到函数级 · 2026-08-06 19:1x · #2 第 16 轮】
+### Day 17 — 精英战斗　✅【客观任务 100% 完成 · 已收口 · 2026-08-06 22:5x · #3】
 
 > 🎯 **Day 17 已预拆解（2026-08-06 19:1x · #2 第 16 轮）**：Day 14-15 已收口（`fa077e0`）、Day 16 已预拆（事件节点）→ 预拆 Day 17 = **精英战斗**。核心交付 = **精英特殊能力（3 只新实现）+ 强化属性（scaling 倍率已消费 ✅）+ mixed 池令牌解析（BUG-003 收口）+ difficulty_delta 消费（Day 16 事件登记 → 本日收口）**。waves.json 6-19 天然含 elite 前缀 → 精英节点/波次映射**零数据改动**；6 精英 = 3 只已有行为（rhino charge / colossus+croc chase）+ 3 只新能力（butcher AOE / monk 自愈 / mom 产卵）。**Boss phases 状态机归 Day 18-19**，W5 不得判失败。
 
@@ -1483,59 +1490,134 @@
 | 9 | **回归零破坏**：waves.json 池令牌保留（spawner 解析非数据展开，防 total_enemies/其他断言波及）；day14_15 elite 节点 wave_index ∈ [6,19] 断言不动；day6 端到端不触及 wave 15+ | 池令牌为有意设计（TEST_REPORT）；回归锚点保护 |
 
 #### D17-T1【W2】`enemies.json` 精英 `ability` 字段（能力参数数据化）
-- [ ] butcher（屠夫）+`"ability": {"type": "aoe", "radius": 90.0, "interval": 3.0, "damage_mult": 1.2}` —— 周期对周围造成伤害
-- [ ] monk（修士）+`"ability": {"type": "self_heal", "threshold": 0.5, "heal_percent": 0.15, "interval": 4.0}` —— 血量 < 50% 周期自愈 15%
-- [ ] mom（母体）+`"ability": {"type": "spawn", "minion": "chaser", "count": 2, "interval": 5.0}` —— 周期产 2 只小怪（chaser，用自身 wave 缩放）
-- [ ] colossus/rhino/croc **不补**（缺省无能力，靠既有行为 + scaling 强化）；已有 6 精英其余字段（hp/hp_growth/damage/behavior/exp_value/drop）**零改动**
-- [ ] **测试点**：JSON 校验通过；ability.type ∈ {aoe, self_heal, spawn}；minion id 在 enemies.json 存在；数值 > 0
-- [ ] 文件域：W2 只写 `data/enemies.json`
+- [x] butcher（屠夫）+`"ability": {"type": "aoe", "radius": 90.0, "interval": 3.0, "damage_mult": 1.2}` —— 周期对周围造成伤害
+- [x] monk（修士）+`"ability": {"type": "self_heal", "threshold": 0.5, "heal_percent": 0.15, "interval": 4.0}` —— 血量 < 50% 周期自愈 15%
+- [x] mom（母体）+`"ability": {"type": "spawn", "minion": "chaser", "count": 2, "interval": 5.0}` —— 周期产 2 只小怪（chaser，用自身 wave 缩放）
+- [x] colossus/rhino/croc **不补**（缺省无能力，靠既有行为 + scaling 强化）；已有 6 精英其余字段（hp/hp_growth/damage/behavior/exp_value/drop）**零改动**
+- [x] **测试点**：JSON 校验通过；ability.type ∈ {aoe, self_heal, spawn}；minion id 在 enemies.json 存在；数值 > 0
+- [x] 文件域：W2 只写 `data/enemies.json`
 
 #### D17-T2【W1】`enemy.gd` 精英能力消费（AOE / 自愈 / 产卵三行为真实实现）
-- [ ] 状态：`var ability: Dictionary = {}` / `var wave_number: int = 1` / `var _ability_timer: float = 0.0`
-- [ ] `initialize(stats)`：`if stats.has("ability"): ability = stats["ability"]`；`if stats.has("wave_number"): wave_number = int(stats["wave_number"])`
-- [ ] `_update_behavior` 三分支：`AOE_ATTACK → _move_chase(delta) + _elite_aoe(delta)`；`SELF_HEAL → _move_chase(delta) + _elite_self_heal(delta)`；`SPAWN → _move_spawn(delta) + _elite_spawn(delta)`
-- [ ] `_elite_aoe(delta)`：`_ability_timer -= delta`；≤0 → 距玩家 ≤ radius 则 `target.take_damage(damage * damage_mult)`（VfxPlayer.spawn 容器 `crit` 特效）+ `_ability_timer = interval`；**距离判断禁物理查询**
-- [ ] `_elite_self_heal(delta)`：`_ability_timer -= delta`；health < max_health × threshold 且 ≤0 → `health = min(max_health, health + max_health * heal_percent)` + `health_changed.emit`（VfxPlayer `levelup` 复用）+ 重置 timer
-- [ ] `_elite_spawn(delta)`：`_ability_timer -= delta`；≤0 → ×count 循环：实例化 `enemy_scene`（spawner 同款 preload/资源）+ `initialize(DataLoader.get_scaled_enemy(minion, wave_number))` + `set_target(GameManager.player)` + `GameManager.enemies_container.add_child`（容器缺失静默跳过不崩）→ 重置 timer
-- [ ] **测试点**：白盒构造 stats 带 ability → 推进 delta 触发三行为断言（AOE 玩家掉血 / 自愈 health 回升 / 产卵容器 +2 只 chaser 且 wave 缩放正确）；无 ability → 零新行为（回归零破坏）；timer 不触发 → 无副作用
-- [ ] 文件域：W1 只写 `scripts/`
+- [x] 状态：`var ability: Dictionary = {}` / `var wave_number: int = 1` / `var _ability_timer: float = 0.0`
+- [x] `initialize(stats)`：`if stats.has("ability"): ability = stats["ability"]`；`if stats.has("wave_number"): wave_number = int(stats["wave_number"])`
+- [x] `_update_behavior` 三分支：`AOE_ATTACK → _move_chase(delta) + _elite_aoe(delta)`；`SELF_HEAL → _move_chase(delta) + _elite_self_heal(delta)`；`SPAWN → _move_spawn(delta) + _elite_spawn(delta)`
+- [x] `_elite_aoe(delta)`：`_ability_timer -= delta`；≤0 → 距玩家 ≤ radius 则 `target.take_damage(damage * damage_mult)`（VfxPlayer.spawn 容器 `crit` 特效）+ `_ability_timer = interval`；**距离判断禁物理查询**
+- [x] `_elite_self_heal(delta)`：`_ability_timer -= delta`；health < max_health × threshold 且 ≤0 → `health = min(max_health, health + max_health * heal_percent)` + `health_changed.emit`（VfxPlayer `levelup` 复用）+ 重置 timer
+- [x] `_elite_spawn(delta)`：`_ability_timer -= delta`；≤0 → ×count 循环：实例化 `enemy_scene`（spawner 同款 preload/资源）+ `initialize(DataLoader.get_scaled_enemy(minion, wave_number))` + `set_target(GameManager.player)` + `GameManager.enemies_container.add_child`（容器缺失静默跳过不崩）→ 重置 timer
+- [x] **测试点**：白盒构造 stats 带 ability → 推进 delta 触发三行为断言（AOE 玩家掉血 / 自愈 health 回升 / 产卵容器 +2 只 chaser 且 wave 缩放正确）；无 ability → 零新行为（回归零破坏）；timer 不触发 → 无副作用
+- [x] 文件域：W1 只写 `scripts/`
 
 #### D17-T3【W1】BUG-003 收口：`enemy_spawner.gd` mixed 家族池解析
-- [ ] 状态：`var _rng := RandomNumberGenerator.new()`（探针可注 `_rng.seed`；**不动全局 randf_range**——仅位置随机，不影响生成内容）
-- [ ] `_create_enemy()` 前缀解析后增加池分支：
+- [x] 状态：`var _rng := RandomNumberGenerator.new()`（探针可注 `_rng.seed`；**不动全局 randf_range**——仅位置随机，不影响生成内容）
+- [x] `_create_enemy()` 前缀解析后增加池分支：
   - `enemy_id == "mixed" or enemy_id == "mixed_with_curse"` → `DataLoader.get_enemy_ids_by_category("regular")` 随机抽 1（`_rng.randi_range(0, arr.size()-1)`）→ 按抽中 id 走正常 get_scaled_enemy 流程
   - 前缀 `elite:` 且 `enemy_id == "mixed"`（elite:mixed）→ `get_enemy_ids_by_category("elite")` 随机抽 1 → 同流程
-- [ ] 未知 id → 既有 push_warning + null 保持（不静默扩池）；`swarm_wave` HP 减半 / count×2 逻辑与池解析**顺序兼容**（先解析后缩放，wave 15 的 swarm 语义保持）
-- [ ] **测试点**：固定 `_rng.seed` → `spawn_wave(wave15_config)` → 精英 4 只（id ∈ 6 精英）+ regular 池 56 只（id ∈ 15 regular）→ **零 push_warning 零 null**；wave17（mixed_with_curse）同法；`elite:mixed` 永不抽到 boss/regular
-- [ ] 文件域：W1 只写 `scripts/`
+- [x] 未知 id → 既有 push_warning + null 保持（不静默扩池）；`swarm_wave` HP 减半 / count×2 逻辑与池解析**顺序兼容**（先解析后缩放，wave 15 的 swarm 语义保持）
+- [x] **测试点**：固定 `_rng.seed` → `spawn_wave(wave15_config)` → 精英 4 只（id ∈ 6 精英）+ regular 池 56 只（id ∈ 15 regular）→ **零 push_warning 零 null**；wave17（mixed_with_curse）同法；`elite:mixed` 永不抽到 boss/regular
+- [x] 文件域：W1 只写 `scripts/`
 
 #### D17-T4【W1】difficulty_delta 消费 + 精英节点提示
-- [ ] GameManager：`var difficulty_delta: int = 0`；`_enter_node()` 的 battle/elite/boss 分支同步 `difficulty_delta = int(route.flags.get("difficulty_delta", 0))`（空 route / 无 flags → 0）
-- [ ] spawner `_create_enemy`（池解析 + swarm 缩放后）：`if GameManager: var dd := GameManager.difficulty_delta; if dd != 0: stats["max_health"] *= 1.0 + 0.1 * dd; stats["damage"] *= 1.0 + 0.1 * dd`（±1 档 ±10%）
-- [ ] 精英节点提示：`_enter_node()` 的 `elite` 分支 → 轻量横幅（Node2D + Label「⚔ 精英来袭」1.5s 淡出，仿 enemy.gd `_spawn_exp_popup` :401-417 范式；容器缺失静默跳过）——**不暂停**（与选层/商店同范式）
-- [ ] **测试点**：`route.flags["difficulty_delta"]=+1` → 生成敌人 max_health ×1.1（白盒断言）；`=0` 零影响；elite 节点进入 → 横幅节点出现并自动销毁；无头不崩
-- [ ] 文件域：W1 只写 `scripts/`
+- [x] GameManager：`var difficulty_delta: int = 0`；`_enter_node()` 的 battle/elite/boss 分支同步 `difficulty_delta = int(route.flags.get("difficulty_delta", 0))`（空 route / 无 flags → 0）
+- [x] spawner `_create_enemy`（池解析 + swarm 缩放后）：`if GameManager: var dd := GameManager.difficulty_delta; if dd != 0: stats["max_health"] *= 1.0 + 0.1 * dd; stats["damage"] *= 1.0 + 0.1 * dd`（±1 档 ±10%）
+- [x] 精英节点提示：`_enter_node()` 的 `elite` 分支 → 轻量横幅（Node2D + Label「⚔ 精英来袭」1.5s 淡出，仿 enemy.gd `_spawn_exp_popup` :401-417 范式；容器缺失静默跳过）——**不暂停**（与选层/商店同范式）
+- [x] **测试点**：`route.flags["difficulty_delta"]=+1` → 生成敌人 max_health ×1.1（白盒断言）；`=0` 零影响；elite 节点进入 → 横幅节点出现并自动销毁；无头不崩
+- [x] 文件域：W1 只写 `scripts/`
 
 #### D17-T5【W1】新建 `tools/day17_elite_check.gd`（精英系统探针 ≥18 断言）
-- [ ] §1 数据层：6 精英 id/name/behavior/exp_value/drop 齐；3 只有 ability 且 type ∈ {aoe, self_heal, spawn} + 数值 > 0；minion id 存在；colossus/rhino/croc 缺省无 ability
-- [ ] §2 能力行为（白盒直构造 stats + 固定 delta 推进）：butcher AOE → 玩家掉血（damage×mult）且 timer 重置；monk 低血自愈 → health 回升且不超上限；mom 产卵 → 容器 +count 只 chaser（wave_number 缩放正确）；无 ability → 零新行为
-- [ ] §3 mixed 池解析：固定 `_rng.seed` → wave15 spawn → 精英 4 只（id ∈ elite 池）+ regular 56 只（id ∈ regular 池）零 null；wave17（mixed_with_curse）同法；`elite:mixed` 不抽 boss/regular
-- [ ] §4 difficulty_delta：route.flags +1 → 敌人 max_health ×1.1；0 → 不变
-- [ ] §5 回归锚点：6 精英 behavior ∈ 9 枚举；`is_elite` 标记正确；elite 节点 wave_index ∈ [6,19]（day14_15 口径）；day14_15 探针全量回归（若 day16 已收口再 +day16）
-- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + seed 固定 + 白盒直构造（D11-12/13/14-15 flaky 修复记录）
-- [ ] 文件域：W1 只写 `tools/`
+- [x] §1 数据层：6 精英 id/name/behavior/exp_value/drop 齐；3 只有 ability 且 type ∈ {aoe, self_heal, spawn} + 数值 > 0；minion id 存在；colossus/rhino/croc 缺省无 ability
+- [x] §2 能力行为（白盒直构造 stats + 固定 delta 推进）：butcher AOE → 玩家掉血（damage×mult）且 timer 重置；monk 低血自愈 → health 回升且不超上限；mom 产卵 → 容器 +count 只 chaser（wave_number 缩放正确）；无 ability → 零新行为
+- [x] §3 mixed 池解析：固定 `_rng.seed` → wave15 spawn → 精英 4 只（id ∈ elite 池）+ regular 56 只（id ∈ regular 池）零 null；wave17（mixed_with_curse）同法；`elite:mixed` 不抽 boss/regular
+- [x] §4 difficulty_delta：route.flags +1 → 敌人 max_health ×1.1；0 → 不变
+- [x] §5 回归锚点：6 精英 behavior ∈ 9 枚举；`is_elite` 标记正确；elite 节点 wave_index ∈ [6,19]（day14_15 口径）；day14_15 探针全量回归（若 day16 已收口再 +day16）
+- [x] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + seed 固定 + 白盒直构造（D11-12/13/14-15 flaky 修复记录）
+- [x] 文件域：W1 只写 `tools/`
 
 #### D17-EXIT【W5】阶段 C 第三节收口
-- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
-- [ ] `day17_elite_check` CLEAN + **回归十一件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 51）+ day16（若已收口）+ `gen_weapons_day7.py verify` 36/36
-- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
-- [ ] 主观项登记：精英战手感 / 难度体感 / 精英视觉辨识度 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [x] `day17_elite_check` CLEAN + **回归十一件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 51）+ day16（若已收口）+ `gen_weapons_day7.py verify` 36/36
+- [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
+- [x] 主观项登记：精英战手感 / 难度体感 / 精英视觉辨识度 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
-### Day 18–19 — Boss 腐化巨树 两阶段
-- [ ] 阶段1：召唤藤蔓限制移动
-- [ ] 阶段2：全屏毒雨
-- [ ] 奖励：解锁森林区域
-- [ ] `baseline_check` 通过
+### Day 18–19 — Boss 多阶段（phases 状态机 + attacks 指令映射）　🎯【已预拆解到函数级 · 2026-08-06 21:1x · #2 第 17 轮】
+
+> 🎯 **Day 18-19 已预拆解（2026-08-06 21:1x · #2 第 17 轮）**：Day 16 已收口（`ee7603b`/`748d2b7`）、Day 17 已预拆（精英战斗）→ 预拆 Day 18-19 = **Boss 多阶段战斗**。核心交付 = **Boss phases 状态机（enemy.gd 消费 get_scaled_enemy 已透传的 phases 12 键）+ attacks 字符串指令映射（全量实测）+ 敌人弹幕独立弹丸 + GameManager Boss 接入**。数据层**零改动**（enemies.json boss[2] 的 phases/attacks/exp_value 已完备）——W2 仅只读核验；本日全代码日（W1 五连 + W5 回归）。**大纲「腐化巨树（藤蔓限制移动/全屏毒雨）」vs 数据实际 Boss（invoker 召唤者 wave10 / predator 掠食者 wave20）不一致 → 以数据为准登记差异**；「森林区域解锁」最小落地 = boss_killed 登记 + 胜利文案，深消费（区域系统/局外档案）归 Day 27。
+
+> 📌 **Day 18-19 实测基线（#2 第 17 轮新核，供 #3 免排查）**
+> - **enemies.json boss[2]**：`invoker` 召唤者（wave10，hp 8000 / dmg 15 / speed 200 / exp 400）= **2 阶段**——P1(100%) `summon_2_enemies_every_5s`+`3_projectile_spread`·speed×1.0；P2(60%) `summon_4_enemies_every_2.5s`+`6_projectile_spread`·speed×1.2。`predator` 掠食者（wave20，hp 15000 / dmg 20 / speed 300 / exp 500）= **3 阶段**——P1(100%) `charge_attack`+`aoe_every_8s`·speed×1.0；P2(66%) `charge_attack_2x`+`summon_1_elite`+`projectile_barrage`·speed×1.0；P3(33%) `all_attacks_2x`+`summon_2_elite`·speed×1.3
+> - **⚠️ 大纲 vs 数据差异（登记，不臆造）**：30DAY_PLAN D18-19「腐化巨树 阶段1 召唤藤蔓限制移动 / 阶段2 全屏毒雨；奖励解锁森林区域」——enemies.json 实际 Boss = invoker/predator（非腐化巨树），phases/attacks 指令清单里**无藤蔓/毒雨指令** → 以数据为准（希亚先例：数据先行、大纲为方向）；「森林区域」当前无区域系统（1 地图 1 路线，局外养成归 Day 27）→ 本日仅 `boss_killed`/`boss_defeated` 登记，深消费归 Day 27
+> - **⚠️ 路线模式 Boss 恒为 predator**：route_generator 末层 boss `wave_index = BOSS_WAVE = 20`（:100/:222）→ 路线模式终局 Boss 恒 = predator（wave 20）；invoker（wave 10）仅旧波次制出场——**两 Boss 状态机都要实现**（探针分别白盒验证），「路线终点随机化」不属本日（防过度设计）
+> - **数据透传 ✅ 零改动**：`get_scaled_enemy` 返回 12 键含 `phases`（data_loader.gd:209 `"phases": data.get("phases", [])`）→ enemy.gd `initialize` **不消费 phases**（本轮补）；boss 无 behavior 字段 → 默认 CHASE 直追（initialize BEHAVIOR_MAP 兜底）
+> - **attacks 指令清单（全量实测）**：`summon_N_enemies_every_Xs`（周期召唤）/ `N_projectile_spread`（N 向弹幕）/ `aoe_every_Xs`（周期 AOE）/ `charge_attack`/`charge_attack_2x`（冲锋模式+倍率）/ `projectile_barrage`（弹幕）/ `summon_N_elite`（一次性召唤精英）/ `all_attacks_2x`（阶段修饰符）——需字符串解析器；含 `every_Xs` → 周期，无 every → 一次性/默认间隔（定案表 #2）
+> - **⚠️ 敌人弹幕不能复用 player projectile.gd**：projectile.gd 命中 `body.is_in_group("enemies")`（:72）= 玩家弹丸（会打自己人）→ 新建 `scripts/enemy/enemy_projectile.gd`（Node2D 纯代码，运行时绘制弹体仿 `_make_bullet_texture` :141-155，**距离判断命中玩家禁物理查询**——同 `_try_contact_damage` :148-155 范式）
+> - **召唤复用路径**：enemy.gd preload `res://scenes/Enemy.tscn`（spawner 同款，Enemy.tscn 挂 `groups=["enemies"]`）；minion 缩放用**自身 wave_number**（D17-T2 已规划 spawner 注入——若 D17 收口则自动就位，未收口则本日 initialize 兜底默认 1，依赖已写 D17-T2）；`get_enemy_ids_by_category("regular")`（:219）regular 15 / elite 6 池随机就绪
+> - **阶段切换触发点 = take_damage**：`take_damage()`（enemy.gd:364-374）尾部查 `health/max_health <= hp_threshold_percent/100` → 切阶段（更新 attacks 集合 + `move_speed = base_speed × speed_multiplier` + `_attack_mult` 修饰符 + 横幅提示）
+> - **Boss 视觉最小方案**：is_boss 标记已有（initialize match category）；本日 = `scale ×2` 视觉过渡（skeleton 32px→64px；碰撞体 resize 按 frame_size 0.8 不随 scale，接触距离 `frame_size.x*0.5+12` 恒定不误伤）+ 阶段横幅（复用 D17-T4 横幅范式）；专属 Boss 精灵归 Day 21-22、VFX 归 Day 23
+> - **Boss 波次清理**：wave_manager 30s 超时 → `on_wave_cleared` → `_clear_remaining_enemies` 清掉 Boss（现状行为保持：击杀或超时均推进，零改动）
+> - **回归锚点**：waves.json wave 10/20 `boss:` 前缀零改动；`is_boss_wave` 判定已有（game_manager.gd:110-116）；route 末层 boss wave_index=20 保持（day14_15 探针断言）；player projectile.gd **零改动**（防回归十二件套波及）
+
+#### D18-19-PRE【W1 主责 + W2 协作】Boss 多阶段定案表
+| # | 决策 | 依据 |
+|---|---|---|
+| 1 | **Boss = phases 状态机 + attacks 指令映射**；数据已完备（enemies.json boss[2] phases/attacks/exp_value），**本日全代码消费**（enemy.gd + 新建 enemy_projectile.gd），数据零改动 | get_scaled_enemy 12 键 phases 透传实测；30DAY_PLAN D18-19 |
+| 2 | **attacks 指令解析器**（字符串 → {kind, interval, params}）：含 `every_Xs` → 周期计时器 Xs；`N_projectile_spread`/`projectile_barrage` → 弹幕（无 every → **默认 interval 4.0s** 周期，注释依据：发射类攻击频率高于 AOE 8s 基准）；`charge_attack(_2x)` → 冲锋模式（复用 CHARGE 行为 + 伤害 ×倍率，阶段激活置位永续）；`summon_N_elite` → 阶段激活**一次性**召唤（防精英无限堆积）；`all_attacks_2x` → **阶段修饰符** `_attack_mult *= 2`（对伤害类生效，非计时攻击） | 指令字符串自描述语义 + 两 Boss phases 实测；AOE 8s / summon 5s 为数据既有周期参照 |
+| 3 | **阶段状态机**：`_current_phase_idx`（0 起）+ `take_damage` 尾部阈值检查（`health/max_health <= hp_threshold_percent/100`，阈值单调递减 100→60 / 100→66→33）+ 切阶段重置攻击计时器 + `move_speed = _base_speed × speed_multiplier` + 阶段横幅「⚠ Boss 进入第 N 阶段」（1.5s 淡出，复用 D17-T4 横幅范式，容器缺失静默跳过） | enemy.gd take_damage 结构实测；无头稳铁律 |
+| 4 | **敌人弹丸独立**：新建 `scripts/enemy/enemy_projectile.gd`（extends Node2D 纯代码，Sprite2D 运行时绘制弹体，**距离判断命中玩家，禁物理查询**）；player projectile.gd **零改动**（防回归） | projectile.gd :72 `is_in_group("enemies")` 玩家弹丸实测；D3 物理碰撞不可靠先例 |
+| 5 | **Boss 召唤复用**：preload `res://scenes/Enemy.tscn` + `get_scaled_enemy(minion_id, wave_number)` + 自身 `_rng` 实例池随机（探针可注 seed）；`summon_N_enemies` → regular 池（15）、`summon_N_elite` → elite 池（6）；容器缺失静默跳过不崩 | spawner `_create_enemy` 范式 + get_enemy_ids_by_category 实测 |
+| 6 | **无头稳铁律**：Boss 全部行为（AOE/弹幕/召唤/冲锋命中）用距离判断 + 容器遍历，禁物理查询（同 `_try_contact_damage`/projectile `_explode` 范式） | Day 3 火球物理碰撞不可靠先例（19:15 修复记录） |
+| 7 | **视觉最小方案**：is_boss 标记已有 + `scale ×2` 过渡（32→64px）+ 阶段横幅；专属 Boss 精灵归 Day 21-22、Boss VFX 归 Day 23 | ART_STYLE v2 Boss 128px 基准；D21-23 排期 |
+| 8 | **大纲差异登记**：腐化巨树藤蔓/毒雨无指令对应 → 以 phases/attacks 为准不臆造；「森林区域解锁」最小落地 = GameManager `boss_killed` 计数 + `route.flags["boss_defeated"]` + 胜利文案（已有「你击败了星骸的异变！」）；深消费（区域系统/局外档案）归 Day 27 | 数据驱动铁律；希亚先例（数据先行） |
+| 9 | **回归零破坏**：waves.json wave 10/20 零改动；route 末层 boss wave 20 保持（day14_15 探针断言）；player projectile 零改动；旧波次制 wave 10 invoker 照常生成（phases 自动生效）；Boss 波击杀或超时均推进（现状保持） | 回归锚点保护；渐进式收口先例 |
+
+#### D18-19-T1【W1】`enemy.gd` Boss phases 状态机（阶段切换）
+- [ ] 状态：`var phases: Array = []` / `var _current_phase_idx: int = 0` / `var _attack_timers: Dictionary = {}` / `var _attack_mult: float = 1.0` / `var _boss_charge: bool = false` / `var _base_speed: float = 120.0` / `var _rng := RandomNumberGenerator.new()`（探针可注 `_rng.seed`；禁 Array.shuffle/pick_random 全局 RNG）
+- [ ] `initialize(stats)`：`if stats.has("phases"): phases = stats["phases"]`；`_base_speed = move_speed`；phases 非空且 is_boss → `_reset_boss_phase(0)`（`_attack_timers` 按当前 phase attacks 初始化 0.0）
+- [ ] `take_damage()` 尾部（die 之前）：`if is_boss and not phases.is_empty(): _check_phase_transition()`
+- [ ] `_check_phase_transition()`：从 `_current_phase_idx + 1` 起遍历后续 phase，找第一个 `health / max_health <= hp_threshold_percent / 100.0` → `_reset_boss_phase(i)`（切阶段：重置计时器 + `move_speed = _base_speed * float(phase.speed_multiplier)` + 横幅「⚠ Boss 进入第 N 阶段」1.5s 淡出）；无更低位阈值 → 保持
+- [ ] `_reset_boss_phase(idx)`：`_current_phase_idx = idx`；遍历该 phase `attacks` → `_parse_attack(cmd)`（T2）缓存 + 计时器归零；`all_attacks_2x` 修饰符 → `_attack_mult *= 2.0`（阶段激活时）
+- [ ] **测试点**：白盒构造 stats（category=boss + phases 两段）→ 初始 phase 0；`take_damage` 压过 60% 阈值 → phase 1（attacks 更新 / move_speed ×1.2 / 横幅节点出现并自动销毁）；phase 全过 → 不再切；非 boss → 零新行为（回归零破坏）
+- [ ] 文件域：W1 只写 `scripts/`
+
+#### D18-19-T2【W1】attacks 指令解析 + 行为执行器
+- [ ] `_parse_attack(cmd: String) -> Dictionary`：前缀解析（正则/拆分）——`summon_N_enemies_every_Xs` → {kind:"summon", count:N, interval:X, elite:false}；`summon_N_elite` → {kind:"summon", count:N, interval:0(一次性), elite:true}；`N_projectile_spread` → {kind:"spread", count:N, interval:4.0}；`projectile_barrage` → {kind:"barrage", interval:4.0}；`aoe_every_Xs` → {kind:"aoe", interval:X}；`charge_attack`/`charge_attack_2x` → {kind:"charge", mult:1/2}；`all_attacks_2x` → {kind:"mult", mult:2.0}；未知指令 → push_warning 登记不崩
+- [ ] `_process_boss_attacks(delta)`（`_update_behavior` 加 `Behavior` 分支：is_boss 且 phases 非空 → 优先执行，随后 `_move_chase(delta)` 追玩家）：每 attack 独立计时器；`interval <= 0`（一次性）→ 激活时执行一次后移除；`interval > 0` → 倒计时到点执行 + 重置
+- [ ] 执行器（全距容器遍历，禁物理查询）：
+  - `_boss_summon(count, elite)`：×count 循环 preload Enemy.tscn instantiate + `DataLoader.get_scaled_enemy(池随机 id, wave_number)` + `initialize(stats)` + `set_target(GameManager.player)` + `GameManager.enemy_spawner.enemies_container.add_child`（容器缺失静默跳过）
+  - `_boss_spread(count)`：N 向均布弹幕——基准角 = 朝向玩家，`angle = base + TAU * i / count`，实例化 enemy_projectile.gd（T3）+ `initialize({speed:220, damage:damage*_attack_mult, lifetime:2.0})` + 容器 add_child
+  - `_boss_barrage()`：密集多向弹幕——定案 **8 向 × 3 波间隔 0.25s**（注释：barrage 无参数，取 spread 6 上限 +1 档的密集版；单发伤害同 spread 口径）
+  - `_boss_aoe(radius)`：玩家距离 ≤ radius（**定案默认 120px**，注释：数据无 radius 字段，取 AOE 常规半径；VfxPlayer crit 特效）→ `player.take_damage(damage * _attack_mult)`
+  - `_boss_charge()`：`_boss_charge = true` → 距玩家 > 300 缓步接近（0.3×speed）、≤300 蓄力冲锋（×2.5 speed，复用 `_move_charge` :291-307 逻辑）；冲锋命中伤害 × `_attack_mult`
+- [ ] **测试点**：白盒固定 delta 推进 → summon 容器 +count（id ∈ 池）；spread 容器 +count 个 enemy_projectile；aoe → 玩家掉血（damage×mult）；charge_attack_2x 置位 → 冲锋伤害 ×2；all_attacks_2x → `_attack_mult == 2.0`；未知指令 → push_warning 不崩
+- [ ] 文件域：W1 只写 `scripts/`
+
+#### D18-19-T3【W1】新建 `scripts/enemy/enemy_projectile.gd`（Boss 弹幕弹丸）
+- [ ] extends Node2D（纯代码，无场景文件）：Sprite2D 运行时绘制弹体（仿 projectile.gd `_make_bullet_texture` :141-155，`bullet_color`/`bullet_radius` 参数化）；**无物理碰撞节点**
+- [ ] 属性：`speed: float = 220.0` / `damage: float = 10.0` / `lifetime: float = 2.0` / `direction: Vector2` / `bullet_color: Color`（默认暗紫 `Color(0.75, 0.3, 0.9)` 区分玩家弹）/ `bullet_radius: float = 4.0`
+- [ ] `_physics_process(delta)`：`global_position += direction * speed * delta`；`_lifetime_timer += delta` 超时 → queue_free；玩家距离 ≤ `bullet_radius + 12.0` 且 `player.has_method("take_damage")` → `player.take_damage(damage)` + VfxPlayer hit 特效 + queue_free（命中即毁，无穿透）
+- [ ] `initialize(props: Dictionary)`（对齐 projectile.gd 范式：speed/damage/lifetime/bullet_color/bullet_radius）+ `set_direction(dir)`（normalized + rotation）
+- [ ] **测试点**：白盒 → 摆位玩家 → 推进 → 玩家掉血 + 弹丸销毁；lifetime 耗尽销毁；玩家无效/无容器 → 不崩；`damage` 透传正确
+- [ ] 文件域：W1 只写 `scripts/`
+
+#### D18-19-T4【W1】GameManager Boss 接入 + 胜利标记
+- [ ] GameManager 属性：`var boss_killed: int = 0`（`reset()` 清零）
+- [ ] `_enter_node()` 的 "boss" 分支：Boss 节点横幅「⚠ 最终 Boss」（1.5s 淡出，复用 D17-T4 横幅范式，容器缺失静默跳过）+ `route.flags["boss_encountered"] = true`；随后照常 `_start_next_wave(wave_index)`
+- [ ] `register_boss_killed()`：`boss_killed += 1` + `route.flags["boss_defeated"] = true`（route 空/旧模式 → 仅计数）；enemy.gd `die()` 里 `if is_boss: GameManager.register_boss_killed()`（GameManager 无效时静默跳过）
+- [ ] **测试点**：白盒 enemy die（is_boss）→ `boss_killed == 1` + flags 登记；boss 节点进入 → 横幅节点出现 + flags；reset() → 清零
+- [ ] 文件域：W1 只写 `scripts/`
+
+#### D18-19-T5【W1】新建 `tools/day18_19_boss_check.gd`（Boss 系统探针 ≥20 断言五段）
+- [ ] §1 数据层：boss[2]（invoker 2 phases / predator 3 phases / hp / damage / exp_value 齐）；phases `hp_threshold_percent` 单调递减（100→60 / 100→66→33）；attacks 数组非空且全部可被 `_parse_attack` 解析（未知指令 = 0）
+- [ ] §2 阶段状态机（白盒 stats + 固定 delta）：初始 phase 0；`take_damage` 压过阈值 → 阶段切换（attacks 更新 / move_speed ×speed_multiplier / 横幅出现）；全阶段走完不再切；非 boss 零新行为
+- [ ] §3 指令执行（白盒直构造 + `_rng.seed` 固定）：`summon_2_enemies_every_5s` → 容器 +2（id ∈ regular 池）；`summon_1_elite` → +1（id ∈ elite 池且 is_elite）；`3_projectile_spread` → 容器 +3 enemy_projectile；`aoe_every_8s` → 玩家掉血（damage×mult）；`all_attacks_2x` → `_attack_mult == 2.0`
+- [ ] §4 弹丸：enemy_projectile 白盒 → 命中玩家掉血 + 销毁；lifetime 耗尽销毁；damage 透传
+- [ ] §5 回归：wave 10 `boss:invoker` / wave 20 `boss:predator` 白盒 spawn → `is_boss` + category=boss + phases 透传非空；route 末层 boss wave_index=20（day14_15 口径）；boss 波击杀 → `boss_killed` 登记；+day17 探针回归（若收口）
+- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 固定 seed + 白盒直构造（D11-12/13/14-15 flaky 修复记录）
+- [ ] 文件域：W1 只写 `tools/`
+
+#### D18-19-EXIT【W5】阶段 C 第四节收口
+- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [ ] `day18_19_boss_check` CLEAN + **回归十二件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41）+ day17（若已收口）+ `gen_weapons_day7.py verify` 36/36
+- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
+- [ ] 主观项登记：Boss 战难度曲线 / 阶段切换表现力 / Boss 视觉辨识度 / 弹幕躲避手感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
 ### Day 20 — 遗物 + 阶段 C 回归
 - [ ] 遗物：破碎王冠（攻击+50%/受伤+30%）、机械核心（机械伤害+100%）

@@ -41,6 +41,8 @@ var current_wave: int = 0          ## 当前波次 (从 1 开始)
 var max_waves: int = 20            ## 总波次数 (启动时从 DataLoader 加载)
 var is_boss_wave: bool = false     ## 当前是否为 Boss 波
 var current_character_id: String = ""      ## 本局英雄 id（Main._ready 写入，供 Day 3 主动技能系统读取）
+## Day 17 · D17-T4：难度档（Day 16 事件 difficulty 型登记 → 战斗节点入口消费 ±10%/档）
+var difficulty_delta: int = 0
 
 # D14-15-T3：路线模式状态（route 空 = 旧波次制；非空 = 随机节点地图模式）
 var route: Dictionary = {}                 ## 本局路线（{seed, layers, modifiers, flags}）
@@ -55,6 +57,8 @@ var enemy_spawner: Node = null
 var economy: Node = null
 var inventory: Node = null
 var vfx_container: Node = null             ## 特效容器节点
+## Day 17 · D17-T2：敌人容器（mom 产卵 add_child 目标；main 接线，缺失静默跳过）
+var enemies_container: Node = null
 
 # UI 面板实例引用（防止连升多级/重复弹窗叠加）
 var _level_up_panel: Node = null
@@ -182,10 +186,16 @@ func select_route_node(row: int) -> void:
 	current_node = layer_nodes[row]
 	_enter_node(str(current_node.get("type", "")), int(current_node.get("wave_index", 0)))
 
-## 按节点类型进入：战斗类 → 波次；shop → 商店段；event → Day 16 占位推进
+## 按节点类型进入：战斗类 → 波次；shop → 商店段；event → Day 16 事件流程
 func _enter_node(node_type: String, wave_index: int) -> void:
 	match node_type:
 		"battle", "elite", "boss":
+			# Day 17 · D17-T4：difficulty_delta 消费（Day 16 事件登记 → 本波敌人 ±10%/档；
+			# 空 route / 无 flags → 0 零影响）
+			difficulty_delta = int(route.get("flags", {}).get("difficulty_delta", 0)) if not route.is_empty() else 0
+			# Day 17 · D17-T4：精英节点进入提示横幅（不暂停，与选层/商店同范式）
+			if node_type == "elite":
+				_show_elite_banner()
 			_start_next_wave(wave_index)
 		"shop":
 			current_state = GameState.SHOP
@@ -197,6 +207,29 @@ func _enter_node(node_type: String, wave_index: int) -> void:
 		_:
 			push_warning("[Route] 未知节点类型: %s，按已完成处理" % node_type)
 			_on_node_completed()
+
+## Day 17 · D17-T4：精英节点进入轻量横幅「⚔ 精英来袭」（1.5s 淡出上浮后自毁，
+## 仿 enemy.gd _spawn_exp_popup 范式；容器缺失静默跳过不崩）
+func _show_elite_banner() -> void:
+	var container: Node = vfx_container if vfx_container else null
+	if container == null:
+		container = get_tree().current_scene
+	if container == null:
+		return
+	var banner := Node2D.new()
+	banner.name = "EliteBanner"
+	var label := Label.new()
+	label.text = "⚔ 精英来袭"
+	label.add_theme_font_size_override("font_size", 22)
+	label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.35))
+	banner.add_child(label)
+	container.add_child(banner)
+	banner.global_position = Vector2(320.0, 90.0)
+	var tween := banner.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "modulate:a", 0.0, 1.5)
+	tween.tween_property(banner, "global_position:y", banner.global_position.y - 30.0, 1.5)
+	tween.chain().tween_callback(banner.queue_free)
 
 ## 当前节点完成 → 下一层选择；末层完成 → 胜利
 func _on_node_completed() -> void:
@@ -429,6 +462,7 @@ func reset() -> void:
 	current_state = GameState.MENU
 	current_wave = 0
 	is_boss_wave = false
+	difficulty_delta = 0
 	route = {}
 	current_layer = 0
 	current_node = {}

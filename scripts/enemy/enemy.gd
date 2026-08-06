@@ -124,6 +124,13 @@ var _contact_cd: float = 0.0
 # 元素状态机（Day 3 · D3-T2b）：status_type -> {"time_left": float, "dps": float}
 var _status: Dictionary = {}
 
+# 精英能力（Day 17 · D17-T2）：由 enemies.json 精英 ability 字段数据驱动
+# {type: "aoe"/"self_heal"/"spawn", ...参数}；缺省 = 无特殊能力（零行为回归）
+var ability: Dictionary = {}
+## 自身波次（产卵用同波缩放：DataLoader.get_scaled_enemy(minion, wave_number)）
+var wave_number: int = 1
+var _ability_timer: float = 0.0
+
 # ========== 生命周期 ==========
 
 func _ready() -> void:
@@ -274,12 +281,16 @@ func _update_behavior(delta: float) -> void:
 			_move_heal(delta)
 		Behavior.SPAWN:
 			_move_spawn(delta)
+			# Day 17 · D17-T2：精英产卵（mom）；ability 空 → 立即 return 零影响（regular 产卵者）
+			_elite_spawn(delta)
 		Behavior.STATIONARY:
 			pass  # 不移动
 		Behavior.AOE_ATTACK:
 			_move_chase(delta)  # 精英 AOE 近身
+			_elite_aoe(delta)   # Day 17 · D17-T2：butcher 周期 AOE
 		Behavior.SELF_HEAL:
 			_move_chase(delta)  # 精英自愈近身
+			_elite_self_heal(delta)  # Day 17 · D17-T2：monk 低血周期自愈
 
 ## 直追玩家
 func _move_chase(_delta: float) -> void:
@@ -350,6 +361,92 @@ func _move_spawn(_delta: float) -> void:
 	var direction := global_position.direction_to(target.global_position)
 	velocity = direction * move_speed * 0.5
 	move_and_slide()
+
+# ========== 精英特殊能力（Day 17 · D17-T2） ==========
+## 三能力全部用距离判断 + 容器遍历，禁物理查询（无头稳定铁律，D3 火球物理先例）。
+## ability 空（colossus/rhino/croc 缺省）→ 立即 return，零行为回归。
+
+## 特效容器解析：vfx_container → current_scene → null（无容器静默跳过不崩）
+func _resolve_fx_container() -> Node:
+	if GameManager and GameManager.vfx_container:
+		return GameManager.vfx_container
+	if get_tree() and get_tree().current_scene:
+		return get_tree().current_scene
+	return null
+
+## AOE 攻击（butcher）：周期对 radius 内玩家造成 damage × damage_mult
+func _elite_aoe(delta: float) -> void:
+	if ability.is_empty():
+		return
+	_ability_timer -= delta
+	if _ability_timer > 0.0:
+		return
+	var radius: float = float(ability.get("radius", 0.0))
+	var damage_mult: float = float(ability.get("damage_mult", 1.0))
+	if radius > 0.0 and is_target_valid() and target.has_method("take_damage"):
+		if global_position.distance_to(target.global_position) <= radius:
+			target.take_damage(damage * damage_mult)
+			var fx_container: Node = _resolve_fx_container()
+			if fx_container:
+				VfxPlayer.spawn(fx_container, target.global_position, "crit")
+	_ability_timer = float(ability.get("interval", 1.0))
+
+## 自愈（monk）：血量 < max_health × threshold 时周期恢复 heal_percent% 最大生命
+func _elite_self_heal(delta: float) -> void:
+	if ability.is_empty():
+		return
+	_ability_timer -= delta
+	if _ability_timer > 0.0:
+		return
+	var threshold: float = float(ability.get("threshold", 0.5))
+	var heal_percent: float = float(ability.get("heal_percent", 0.0))
+	if heal_percent > 0.0 and health < max_health * threshold:
+		health = min(max_health, health + max_health * heal_percent)
+		health_changed.emit(health, max_health)
+		var fx_container: Node = _resolve_fx_container()
+		if fx_container:
+			VfxPlayer.spawn(fx_container, global_position, "levelup")
+	_ability_timer = float(ability.get("interval", 1.0))
+
+## 产卵（mom）：周期生成 count 只 minion（用自身 wave_number 同波缩放）
+func _elite_spawn(delta: float) -> void:
+	if ability.is_empty():
+		return
+	_ability_timer -= delta
+	if _ability_timer > 0.0:
+		return
+	var minion: String = str(ability.get("minion", ""))
+	var count: int = maxi(int(ability.get("count", 0)), 0)
+	if minion.is_empty() or count <= 0:
+		_ability_timer = float(ability.get("interval", 1.0))
+		return
+	# 容器：优先 GameManager.enemies_container（main 接线）；缺失静默跳过不崩
+	var container: Node = null
+	if GameManager and GameManager.enemies_container:
+		container = GameManager.enemies_container
+	elif GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
+		container = GameManager.enemy_spawner.enemies_container
+	if container == null:
+		return
+	# 敌人场景：优先 spawner 已加载资源，否则延迟 load（避免脚本 preload 自身场景循环）
+	var scene: PackedScene = null
+	if GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemy_scene:
+		scene = GameManager.enemy_spawner.enemy_scene
+	else:
+		scene = load("res://scenes/Enemy.tscn")
+	if scene == null:
+		return
+	for _i in count:
+		var stats: Dictionary = DataLoader.get_scaled_enemy(minion, wave_number)
+		if stats.is_empty():
+			break
+		var minion_node: Node = scene.instantiate()
+		if minion_node.has_method("initialize"):
+			minion_node.initialize(stats)
+		if GameManager and GameManager.player and minion_node.has_method("set_target"):
+			minion_node.set_target(GameManager.player)
+		container.add_child(minion_node)
+	_ability_timer = float(ability.get("interval", 1.0))
 
 func is_target_valid() -> bool:
 	if not is_instance_valid(target):
@@ -439,6 +536,11 @@ func initialize(stats: Dictionary) -> void:
 	if stats.has("behavior"):
 		var behav_str: String = stats["behavior"]
 		behavior = BEHAVIOR_MAP.get(behav_str, Behavior.CHASE)
+	# Day 17 · D17-T2：精英能力 + 波次（产卵缩放）
+	if stats.has("ability"):
+		ability = stats["ability"]
+	if stats.has("wave_number"):
+		wave_number = int(stats["wave_number"])
 	# 根据 category 设置标记
 	match enemy_category:
 		"elite":

@@ -239,28 +239,21 @@ func _part_real_shop() -> void:
 	if _failures == 0:
 		_pass("商店 / 4 卡全部为资源实例")
 
-	# 购买链路回归：被动 1 卡 → inventory+1 + 扣费（真实 _purchase_item 路径）
+	# 购买链路回归：白盒直构造 4 卡含被动（禁随机洗牌依赖——_refresh_shop 4 卡全武器
+	# 概率 ≈ C(33,4)/C(53,4) ≈ 14%，D11-12 flaky 同款；真实 4 卡断言已在上方完成）
 	_inv.items.clear()
 	_economy.add_coins(500)
-	var passive_card: Resource = null
-	for c in cards:
-		if c.get("weapon_type") == null:
-			passive_card = c
-			break
-	if passive_card == null:
-		_fail("商店: 4 卡无被动（随机洗牌未覆盖，改白盒直构造重验）")
-		# 白盒兜底：手动构造 4 卡含被动再走购买
-		var wc_b: Node = _wc
-		var w: Resource = wc_b.call("build_weapon_from_data", "sword")
-		var ItemScript: GDScript = load("res://scripts/items/item.gd")
-		var pit: Resource = ItemScript.new()
-		pit.item_id = "coffee"
-		pit.item_name = "咖啡"
-		pit.price = 30
-		pit.slot = "passive"
-		pit.stat_bonuses = {"attack_speed_percent": 8.0}
-		_shop.set("shop_items", [w, w, pit, w])
-		passive_card = pit
+	var wc_b: Node = _wc
+	var w: Resource = wc_b.call("build_weapon_from_data", "sword")
+	var ItemScript: GDScript = load("res://scripts/items/item.gd")
+	var pit: Resource = ItemScript.new()
+	pit.item_id = "coffee"
+	pit.item_name = "咖啡"
+	pit.price = 30
+	pit.slot = "passive"
+	pit.stat_bonuses = {"attack_speed_percent": 8.0}
+	_shop.set("shop_items", [w, w, pit, w])
+	var passive_card: Resource = pit
 	var pre_items: int = int(_inv.call("get_item_count"))
 	var pre_coins: int = int(_economy.get("coins"))
 	var price: int = int(passive_card.get("price")) if passive_card.get("price") != null else 0

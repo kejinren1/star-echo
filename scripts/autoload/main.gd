@@ -40,6 +40,8 @@ func _ready() -> void:
 	GameManager.economy = economy
 	GameManager.inventory = inventory
 	GameManager.vfx_container = vfx_container
+	# Day 17 · D17-T2：敌人容器（mom 产卵 add_child 目标；缺失静默跳过不崩）
+	GameManager.enemies_container = enemies_container
 
 	# D4-T1：升级 → 暂停 + 弹强化面板（GameManager 侧消费）
 	if player and player.has_signal("level_up") and not player.level_up.is_connected(GameManager._on_player_level_up):

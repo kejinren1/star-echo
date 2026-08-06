@@ -21,8 +21,15 @@ var spawn_queue: Array[Dictionary] = []       ## 待生成队列 [{ enemy_id, wa
 var _spawn_timer: float = 0.0
 var _is_spawning: bool = false
 var _current_wave: int = 1
+## Day 17 · D17-T3（BUG-003 收口）：mixed 家族池解析专用 RNG 实例
+## （探针可注 _rng.seed 固定序列；禁全局 RNG 洗牌——D11-12/D14-15 铁律；
+##  仅影响「抽哪个敌人」，不影响位置随机 randf_range）
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 # ========== 生命周期 ==========
+
+func _ready() -> void:
+	_rng.randomize()
 
 func _process(delta: float) -> void:
 	# D4-T8（BUG-001-F2）：商店/结算期间禁止继续生成（波次定时结束但队列未清空时
@@ -87,13 +94,27 @@ func _create_enemy(enemy_id_raw: String, wave: int, special: Variant) -> Node:
 		push_warning("[EnemySpawner] enemy_scene 未设置！")
 		return null
 
-	# 解析前缀: "elite:butcher" → id="butcher", category="elite"
+	# 解析前缀: "elite:butcher" → id="butcher", prefix="elite"；
+	# "elite:mixed" → prefix="elite", id="mixed"（池令牌，走下方分支）
 	var enemy_id := enemy_id_raw
+	var prefix := ""
 	if ":" in enemy_id_raw:
 		var parts := enemy_id_raw.split(":")
-		# parts[0] 是 "elite" 或 "boss"，但 DataLoader 已经按 id 索引
-		# 所以直接用 parts[1] 作为 id
+		# parts[0] 是 "elite" 或 "boss"；parts[1] 是 id（或池令牌 "mixed"）
+		prefix = parts[0]
 		enemy_id = parts[1]
+
+	# Day 17 · D17-T3（BUG-003 收口）：mixed 家族池令牌 → 前缀决定抽哪个池
+	# mixed / mixed_with_curse → regular 池随机；elite:mixed → elite 池随机
+	# （waves.json wave 15/17/19 此前「精英+普通敌全部静默不生成」，本分支修复；
+	#  未知 id 仍走下方 push_warning + null，不静默扩池）
+	if enemy_id == "mixed" or enemy_id == "mixed_with_curse":
+		var pool_category: String = "elite" if prefix == "elite" else "regular"
+		var pool: Array = DataLoader.get_enemy_ids_by_category(pool_category)
+		if pool.is_empty():
+			push_warning("[EnemySpawner] 池分类为空: %s" % pool_category)
+			return null
+		enemy_id = str(pool[_rng.randi_range(0, pool.size() - 1)])
 
 	# 从 DataLoader 获取缩放后的敌人数据
 	var stats := DataLoader.get_scaled_enemy(enemy_id, wave)
@@ -101,9 +122,18 @@ func _create_enemy(enemy_id_raw: String, wave: int, special: Variant) -> Node:
 		push_warning("[EnemySpawner] 无法找到敌人数据: %s" % enemy_id)
 		return null
 
-	# swarm_wave 特殊: HP 减半
+	# Day 17 · D17-T2：自身波次透传（mom 产卵用同波缩放；池解析先、缩放后顺序兼容）
+	stats["wave_number"] = wave
+
+	# swarm_wave 特殊: HP 减半（池解析之后缩放——wave 15 的 swarm 语义保持）
 	if special == "swarm_wave":
 		stats["max_health"] = stats["max_health"] * 0.5
+
+	# Day 17 · D17-T4：difficulty_delta 消费（Day 16 事件登记 → ±1 档 ±10% hp/damage）
+	if GameManager and GameManager.difficulty_delta != 0:
+		var dd: int = GameManager.difficulty_delta
+		stats["max_health"] = stats["max_health"] * (1.0 + 0.1 * dd)
+		stats["damage"] = stats["damage"] * (1.0 + 0.1 * dd)
 
 	var enemy: Node = enemy_scene.instantiate()
 	if enemy.has_method("initialize"):
