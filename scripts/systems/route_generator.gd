@@ -111,7 +111,117 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 		"flags": routes.get("flags", {}),
 	}
 
+# ========== 改线接口（Day 16 · D16-T3：事件 effect_on_route 消费落点） ==========
+
+## 重抽未访问层节点类型（事件 reroute：改变后续路线走向）。
+## from_layer: 从此层（含）开始重抽；weights_delta: 类型权重增量（叠加到基准权重，负值合法但 clamp ≥0；
+##             silent_corridor = {"event":-0.1,"battle":+0.1}）。
+## 边界：末层 boss 层不可改写；elite 低层禁抽保持；重抽后战斗序号 → wave_index 全量重映射；
+##       重抽结果 battle_count > 上限则回滚（保持原路线）+ push_warning。
+## 随机性：派生种子（seed + 7919）的 RNG 实例，禁 Array.shuffle（全局 RNG 种子不可控）。
+static func reroute_remaining(route: Dictionary, from_layer: int, weights_delta: Dictionary) -> void:
+	var layers: Array = route.get("layers", [])
+	# 末层 boss 保护：from_layer 越界或指向末层 → 拒绝
+	if from_layer < 0 or from_layer >= layers.size() - 1:
+		push_warning("[RouteGenerator] reroute_remaining 层越界: %d（末层 boss 不可改写）" % from_layer)
+		return
+	# 基准权重 = 默认权重 + 已登记 modifiers.reroute（绝对覆盖键值）
+	var weights: Dictionary = DEFAULT_WEIGHTS.duplicate()
+	var modifiers: Dictionary = route.get("modifiers", {})
+	var existing: Dictionary = modifiers.get("reroute", {})
+	for key in existing:
+		weights[key] = float(existing[key])
+	# 叠加增量（clamp ≥0）
+	for key in weights_delta:
+		weights[key] = maxf(0.0, float(weights.get(key, 0.0)) + float(weights_delta[key]))
+
+	# 保存原类型快照（回滚用）
+	var original_types: Array = []
+	for li in range(from_layer, layers.size() - 1):
+		var snapshot: Array = []
+		for node in layers[li]:
+			snapshot.append(str(node.get("type", "")))
+		original_types.append(snapshot)
+
+	# 重抽（派生种子 RNG；battle_count 从已访问层的战斗数继续累计）
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(route.get("seed", 0)) + 7919
+	var battle_count: int = _count_battles_before(layers, from_layer)
+	for li in range(from_layer, layers.size() - 1):
+		var layer_nodes: Array = layers[li]
+		for ni in layer_nodes.size():
+			var node: Dictionary = layer_nodes[ni]
+			var node_type: String = _weighted_pick(rng, weights, battle_count, modifiers)
+			if node_type == NODE_ELITE and battle_count < MIN_ELITE_WAVE:
+				node_type = NODE_BATTLE
+			if node_type == NODE_BATTLE or node_type == NODE_ELITE:
+				battle_count += 1
+			node["type"] = node_type
+
+	# 战斗数上限校验：超限回滚原类型
+	if battle_count > int(route.get("constraints", {}).get("max_battle_nodes", MAX_BATTLE_NODES)):
+		push_warning("[RouteGenerator] reroute_remaining 重抽后战斗数 %d 超上限，已回滚" % battle_count)
+		for li in original_types.size():
+			var layer_nodes: Array = layers[from_layer + li]
+			for ni in layer_nodes.size():
+				layer_nodes[ni]["type"] = original_types[li][ni]
+
+	# 战斗序号 → wave_index 全量重映射（类型变化影响战斗序号）
+	_reassign_wave_indices(route)
+	# 最终权重登记回 modifiers.reroute（可观察 + 后续生成/重抽消费同一权重）
+	modifiers["reroute"] = weights
+	route["modifiers"] = modifiers
+
+## 单点强制节点类型（事件 unlock_node：rib_layer_shortcut 强制精英等）。
+## 边界：层/节点越界、末层 boss、非法类型（含 boss）→ push_warning 拒绝；
+## 强制后 wave_index 全量重映射（战斗序号变化）；不改 route.seed/modifiers/flags。
+static func force_node_type(route: Dictionary, layer_index: int, node_index: int, new_type: String) -> void:
+	var layers: Array = route.get("layers", [])
+	if layer_index < 0 or layer_index >= layers.size():
+		push_warning("[RouteGenerator] force_node_type 层越界: %d" % layer_index)
+		return
+	if layer_index == layers.size() - 1:
+		push_warning("[RouteGenerator] force_node_type 末层 Boss 不可改写")
+		return
+	var layer_nodes: Array = layers[layer_index]
+	if node_index < 0 or node_index >= layer_nodes.size():
+		push_warning("[RouteGenerator] force_node_type 节点越界: %d/%d" % [node_index, layer_nodes.size()])
+		return
+	if new_type == NODE_BOSS or not NODE_TYPES.has(new_type):
+		push_warning("[RouteGenerator] force_node_type 非法类型: %s" % new_type)
+		return
+	layer_nodes[node_index]["type"] = new_type
+	_reassign_wave_indices(route)
+
 # ========== 内部工具 ==========
+
+## 从层 0 到 from_layer-1 的战斗类节点数（重抽时精英禁抽阈值的累计基数）
+static func _count_battles_before(layers: Array, from_layer: int) -> int:
+	var count: int = 0
+	for li in mini(from_layer, layers.size()):
+		for node in layers[li]:
+			var node_type: String = str(node.get("type", ""))
+			if node_type == NODE_BATTLE or node_type == NODE_ELITE:
+				count += 1
+	return count
+
+## 全路线战斗序号 → wave_index 重映射（battle/elite 按顺序 1..19；boss 固定 20；shop/event 0）
+## 生成器主路径与改线接口共用同一套映射逻辑（D16-T3）
+static func _reassign_wave_indices(route: Dictionary) -> void:
+	var layers: Array = route.get("layers", [])
+	var battle_count: int = 0
+	for li in layers.size():
+		var layer_nodes: Array = layers[li]
+		for ni in layer_nodes.size():
+			var node: Dictionary = layer_nodes[ni]
+			var node_type: String = str(node.get("type", ""))
+			if node_type == NODE_BATTLE or node_type == NODE_ELITE:
+				battle_count += 1
+				node["wave_index"] = _resolve_wave(battle_count)
+			elif node_type == NODE_BOSS:
+				node["wave_index"] = BOSS_WAVE
+			else:
+				node["wave_index"] = 0
 
 ## 权重随机抽类型（RandomNumberGenerator 实例 + 自实现区间采样，禁 Array.shuffle）
 ## modifiers.reroute 可覆盖类型权重（事件改写预留，消费归 Day 16）

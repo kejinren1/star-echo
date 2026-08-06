@@ -18,6 +18,7 @@ var _stats: Dictionary = {}             ## 属性定义
 var _formulas: Dictionary = {}          ## 公式定义
 var _leveling: Dictionary = {}          ## 升级定义
 var _routes: Dictionary = {}            ## 随机节点路线参数（routes.json）
+var _events: Array = []                 ## 事件列表（events.json，Day 16：GameManager 随机取）
 
 var _loaded: bool = false               ## 是否已加载
 
@@ -40,6 +41,7 @@ func load_all() -> void:
 	_load_elements()
 	_load_stats()
 	_load_routes()
+	_load_events()
 	_loaded = true
 
 ## 加载敌人数据
@@ -127,6 +129,12 @@ func _load_routes() -> void:
 	var data = _load_json("res://data/routes.json")
 	if data:
 		_routes = data
+
+## 加载事件数据（events.json；缺失返回空数组 → GameManager 事件节点按已完成处理）
+func _load_events() -> void:
+	var data = _load_json("res://data/events.json")
+	if data:
+		_events = data.get("events", [])
 
 # ========== JSON 工具 ==========
 
@@ -332,3 +340,9 @@ func get_leveling() -> Dictionary:
 ## 获取随机节点路线参数（空字典 = 未定义 → 生成器走默认参数）
 func get_routes() -> Dictionary:
 	return _routes
+
+# ========== 事件接口（Day 16 · D16-T2） ==========
+
+## 获取全部事件（事件节点随机取用；缺失返回 []）
+func get_events() -> Array:
+	return _events

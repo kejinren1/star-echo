@@ -763,6 +763,18 @@
       "slot": "passive",
       "category": "special",
       "icon_index": 19
+    },
+    {
+      "id": "resonant_shard",
+      "name": "共鸣碎晶",
+      "rarity": "epic",
+      "price": 0,
+      "effects": {
+        "crit_damage_percent": 25
+      },
+      "tags": [
+        "relic"
+      ]
     }
   ]
 }

@@ -272,11 +272,26 @@ func _advance(sub: int) -> int:
 			_ok(_panel_buttons(p0).size() == 3, "E2E: L0 按钮数 == 3")
 			return 11
 		11:
-			# event 节点（row 2）→ 占位推进到 L1
+			# event 节点（row 2）→ Day 16 起进入真实事件流程：暂停 + 弹窗 → 白盒结算推进到 L1
+			# （paused=true 会停探针自身 _process → select 与 resolve 必须同一 sub 同步完成，
+			#   防死锁；GameManager.player/economy 未绑定 → 结算兜底 push_warning 不崩）
 			_gm.call("select_route_node", 2)
 			var p1: Node = _gm.get("_route_select_panel")
 			_ok(str(_gm.get("current_node").get("type")) == "event", "E2E: 选中 event 节点")
-			_ok(_gm.get("current_state") == _states.ROUTE_SELECT, "E2E: event 占位推进后仍 ROUTE_SELECT")
+			_ok(paused == true, "E2E: 事件节点 → 游戏暂停（Day 16 事件系统）")
+			var ev_panel: Node = _gm.get("_event_panel")
+			_ok(ev_panel != null and is_instance_valid(ev_panel), "E2E: 事件面板已实例化")
+			# 白盒覆盖当前事件 → resolve "A"（gold 结算；未绑经济系统 → 兜底不崩）
+			_gm.set("_current_event", {
+				"id": "probe_e2e", "title": "探针", "theme": "测试", "description": "白盒",
+				"choiceA": {"text": "A", "reward": {"type": "gold", "value": 150, "label": "+150"}},
+				"choiceB": {"text": "B", "effect_on_route": {"type": "flag", "value": "e2e", "label": "flag"}},
+			})
+			_gm.call("resolve_event_choice", "A")
+			# 探针直调 resolve 不走按钮回调 → 面板不会自释放，手动释放防残留
+			if ev_panel != null and is_instance_valid(ev_panel):
+				ev_panel.queue_free()
+			_ok(_gm.get("current_state") == _states.ROUTE_SELECT, "E2E: event 结算后仍 ROUTE_SELECT")
 			_ok(int(_gm.get("current_layer")) == 1, "E2E: event 推进到 L1")
 			_ok(_panel_buttons(p1).size() == 1, "E2E: L1 按钮数 == 1（battle w2）")
 			return 12
