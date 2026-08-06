@@ -345,18 +345,32 @@ func _part_shop() -> void:
 	# shop.gd 用了 @onready 节点引用 _refresh_shop 不访问节点 → 可直接 new()._refresh_shop()
 	# 但 _render_cards 需要 item_container @onready 引用，未 add_child 时为 null
 	# 绕开：直接调用 _build_shop_pool 验证池，再单测 _purchase_item 路径不依赖 _render_cards
+	# D13-T6 同步：_build_shop_pool 现返回**资源实例**（BUG-002 修复，原 String id 被
+	# Array[Resource] 类型拒绝 → 4 ERROR + 0 卡）；元素按 weapon_type 字段区分武器/被动
 	var pool: Array = _shop.call("_build_shop_pool")
 	if pool.size() != 53:
 		_fail("商店: 混合池应 33 武器 + 20 被动 = 53, 实得 %d" % pool.size())
 	else:
 		_pass("商店 / 混合池 53（武器 33 排除 3 结果武器 + 被动 20）")
-	# 武器池全是 Weapon id（DataLoader 中以 weapon seed 类目），被动是 Item id
-	# 粗略：抽样前 5 个池的 entry 应都可被 DataLoader.get_weapon 或 get_item 取到
-	for sid in pool.slice(0, 5):
-		var is_weapon: bool = not _loader.call("get_weapon", sid).is_empty()
-		var is_item: bool = not _loader.call("get_item", sid).is_empty()
-		if not is_weapon and not is_item:
-			_fail("商店: 池 id %s 既非武器亦非道具" % sid)
+	# 池元素全为资源实例：33 Weapon + 20 Item（零类型 ERROR 断言替代原 id 抽查）
+	var weapon_pool: Array = []
+	var passive_pool: Array = []
+	for res in pool:
+		if res == null:
+			_fail("商店: 池含 null 条目")
+			continue
+		if res.get("weapon_type") != null:
+			weapon_pool.append(res)
+		else:
+			passive_pool.append(res)
+	if weapon_pool.size() != 33:
+		_fail("商店: 池武器数应 33, 实得 %d" % weapon_pool.size())
+	else:
+		_pass("商店 / 池含 33 把 Weapon 资源实例")
+	if passive_pool.size() != 20:
+		_fail("商店: 池被动数应 20, 实得 %d" % passive_pool.size())
+	else:
+		_pass("商店 / 池含 20 个 Item 资源实例")
 
 	# 模拟 _refresh_shop 路径：随机取 4 → build Weapon + Item
 	# 手动写：复制 _refresh_shop 核心逻辑（不依赖 _render_cards 节点）
@@ -365,39 +379,15 @@ func _part_shop() -> void:
 	# 白盒直构造（防 flaky）：Array.shuffle() 走全局 RNG，RandomNumberGenerator.seed 固定无效，
 	# (33/53)^4≈15% 概率 4 卡全武器 → 「购买被动」断言无对象（2026-08-06 12:3x 实测复现 19 项 1 FAIL）。
 	# 改为武器/被动池各取 2 构成 4 卡 → 100% 同时含武器与被动，购买两断言均可验。
-	var weapon_pool: Array = []
-	var passive_pool: Array = []
-	for sid in pool:
-		if not _loader.call("get_weapon", sid).is_empty():
-			weapon_pool.append(sid)
-		elif not _loader.call("get_item", sid).is_empty():
-			passive_pool.append(sid)
 	var picked: Array = []
 	picked.append_array(weapon_pool.slice(0, 2))
 	picked.append_array(passive_pool.slice(0, 2))
 	_shop.set("shop_items", [])
-	for sid in picked:
-		var wdata: Dictionary = _loader.call("get_weapon", sid)
-		var idata: Dictionary = _loader.call("get_item", sid)
-		var res: Resource = null
-		if not wdata.is_empty():
-			# 走 WeaponController.build_weapon_from_data（day10 探针同款）
-			var wc: Node = _player.get_node("WeaponController")
-			res = wc.call("build_weapon_from_data", sid)
-		elif not idata.is_empty():
-			var ItemScript: GDScript = load("res://scripts/items/item.gd")
-			res = ItemScript.new()
-			res.item_id = sid
-			res.item_name = str(idata.get("name", sid))
-			res.price = int(idata.get("price", 0))
-			res.icon_index = int(idata.get("icon_index", 0))
-			res.slot = str(idata.get("slot", ""))
-			res.category = str(idata.get("category", ""))
-			res.stat_bonuses = idata.get("effects", {})
+	for res in picked:
 		if res == null:
-			_fail("商店: build %s 失败" % sid)
-		else:
-			_shop.shop_items.append(res)
+			_fail("商店: 白盒直构造含 null")
+			continue
+		_shop.shop_items.append(res)
 	if _shop.shop_items.size() != 4:
 		_fail("商店: shop_items 应 4, 实得 %d" % _shop.shop_items.size())
 	else:

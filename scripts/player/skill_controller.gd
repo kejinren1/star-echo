@@ -142,6 +142,7 @@ func _calc_burn_dps() -> float:
 ## 诺亚「紧急部署」（D4-T5，承接 D3-T4）：在身侧部署 `summon_count + bonus_stats.summon_count` 台
 ## 临时炮台（skill summon_count=2 + 诺亚 passive summon_count=1 → 3 台），持续 duration 秒。
 ## 数值全部来自 DataLoader.get_weapon(summon_id)，禁止硬编码。
+## D13-T3：玩家装备 se_turret_array（进化「机械炮阵」）→ 炮台常驻（duration=-1）+ 部署台数 +2
 ## 返回 true = 部署成功进入冷却；数据缺失/无 World = false（不进冷却，零 stderr 噪音）
 func _cast_deploy_turret() -> bool:
 	var summon_id: String = str(skill_data.get("summon_id", "se_auto_turret"))
@@ -155,6 +156,15 @@ func _cast_deploy_turret() -> bool:
 		bonus_count = int(float(player.bonus_stats.get("summon_count", 0.0)))
 	var count: int = maxi(base_count + bonus_count, 1)
 	var duration: float = float(skill_data.get("duration", 15.0))
+	# D13-T3：检测已装备武器是否含 se_turret_array → 常驻 + 多台（meta 键与 META_SOURCE_ID 一致）
+	if player and player.has_node("WeaponController"):
+		var wc: Node = player.get_node("WeaponController")
+		var equipped: Array = wc.get("equipped_weapons")
+		for w in equipped:
+			if w and w.has_meta(&"source_id") and str(w.get_meta(&"source_id")) == "se_turret_array":
+				duration = -1.0
+				count += 2
+				break
 	var world: Node = player.get_parent()
 	if world == null:
 		return false

@@ -62,6 +62,13 @@ func _equip_default_weapon() -> void:
 	equip_weapon(w)
 
 func _process(delta: float) -> void:
+	# D13 收口：玩家攻速倍率消费点 —— 作用于武器冷却递减速率（delta × atk_mult）。
+	# base 1.0 时行为与旧版完全一致（零回归）；升级「攻速+5%」/ 诺亚被动 / 莱恩 buff
+	# / coffee 被动从此真实生效（此前仅装配无消费点）。炮台为独立攻击（turret.gd 自驱）
+	# 不受攻速影响（召唤物不享攻速，设计内）。
+	var atk_mult: float = 1.0
+	if owner_node and "attack_speed" in owner_node:
+		atk_mult = maxf(float(owner_node.attack_speed), 0.01)
 	# 每帧检查所有武器是否可以攻击
 	for weapon in equipped_weapons:
 		if not weapon or not weapon.has_method("can_fire"):
@@ -69,7 +76,7 @@ func _process(delta: float) -> void:
 		# 环绕武器不自发弹丸（D5-T4：由 OrbitWeapon 节点独立驱动旋转 + 接触伤害）
 		if weapon.orbit_data and not weapon.orbit_data.is_empty():
 			continue
-		if weapon.can_fire(delta):
+		if weapon.can_fire(delta * atk_mult):
 			_fire_weapon(weapon)
 
 # ========== 武器管理 ==========
@@ -82,12 +89,16 @@ func equip_weapon(weapon: Resource) -> bool:
 		return false
 	equipped_weapons.append(weapon)
 	_sync_orbit_weapon()
+	# D13-T2：战斗副本变化 → 同步 inventory（HUD 读数源；进局/商店双写幂等）
+	sync_inventory_weapons()
 	return true
 
 ## 卸下武器
 func unequip_weapon(weapon: Resource) -> void:
 	equipped_weapons.erase(weapon)
 	_sync_orbit_weapon()
+	# D13-T2：同步 inventory（同上）
+	sync_inventory_weapons()
 
 ## 当前已装备武器数
 func get_slot_count() -> int:
@@ -201,6 +212,32 @@ func _sync_inventory_weapon(old_weapon: Resource, new_weapon: Resource) -> void:
 			GameManager.inventory.call("replace_weapon_slot", i, new_weapon)
 			return
 
+## D13-T2：武器两套体系统一入口 —— 按 equipped_weapons 的 meta source_id 顺序
+## 全量重建 inventory.weapons（HUD 读数源 = inventory，战斗实装 = equipped_weapons）。
+## 无 source_id 条目（初始枪占位等）跳过；GameManager.inventory 为 null（直开 Main.tscn
+## 早期 / 测试环境）静默返回不崩。幂等：重复调用无副作用（全量重建非追加）。
+## 触发 HUD 刷新：清空前非空 → weapon_removed；重建后非空 → weapon_added。
+func sync_inventory_weapons() -> void:
+	if GameManager.inventory == null:
+		return
+	var inv: Node = GameManager.inventory
+	if not ("weapons" in inv):
+		return
+	var inv_weapons: Array = inv.get("weapons")
+	if inv_weapons == null:
+		return
+	var had_content: bool = not inv_weapons.is_empty()
+	inv_weapons.clear()
+	for w in equipped_weapons:
+		if w == null or not w.has_meta(META_SOURCE_ID):
+			continue
+		inv_weapons.append(w)
+	# HUD 刷新信号（存在才 emit；重绘全槽位，一次足够）
+	if inv.has_signal("weapon_removed") and had_content:
+		inv.weapon_removed.emit(0)
+	if inv.has_signal("weapon_added") and not inv_weapons.is_empty():
+		inv.weapon_added.emit(inv_weapons[0])
+
 ## 取回首把武器的数据来源 id（无来源标记时返回空串，供测试断言）
 func get_primary_weapon_id() -> String:
 	if equipped_weapons.is_empty():
@@ -257,6 +294,15 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 	var dmg: float = weapon.base_damage
 	if owner_node and "damage_multiplier" in owner_node:
 		dmg *= owner_node.damage_multiplier
+	# D13-T1：聚合暴击通道 —— 玩家属性为权威，武器 crit_chance 平加（clamp 0~0.9），
+	# crit_mult 取玩家 crit_damage（weapon.crit_damage 字段保留登记、结算不叠加）
+	var crit_chance: float = 0.0
+	var crit_mult: float = 1.0
+	if owner_node:
+		var p_crit: float = float(owner_node.get("crit_chance")) if "crit_chance" in owner_node else 0.0
+		crit_chance = clampf(p_crit + weapon.crit_chance, 0.0, 0.9)
+		var p_cmult: float = float(owner_node.get("crit_damage")) if "crit_damage" in owner_node else 1.0
+		crit_mult = maxf(p_cmult, 1.0)
 	# 射程限制：弹丸存活时间 = 射程 / 弹速，保证子弹飞到半屏就消失
 	var travel_time: float = weapon.attack_range / max(weapon.projectile_speed, 1.0)
 	proj.initialize({
@@ -269,6 +315,9 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 		# explosion_damage 兜底 = base_damage；radius <= 0 时 projectile 不爆炸，零回归
 		"explosion_radius": weapon.explosion_radius,
 		"explosion_damage": weapon.explosion_damage if weapon.explosion_damage > 0.0 else dmg,
+		# D13-T1：暴击透传（projectile 缺省 0/1.0 = 不暴击，技能弹丸等未透传路径零回归）
+		"crit_chance": crit_chance,
+		"crit_mult": crit_mult,
 	})
 	_projectile_container.add_child(proj)
 	proj.global_position = owner_node.global_position

@@ -116,6 +116,11 @@ func _equip_starting_weapon(weapon_id: String) -> void:
 		return
 	if not controller.equip_from_data(weapon_id):
 		push_warning("[Main] 起始武器装载失败，沿用默认武器: %s" % weapon_id)
+		return
+	# D13-T2：进局同步 inventory（equip_weapon 尾部已 sync，此处显式补调保持单点语义；
+	# 幂等无副作用）→ HUD 读 inventory 显示起始武器
+	if controller.has_method("sync_inventory_weapons"):
+		controller.sync_inventory_weapons()
 
 # ========== 信号处理 ==========
 

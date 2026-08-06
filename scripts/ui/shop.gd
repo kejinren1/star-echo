@@ -14,6 +14,9 @@ signal shop_exited
 
 ## preload 而非依赖 class_name（item.gd 无 class_name，inventory.gd 同款策略）
 const Item: GDScript = preload("res://scripts/items/item.gd")
+## D13-T6（BUG-002 修复）：用 weapon_controller 的 build_weapon_from_data 纯函数式构建
+## 武器资源（实例不 add_child → 不触发 _ready → 无「初始枪」副作用）
+const WeaponControllerScript: GDScript = preload("res://scripts/weapons/weapon_controller.gd")
 
 # ========== 节点引用 ==========
 
@@ -33,6 +36,9 @@ const CARD_PATCH_MARGIN: int = 12               ## 卡片 9-slice 边距
 const CARD_TEXTURE: Texture2D = preload("res://assets/sprites/ui/panel_card.png")
 
 var shop_items: Array[Resource] = []            ## 当前商店商品
+
+## D13-T6：武器资源懒构建器（WeaponController 未入树实例，仅调纯函数 build_weapon_from_data）
+var _wc_builder: Node = null
 
 # ========== 生命周期 ==========
 
@@ -79,21 +85,50 @@ func _refresh_shop() -> void:
 		coins_label.text = "%d" % GameManager.economy.coins
 
 ## 商品池：武器（排除 evolution_result 结果武器）+ 被动（is_passive==true）
+## D13-T6（BUG-002 修复）：返回**资源实例数组**（武器 Weapon / 被动 Item），
+## 修复原实现把 String id 直接 push 进 `shop_items: Array[Resource]` 的类型冲突
+## （每进商店 4 条恒定 ERROR + 0 卡）；口径不变 = 36 武器 − 3 结果武器 + 20 被动 = 53
 func _build_shop_pool() -> Array:
 	var pool: Array = []
-	# 武器池：36 把 - 3 把结果武器 = 33 把
+	# 武器池：36 把 - 3 把结果武器 = 33 把（build_weapon_from_data 构建 Weapon 资源）
 	for wid in DataLoader.get_all_weapon_ids():
 		var wdata: Dictionary = DataLoader.get_weapon(wid)
 		if wdata.is_empty() or wdata.has("evolution_result"):
 			continue
-		pool.append(wid)
-	# 被动池：20 项 is_passive
+		var w: Resource = _build_weapon_resource(wid)
+		if w != null:
+			pool.append(w)
+	# 被动池：20 项 is_passive（Item 资源，仿 inventory.add_item_from_data 字段装载）
 	for iid in DataLoader.get_all_item_ids():
 		var idata: Dictionary = DataLoader.get_item(iid)
 		if idata.is_empty() or not idata.get("is_passive", false):
 			continue
-		pool.append(iid)
+		var it: Resource = _build_item_resource(iid)
+		if it != null:
+			pool.append(it)
 	return pool
+
+## 武器 id → Weapon 资源（懒加载纯函数构建器；未入树实例调用 build_weapon_from_data）
+func _build_weapon_resource(weapon_id: String) -> Resource:
+	if _wc_builder == null:
+		_wc_builder = WeaponControllerScript.new()
+	return _wc_builder.call("build_weapon_from_data", weapon_id)
+
+## 被动 id → Item 资源（仿 inventory.gd:82-92 add_item_from_data 范式）
+func _build_item_resource(item_id: String) -> Resource:
+	var data: Dictionary = DataLoader.get_item(item_id)
+	if data.is_empty():
+		return null
+	var item: Resource = Item.new()
+	item.item_id = item_id
+	item.item_name = str(data.get("name", item_id))
+	item.price = int(data.get("price", 0))
+	item.rarity = str(data.get("rarity", "common"))
+	item.icon_index = maxi(int(data.get("icon_index", 0)), 0)
+	item.slot = str(data.get("slot", ""))
+	item.category = str(data.get("category", ""))
+	item.stat_bonuses = data.get("effects", {})
+	return item
 
 ## 把 shop_items 渲染成卡片（清空容器后重建；购买/刷新共用）
 func _render_cards() -> void:

@@ -14,6 +14,7 @@ var damage: float = 5.0              ## 单发伤害
 var fire_interval: float = 0.5       ## 开火间隔（= cooldown）
 var attack_range: float = 220.0      ## 射程
 var duration_left: float = 15.0      ## 存活剩余（技能 duration）
+var permanent: bool = false          ## D13-T3：常驻模式（duration <= 0，不消亡）
 
 var player: Node2D = null            ## 施法玩家（读 damage_multiplier）
 
@@ -22,12 +23,15 @@ var _cd: float = 0.0                 ## 开火冷却计时
 # ========== 初始化 ==========
 
 ## 由 SkillController._cast_deploy_turret 调用：装载数值 + 绘制占位外观
+## D13-T3：duration <= 0 → 常驻模式（permanent=true，不递减时长不消亡）
 func setup(weapon_data: Dictionary, duration: float, owner_player: Node2D) -> void:
 	damage = float(weapon_data.get("damage", 5.0))
 	var cooldown: float = maxf(float(weapon_data.get("cooldown", 0.5)), 0.01)
 	fire_interval = cooldown
 	attack_range = float(weapon_data.get("range", 220.0))
-	duration_left = maxf(duration, 0.1)
+	permanent = duration <= 0.0
+	if not permanent:
+		duration_left = maxf(duration, 0.1)
 	player = owner_player
 	_draw_placeholder()
 
@@ -46,10 +50,12 @@ func _draw_placeholder() -> void:
 
 func _process(delta: float) -> void:
 	# 存活计时（禁用 Timer 节点：无头下 SceneTree 计时更易漂，直接每帧递减）
-	duration_left -= delta
-	if duration_left <= 0.0:
-		queue_free()
-		return
+	# D13-T3：常驻模式跳过时长递减与消亡分支（se_turret_array 进化后炮台不消失）
+	if not permanent:
+		duration_left -= delta
+		if duration_left <= 0.0:
+			queue_free()
+			return
 	_cd -= delta
 	if _cd > 0.0:
 		return

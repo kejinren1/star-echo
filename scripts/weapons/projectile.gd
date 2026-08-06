@@ -19,6 +19,12 @@ extends Area2D
 @export var status_duration: float = 0.0      ## 状态持续时间（秒）
 @export var status_dps: float = 0.0           ## 状态每秒伤害
 
+@export_group("暴击（Day 13 · D13-T1）")
+## 暴击率（0~1；默认 0 = 不暴击，既有武器弹丸零回归）与暴击伤害倍率（默认 1.0 = 无加成）
+## 由 weapon_controller._spawn_projectile 聚合玩家+武器通道透传；技能弹丸缺省 = 不暴击
+@export var crit_chance: float = 0.0          ## 暴击率（0~1）
+@export var crit_mult: float = 1.0            ## 暴击伤害倍率（1.0 = 无加成）
+
 @export_group("外观（默认 = 既有基础子弹，技能可覆写）")
 ## 试玩反馈补强（2026-08-05）：技能弹丸与基础子弹共用同一纹理导致肉眼无法区分
 ## （用户反馈「怎么还是基础的子弹」）→ 新增颜色/半径参数化，默认值 = 原有霓虹黄 8px
@@ -62,10 +68,11 @@ func _physics_process(delta: float) -> void:
 # ========== 碰撞处理 ==========
 
 func _on_body_entered(body: Node) -> void:
-	# 命中敌人则造成伤害
+	# 命中敌人则造成伤害（D13-T1：暴击结算）
 	if body.is_in_group("enemies") and body.has_method("take_damage"):
-		body.take_damage(damage)
-		_apply_life_steal(damage)
+		var final_damage: float = _roll_crit(damage)
+		body.take_damage(final_damage)
+		_apply_life_steal(final_damage)
 		_hit_count += 1
 		if _hit_count > pierce:
 			_explode()
@@ -88,8 +95,10 @@ func _explode() -> void:
 			if global_position.distance_to(enemy.global_position) > explosion_radius:
 				continue
 			if explosion_damage > 0.0 and enemy.has_method("take_damage"):
-				enemy.take_damage(explosion_damage)
-				_apply_life_steal(explosion_damage)
+				# D13-T1：AOE 与线弹同口径暴击（暴击伤害同样走吸血）
+				var final_damage: float = _roll_crit(explosion_damage)
+				enemy.take_damage(final_damage)
+				_apply_life_steal(final_damage)
 			if not status_type.is_empty() and enemy.has_method("apply_status"):
 				enemy.apply_status(status_type, status_duration, status_dps)
 
@@ -115,6 +124,16 @@ func apply_life_steal(damage_dealt: float) -> void:
 
 func _apply_life_steal(damage_dealt: float) -> void:
 	apply_life_steal(damage_dealt)
+
+# ========== 暴击结算（Day 13 · D13-T1） ==========
+
+## 按暴击率 roll 一次最终伤害：`randf() < crit_chance` → base × crit_mult；否则 base
+## crit_chance <= 0 时恒不暴击（既有武器零回归）；crit_mult < 1.0 视为 1.0（无加成）
+## 独立公开方法：无头测试可白盒直调，不依赖物理碰撞帧
+func _roll_crit(base: float) -> float:
+	if crit_chance > 0.0 and randf() < crit_chance:
+		return base * maxf(crit_mult, 1.0)
+	return base
 
 # ========== 工具 ==========
 
@@ -166,3 +185,7 @@ func initialize(props: Dictionary) -> void:
 		bullet_color = props["bullet_color"]
 	if props.has("bullet_radius"):
 		bullet_radius = props["bullet_radius"]
+	if props.has("crit_chance"):
+		crit_chance = props["crit_chance"]
+	if props.has("crit_mult"):
+		crit_mult = props["crit_mult"]

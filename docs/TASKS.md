@@ -9,6 +9,8 @@
 > ✅ **Day 7 已收口（2026-08-06 03:3x · #3）**：阶段 B 首段完成 —— 11 把通用武器补 levels 8 条 + max_level=8（D7-T1）+ 33 把全部补 icon_index 分类映射（D7-T5）+ weapon.gd crit_chance/crit_damage 字段 + build_weapon_from_data 4 键消费 + _on_upgrade 3 行可选键消费（D7-T2）+ weapons.png 4 帧→40 帧 15 帧实绘+18 帧占位+7 帧空余（D7-T3）+ icon_atlas.gd 帧数 4→40（D7-T4）+ `day7_weapon_data_check` 探针 **13/13 CLEAN** + 回归五件套（day2 32 / day3 16 / day4 21 / day5 16 / day6 14）+ day5 探针同步更新（pistol 通用成长 → 合成裸武器 兜底测试）+ baseline **BASELINE CLEAN**，提交 `fc2a636`。
 > ✅ **Day 8-9 已收口（2026-08-06 05:3x · #3）**：阶段 B 续段完成 —— 18 把全量武器补 `levels` 8 条 + `max_level=8`（D8-T1：`gen_weapons_day7.py` LEVELS +18 把 + verify 抽查扩展到 6 把 + force_field damage 恒 0 特例校验 + 顶层未动原则）+ 18 帧占位图标实绘替换（D8-T2：`gen_weapon_icons.py` +18 函数 + 新增 PURPLE/SHIELD 色 + 透明键 + 帧 33-39 空余保留）+ `day8_weapon_data_check.gd` 探针 **19/19 CLEAN**（JSON 全量 / 特例 / 装配 / 图标 / 回归 五段）+ 回归六件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13）+ baseline **BASELINE CLEAN** + `gen_weapons_day7.py verify` → **33/33 levels + icon_index CLEAN**。30DAY_PLAN D7-D9「15 武器数据 + 精灵」至此**全量完成（33/33 把 Lv1-8 + 33 帧实绘图标）**。
 > ✅ **Day 11–12 已收口（2026-08-06 12:4x · #3）**：阶段 B 被动+商店完成 —— 20 被动四字段（48 项筛 20 · 四类 5+5+5+5 · icon_index 0-19 唯一 · 3 核心命中）+ 6 被动槽（MAX_ITEMS 6 + HUD ItemSlot0-5）+ 装配链路（STAT_MAP 扩展 crit_damage_percent + apply_item_bonuses + main.gd 信号接线）+ 商店真实商品（33 武器排除 3 结果 + 20 被动 · 4 卡 · 先 add 后扣费）+ replace_weapon sync inventory（replace_weapon_slot 按 meta source_id）+ items.png 640×32 20 帧 + icon_atlas 20 → **回归九件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22）+ baseline BASELINE CLEAN**，提交 `4bc79df`。探针 flaky 修复 2 处（day11_12 商店段白盒直构造 + day10 evolution 全量池 count 99）。拆解细节见 Day 11-12 区。
+> ✅ **Day 13 已收口（2026-08-06 14:5x · #3）**：阶段 B 收口完成 —— ① **暴击结算点补全**（D13-T1：projectile crit_chance/crit_mult + 命中/AOE 同口径 `_roll_crit`；weapon_controller 聚合透传 clamp 0~0.9）② **武器两套体系统一**（D13-T2：`sync_inventory_weapons()` 全量重建 inventory 权威源 + 进局/装卸补调，HUD 显示起始武器）③ **炮台常驻/多台**（D13-T3：装备 se_turret_array → duration=-1 + 台数+2，turret permanent 模式）④ **BUG-002 修复**（D13-T6：`_build_shop_pool` 返回资源实例，真实商店 4 卡零 ERROR）⑤ **攻速消费点收口**（player.attack_speed → weapon_controller 冷却递减倍率，升级/被动/buff 生效）⑥ **数值冒烟探针** `day13_build_check.gd` **36/36 CLEAN**（真实商店/10 属性/暴击/进化池/叠加边界/两套统一/炮台）+ 回归十件套全绿 + baseline **BASELINE CLEAN** + `REPORT_PHASE_B.md` 产出。提交见本轮收口 commit。**R4 攻击力口径标 [!] 交 Owner 拍板**。
+> 🎯 **Day 14-15 待拆解**（阶段 C 首段：随机节点地图）—— #2 下一轮拆解后 #3 执行。
 > 🎯 **Day 11–12 已拆解（2026-08-06 09:1x · #2 第 11 轮）**：阶段 B 被动+商店 = **20 被动数据（四类）+ 6 被动槽 + 商店真实商品闭环 + 图标扩容**（见 Day 11-12 区）——W2 从现有 48 项筛 20 项为被动池（3 进化核心必选 + 四类划分 + effects 白名单化 + is_passive/slot/category/icon_index 四字段）；W1 6 被动槽（inventory MAX_ITEMS 20→6 + HUD ItemBar 4→6）+ 被动装配链路（player.apply_item_bonuses + GameManager 监听 inventory 信号）+ 商店真实商品购买（武器 33 池 + 被动 20 池随机 4 卡）+ replace_weapon 补 sync inventory；W3 items.png 4→20 帧实绘（gen_item_icons.py 新建）；W5 探针 + 回归八件套。**关键定案：被动只从商店获取（不进升级池）；裸 range 像素键统一 range_percent（200px 基准）；3 核心 effects 禁键仅占位登记不判失败；武器两套完整统一归 Day 13**。
 > ✅ **Day 10 已收口（2026-08-06 07:3x · #3）**：阶段 B 进化机制完成 —— 3 把结果武器数据（se_star_fall 炎星陨落 / se_turret_array 机械炮阵 / se_blade_storm 星刃风暴，elemental/engineering/melee，tier 4，evolution_result + 平曲线 levels 8 条 + icon_index 33/34/35）+ items.json +se_blade_core 补齐星刃进化链（D10-PRE 定案）+ weapon.gd +explosion_radius/explosion_damage + weapon_controller.gd +replace_weapon（find→build→升满→原子替换→_sync 一次）+ level_up_panel.gd 进化池 + evolution 分支（先替换成功、后消耗核心）+ weapons.png 帧 33/34/35 实绘 + icon_index 0-32→0-35 + 探针 `day10_evolution_check.gd` 20/20 CLEAN + 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）+ baseline **BASELINE CLEAN** + `gen_weapons_day7 verify` 36/36 CLEAN，提交 `ca7c0a2`。
 > 🎯 **Day 8–9 已拆解（2026-08-06 05:1x · #2 第 9 轮）**：阶段 B 续段 = **18 把全量武器 levels + 18 帧图标实绘 + 全量数据回归**（见 Day 8-9 区）——W2 给 18 把通用武器补 `levels` 8 条 + `max_level:8`（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field，扩展 `gen_weapons_day7.py` LEVELS 表幂等 apply）；W3 18 帧占位图标逐帧替换实绘（扩展 `gen_weapon_icons.py`，含 force_field 护盾 / minigun 多管等特征）；W1 新建 `day8_weapon_data_check.gd` 探针（≥13 断言含 force_field damage 恒 0 特例）；W5 回归六件套。**纯数据 + 图标 + 探针日，零装配代码改动**（D7-T2 已铺路）。
@@ -1192,19 +1194,77 @@
 - `scenes/HUD.tscn` + `scripts/ui/hud.gd`（ItemBar 4→6 槽）+ `tools/day11_12_passive_check.gd`（新建 ≥16 断言）
 - `docs/TASKS.md`（Day 11-12 标题 🎯 + T1~T7/EXIT 状态回执）
 
-### Day 13 — Build 系统集成 + 数值冒烟　🎯【下一目标日 · 待 Day 11-12 EXIT 收口后由 #2 函数级拆解】
+### Day 13 — Build 系统集成 + 数值冒烟　✅【阶段 B 收口 · 已收口】
 
-> 📌 **Day 13 预调研基线（2026-08-06 11:1x · #2 第 12 轮实测，供 #2 下一轮函数级拆解直接复用，勿重复排查）**
-> - **武器两套体系现状**：HUD 槽位读 `inventory.weapons`（hud.gd:150-158），战斗实装读 `weapon_controller.equipped_weapons`；D11-12-T5 已补 `replace_weapon` 单点 sync（:201 `replace_weapon_slot` 按 meta `source_id` 原位替换）→ 新增武器购买双写（D11-12-T4 商店）已通；**完整统一（装备/卸下/替换的统一入口）仍是 Day 13 决策点**
-> - **se_turret_array 炮台常驻/多台机制（D10 遗留）**：`turret.gd` 由 `skill_controller._cast_deploy_turret` 直传 JSON dict（不走 `build_weapon_from_data`）→ 结果武器 se_turret_array 的「常驻/多台」数值成长无装配消费点；Day 13 定案：进化出 se_turret_array 后炮台多台/常驻行为（**W5 不得判失败**）
-> - **商店武器池范围**：D11-12-T4 已实现「33 武器排除 3 把 evolution_result 结果武器」过滤（shop.gd:87 `wdata.has("evolution_result")`）→ Day 13 数值冒烟需验证口径一致（30 把可购 + 20 被动 = 商店池 50）
-> - **10 属性公式**：`stats.json` formulas(15) + `player.gd` STAT_MAP 14 键（:50-65）+ 新增 `crit_damage_percent` = **15 键**；吸血 `life_steal` 命中回血通道在 weapon_controller（D4 定案）；`apply_stat_modifier` 三档（add/percent/ratio）；被动叠加 = 多被动同键**乘法叠加**（percent 除法精确还原，D11-12-T3 已验 coffee 1.0→1.08→回 1.0）
-> - **阶段 B 报告**：`docs/REPORT_PHASE_B.md`（W5 域，仿 `REPORT_PHASE_A.md` 结构）——覆盖：武器数据（36 把 Lv1-8 + 3 把结果武器）、进化 3 链（se_star_flame→se_star_fall / se_auto_turret→se_turret_array / se_star_blade→se_blade_storm）、被动 20 项 + 6 槽 + 商店闭环、数值冒烟结论（10 属性公式 + 叠加边界 + DPS 参照：minigun Lv8≈345 > flamethrower≈250 > hammer≈155 ≈ rocket_launcher≈130）
-> - **探针资产**：`tools/gen_weapons_day7.py verify`（36/36 全量校验）+ `day10_evolution_check.gd`（20/20）+ `day11_12_passive_check.gd`（22/22）可作 Day 13 冒烟探针底座；预期新建 `day13_build_check.gd`
+> ✅ **Day 13 已收口（2026-08-06 14:5x · #3）**：全部客观任务完成 —— 暴击结算（T1）/ 两套统一（T2）/ 炮台常驻多台（T3）/ 数值口径定案（T4）/ 数值冒烟探针 36 断言（T5）/ BUG-002 修复（T6）全 [x]；`REPORT_PHASE_B.md` 产出；回归十件套全绿 + baseline CLEAN。**额外收口：攻速消费点**（#2 对照表假设存在但实测零消费 → weapon_controller 冷却递减 × attack_speed，3 行最小修复，base 1.0 零回归）。**R4 攻击力口径标 [!] 交 Owner 拍板**（见 D13-T4）。
 
-- [ ] 10 属性公式校验（攻击/暴击/吸血/护甲…）
-- [ ] 进化链路、被动叠加边界测试
-- [ ] `baseline_check` 通过；产出阶段 B 报告
+> ✅ **Day 13 已拆解（2026-08-06 13:1x · #2 第 13 轮）**：Day 11-12 已收口（`4bc79df` + 回执 `d631e7b`）→ 目标日推进 **Day 13 = Build 集成 + 数值冒烟（阶段 B 收口）**。W1 补 3 个实测集成缺口（暴击结算 / 两套体系进局同步 / 炮台常驻多台）+ 数值冒烟探针；W2 10 属性公式对照 + 口径定案；W5 回归十件套 + `REPORT_PHASE_B.md`。
+
+> 📌 **Day 13 实测基线（#2 第 13 轮新核，供 #3 免排查）**
+> - **暴击零结算点（本轮新发现）**：weapon.gd:34-35 字段 + weapon_controller.gd:124-125 build 消费 + player.gd:26-27 属性 + STAT_MAP 装配（:57/:65）+ stats.json formulas `crit_check` 全就绪，但 projectile.gd 伤害结算（:64-72 命中 / :79-94 爆炸）**零 crit 引用** → 暴击通道装配了但不出伤，Day 13 必补
+> - **护甲口径冲突（本轮新发现）**：player.gd:287 `take_damage` 平直减伤 `max(amount - armor, 1.0)`；stats.json formulas `armor_reduction = min(armor/(armor+20), 0.75)` 百分比减伤 → 两处不一致，Day 13 定案（建议沿用 player 平直式为权威，formulas 标参考，防平衡崩塌）
+> - **进局武器不同步（本轮新发现）**：main.gd `_equip_starting_weapon`（:110-117）只写 `equipped_weapons` 不写 `inventory.weapons` → HUD 读 inventory（hud.gd:150-158）**不显示起始武器**；equip_weapon/unequip_weapon 亦不 sync（商店双写已通、replace 已 sync，仅进局/装卸缺口）
+> - **se_turret_array 炮台常驻/多台（D10 遗留）**：turret.gd setup 直传 JSON（duration 计时 :47-52 到期 queue_free）；skill_controller._cast_deploy_turret（:146-169）部署 `summon_count + bonus_stats.summon_count` 台（诺亚 2+1=3）、duration 15s 后消失 → 无常驻/多台机制
+> - **商店池实测 = 53**（33 武器 = 36 − 3 evolution_result + 20 被动；shop.gd:84-95）——**修正第 12 轮预调研「30 可购」笔误**；升级池只遍历「已装备且 level<max_level」（level_up_panel.gd:58-71）→ 满级/进化结果天然排除，无 evolution_result 泄漏
+> - **被动叠加 = 同键乘法叠加**（apply_item_bonuses 逐项触发 percent 乘算，remove 除法还原，D11-12-T3 已验 coffee 1.0→1.08→回 1.0；多被动 1.08×1.08 边界归本日断言）
+> - **探针资产**：`gen_weapons_day7.py verify`（36/36）+ `day10_evolution_check.gd`（20/20）+ `day11_12_passive_check.gd`（22/22）作冒烟底座；预期新建 `day13_build_check.gd`
+
+#### D13-PRE【W1+W2】Build 集成定案表
+| # | 决策 | 依据 |
+|---|---|---|
+| 1 | **暴击结算点 = projectile 弹丸**：`crit_chance = clampf(player.crit_chance + weapon.crit_chance, 0, 0.9)`；`crit_mult = player.crit_damage`（weapon.crit_damage 字段保留登记、结算以玩家通道为权威） | stats.json formulas.crit_check；玩家属性 = 大纲 10 属性权威通道 |
+| 2 | **武器两套体系权威源 = inventory.weapons**（HUD 读数源），equipped_weapons = 战斗执行副本；进局/装卸/替换全部经 weapon_controller 统一 `sync_inventory_weapons()` | main.gd:110-117 进局缺口实测 |
+| 3 | **se_turret_array 常驻/多台**：玩家装备该武器后，诺亚技能部署炮台 `duration=-1` 常驻 + 部署台数 +2 | D10 定案「炮台常驻/多台归 Day 13」 |
+| 4 | **护甲减伤沿用 player 平直式** `max(amount - armor, 1.0)`（权威）；stats.json formulas armor_reduction 标「参考公式」不改代码 | 平衡已基于平直式校准（D6） |
+| 5 | **商店池 = 33 武器 + 20 被动 = 53**（实测修正预调研「30 可购」笔误）；升级池无泄漏确认 | shop.gd:84-95 + 全量数据实测 |
+| 6 | **被动叠加边界** = 同键乘法叠加 + remove 除法还原（多被动 1.08×1.08 = 1.1664 断言） | D11-12-T3 单被动已验证，本日多被动收口 |
+| 7 | **10 属性公式对照**：大纲 10 属性 ↔ formulas(15) ↔ STAT_MAP(15 键) ↔ 消费点全表核验（W2 产出对照表） | stats.json formulas + player.gd:50-66 |
+| 8 | **BUG-002（P1，#4 12:45 实测）**：shop.gd `shop_items: Array[Resource]`(:35) vs `_build_shop_pool()` 返回 **String id 列表** 直接 append(:75) → 真实游戏每波进商店 **4 ERROR + 0 卡**；探针白盒直构造遮蔽 → 修复 = `_build_shop_pool` 返回**资源实例**（武器走 `build_weapon_from_data`、被动走 `Item.new()` 填四字段，参照探针 :380-397 范式）+ 探针补真实进商店断言 | docs/TEST_REPORT.md §7 |
+
+#### D13-T1【W1】暴击结算点补全（`scripts/weapons/projectile.gd` + `scripts/weapons/weapon_controller.gd`）
+- [x] projectile.gd 增 `crit_chance: float = 0.0` / `crit_mult: float = 1.0` 字段 + `initialize()` 消费两键（默认 0/1.0 = 既有武器零回归）
+- [x] 伤害结算处（`_on_body_entered` 命中 :67 与 `_explode` AOE :91）：`if randf() < crit_chance: damage × crit_mult`；暴击伤害同样走 `_apply_life_steal`
+- [x] weapon_controller.`_spawn_projectile`：聚合暴击透传 —— `proj.crit_chance = clampf(player.crit_chance + weapon.crit_chance, 0, 0.9)`；`proj.crit_mult = maxf(player.crit_damage, 1.0)`（player 无属性走默认 0.05/2.0 或 0/1.0 兜底不崩）
+- [x] **测试点**：crit=0 弹丸伤害 == 原值（零回归）；白盒构造 crit_chance=1.0 → 伤害 == base × crit_mult；爆炸 AOE 同口径
+- [x] 文件域：W1 只写 `scripts/`（player/weapon 只读）
+
+#### D13-T2【W1】武器两套体系统一入口（`scripts/weapons/weapon_controller.gd` + `scripts/autoload/main.gd`）
+- [x] weapon_controller 增 `sync_inventory_weapons()`：按 equipped_weapons 的 meta source_id 顺序全量重建 inventory.weapons（无 source_id 条目跳过；GameManager.inventory 为 null 静默返回，直开 Main.tscn 不崩）
+- [x] main.gd `_equip_starting_weapon`（:110-117）equip_from_data 成功后调 sync → **HUD 显示起始武器**
+- [x] `equip_weapon`（:80）/ `unequip_weapon`（:88）尾部补调 sync（保持单点，replace 已有独立 sync 不重复）
+- [x] **测试点**：直开 Main.tscn 调试路径不崩；进局后 inventory.weapons[0].source_id == starting_weapon；商店买武器 → inventory 与 equipped 双写幂等（重复 sync 无副作用）
+- [x] 文件域：W1 只写 `scripts/`
+
+#### D13-T3【W1】se_turret_array 炮台常驻/多台（`scripts/weapons/turret.gd` + `scripts/player/skill_controller.gd`）
+- [x] turret.gd `setup`：`duration <= 0` → 常驻模式（`_process` :47-52 跳过 duration_left 递减与 queue_free 分支，其余行为不变）
+- [x] skill_controller.`_cast_deploy_turret`（:146-169）：检测玩家 equipped_weapons 任一 meta source_id == `se_turret_array` → `duration = -1`（常驻）+ 部署台数 `+2`
+- [x] **测试点**：未装备 → 原 3 台 15s 后消失（回归）；装备 se_turret_array → 部署 3+2=5 台且推进 N 帧后仍存活
+- [x] 文件域：W1 只写 `scripts/`
+
+#### D13-T4【W2】数值口径定案与核验（data/*.json **只读**，产出写 `docs/`）
+- [x] **10 属性公式对照表**（产出附表入 REPORT_PHASE_B §5）：大纲 10 属性 ↔ formulas(15) ↔ STAT_MAP(15 键) ↔ 消费点 —— damage→_spawn_projectile / attack_speed→weapon fire_rate / range→range_percent(200px 基准) / speed→move_speed / crit_chance+crit_damage→D13-T1 / max_hp→health / armor→take_damage 平直 / life_steal→projectile.apply_life_steal(:104) / luck→add；harvesting/luck_shop/luck_chest/curse_* 为框架扩展公式仅登记不消费
+- [x] 护甲口径定案记录（沿用平直式，formulas 标参考）——回写 D13-PRE 决策表 + 报告 §5
+- [x] 3 进化链交叉引用核验：`requires_item` ↔ items.json 3 核心（se_flame_core/se_mech_core/se_blade_core）/ `result_id` ↔ weapons.json 3 结果武器（se_star_fall/se_turret_array/se_blade_storm 均 evolution_result 标记）
+- [x] 商店池 53 口径脚本复算 + 升级池无泄漏复算（36 把仅 3 evolution_result；满级武器不在升级池）
+- [!] **攻击力口径（R4）现状登记**：player 统一 `damage_percent→damage` 通道实际运作（`damage_multiplier` 消费于 _spawn_projectile:258）；characters.json penalty 三系键（melee/ranged/elemental_damage，如 mage 近战/远程 -100%）收集进 `bonus_stats` 未消费 → **标 [!] 交 Owner 拍板**（统一 vs 三系保留+UI 聚合），不阻塞本日客观进度
+- [x] 文件域：W2 只写 `docs/`（对照表/核验记录），data/*.json 只读不写
+
+#### D13-T5【W1】新建 `tools/day13_build_check.gd`（数值冒烟探针）
+- [x] ≥20 断言六段：§1 **真实商店路径**（调 `_build_shop_pool` 断言返回 53 个**资源实例**（33 Weapon + 20 Item）+ `_refresh_shop` 后 shop_items.size()==4 且零类型 ERROR；白盒直构造仅作购买链路用例）/ §2 10 属性全覆盖（STAT_MAP 15 键含大纲 10 属性 + 消费点存在性）/ §3 暴击结算（crit=1 恒暴击伤害==base×mult、crit=0 零回归）/ §4 进化 3 链交叉引用 + 商店池无 evolution_result / §5 被动叠加边界（白盒双 +8% → ×1.1664，remove 一 → ×1.08，再 remove → ×1.0）/ §6 两套统一（进局 sync 后 inventory 读数一致）+ 回归锚点（day10/day11_12 关键断言复用）
+- [x] 探针范式沿用：seed 固定 + 白盒直构造（禁依赖 rng.seed 控 Array.shuffle）——见 Day 11-12 收口 flaky 修复记录
+- [x] 文件域：W1 只写 `tools/`
+
+#### D13-T6【W1】BUG-002 修复：商店真实商品 0 卡（`scripts/ui/shop.gd`；P1 首段必做）
+- [x] `_build_shop_pool()` 改返回**资源实例数组**：武器 → `build_weapon_from_data(wid)`（weapon_controller 纯函数式实例方法，shop 内 `preload(...).new()` 调用；或按 D11-12 备注提静态工厂）+ 被动 → `Item.new()` 填 `item_id/item_name/price/rarity/icon_index/slot/category/stat_bonuses` 四字段+effects（仿 inventory.gd:82-92 `add_item_from_data` 范式）；筛除 `evolution_result` 口径不变（53 池）
+- [x] `_refresh_shop()` 洗牌抽取逻辑不变（现 append Resource 与 `shop_items: Array[Resource]` 类型吻合）→ 真实进商店 4 卡渲染 + 购买链路（_purchase_item 的 `item.get()` 对 Resource 同样生效）
+- [x] **测试点**：模拟 `GameManager.shop_opened` → `_refresh_shop()` → shop_items.size()==4 且无类型 ERROR；购买 1 卡 → inventory 同步 + 扣费（回归 D11-12 白盒用例）
+- [x] 文件域：W1 只写 `scripts/`
+
+#### D13-EXIT【W5】阶段 B 收口
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [x] `day13_build_check` CLEAN（含**真实进商店 4 卡无 ERROR**断言）+ **回归十件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 新增）+ `gen_weapons_day7.py verify` 36/36
+- [x] 产出 `docs/REPORT_PHASE_B.md`（仿 REPORT_PHASE_A 结构：§1 阶段 B 回顾 Day 7-13 / §2 武器数据 36 把 Lv1-8 + 3 结果武器 + DPS 参照 minigun≈345 > flamethrower≈250 > hammer≈155 ≈ rocket_launcher≈130 / §3 进化 3 链 / §4 被动 20 + 6 槽 + 商店池 53 / §5 数值冒烟结论（暴击/护甲/叠加边界定案）/ §6 遗留风险与主观项 → PLAYTEST）
+- [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/level_up_panel.gd.bak、tools/pixel_to_pindou.py —— W3 自主提交）
 
 ---
 
