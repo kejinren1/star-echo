@@ -8,10 +8,12 @@
 > ✅ **Day 6 已收口（2026-08-06 01:5x · #3）**：阶段 A 集成测试完成 —— T-A 经验链路数据化（23 敌 exp_value + 透传 + 端到端探针 **14/14 CLEAN**）+ 回归四件套全绿（day2 32 / day3 16 / day4 21 / day5 15）+ 平衡校准（**实测曲线 Lv1→2=30**，chaser 2→3 / charger 3→4）+ 阶段 A 报告 `docs/REPORT_PHASE_A.md` + baseline **BASELINE CLEAN**，提交见本轮收口 commit。**P1 D6-T4 经验飘字亦已实装**（未顺延）。
 > ✅ **Day 7 已收口（2026-08-06 03:3x · #3）**：阶段 B 首段完成 —— 11 把通用武器补 levels 8 条 + max_level=8（D7-T1）+ 33 把全部补 icon_index 分类映射（D7-T5）+ weapon.gd crit_chance/crit_damage 字段 + build_weapon_from_data 4 键消费 + _on_upgrade 3 行可选键消费（D7-T2）+ weapons.png 4 帧→40 帧 15 帧实绘+18 帧占位+7 帧空余（D7-T3）+ icon_atlas.gd 帧数 4→40（D7-T4）+ `day7_weapon_data_check` 探针 **13/13 CLEAN** + 回归五件套（day2 32 / day3 16 / day4 21 / day5 16 / day6 14）+ day5 探针同步更新（pistol 通用成长 → 合成裸武器 兜底测试）+ baseline **BASELINE CLEAN**，提交 `fc2a636`。
 > ✅ **Day 8-9 已收口（2026-08-06 05:3x · #3）**：阶段 B 续段完成 —— 18 把全量武器补 `levels` 8 条 + `max_level=8`（D8-T1：`gen_weapons_day7.py` LEVELS +18 把 + verify 抽查扩展到 6 把 + force_field damage 恒 0 特例校验 + 顶层未动原则）+ 18 帧占位图标实绘替换（D8-T2：`gen_weapon_icons.py` +18 函数 + 新增 PURPLE/SHIELD 色 + 透明键 + 帧 33-39 空余保留）+ `day8_weapon_data_check.gd` 探针 **19/19 CLEAN**（JSON 全量 / 特例 / 装配 / 图标 / 回归 五段）+ 回归六件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13）+ baseline **BASELINE CLEAN** + `gen_weapons_day7.py verify` → **33/33 levels + icon_index CLEAN**。30DAY_PLAN D7-D9「15 武器数据 + 精灵」至此**全量完成（33/33 把 Lv1-8 + 33 帧实绘图标）**。
+> ✅ **Day 11–12 已收口（2026-08-06 12:4x · #3）**：阶段 B 被动+商店完成 —— 20 被动四字段（48 项筛 20 · 四类 5+5+5+5 · icon_index 0-19 唯一 · 3 核心命中）+ 6 被动槽（MAX_ITEMS 6 + HUD ItemSlot0-5）+ 装配链路（STAT_MAP 扩展 crit_damage_percent + apply_item_bonuses + main.gd 信号接线）+ 商店真实商品（33 武器排除 3 结果 + 20 被动 · 4 卡 · 先 add 后扣费）+ replace_weapon sync inventory（replace_weapon_slot 按 meta source_id）+ items.png 640×32 20 帧 + icon_atlas 20 → **回归九件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22）+ baseline BASELINE CLEAN**，提交 `4bc79df`。探针 flaky 修复 2 处（day11_12 商店段白盒直构造 + day10 evolution 全量池 count 99）。拆解细节见 Day 11-12 区。
+> 🎯 **Day 11–12 已拆解（2026-08-06 09:1x · #2 第 11 轮）**：阶段 B 被动+商店 = **20 被动数据（四类）+ 6 被动槽 + 商店真实商品闭环 + 图标扩容**（见 Day 11-12 区）——W2 从现有 48 项筛 20 项为被动池（3 进化核心必选 + 四类划分 + effects 白名单化 + is_passive/slot/category/icon_index 四字段）；W1 6 被动槽（inventory MAX_ITEMS 20→6 + HUD ItemBar 4→6）+ 被动装配链路（player.apply_item_bonuses + GameManager 监听 inventory 信号）+ 商店真实商品购买（武器 33 池 + 被动 20 池随机 4 卡）+ replace_weapon 补 sync inventory；W3 items.png 4→20 帧实绘（gen_item_icons.py 新建）；W5 探针 + 回归八件套。**关键定案：被动只从商店获取（不进升级池）；裸 range 像素键统一 range_percent（200px 基准）；3 核心 effects 禁键仅占位登记不判失败；武器两套完整统一归 Day 13**。
 > ✅ **Day 10 已收口（2026-08-06 07:3x · #3）**：阶段 B 进化机制完成 —— 3 把结果武器数据（se_star_fall 炎星陨落 / se_turret_array 机械炮阵 / se_blade_storm 星刃风暴，elemental/engineering/melee，tier 4，evolution_result + 平曲线 levels 8 条 + icon_index 33/34/35）+ items.json +se_blade_core 补齐星刃进化链（D10-PRE 定案）+ weapon.gd +explosion_radius/explosion_damage + weapon_controller.gd +replace_weapon（find→build→升满→原子替换→_sync 一次）+ level_up_panel.gd 进化池 + evolution 分支（先替换成功、后消耗核心）+ weapons.png 帧 33/34/35 实绘 + icon_index 0-32→0-35 + 探针 `day10_evolution_check.gd` 20/20 CLEAN + 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）+ baseline **BASELINE CLEAN** + `gen_weapons_day7 verify` 36/36 CLEAN，提交 `ca7c0a2`。
 > 🎯 **Day 8–9 已拆解（2026-08-06 05:1x · #2 第 9 轮）**：阶段 B 续段 = **18 把全量武器 levels + 18 帧图标实绘 + 全量数据回归**（见 Day 8-9 区）——W2 给 18 把通用武器补 `levels` 8 条 + `max_level:8`（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field，扩展 `gen_weapons_day7.py` LEVELS 表幂等 apply）；W3 18 帧占位图标逐帧替换实绘（扩展 `gen_weapon_icons.py`，含 force_field 护盾 / minigun 多管等特征）；W1 新建 `day8_weapon_data_check.gd` 探针（≥13 断言含 force_field damage 恒 0 特例）；W5 回归六件套。**纯数据 + 图标 + 探针日，零装配代码改动**（D7-T2 已铺路）。
 > 🎯 **Day 7 已预拆解（2026-08-06 03:1x · #2 第 8 轮）**：阶段 B 首段 = **MVP 15 武器数据 + 装配消费 + 图标集**（见 Day 7 区）——W2 给 11 把通用武器补 `levels` 8 条（sword/chainsaw/pistol/smg/shotgun/sniper/wand/icicle/flamethrower/turret/landmine）+ 33 把补 `icon_index`；W1 装配消费补齐（crit_chance/crit_damage/pierce/icon_index）+ IconAtlas 帧数 4→40；W3 `weapons.png` 4 帧→40 帧（15 实绘 + 25 占位）；W5 新建 `day7_weapon_data_check.gd` 探针 + 回归。剩余 18 把归 Day 8-9（下轮拆解）。
-> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）　✅ **Day 7 收口**（`fc2a636`，13/13 CLEAN + 回归五件套全绿）　✅ **Day 8-9 收口**（`d1e72f1`，19/19 CLEAN + 33/33 武器 Lv1-8 + 33 帧实绘图标 + 回归六件套全绿）　✅ **Day 10 收口**（`ca7c0a2`，20/20 CLEAN + 36/36 武器 Lv1-8 + 3 把结果武器 + 3 条进化链 + 进化池 + 爆炸 AOE + 回归七件套全绿）
+> ✅ **Day 1 收口**（`7597d0b`）　✅ **Day 2 收口**（`edd0e9a`，32 断言 0 失败）　✅ **Day 3 收口**（`0dc2ece`，16/16 CLEAN）　✅ **Day 4 收口**（`eb8e2f5`，21/21 CLEAN，BUG-001 F1/F2 一并闭环）　✅ **Day 5 收口**（`5092874`，15/15 CLEAN）　✅ **Day 7 收口**（`fc2a636`，13/13 CLEAN + 回归五件套全绿）　✅ **Day 8-9 收口**（`d1e72f1`，19/19 CLEAN + 33/33 武器 Lv1-8 + 33 帧实绘图标 + 回归六件套全绿）　✅ **Day 10 收口**（`ca7c0a2`，20/20 CLEAN + 36/36 武器 Lv1-8 + 3 把结果武器 + 3 条进化链 + 进化池 + 爆炸 AOE + 回归七件套全绿）　✅ **Day 11-12 收口**（`4bc79df`，22/22 CLEAN + 20 被动 + 6 槽 + 商店闭环 + 回归九件套全绿）
 > 🔴 **Day 4 首段必做 BUG-001 F1/F2**（用户 19:50 反馈「第 2 关后全员静止」、19:53 确认留待下一轮 = 本日首段；已固化为 `D4-T7` / `D4-T8`，见 Day 4 区）
 > ✅ **Day 3 已收口（2026-08-05 19:2x · #3）** —— `day3_skill_check.gd` **16 断言 0 失败（DAY3 SKILL CHECK CLEAN）** + `baseline_check` **BASELINE CLEAN** + `day2_hero_check` 回归 32/0 CLEAN，已 `git commit`（Day3 收口提交）。
 > **19:15 修复记录**（此前 19:10 #1 实测 18 断言 4 失败 → 已全部闭环）：
@@ -1090,12 +1092,116 @@
 - `scripts/ui/level_up_panel.gd`（进化池 + evolution 分支）+ `tools/day10_evolution_check.gd`（新建 ≥15 断言）
 - `docs/TASKS.md`（Day 10 标题 🎯 + T1~T6/EXIT 状态回执）
 
-### Day 11–12 — 20 被动
-- [ ] 4 类被动：攻击/防御/属性/特殊（示例 红宝石 攻击+20%）
-- [ ] 6 被动槽装配逻辑
-- [ ] `baseline_check` 通过
+### Day 11–12 — 20 被动 + 6 被动槽 + 商店体系　✅【已收口 · 2026-08-06 12:4x #3 · `4bc79df`】
 
-### Day 13 — Build 系统集成 + 数值冒烟
+> 📌 **本轮实测基线（#3 勿重复排查，2026-08-06 09:1x 新核）**
+> - **被动槽现状**：`inventory.gd` = `MAX_ITEMS: int = 20`（道具槽 20，非被动 6）；`items` 数组 = 道具+进化核心混存（48 项）；`add_item_from_data/has_item_id/remove_item_id`（D10-T2 已就位）；`get_all_stat_bonuses()`（:107-119）**无任何调用方** → 被动买了不会生效，装配链路为零
+> - **HUD 槽位**：`hud.gd:30-35` `item_slots` 数组 **4 个**（ItemSlot0-3，HUD.tscn:233-310 同）；`_refresh_item_slots()`（:163-173）读 `inventory.items` + `IconAtlas.get_icon("items", icon_index)` → 槽位扩容需 **hud.gd + HUD.tscn 双改**
+> - **图标**：`items.png` = 128×32 **4 帧**（4 个实绘图标：粉/黄/蓝系）；`icon_atlas.gd:14-18` items `frame_count: 4`；48 项 items.json **全部无 `icon_index` 字段**（add_item_from_data 默认 0 → 全显示第 0 帧）
+> - **items.json 48 项**（47 框架遗留 + se_blade_core）：**全部无 `is_passive/slot/category/icon_index` 字段**（0/48）；effects 键大量为**框架旧口径**（melee_damage/ranged_damage/elemental_damage/engineering/knockback/harvesting/xp_gain_percent 等）——player.gd 消费不了，直接当被动会**静默失效**（零报错零生效），必须数据规范化
+> - **可消费键白名单**（player.gd STAT_MAP :50-65 14 键 + apply_stat_modifier :328-362 14 键）：`max_hp/speed_percent/armor/regen/hp_regen/dodge_percent/crit_chance_percent/attack_speed_percent/melee_attack_speed_percent/damage_percent/range_percent/luck/pickup_range/life_steal_percent`；**`crit_damage_percent` 缺映射**（需扩展 STAT_MAP）；**裸 `range` 键是像素口径**（STAT_MAP_EXCLUDED :70，与 range_multiplier 倍率冲突）→ 被动数据禁裸 range，统一 `range_percent`
+> - **商店链路已通一半**：`wave_manager.gd:64,88` 波清 → `GameManager.on_wave_cleared()`（:82-91）→ `shop_opened.emit()` → `shop.gd:_on_shop_opened`（:44）→ `_refresh_shop`（:62-75）**TODO 骨架**（4 个 null 占位卡）；`_purchase_item`（:144-155）**TODO**（只 emit 不买）；Main.tscn 已实例化 Shop（:39）；shop.gd 已接 economy/reroll(10G)/continue
+> - **DataLoader 取数就绪**：`get_all_weapon_ids()`（:220）/ `get_all_item_ids()`（:238）→ 商店商品池无需扩 DataLoader 接口（被动过滤在 shop.gd 或新便捷函数内做）
+> - **武器两套体系**（既有隐患，本日仅最小修）：HUD 槽位读 `inventory.weapons`（hud.gd:150-158），战斗实装读 `weapon_controller.equipped_weapons`；`replace_weapon`（weapon_controller.gd:165-179）**只改 equipped_weapons 不同步 inventory** → 进化后 HUD 显示旧武器；完整统一归 Day 13（Build 集成）
+> - **economy**：`spend_coins/add_coins` 已就位（economy.gd）；金币来源 = 击杀掉落（enemy._drop_rewards）
+> - **升级面板**：属性池（stats.json 10 属性档）+ 武器升级池 + 进化池已齐（level_up_panel.gd:50-92）→ 被动**不进升级选项池**（商店是唯一获取途径，Brotato 范式），零改动
+
+> 🔑 **本日总定案（9 条，防 #3 临场发挥）**
+> | # | 决策 | 依据 |
+> |---|---|---|
+> | 1 | **20 被动 = 从现有 48 项筛选 20 项**（含 3 进化核心必选），不新建条目不臆造；其余 28 项保留数据、不标记 passive、不进商店池 | item.gd 头注释「被动增益道具数据」+ 30DAY_PLAN D11-12「20 被动装备」；现有项即被动池 |
+> | 2 | **被动效果键白名单化**：入选 20 项的 effects **只允许** STAT_MAP 可消费键（15+1：扩展 `crit_damage_percent`）；禁键清单 = 框架旧口径/未实现机制（melee_damage/ranged_damage/elemental_damage/engineering/knockback/harvesting/xp_gain_percent/dodge_heal_*/miss_chance/special_enemies/boss_elite/element_reaction/structure_*/shop_weapon_upgrade/attack_speed_per_different_weapon/reaction_heal/fire_damage/burn_duration/summon_count/裸 range）；**裸 range 像素键 → range_percent（200px 基准换算，附依据可微调）** | 探针可断言「买了必生效」，杜绝静默失效 |
+| 3 | **3 进化核心例外**：effects 可含禁键（机制未实现仅占位登记），核心价值在 `evolution` 字段；se_blade_core 的 `crit_damage_percent:20` 本日生效（扩展映射后） | 核心 = 进化触发材料，商店可购（D10 定案「核心获取途径归商店」） |
+| 4 | **6 被动槽**：`inventory.MAX_ITEMS` 20→**6**（items 数组即被动槽，对齐大纲 6 被动槽）；HUD ItemBar 4→**6** 槽（hud.gd 数组 + HUD.tscn 加 ItemSlot4/5 两节点） | 大纲「被动 6 槽」；现有 MAX_ITEMS=20 是框架遗留 |
+| 5 | **装配链路**：`player.gd` 加 `apply_item_bonuses(item: Resource, remove: bool)`（复用 STAT_MAP 三档 add/percent/ratio；未映射键 `push_warning` 登记防静默丢弃）；**GameManager 监听 `inventory.item_added/item_removed` → 应用/回退**（remove 传负值走同一入口） | inventory 无 player 引用（Main.tscn 平级），GameManager 已持二者引用；反向回退 = 负值同入口最简 |
+| 6 | **商店真实商品**：`_refresh_shop` 从**武器池（33 把，排除 3 把 evolution_result 结果武器）+ 被动池（20 项 is_passive）**随机 4 卡（SHOP_ITEM_COUNT=4）；`_create_card` 显示真数据（图标/名称/价格）；`_purchase_item` = **先 add 成功、后扣费**（槽满/钱不够拒绝） | D10 定案「结果武器 Day 13 武器池排除」；防扣费后入库失败 |
+| 7 | **武器购买双写**：被动 → `inventory.add_item`；武器 → `inventory.add_weapon` + `weapon_controller.equip_weapon`（6 槽满拒 → 扣费回滚）；`replace_weapon` **补一行 sync inventory**（按 meta source_id 匹配替换 inventory.weapons 旧条目）→ 进化后 HUD 显示结果武器 | 两套体系本日仅最小修，完整统一归 Day 13 |
+| 8 | **items.png 4→20 帧** + `icon_atlas.gd` items `frame_count` 4→20；20 帧实绘（含 3 核心特征图标）；新建 `tools/gen_item_icons.py`（仿 gen_weapon_icons.py 范式） | 48 项无 icon_index、4 帧不够 20 被动映射 |
+| 9 | **主观隔离**：商店 UI 手感/被动搭配趣味/价格节奏 → #5 收 PLAYTEST_CHECKLIST，不阻塞出口 | 客观可验 = 数据合法 + 买了生效 + 槽位上限 + 购买闭环 |
+
+#### D11-12-PRE【W2 主责】20 被动清单定案（数据设计，非代码任务）✅【11:1x 实测：20 项已定案落地】
+
+- [x] **从 items.json 48 项中选 20 项**为被动池（四类建议清单，W2 可微调，**3 进化核心必选**）：
+      - 攻击(5)：`coffee`(攻速+8%) / `injection`(伤害+7%,生命-2) / `medal`(5 键小幅) / `glass_cannon`(伤害+25%,护甲-3) / `bone_dice`(伤害+5%,幸运+5)
+      - 防御(5)：`helmet`(护甲+2) / `alien_worm`(生命+3,回血+1) / `jelly`(生命+5) / `mushroom`(回血+3,生命-5) / `guardian_shield`(护甲+4,生命+10,移速-5%)
+      - 属性(5)：`sneakers`(移速+5%) / `insanity`(暴击+5%,闪避-5%) / `potato`(9 键小幅) / `adrenaline_shot`(攻速+15%,移速+10%,生命-10) / `ball_and_chain`(伤害+15%,护甲+3,移速-3% → **去 knockback 5**)
+      - 特殊(5)：`se_flame_core` / `se_mech_core` / `se_blade_core`（进化核心，必选）/ `blood_leech`(吸血+3%,回血+2) / `banner`(攻速+5% + **range 15 → range_percent 8**)
+- [x] 入选 20 项各补 4 字段：`"is_passive": true` + `"slot": "passive"` + `"category"`（`"attack"/"defense"/"stat"/"special"`）+ `"icon_index"`（**0-19 全局唯一**，与 D11-12-T6 帧序一致）
+- [x] 入选 17 常规项 effects **全部落入白名单**（按定案 2/3 规则；`crit_damage_percent` 键可保留——T3 将扩展映射使其生效）
+- [x] 其余 28 项：**不动数据**（保留框架原样，仅不加 passive 标记，商店池自然排除）；3 核心的禁键（elemental_damage/fire_damage/burn_duration/engineering/summon_count 等）保留并在本条目附注释登记「机制未实现占位」
+- **测试点**（11:1x 实测全过）：`python` 校验 20 项 `is_passive==true` ✅、`category` 四类各 ≥4 ✅（5+5+5+5）、`icon_index` 0-19 无重复 ✅、3 核心 id 命中 ✅（se_flame_core/se_mech_core/se_blade_core 均在池内）
+- **回归风险**：`D10-T1` 的 `gen_weapons_day7.py verify` 只查 weapons.json，items.json 字段增补**零回归**；`day10_evolution_check` 断言核心 id/evolution 字段不受影响（新增字段不破坏既有断言）
+
+#### D11-12-T1【W2 主责】items.json 20 被动数据落地 ✅【11:1x 实测：48 项中 20 项四字段齐 + 白名单已落地】
+- [x] 按 D11-12-PRE 清单执行：20 项加 `is_passive/slot/category/icon_index`；17 常规项 effects 白名单化（改键不造数：`range:15` → `range_percent:8` 等换算附一行依据）；3 核心加字段
+- [x] 扩展 `tools/gen_weapons_day7.py`？**不需要**（该工具只管 weapons.json）——如需要可加 `verify_items` 幂等段校验 20 被动（可选，不强制）
+- **测试点**（11:1x 实测全过）：JSON 校验通过 ✅；20 项四字段齐 + 白名单 + 唯一 icon_index ✅（探针数据层段佐证）
+
+#### D11-12-T2【W1 主责】6 被动槽（inventory + HUD） ✅【11:1x 实测：MAX_ITEMS=6 + HUD ItemSlot0-5】
+- [x] `scripts/systems/inventory.gd`：`MAX_ITEMS: int = 20` → `6`（:21，注释改为「最大被动槽（大纲 6 被动槽）」）；`reset()` 同步清空
+- [x] `scripts/ui/hud.gd`：`item_slots` 数组 4→**6**（:30-35，加 `$.../ItemBar/ItemSlot4/5` 两个 @onready）
+- [x] `scenes/HUD.tscn`：ItemBar 追加 `ItemSlot4/ItemSlot5` 两个槽位节点（复制 ItemSlot3 结构：TextureRect + Icon 子节点，同尺寸同风格）
+- **测试点**（11:1x 实测全过）：inventory 第 7 个 `add_item` 返回 false ✅（探针「槽位/第 7 个 add_item_from_data 返回 false」PASS）；HUD `_refresh_item_slots` 遍历 6 槽不越界 ✅（hud.gd ItemSlot0-5 六节点 @onready + HUD.tscn ItemSlot0-5 六节点；探针图标段 stderr 无越界警告）
+
+#### D11-12-T3【W1 主责】被动装配链路（买了必生效） ✅【11:1x 实测：STAT_MAP 扩展 + apply_item_bonuses + main.gd 接线】
+- [x] `scripts/player/player.gd`：
+      - STAT_MAP（:50-65）扩展 `"crit_damage_percent": {"stat": "crit_damage", "mode": "percent"}` ✅（:65 已落地）
+      - 新增 `func apply_item_bonuses(item: Resource, remove: bool = false) -> void`：遍历 `item.stat_bonuses`，`amount = -amount if remove`，按 STAT_MAP 三档应用（**复用 `_apply_stat_dict` 相同写法**，可直接把 `_apply_stat_dict` 改为接收 `source: Dictionary, sign: float = 1.0` 复用，避免复制粘贴）；未映射键 `push_warning("[Player] 被动效果键未实现，仅登记: %s" % key)` 后跳过（不静默）✅（:144 已落地）
+- [x] `scripts/autoload/game_manager.gd`：`_ready` 或 Main 接线——监听 `inventory.item_added.connect(_on_passive_added)` / `item_removed.connect(_on_passive_removed)`；回调里 `player.apply_item_bonuses(item, is_removed)`；**只装配 `slot == "passive"` 或 stat_bonuses 非空的道具**（防核心移除时误装配）
+- [x] 接线点放 `scripts/autoload/main.gd:_ready()`（:41 绑定 GameManager.inventory 之后）——注意 GameManager 是 autoload，信号连接放 Main 更稳（GameManager._ready 早于 Main 场景子节点就绪）✅（main.gd:48-54 连接 + :139-147 回调 `_on_item_added_bonus/_on_item_removed_bonus`）
+- **测试点**（11:1x 实测全过）：`add_item_from_data("coffee")` 后 `player.attack_speed` 由 1.0 → 1.08 ✅；`remove_item_id("coffee")` 后回 1.0 ✅（percent 除法精确还原）；未知键道具 `push_warning` 且不崩 ✅（探针装配段 PASS ×3 + 未映射键注入 PASS）
+
+#### D11-12-T4【W1 主责】商店真实商品 + 购买闭环 ✅【11:1x 实测：shop.gd 真实商品池 + 先 add 后扣费】
+- [x] `scripts/ui/shop.gd`：
+      - `_refresh_shop()`：替代 TODO 骨架——**商品池** = `DataLoader.get_all_weapon_ids()` 过滤掉 evolution_result 结果武器（查 `get_weapon(id).has("evolution_result")`）+ `DataLoader.get_all_item_ids()` 过滤 `is_passive==true`；洗牌随机取 `SHOP_ITEM_COUNT`(4) 个 → 每个 build 成 Resource（武器走 `WeaponController.build_weapon_from_data` 同款字段映射——**shop.gd 内需自建最小 build**（weapon_controller 是 Player 子节点，shop 无引用；建议把 `build_weapon_from_data` 提为 Weapon 静态工厂或 shop 内复制 15 行映射，二选一，防双源优先静态工厂）；被动走 `Item.new()` + `stat_bonuses=effects` + `item_id/icon_index/price`（对齐 `add_item_from_data` :66-80 写法））→ `_create_card(item, i)` 真数据渲染 ✅（shop.gd:69 `_refresh_shop` + :81-93 商品池「33 武器排除 evolution_result + 20 被动」+ :73 `mini(SHOP_ITEM_COUNT, pool.size())`）
+      - `_purchase_item(index)`：**先 add 后扣费**——武器：`inventory.add_weapon(item)` 成功 → `player.get_node("WeaponController").equip_weapon(item)`（equip 失败则 `remove_weapon` 回滚）→ `economy.spend_coins(price)`；被动：`inventory.add_item(item)` 成功 → `spend_coins(price)`；任一失败 `push_warning` 提示（槽满/钱不够）不崩 ✅
+      - `_create_card` 图标分支：`item.get("weapon_type")` 判武器表（现有 :113 逻辑保留）；被动图标 `IconAtlas.get_icon("items", icon_index)` ✅
+- [x] `scripts/weapons/weapon_controller.gd`：`build_weapon_from_data` 若提为静态工厂，同步改造 `equip_from_data`/`replace_weapon` 调用点（保持行为不变）✅
+- **测试点**（11:1x 实测全过）：探针商店段 PASS —— 混合池 53（33 武器排除 3 结果 + 20 被动）✅；shop_items 4 卡非 null ✅；槽满购买拒绝 + coins 不变 ✅；购买被动 inventory+1 + 属性变 + 扣费 ✅；购买武器 equipped_weapons+1 + 扣费 ✅（探针用 `rng.seed = 12345` 固定 + 白盒直构造 shop_items，规避 RNG flaky）
+
+#### D11-12-T5【W1 主责】进化后 HUD 同步（replace_weapon 补 sync） ✅【11:1x 实测：replace_weapon_slot 已落地】
+- [x] `scripts/weapons/weapon_controller.gd` `replace_weapon`（:165-179）：替换成功后补一行——在 `GameManager.inventory.weapons` 中按 `meta source_id` 匹配旧武器（`inventory.weapons[i].get_meta("source_id") == 旧武器 source_id`）原位替换为新武器；inventory 无匹配则跳过（直开 Main.tscn 调试路径不崩）✅（:201 `GameManager.inventory.call("replace_weapon_slot", i, new_weapon)` + :20 `META_SOURCE_ID`）
+- **测试点**（11:1x 实测全过）：进化后 HUD `_refresh_weapon_slots` 读 inventory 显示结果武器图标（帧 33/34/35）✅；`day10_evolution_check` 回归不红 ✅（20/20 CLEAN，replace 新增行不影响既有断言）
+
+#### D11-12-T6【W3 主责 / W1 协作】items.png 4→20 帧 + 图标映射 ✅【11:1x 实测：640×32 20 帧 + icon_atlas 20】
+- [x] 新建 `tools/gen_item_icons.py`（仿 `tools/gen_weapon_icons.py` 范式：PIL 原语 + 216 色 + 透明键 + 放大 4 倍预览）：实绘 **20 帧**（帧 0-19，对应 icon_index 0-19，**帧序与 D11-12-PRE 的 icon_index 分配一致**；含 3 核心特征图标：烈焰红/机械蓝灰/星刃青紫；ART_STYLE v2 32px 图标基准）；生成 `assets/sprites/ui/items.png`（128×32 → **640×32**）✅（git ?? 未跟踪；items.png 实测 640×32）
+- [x] `scripts/utils/icon_atlas.gd`：items `frame_count` 4→**20**（:16）✅
+- [x] 先跑工具 + 放大 4 倍实测整体效果再 commit（沿 gen_weapon_icons 既有纪律）✅（已在途，未 commit）
+- **测试点**（11:1x 实测全过）：`day11_12_passive_check` 断言 items.png 尺寸 640×32 ✅、20 帧非透明 + 透明键 (0,0) ✅、icon_atlas items frame_count==20 ✅（探针图标段 PASS ×3）
+
+#### D11-12-T7【W1 主责】探针 `tools/day11_12_passive_check.gd`（新建） ✅【11:1x 实测：22/22 CLEAN】
+- [x] ≥16 断言，分五段：
+      - **数据层**：items.json 20 项 `is_passive==true`；`slot=="passive"`；`category` ∈ {attack/defense/stat/special} 且四类各 ≥4；`icon_index` 0-19 唯一；17 常规项 effects 键 ⊂ 白名单（15+1 键集）；3 核心 id 命中 `se_flame_core/se_mech_core/se_blade_core` ✅（探针数据层段 PASS 全绿）
+      - **槽位层**：`inventory.MAX_ITEMS == 6`；第 7 个 add_item false；`is_item_slots_full()` 口径 ✅
+      - **装配层**：`add_item_from_data("coffee")` → player.attack_speed 1.0→1.08；`remove_item_id` → 回 1.0；`add_item_from_data("se_blade_core")` → player.crit_damage 2.0→2.4（crit_damage_percent 映射生效）；未知键被动注入 → push_warning 且不崩 ✅
+      - **商店层**：`_refresh_shop` 产出 4 卡非 null；购买被动 → economy 扣费 + inventory+1 + player 属性变；槽满购买 → 失败且 coins 不变；购买武器 → equipped_weapons+1 ✅（**已按 flaky 教训：`rng.seed = 12345` 固定 + 白盒直构造 shop_items**，规避 (33/53)^4≈15% 全武器卡）
+      - **回归锚点**：day10_evolution_check 20/20（不红）✅（11:1x 单独实测 20/20 CLEAN）
+- **测试点**（11:1x 实测全过）：`godot --headless` 跑探针 → **22 项断言 0 失败 `DAY11_12 PASSIVE CHECK CLEAN`** + stderr 无越界警告 ✅（3 个 WARNING 为预期 push_warning 登记：melee_damage/engineering/fire_damage_percent 未映射键，符合定案 3「核心禁键仅占位登记」；末尾资源泄漏为无头探针尾噪音，exit 0）
+
+#### D11-12-EXIT【W5】当日出口 ✅【2026-08-06 12:4x #3 收口：全项闭合】
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN` ✅（11:1x 实测：import + runtime 双阶段 PASS）
+- [x] `tools/day11_12_passive_check.gd` → 全 CLEAN ✅（11:1x 实测：22 项断言 0 失败）
+- [x] 回归九件套：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 —— **12:4x #3 全量复跑全绿**（items.json 增字段 + MAX_ITEMS 6 + replace_weapon 新增行零回归确认）
+- [x] **护栏：`git commit`（阶段 B 被动+商店收口）** —— 提交 `4bc79df`（16 文件 +1564/−60）。**探针 flaky 修复 2 处**：① `day11_12_passive_check.gd` 商店段 `rng.seed` 对 `Array.shuffle()`（全局 RNG）无效 → 白盒直构造 shop_items（武器 2 + 被动 2）；② `day10_evolution_check.gd` 进化段 `_roll_options(8)` 池≈11 抽 8 有 ≈27% 概率抽不中 evolution → 改 count 99 全量池（持核心必现/无核心必不现）。未夹带无关文件（30DAY_PLAN/ART_*/PLAYTEST/PROGRESS/TEST_REPORT/DAY_ROLE_ASSIGNMENTS/LOOP_HEALTH/pindou/pixel_to_pindou/level_up_panel.gd.bak 均未 stage）。
+- ⚠️ 主观项「商店 UI 手感 / 被动搭配趣味 / 价格节奏」→ #5 收 `PLAYTEST_CHECKLIST.md`，不阻塞出口；「被动图标观感 / 商店卡片布局」→ #5 + Day 21-22 美术债；「se_turret_array 炮台常驻机制」仍归 Day 13（W5 不得判失败）
+
+**Day 11-12 收口交付物（预期）**：
+- `data/items.json`（20 被动：4 字段 + 白名单 effects + 3 核心）+ `assets/sprites/ui/items.png`（640×32 20 帧）+ `tools/gen_item_icons.py`（新建）
+- `scripts/systems/inventory.gd`（MAX_ITEMS 6）+ `scripts/player/player.gd`（apply_item_bonuses + STAT_MAP 扩展）+ `scripts/autoload/game_manager.gd` 或 `main.gd`（被动装配接线）
+- `scripts/ui/shop.gd`（真实商品 + 购买闭环）+ `scripts/weapons/weapon_controller.gd`（build 静态工厂化[可选] + replace sync inventory）+ `scripts/utils/icon_atlas.gd`（items 4→20）
+- `scenes/HUD.tscn` + `scripts/ui/hud.gd`（ItemBar 4→6 槽）+ `tools/day11_12_passive_check.gd`（新建 ≥16 断言）
+- `docs/TASKS.md`（Day 11-12 标题 🎯 + T1~T7/EXIT 状态回执）
+
+### Day 13 — Build 系统集成 + 数值冒烟　🎯【下一目标日 · 待 Day 11-12 EXIT 收口后由 #2 函数级拆解】
+
+> 📌 **Day 13 预调研基线（2026-08-06 11:1x · #2 第 12 轮实测，供 #2 下一轮函数级拆解直接复用，勿重复排查）**
+> - **武器两套体系现状**：HUD 槽位读 `inventory.weapons`（hud.gd:150-158），战斗实装读 `weapon_controller.equipped_weapons`；D11-12-T5 已补 `replace_weapon` 单点 sync（:201 `replace_weapon_slot` 按 meta `source_id` 原位替换）→ 新增武器购买双写（D11-12-T4 商店）已通；**完整统一（装备/卸下/替换的统一入口）仍是 Day 13 决策点**
+> - **se_turret_array 炮台常驻/多台机制（D10 遗留）**：`turret.gd` 由 `skill_controller._cast_deploy_turret` 直传 JSON dict（不走 `build_weapon_from_data`）→ 结果武器 se_turret_array 的「常驻/多台」数值成长无装配消费点；Day 13 定案：进化出 se_turret_array 后炮台多台/常驻行为（**W5 不得判失败**）
+> - **商店武器池范围**：D11-12-T4 已实现「33 武器排除 3 把 evolution_result 结果武器」过滤（shop.gd:87 `wdata.has("evolution_result")`）→ Day 13 数值冒烟需验证口径一致（30 把可购 + 20 被动 = 商店池 50）
+> - **10 属性公式**：`stats.json` formulas(15) + `player.gd` STAT_MAP 14 键（:50-65）+ 新增 `crit_damage_percent` = **15 键**；吸血 `life_steal` 命中回血通道在 weapon_controller（D4 定案）；`apply_stat_modifier` 三档（add/percent/ratio）；被动叠加 = 多被动同键**乘法叠加**（percent 除法精确还原，D11-12-T3 已验 coffee 1.0→1.08→回 1.0）
+> - **阶段 B 报告**：`docs/REPORT_PHASE_B.md`（W5 域，仿 `REPORT_PHASE_A.md` 结构）——覆盖：武器数据（36 把 Lv1-8 + 3 把结果武器）、进化 3 链（se_star_flame→se_star_fall / se_auto_turret→se_turret_array / se_star_blade→se_blade_storm）、被动 20 项 + 6 槽 + 商店闭环、数值冒烟结论（10 属性公式 + 叠加边界 + DPS 参照：minigun Lv8≈345 > flamethrower≈250 > hammer≈155 ≈ rocket_launcher≈130）
+> - **探针资产**：`tools/gen_weapons_day7.py verify`（36/36 全量校验）+ `day10_evolution_check.gd`（20/20）+ `day11_12_passive_check.gd`（22/22）可作 Day 13 冒烟探针底座；预期新建 `day13_build_check.gd`
+
 - [ ] 10 属性公式校验（攻击/暴击/吸血/护甲…）
 - [ ] 进化链路、被动叠加边界测试
 - [ ] `baseline_check` 通过；产出阶段 B 报告
