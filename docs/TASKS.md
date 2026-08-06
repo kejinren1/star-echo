@@ -17,6 +17,7 @@
 > ✅ **Day 16 已收口（2026-08-06 20:2x · #3）**：阶段 C 第二节完成 —— 事件节点系统 ① **`EventSelectPanel.tscn`+`event_select_panel.gd`**（暂停式弹窗·长文本 WORD_SMART·选项 A/B 下附奖励/改线小字·game_over 防悬挂）② **GameManager 事件接入**（`_event_rng` 实例种子随机取、`_start_event` 暂停+弹窗、`resolve_event_choice` A 结算 B 改线）③ **奖励 10 型**（`attack_percent→damage`/`max_hp_percent→max_health` 代码层别名、trade 复合双键、item 遗物直装不占槽、weapon_upgrade 走 _event_rng、**level_up 逐级循环升 value 级**——曲线阈值随等级涨，一次性给阈值×value 只升 1 级）④ **改线 5 型**（reroute 策略表：silent_corridor 增量权重重抽 / shattered_path 强制精英；flag 登记；unlock_node 三策略；add_node 层+2；difficulty 登记——深消费归 Day 17/20/25/27）⑤ **`route_generator.reroute_remaining`/`force_node_type`**（增量权重+wave_index 重映射+末层保护+battle 上限回滚）⑥ **resonant_shard 数据补齐**（items.json 48→49，不设 is_passive → 商店池 53/被动 20 零破坏）⑦ **探针 `day16_event_check.gd` 41/41 CLEAN** + **修复 Day14-15 潜伏 bug**（GameManager 4 处面板 tree_exited 回调加身份校验：旧面板销毁误清新面板引用）+ 回归十二件套全绿 + baseline **BASELINE CLEAN**，提交 `748d2b7`。**day14_15 探针同步更新**（event 节点进入真实事件流程：paused 同 sub 同步 resolve 防探针死锁，51→53 断言）。
 > 🎯 **Day 17 已预拆解（2026-08-06 19:1x · #2 第 16 轮）**：Day 14-15 已收口（`fa077e0`）→ 目标日推进 **Day 16（事件节点，已就绪）**，本轮预拆 **Day 17 = 精英战斗**（见 Day 17 区）——W1 精英特殊能力（enemy.gd AOE/自愈/产卵三行为真实实现）+ **BUG-003 mixed 池令牌解析收口**（spawner 支持 `mixed`/`elite:mixed`/`mixed_with_curse`，wave 15/17/19 此前精英+普通敌全部静默不生成）+ difficulty_delta 消费（Day 16 事件登记 → 本日 ±10%/档）+ 精英节点横幅提示 + 探针；W2 6 精英中 3 只补 `ability` 字段（butcher aoe / monk self_heal / mom spawn，数据驱动仿 burn_duration 先例）；W5 回归十一件套。**Boss phases 状态机归 Day 18-19**，W5 不得判失败。
 > ✅ **Day 17 已收口（2026-08-06 22:5x · #3）**：阶段 C 第三节完成 —— 精英战斗
+> ✅ **Day 17-P0 已收口（2026-08-06 23:5x · #3）**：用户拍板四件套（追踪区单一事实源，#2 未拆解 → #3 补做）——**F-01 怪物移速 50%**（get_scaled_enemy ×0.5，冲锋 1062→531）/ **F-02 碰撞穿过**（Enemy layer2·Player mask 不含敌·弹丸 mask2，接触伤害距离判断仍在 = 穿过≠无敌）/ **F-04 金手指**（↑+↓ toggle：跳关 + 攻击×10 + 受伤0.1%，player.debug_mult 双聚合消费）/ **F-15 围杀根因复核**（wave 键修复使真实波次上线 = 围杀三因之首，机器实证）——探针 `day17_p0_check.gd` **20/20 CLEAN** + 回归十四件套全绿 + baseline **BASELINE CLEAN**。**day13 探针 flaky 修复**（商店购买段白盒直构造）同轮完成。提交见本轮收口 commit。
 > ① **精英 ability 数据化**（butcher aoe / monk self_heal / mom spawn 三只，colossus/rhino/croc 缺省零改动）
 > ② **enemy.gd 精英三行为真实实现**（AOE 距离判断禁物理 / 自愈低血周期恢复 / 产卵同波缩放，ability 空零回归）
 > ③ **BUG-003 收口**（mixed/mixed_with_curse→regular 池、elite:mixed→elite 池，wave 15/17/19 全量生成零 null，swarm ×2 语义保持）
@@ -1538,10 +1539,28 @@
 - [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
 - [x] 主观项登记：精英战手感 / 难度体感 / 精英视觉辨识度 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
+### Day 17-P0 — 用户拍板四件套（F-01 / F-02 / F-04 / F-15）　✅【客观任务 100% 完成 · 已收口 · 2026-08-06 23:5x · #3】
+
+> 🚨 **P0 来源（2026-08-06 19:0x 用户拍板 · 单一事实源 = PLAYTEST_CHECKLIST 追踪区）**：真人实测「难度反而更高：怪物移速未削弱 + 冲锋 ×2.5 + 人物无法穿过怪物 = 完全被围杀 + 无测试金手指」→ **F-01 移速50% / F-02 碰撞穿过 / F-04 调试金手指 / F-15 围杀根因复核** 升 P0。
+> ⚠️ #2 第 17 轮（21:1x）未执行「Day 17 首段改排 P0」修正（拆了 Day 18-19 Boss），TASKS 无 P0 痕迹 → **#3 本轮收口 Day 17 精英战斗后补做 P0 四件套**（客观可机器验证项，规格在追踪区已明确），不留到下个工作日。
+
+- [x] **F-01【移速 50%】**：`data_loader.gd get_scaled_enemy` 速度公式 `×0.5`（全敌人含普通/精英/Boss 统一减速；charger 冲刺 1000→500、horned_charger 1062→531，与玩家移速 300 同档）；`enemies.json scaling.speed_formula` 描述同步。
+- [x] **F-02【碰撞穿过】**：Enemy.tscn `collision_layer=2 / collision_mask=2`（敌间互碰、不挡玩家）；Player.tscn `layer=1 / mask=1`（不检测敌人层 → 穿过怪物不围杀）；`projectile.gd _ready` Area2D `collision_mask=2`（弹丸仍命中敌人，武器伤害零破坏）；敌人接触伤害 `_try_contact_damage` 是距离判断（穿过≠无敌）。
+- [x] **F-04【调试金手指】**：GameManager `debug_cheat` + `toggle_debug_cheat()`（↑+↓ 同按 toggle：**跳关**清残敌+下一波 / **攻击×10** player.debug_mult 写 10（weapon_controller + skill_controller 聚合消费，默认 1 零回归）/ **受伤 0.1%** player.take_damage ×0.001）+ 状态横幅（复用精英横幅范式）；main.gd `_process` ↑+↓ 边缘触发检测。
+- [x] **F-15【围杀根因复核】**（机器实证）：`fa077e0` wave 键修复前 waves.json 运行时旁路（全落默认生成波次无冲锋怪）→ 修复后 wave2 charger×5 / wave3 charger×10 / wave5 horned_charger×8 真实上线 + 冲锋 ×2.5 + 移速未削 + 碰撞阻挡 = 围杀三因；本轮 F-01/F-02/F-04 三管齐下缓解。
+- [x] **探针 `tools/day17_p0_check.gd` 20/20 CLEAN**（§1 移速四档 / §2 碰撞层与弹丸 mask / §3 金手指 toggle+攻击聚合+技能聚合+受伤0.1% / §4 接触伤害回归+elite scaling 不受影响）。
+- [x] **护栏**：回归十四件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41 / day17 39 / day17_p0 20）+ baseline **BASELINE CLEAN** + verify 36/36。
+- [x] git commit（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）。
+
+> 📌 **P0 主观项交接**：难度体感（F-01 落地后手感）/ 穿过手感 / 金手指易用性 → PLAYTEST_CHECKLIST（#5 真人回归）；冲锋倍速/出现波次的进一步调参归 #2 设计侧（F-01 已大幅缓解，非阻塞）。
+
+
 ### Day 18–19 — Boss 多阶段（phases 状态机 + attacks 指令映射）　🎯【已预拆解到函数级 · 2026-08-06 21:1x · #2 第 17 轮】
 
 > 🎯 **Day 18-19 已预拆解（2026-08-06 21:1x · #2 第 17 轮）**：Day 16 已收口（`ee7603b`/`748d2b7`）、Day 17 已预拆（精英战斗）→ 预拆 Day 18-19 = **Boss 多阶段战斗**。核心交付 = **Boss phases 状态机（enemy.gd 消费 get_scaled_enemy 已透传的 phases 12 键）+ attacks 字符串指令映射（全量实测）+ 敌人弹幕独立弹丸 + GameManager Boss 接入**。数据层**零改动**（enemies.json boss[2] 的 phases/attacks/exp_value 已完备）——W2 仅只读核验；本日全代码日（W1 五连 + W5 回归）。**大纲「腐化巨树（藤蔓限制移动/全屏毒雨）」vs 数据实际 Boss（invoker 召唤者 wave10 / predator 掠食者 wave20）不一致 → 以数据为准登记差异**；「森林区域解锁」最小落地 = boss_killed 登记 + 胜利文案，深消费（区域系统/局外档案）归 Day 27。
 
+> 🔴 **P0 首段指令（2026-08-06 22:5x · #1 第 19 轮回写）**：Owner 拍板「下个工作日暂停其他工作，优先处理 P0」（PLAYTEST 追踪区 19:0x 指令 + 22:2x 增量 #20 确认「P0 未落入 TASKS」）——**#3 已于 Day 17 收口（`2abba3c`）后在途落地 F-01（移速 ×0.5）/ F-02（碰撞层分离）/ F-04（金手指），工作区未提交**。**本日首段 = F 系列收口**：① commit F-01/F-02/F-04（6 文件：enemies.json / data_loader.gd / Enemy.tscn / Player.tscn / projectile.gd / game_manager.gd）+ 验证 baseline；② **F-15 冲锋平衡复核**（enemy.gd `_move_charge` ×2.5 仍在（:305），F-01 全局 ×0.5 后冲速 425×2.5×0.5≈531 仍偏高，建议 #2 平衡拆解 + #3 微调至合理值）；③ 真人回归。**随后再实施 Boss 多阶段 T1~T5**。F 系列 commit 勿夹带 docs/pindou（R10 一并入库即可）。
+>
 > 📌 **Day 18-19 实测基线（#2 第 17 轮新核，供 #3 免排查）**
 > - **enemies.json boss[2]**：`invoker` 召唤者（wave10，hp 8000 / dmg 15 / speed 200 / exp 400）= **2 阶段**——P1(100%) `summon_2_enemies_every_5s`+`3_projectile_spread`·speed×1.0；P2(60%) `summon_4_enemies_every_2.5s`+`6_projectile_spread`·speed×1.2。`predator` 掠食者（wave20，hp 15000 / dmg 20 / speed 300 / exp 500）= **3 阶段**——P1(100%) `charge_attack`+`aoe_every_8s`·speed×1.0；P2(66%) `charge_attack_2x`+`summon_1_elite`+`projectile_barrage`·speed×1.0；P3(33%) `all_attacks_2x`+`summon_2_elite`·speed×1.3
 > - **⚠️ 大纲 vs 数据差异（登记，不臆造）**：30DAY_PLAN D18-19「腐化巨树 阶段1 召唤藤蔓限制移动 / 阶段2 全屏毒雨；奖励解锁森林区域」——enemies.json 实际 Boss = invoker/predator（非腐化巨树），phases/attacks 指令清单里**无藤蔓/毒雨指令** → 以数据为准（希亚先例：数据先行、大纲为方向）；「森林区域」当前无区域系统（1 地图 1 路线，局外养成归 Day 27）→ 本日仅 `boss_killed`/`boss_defeated` 登记，深消费归 Day 27

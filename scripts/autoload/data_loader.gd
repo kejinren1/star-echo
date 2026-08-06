@@ -188,6 +188,9 @@ func get_scaled_enemy(enemy_id: String, wave: int) -> Dictionary:
 	var final_damage := base_damage + damage_growth * wave
 	# 速度公式: base * (1 + min(wave * 0.01, 0.2))
 	var final_speed: float = base_speed * (1.0 + min(wave * 0.01, 0.2))
+	# F-01（用户拍板 2026-08-06 · P0）：怪物移速降至 50% —— 围杀体验修复
+	# （真人反馈「怪物移速没有削弱」；全敌人含普通/精英/Boss 统一减速）
+	final_speed *= 0.5
 
 	# 精英乘数
 	if category == "elite":

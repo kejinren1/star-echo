@@ -41,6 +41,9 @@ var _exploded: bool = false                   ## 防重复爆炸（命中 / 寿�
 # ========== 生命周期 ==========
 
 func _ready() -> void:
+	# F-02（用户拍板 2026-08-06 · P0）：敌人移入 collision_layer 2（玩家层 1 不检测敌人层 →
+	# 人物穿过怪物不围杀）；弹丸 Area2D mask 须指向敌人层 2 才能收到 body_entered
+	collision_mask = 2
 	# 运行时生成子弹精灵（初版不依赖外部美术资源）
 	var sprite := Sprite2D.new()
 	sprite.texture = _make_bullet_texture()

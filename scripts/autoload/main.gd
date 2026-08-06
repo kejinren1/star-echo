@@ -26,8 +26,18 @@ const FALLBACK_CHARACTER_ID: String = "well_rounded"
 # ========== 状态 ==========
 
 var current_character_id: String = ""    ## 本局英雄 id
+## F-04（金手指）：↑+↓ 同按边缘触发检测（上一帧状态防按住连发）
+var _debug_keys_prev: bool = false
 
 # ========== 生命周期 ==========
+
+func _process(_delta: float) -> void:
+	# F-04（用户拍板 2026-08-06 · P0）：↑+↓ 同按 → 金手指 toggle
+	# （跳关 + 攻击×10 + 受伤0.1%；边缘触发，按住不连发）
+	var both: bool = Input.is_action_pressed("move_up") and Input.is_action_pressed("move_down")
+	if both and not _debug_keys_prev:
+		GameManager.toggle_debug_cheat()
+	_debug_keys_prev = both
 
 func _ready() -> void:
 	# 装载本局英雄（须在子系统绑定前完成，保证属性/武器在开局即生效）

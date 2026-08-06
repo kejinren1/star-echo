@@ -100,6 +100,9 @@ func _cast_fireball() -> void:
 	var dmg: float = base_damage
 	if player and "damage_multiplier" in player:
 		dmg *= player.damage_multiplier
+	# F-04（金手指）：debug_mult 攻击倍率（默认 1.0 零回归）
+	if player and "debug_mult" in player:
+		dmg *= float(player.debug_mult)
 
 	var container: Node2D = _find_container()
 	if container == null:

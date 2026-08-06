@@ -28,6 +28,9 @@ signal xp_changed(current: float, need: float)  ## 经验变化（D4-T1：HUD �
 @export var range_multiplier: float = 1.0    ## 攻击范围倍率
 @export var pickup_range: float = 80.0       ## 拾取范围
 @export var life_steal: float = 0.0          ## 吸血：命中伤害回血比例 (0~1)（D4-T3）
+## F-04（用户拍板 2026-08-06 · P0）：金手指攻击倍率（toggle_debug_cheat 写入；
+## 默认 1.0 零回归；weapon_controller/skill_controller 聚合消费）
+var debug_mult: float = 1.0
 
 @export_group("经济属性")
 @export var coin_bonus: float = 0.0          ## 金币加成 (0~1)
@@ -285,6 +288,9 @@ func take_damage(amount: float) -> void:
 
 	# 护甲减伤
 	var actual_damage: float = max(amount - armor, 1.0)
+	# F-04（金手指）：受伤 0.1%（≈无敌，试玩效率工具；关闭时恒 1 零回归）
+	if GameManager and GameManager.debug_cheat:
+		actual_damage *= 0.001
 	health -= actual_damage
 	health_changed.emit(health, max_health)
 	took_damage.emit(actual_damage)

@@ -338,7 +338,7 @@
   "scaling": {
     "hp_formula": "base_hp + hp_growth * wave",
     "damage_formula": "base_damage + damage_growth * wave",
-    "speed_formula": "base_speed * (1 + min(wave * 0.01, 0.2))",
+    "speed_formula": "base_speed * (1 + min(wave * 0.01, 0.2)) * 0.5  # F-01(2026-08-06 用户拍板): 怪物移速降至50%",
     "elite_hp_multiplier": "1 + wave * 0.15",
     "elite_damage_multiplier": "1 + wave * 0.08"
   }

@@ -43,6 +43,9 @@ var is_boss_wave: bool = false     ## 当前是否为 Boss 波
 var current_character_id: String = ""      ## 本局英雄 id（Main._ready 写入，供 Day 3 主动技能系统读取）
 ## Day 17 · D17-T4：难度档（Day 16 事件 difficulty 型登记 → 战斗节点入口消费 ±10%/档）
 var difficulty_delta: int = 0
+## F-04（用户拍板 2026-08-06 · P0）：调试金手指开关（↑+↓ toggle）
+## 开启 = 跳关 + 攻击力 ×10 + 受伤 0.1%（约等于无敌），关闭 = 全还原零残留
+var debug_cheat: bool = false
 
 # D14-15-T3：路线模式状态（route 空 = 旧波次制；非空 = 随机节点地图模式）
 var route: Dictionary = {}                 ## 本局路线（{seed, layers, modifiers, flags}）
@@ -225,6 +228,42 @@ func _show_elite_banner() -> void:
 	banner.add_child(label)
 	container.add_child(banner)
 	banner.global_position = Vector2(320.0, 90.0)
+	var tween := banner.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "modulate:a", 0.0, 1.5)
+	tween.tween_property(banner, "global_position:y", banner.global_position.y - 30.0, 1.5)
+	tween.chain().tween_callback(banner.queue_free)
+
+# ========== 调试金手指（F-04 · 用户拍板 2026-08-06） ==========
+## ↑+↓ 同按 → toggle：跳关 + 攻击 ×10 + 受伤 0.1%。机器可验证（探针白盒直调）。
+## 攻击倍率走 player.debug_mult（weapon_controller/skill_controller 聚合消费）；
+## 受伤 0.1% 走 player.take_damage 消费。关闭全还原（debug_mult 1.0 / 无残留状态）。
+func toggle_debug_cheat() -> void:
+	debug_cheat = not debug_cheat
+	if player and "debug_mult" in player:
+		player.debug_mult = 10.0 if debug_cheat else 1.0
+	if debug_cheat:
+		# 跳关：清残敌 + 直接进入下一波（金手指核心：跳过当前关快速推进）
+		_clear_remaining_enemies()
+		_start_next_wave(current_wave + 1)
+	_show_debug_banner()
+
+## 金手指状态横幅（1.5s 淡出，复用精英横幅范式；容器缺失静默跳过）
+func _show_debug_banner() -> void:
+	var container: Node = vfx_container if vfx_container else null
+	if container == null:
+		container = get_tree().current_scene
+	if container == null:
+		return
+	var banner := Node2D.new()
+	banner.name = "DebugBanner"
+	var label := Label.new()
+	label.text = "🛠 金手指 %s（攻击×10 · 受伤0.1%%）" % ("ON" if debug_cheat else "OFF")
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_color", Color(0.6, 0.95, 0.6))
+	banner.add_child(label)
+	container.add_child(banner)
+	banner.global_position = Vector2(320.0, 130.0)
 	var tween := banner.create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(label, "modulate:a", 0.0, 1.5)

@@ -294,6 +294,9 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 	var dmg: float = weapon.base_damage
 	if owner_node and "damage_multiplier" in owner_node:
 		dmg *= owner_node.damage_multiplier
+	# F-04（金手指）：debug_mult 攻击倍率（默认 1.0 零回归；toggle_debug_cheat 置 10）
+	if owner_node and "debug_mult" in owner_node:
+		dmg *= float(owner_node.debug_mult)
 	# D13-T1：聚合暴击通道 —— 玩家属性为权威，武器 crit_chance 平加（clamp 0~0.9），
 	# crit_mult 取玩家 crit_damage（weapon.crit_damage 字段保留登记、结算不叠加）
 	var crit_chance: float = 0.0
