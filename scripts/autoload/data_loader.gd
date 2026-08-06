@@ -17,6 +17,7 @@ var _element_reactions: Array = []      ## 元素反应列表
 var _stats: Dictionary = {}             ## 属性定义
 var _formulas: Dictionary = {}          ## 公式定义
 var _leveling: Dictionary = {}          ## 升级定义
+var _routes: Dictionary = {}            ## 随机节点路线参数（routes.json）
 
 var _loaded: bool = false               ## 是否已加载
 
@@ -38,6 +39,7 @@ func load_all() -> void:
 	_load_waves()
 	_load_elements()
 	_load_stats()
+	_load_routes()
 	_loaded = true
 
 ## 加载敌人数据
@@ -88,12 +90,14 @@ func _load_characters() -> void:
 		_characters[char["id"]] = char
 
 ## 加载波次数据
+## 注：Godot 4.3 JSON.parse 把数字全部解析为 float（typeof=3）——wave 号键必须
+## 显式转 int，否则 get_wave(int) 永远命中空（waves.json 运行时被旁路，2026-08-06 实测发现）
 func _load_waves() -> void:
 	var data = _load_json("res://data/waves.json")
 	if not data:
 		return
 	for wave in data.get("waves", []):
-		_waves[wave["wave"]] = wave
+		_waves[int(wave["wave"])] = wave
 	_wave_generation = data.get("generation", {})
 	_wave_rewards = data.get("rewards", {})
 
@@ -117,6 +121,12 @@ func _load_stats() -> void:
 			_stats[stat["id"]] = stat
 	_formulas = data.get("formulas", {})
 	_leveling = data.get("leveling", {})
+
+## 加载路线参数（routes.json；缺失返回空字典 → 生成器走默认参数）
+func _load_routes() -> void:
+	var data = _load_json("res://data/routes.json")
+	if data:
+		_routes = data
 
 # ========== JSON 工具 ==========
 
@@ -316,3 +326,9 @@ func get_formulas() -> Dictionary:
 ## 获取升级定义
 func get_leveling() -> Dictionary:
 	return _leveling
+
+# ========== 路线接口（Day 14-15 · D14-15-T3） ==========
+
+## 获取随机节点路线参数（空字典 = 未定义 → 生成器走默认参数）
+func get_routes() -> Dictionary:
+	return _routes

@@ -10,7 +10,10 @@
 > ✅ **Day 8-9 已收口（2026-08-06 05:3x · #3）**：阶段 B 续段完成 —— 18 把全量武器补 `levels` 8 条 + `max_level=8`（D8-T1：`gen_weapons_day7.py` LEVELS +18 把 + verify 抽查扩展到 6 把 + force_field damage 恒 0 特例校验 + 顶层未动原则）+ 18 帧占位图标实绘替换（D8-T2：`gen_weapon_icons.py` +18 函数 + 新增 PURPLE/SHIELD 色 + 透明键 + 帧 33-39 空余保留）+ `day8_weapon_data_check.gd` 探针 **19/19 CLEAN**（JSON 全量 / 特例 / 装配 / 图标 / 回归 五段）+ 回归六件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13）+ baseline **BASELINE CLEAN** + `gen_weapons_day7.py verify` → **33/33 levels + icon_index CLEAN**。30DAY_PLAN D7-D9「15 武器数据 + 精灵」至此**全量完成（33/33 把 Lv1-8 + 33 帧实绘图标）**。
 > ✅ **Day 11–12 已收口（2026-08-06 12:4x · #3）**：阶段 B 被动+商店完成 —— 20 被动四字段（48 项筛 20 · 四类 5+5+5+5 · icon_index 0-19 唯一 · 3 核心命中）+ 6 被动槽（MAX_ITEMS 6 + HUD ItemSlot0-5）+ 装配链路（STAT_MAP 扩展 crit_damage_percent + apply_item_bonuses + main.gd 信号接线）+ 商店真实商品（33 武器排除 3 结果 + 20 被动 · 4 卡 · 先 add 后扣费）+ replace_weapon sync inventory（replace_weapon_slot 按 meta source_id）+ items.png 640×32 20 帧 + icon_atlas 20 → **回归九件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22）+ baseline BASELINE CLEAN**，提交 `4bc79df`。探针 flaky 修复 2 处（day11_12 商店段白盒直构造 + day10 evolution 全量池 count 99）。拆解细节见 Day 11-12 区。
 > ✅ **Day 13 已收口（2026-08-06 14:5x · #3）**：阶段 B 收口完成 —— ① **暴击结算点补全**（D13-T1：projectile crit_chance/crit_mult + 命中/AOE 同口径 `_roll_crit`；weapon_controller 聚合透传 clamp 0~0.9）② **武器两套体系统一**（D13-T2：`sync_inventory_weapons()` 全量重建 inventory 权威源 + 进局/装卸补调，HUD 显示起始武器）③ **炮台常驻/多台**（D13-T3：装备 se_turret_array → duration=-1 + 台数+2，turret permanent 模式）④ **BUG-002 修复**（D13-T6：`_build_shop_pool` 返回资源实例，真实商店 4 卡零 ERROR）⑤ **攻速消费点收口**（player.attack_speed → weapon_controller 冷却递减倍率，升级/被动/buff 生效）⑥ **数值冒烟探针** `day13_build_check.gd` **36/36 CLEAN**（真实商店/10 属性/暴击/进化池/叠加边界/两套统一/炮台）+ 回归十件套全绿 + baseline **BASELINE CLEAN** + `REPORT_PHASE_B.md` 产出。提交见本轮收口 commit。**R4 攻击力口径标 [!] 交 Owner 拍板**。
-> 🎯 **Day 14-15 待拆解**（阶段 C 首段：随机节点地图）—— #2 下一轮拆解后 #3 执行。
+> 🎯 **Day 14-15 已拆解（2026-08-06 15:1x · #2 第 14 轮）**：阶段 C 首段 = **随机节点地图（层式分支拓扑 + 种子可复现 + 路线选择）**（见 Day 14-15 区）——W1 新建 `scripts/systems/route_generator.gd`（RNG 实例种子，禁全局 RNG 洗牌）+ GameManager 路线模式（`route` 空=旧波次制，回归零破坏）+ 新建 `scenes/RouteSelectPanel.tscn` 路线选择面板；W2 新建 `data/routes.json`（层数/每层节点数/类型权重/默认种子）；W5 新建 `tools/day14_15_route_check.gd` 探针 + 回归十件套（day6 探针注入 `route_enabled=false` 同步更新 1-2 行）。**事件/精英/Boss 节点本日仅「生成 + 波次映射」，交互逻辑归 Day 16/17/18-19**，W5 不得判失败。
+> ✅ **Day 14-15 已收口（2026-08-06 17:5x · #3）**：阶段 C 首段完成 —— 随机节点地图（层式分支拓扑 + 种子可复现 + 路线选择）① **`route_generator.gd`**（RandomNumberGenerator 实例种子、`_weighted_pick` 区间采样禁全局 RNG、elite 低层禁抽、首层保 battle、battle_count≤19 硬校验、modifiers.reroute 事件改写预留）② **`data/routes.json`**（5 层 × 3 节点 · 默认种子 20260806 · weights 0.5/0.2/0.15/0.15）③ **GameManager 路线模式**（GameState+ROUTE_SELECT、route 空=旧波次制回归零破坏、`_start_next_wave(wave_number=-1)` 指定波次、on_wave_cleared 首行保留清残敌、close_shop 路线推进、start_game 默认路线模式）④ **`RouteSelectPanel.tscn`+`route_select_panel.gd`**（动态按钮=层节点数、类型色块、不暂停、game_over 自释放）⑤ **DataLoader 潜伏 bug 修复**：Godot 4.3 `JSON.parse` 全数字 float → `_waves` 键显式 `int(wave["wave"])`（此前 `get_wave(int)` 永远空、waves.json 运行时被旁路，波次全落默认生成）⑥ **探针 `day14_15_route_check.gd` 51/51 CLEAN**（种子/拓扑/数据/波次/兼容/端到端六段）+ 回归十一件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 51）+ baseline **BASELINE CLEAN** + verify 36/36。**事件/精英/Boss 交互归 Day 16/17/18-19**（占位推进 + push_warning）。
+> ✅ **Day 14-15 EXIT 收口确认（2026-08-06 17:5x · #3）**：#2 第 15 轮实测的「实现 100% 落地」清单逐条复核一致 —— day14_15 探针 51/51、回归 11/11、baseline CLEAN、commit 已落（见下方收口行）。**T1~T5 + EXIT 全部 [x]，Day 14-15 标题 ✅ 收口**。下一目标日 = **Day 16 事件节点**（#2 已预拆解，见 Day 16 区）。
+> 🎯 **Day 16 已预拆解（2026-08-06 17:1x · #2 第 15 轮）**：阶段 C 第二节 = **事件节点系统（弹窗 UI + 选项分支 + 奖励结算 + 改线）**（见 Day 16 区）——W1 新建 `EventSelectPanel.tscn` + `event_select_panel.gd`（仿 LevelUpPanel **暂停式**弹窗 + 长文本）+ GameManager 事件接入（`_enter_node(event)` 占位→真实流程 + `resolve_event_choice` + `_apply_event_reward` 10 型分派 + `_apply_route_effect` 5 型改线）+ `route_generator.gd` 扩展 `reroute_remaining`/`force_node_type` 改线静态方法；W2 补 `resonant_shard` 遗物数据（events.json `crystal_vein` 选 A 的 item 奖励实测**悬空**）+ 回归同步（day11_12 总项数断言 48→49）；W5 新建 `tools/day16_event_check.gd` 探针 + 回归十一件套（+day14_15）。**reroute/flag/difficulty 深消费（商店折扣/Boss 护盾/强度档）标注归 Day 17/20/25**，W5 不得判失败。
 > 🎯 **Day 11–12 已拆解（2026-08-06 09:1x · #2 第 11 轮）**：阶段 B 被动+商店 = **20 被动数据（四类）+ 6 被动槽 + 商店真实商品闭环 + 图标扩容**（见 Day 11-12 区）——W2 从现有 48 项筛 20 项为被动池（3 进化核心必选 + 四类划分 + effects 白名单化 + is_passive/slot/category/icon_index 四字段）；W1 6 被动槽（inventory MAX_ITEMS 20→6 + HUD ItemBar 4→6）+ 被动装配链路（player.apply_item_bonuses + GameManager 监听 inventory 信号）+ 商店真实商品购买（武器 33 池 + 被动 20 池随机 4 卡）+ replace_weapon 补 sync inventory；W3 items.png 4→20 帧实绘（gen_item_icons.py 新建）；W5 探针 + 回归八件套。**关键定案：被动只从商店获取（不进升级池）；裸 range 像素键统一 range_percent（200px 基准）；3 核心 effects 禁键仅占位登记不判失败；武器两套完整统一归 Day 13**。
 > ✅ **Day 10 已收口（2026-08-06 07:3x · #3）**：阶段 B 进化机制完成 —— 3 把结果武器数据（se_star_fall 炎星陨落 / se_turret_array 机械炮阵 / se_blade_storm 星刃风暴，elemental/engineering/melee，tier 4，evolution_result + 平曲线 levels 8 条 + icon_index 33/34/35）+ items.json +se_blade_core 补齐星刃进化链（D10-PRE 定案）+ weapon.gd +explosion_radius/explosion_damage + weapon_controller.gd +replace_weapon（find→build→升满→原子替换→_sync 一次）+ level_up_panel.gd 进化池 + evolution 分支（先替换成功、后消耗核心）+ weapons.png 帧 33/34/35 实绘 + icon_index 0-32→0-35 + 探针 `day10_evolution_check.gd` 20/20 CLEAN + 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）+ baseline **BASELINE CLEAN** + `gen_weapons_day7 verify` 36/36 CLEAN，提交 `ca7c0a2`。
 > 🎯 **Day 8–9 已拆解（2026-08-06 05:1x · #2 第 9 轮）**：阶段 B 续段 = **18 把全量武器 levels + 18 帧图标实绘 + 全量数据回归**（见 Day 8-9 区）——W2 给 18 把通用武器补 `levels` 8 条 + `max_level:8`（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field，扩展 `gen_weapons_day7.py` LEVELS 表幂等 apply）；W3 18 帧占位图标逐帧替换实绘（扩展 `gen_weapon_icons.py`，含 force_field 护盾 / minigun 多管等特征）；W1 新建 `day8_weapon_data_check.gd` 探针（≥13 断言含 force_field damage 恒 0 特例）；W5 回归六件套。**纯数据 + 图标 + 探针日，零装配代码改动**（D7-T2 已铺路）。
@@ -1270,16 +1273,184 @@
 
 ## 阶段 C · 肉鸽系统（Day 14–20）
 
-### Day 14–15 — 随机节点地图
-- [ ] 节点拓扑：战斗 / 事件 / 精英 / 商店 / Boss
-- [ ] 种子可复现随机生成
-- [ ] `baseline_check` 通过
+### Day 14–15 — 随机节点地图　✅【客观任务 100% 完成 · 已收口 · 2026-08-06 17:5x · #3】
 
-### Day 16 — 事件节点　【数据侧已由 08-04 并发冲刺预交付】
-- [x] 文本选择事件 ×10（描述 + 选择A 奖励 + 选择B 改线）—— w4 已落盘（f78e29e），实测 `events.json` = `{events:[10]}`
-- [x] 事件数据填 `data/events.json` —— JSON 校验通过，`effect_on_route` 负值为设计内代价（`TEST_REPORT` §5）
-- [ ] **W1 剩余**：事件节点**代码逻辑**（弹窗 UI / 选项分支 / 奖励结算 / 改线）—— `scripts/` 全域尚无事件节点消费方
-- [ ] `baseline_check` 通过
+> ✅ **Day 14-15 已拆解（2026-08-06 15:1x · #2 第 14 轮）**：Day 13 已收口（`a082457`）→ 目标日推进 **Day 14-15 = 随机节点地图（阶段 C 首段）**。核心交付 = **层式分支拓扑 + 种子可复现 + 玩家路线选择**（明日方舟集成战略式：每层 3 节点选 1 前进，末层 Boss）——W1 新建 `route_generator.gd`（RNG 实例种子，**禁全局 RNG 洗牌**）+ GameManager 路线模式（`route` 空 = 旧波次制，回归零破坏）+ 新建 RouteSelectPanel 选择面板；W2 新建 `data/routes.json` 拓扑参数；W5 探针 `day14_15_route_check.gd` + 回归十件套。**事件/精英/Boss 节点本日仅「生成 + 波次映射」，交互逻辑归 Day 16/17/18-19**，W5 不得判失败。
+
+> 📌 **Day 14-15 实测基线（#2 第 14 轮新核，供 #3 免排查）**
+> - **scripts/ 全域零 route/map/node/seed 引用**（grep route|node_map|RandomNumberGenerator|seed 全空）→ 随机节点地图全新实现；Main.tscn 无 Map/Route 节点
+> - **波次引擎现状**：GameManager BATTLE→SHOP→BATTLE 循环（`start_game`→`_start_next_wave`→`on_wave_cleared` 每波必进商店→`close_shop`→下一波）；`_start_next_wave`（game_manager.gd:64-79）**`current_wave += 1` 累加**；is_boss_wave 靠检测 composition 中 `boss:` 前缀（wave 10/20）
+> - **waves.json 20 波**：wave 6-19 天然含 `elite:` 前缀敌人（elite:butcher/monk/rhino/croc/colossus）；wave 10=boss:invoker、wave 20=boss:predator（final_boss_wave）→ **战斗/精英节点按「战斗序号」映射 wave n 即天然含精英，零数据改动**
+> - **events.json 10 事件 effect_on_route 5 种类型**（reroute 改类型比例 / unlock_node 跳层 / add_node 加节点 / difficulty 层难度 / flag 全局标记）→ **路线拓扑必须为事件改写预留接口**（modifiers/flags 通道），消费归 Day 16
+> - **UI 范式**：LevelUpPanel/ShopPanel = CanvasLayer + NinePatchRect + Button（level_up_panel.gd / shop.gd 参照）；升级面板 process_mode=WHEN_PAUSED；**商店期不暂停**（spawner 非 BATTLE 状态自动停）→ 路线选择面板同款（不暂停）
+> - **回归锚点依赖**：day4_level_check 断言 10 直接 `call("on_wave_cleared")` 断言**清残敌**（`_clear_remaining_enemies()` 必须保留在 on_wave_cleared 首行）；day6_integration_check 端到端直接进局打怪 → **路线模式下注入 `route_enabled=false` 走波次模式**（1-2 行同步更新，其余断言不动）
+> - **探针坑（沿用）**：`Array.shuffle()/pick_random()` 走**全局 RNG**，种子不可控 → RouteGenerator 一律用 `RandomNumberGenerator` 实例的 `randf()/randi_range()`，自实现 `_weighted_pick`；探针固定 seed 断言
+> - **数据接口**：DataLoader `get_wave(n)`(:263)/`get_max_waves()`(:267)/`get_enemy_ids_by_category`(:202) 已备，零扩接口（routes 读取接口在 T3 补 3 行）
+
+#### D14-15-PRE【W1+W2】随机节点地图定案表
+| # | 决策 | 依据 |
+|---|---|---|
+| 1 | **节点类型 5 类**：`battle` / `event` / `elite` / `shop` / `boss`（类型池常量） | 30DAY_PLAN D14-15「战斗/事件/精英/商店/Boss 拓扑」 |
+| 2 | **拓扑 = 层式分支**（集成战略式）：L 层（`routes.json.layers`，默认 5）每层 3 节点（`nodes_per_layer`）；**末层 = 1 boss 节点**；层间全连通（层 L 选 1 节点 → 完成后进入层 L+1 选择） | 大纲核心操作「路线选择（玩家控制）」；events.json reroute/unlock_node 以分支为前置 |
+| 3 | **种子可复现**：`route_generator.gd` 用 `RandomNumberGenerator` 实例（`rng.seed = seed`）；同 seed → 逐层逐节点类型完全一致；`seed < 0` → `rng.randomize()` 并回传实际 seed | 30DAY_PLAN「种子可复现」；探针坑：禁 Array.shuffle（全局 RNG） |
+| 4 | **数据驱动**：`data/routes.json`（W2 新建）`{layers, nodes_per_layer, default_seed, weights:{battle,event,elite,shop}, constraints}`；weights 归一化（和≈1.0） | 项目数据驱动铁律；仿 waves.json 参数表 |
+| 5 | **事件改写预留**：generate() 返回 `{seed, layers, modifiers:{}, flags:{}}`；`_weighted_pick` 读 `modifiers.reroute`（类型权重覆盖）——**本日仅预留接口，消费归 Day 16** | events.json effect_on_route 5 型实测 |
+| 6 | **节点→波次映射**：战斗类（battle/elite）按**战斗序号 n** 映射 `wave n`（waves.json 6-19 天然含 elite → elite 节点即取对应波）；boss 固定 wave 20；shop/event 无战斗（wave_index=0）；**硬约束：战斗类节点数 ≤ 19**（生成器尾部校验） | waves.json 全量实测（wave 10/20 = boss） |
+| 7 | **模式兼容（回归零破坏）**：GameManager 增 `route`（空=波次模式 / 非空=路线模式）+ `route_enabled`；**start_game 默认路线模式**；注入空 route / `route_enabled=false` → 完全旧行为（每波后商店）→ day6 探针注入 1 行恢复 | 阶段 C 新体验默认开启；回归十件套保护 |
+| 8 | **GameState 扩展**：枚举增 `ROUTE_SELECT`；状态流 = start_game → ROUTE_SELECT(层1) → 选节点 → BATTLE/SHOP → 节点完 → ROUTE_SELECT(层2) → … → 末层 boss 清 → GAME_OVER(victory)；**`_clear_remaining_enemies()` 保留在 on_wave_cleared 首行** | day4 断言 10 依赖；现有 20 波循环自然收口 |
+| 9 | **占位边界（后续日收口，W5 不得判失败）**：event 节点 = 进入时占位推进 + `push_warning("[Route] 事件节点交互归 Day 16")`（交互逻辑 Day 16）；elite 强化 = Day 17；Boss 两阶段 = Day 18-19；遗物 = Day 20；节点图标美术 = Day 21-23（本日类型色块/文本） | 30DAY_PLAN D16/17/18-19/20；主观项 → PLAYTEST |
+
+#### D14-15-T1【W1】新建 `scripts/systems/route_generator.gd`（核心 · 种子可复现路线生成）
+- [x] 生成器：`static func generate(seed: int = -1) -> Dictionary` —— 内部 `var rng := RandomNumberGenerator.new()`；`seed >= 0 → rng.seed = seed`，否则 `rng.randomize()` 并记录 `rng.seed` 回传；返回 `{ "seed": int, "layers": Array, "modifiers": {}, "flags": {} }`
+- [x] 层结构：`layers = [[{type, wave_index} × nodes_per_layer] × layers]`；末层 = `[{type:"boss", wave_index:20}]`；中间层逐节点 `_weighted_pick`（**禁 Array.shuffle**）
+- [x] `_weighted_pick(rng, weights) -> String`：`rng.randf() * total` 落入权重区间（battle/event/elite/shop）；**elite 在低层（当前战斗序号 < 6）禁抽**（无精英波映射，wave≥6 才可抽）
+- [x] 战斗序号分配：遍历中间层节点，`type ∈ {battle, elite}` → `wave_index = ++battle_count`（elite 同口径，waves.json 6-19 含 elite）；shop/event → `wave_index = 0`
+- [x] 首层保证：生成后检查首层含 `battle`，否则首层第 1 节点强制 `{type:"battle", wave_index:1}`（防进局无事可做）
+- [x] 硬校验：`battle_count <= 19`（boss 占 wave 20）；违规 `push_error` 返回空字典
+- [x] 只读依赖：映射波次经 `DataLoader.get_wave(n)` 校验存在，不存在则回退上一可用波
+- [x] **测试点**：同 seed 两次 generate → 逐层逐节点 type/wave_index 全等；不同 seed（固定 seed 对如 1 vs 2）→ 中间层出现差异；类型覆盖 5 类；末层 boss 唯一；weights 空 → 默认权重表兜底
+- [x] 文件域：W1 只写 `scripts/`
+
+#### D14-15-T2【W2】新建 `data/routes.json`（拓扑参数 · 数据驱动）
+- [x] 结构：`{ "layers": 5, "nodes_per_layer": 3, "default_seed": <固定整数如 20260806>, "weights": {"battle": 0.5, "event": 0.2, "elite": 0.15, "shop": 0.15}, "constraints": {"first_layer_has_battle": true, "final_layer_boss": true, "max_battle_nodes": 19} }`
+- [x] 设计口径：战斗类节点总数 ≈ 12-16（映射 wave 1-16，Boss 前强度爬升合理）；事件/商店穿插层间中段；weights 和=1.0（生成器归一化兜底）
+- [x] **测试点**：JSON 校验通过；weights 和 ≈ 1.0；layers × nodes_per_layer ≥ 5；约束字段齐全
+- [x] 文件域：W2 只写 `data/routes.json`
+
+#### D14-15-T3【W1】GameManager 路线模式集成（`scripts/autoload/game_manager.gd`）
+- [x] GameState 枚举增 `ROUTE_SELECT`（MENU/BATTLE/SHOP/ROUTE_SELECT/GAME_OVER）
+- [x] 状态：`var route: Dictionary = {}` / `var route_enabled: bool = true` / `var current_layer: int = 0` / `var current_node: Dictionary = {}`；preload `route_generator.gd`（仿 shop.gd 的 WeaponControllerScript preload 范式）；preload `RouteSelectPanel.tscn`（仿 LevelUpPanelScene 常量范式）
+- [x] **DataLoader 补 3 行只读接口 `get_routes()`**（仿 get_wave 范式，读 `data/routes.json` 缓存；routes 缺失返回空字典 → 生成器走默认参数）
+- [x] `start_game()`：`route_enabled → route = RouteGenerator.generate(<default_seed>)`（default_seed 取 `DataLoader.get_routes().get("default_seed", -1)`）；`route.is_empty() → 旧逻辑`（波次模式）
+- [x] `_start_route_select()`：`current_state = ROUTE_SELECT` + `state_changed.emit`；实例化 RouteSelectPanel `_add_to_ui_layer`；面板 `setup(route, current_layer)`
+- [x] `select_route_node(row: int)`：取 `route.layers[current_layer][row]` → `current_node` → `_enter_node(type, wave_index)`
+- [x] `_enter_node(type, wave_index)`：`battle/elite/boss → _start_next_wave(wave_index)`；`shop →` 现有商店段（state=SHOP + shop_opened.emit）；`event → push_warning("[Route] 事件节点交互归 Day 16") + _on_node_completed()`（占位）
+- [x] **`_start_next_wave()` 改造**：`func _start_next_wave(wave_number: int = -1)` —— `-1`=旧累加行为；`≥1`=指定波次（同步 `current_wave`、is_boss_wave 检测不变）
+- [x] `on_wave_cleared()` 改造：**首行保留 `_clear_remaining_enemies()`**（day4 断言 10）；`route 非空 → _on_node_completed()`；`route 空 → 旧行为`（每波后 shop_opened.emit）；胜利判定沿用 `current_wave >= max_waves → end_game(true)`（boss=wave 20 自然命中）
+- [x] `_on_node_completed()`：`current_layer += 1`；`current_layer >= route.layers.size() → end_game(true)`（兜底）；否则 `_start_route_select()`
+- [x] `close_shop()` 改造：`route 非空 → _on_node_completed()`；`route 空 →` 旧行为（`_start_next_wave()`）
+- [x] **测试点**：route 空 → start_game 后 state==BATTLE 且零面板（旧行为回归）；route 非空 → state==ROUTE_SELECT；select_route_node(battle 行) → BATTLE 且 wave==映射值；battle 清后 → 下一层选择或连续战斗；shop 节点 → close_shop → 推进；boss 节点清 → end_game(true)
+- [x] 文件域：W1 只写 `scripts/`
+
+#### D14-15-T4【W1】新建 `scenes/RouteSelectPanel.tscn` + `scripts/ui/route_select_panel.gd`（路线选择面板）
+- [x] 仿 LevelUpPanel/ShopPanel 范式：`CanvasLayer` + `NinePatchRect` 面板（复用 `assets/sprites/ui/panel_card.png`）+ 标题 Label（「第 N 层 · 选择路线」）
+- [x] **按钮动态生成**（代码 `for` 循环 `add_child(Button)`，仿 shop.gd 卡片范式；数量 = 本层节点数，不硬编码 3）——按钮文本 = 节点类型名（battle=战斗 / event=事件 / elite=精英 / shop=商店 / boss=Boss）+ 类型色块（ColorRect 或按钮样式，首版不依赖新美术图标）
+- [x] `setup(route: Dictionary, layer: int)`：渲染 `route.layers[layer]`；末层（1 boss）自动 1 按钮
+- [x] 点击按钮 → `GameManager.select_route_node(row)` → `queue_free()`；`GameManager.game_over` 信号连接释放（防悬挂，仿 level_up_panel.gd:17-20）
+- [x] **不暂停游戏**（spawner 非 BATTLE 状态自动停，与商店一致）；Main.tscn 无需预实例（GameManager 运行时实例化）
+- [x] **测试点**：白盒实例化 + setup → 按钮数 == 本层节点数；点击 → 回调 select_route_node 且面板销毁；无头可实例化不崩
+- [x] 文件域：W1 只写 `scenes/` + `scripts/`
+
+#### D14-15-T5【W1】新建 `tools/day14_15_route_check.gd`（路线地图探针 ≥20 断言）
+- [x] §1 种子可复现：固定 seed 两次 generate 全等（层数/每层 type+wave_index 全等）；seed 1 vs 2 差异断言（固定 seed 对，禁 flaky）
+- [x] §2 拓扑合法性：layers == routes.json.layers；每层节点数 == nodes_per_layer（末层 1 boss）；首层含 battle；boss 仅末层；类型 ∈ 5 类；battle_count ≤ 19
+- [x] §3 数据驱动：routes.json weights 归一化（和≈1.0 容差 0.05）；default_seed 可读；weights 全空 → 默认权重兜底
+- [x] §4 波次映射：battle/elite 节点 wave_index ∈ [1,19] 且 `DataLoader.get_wave()` 非空；boss → 20；shop/event → 0
+- [x] §5 模式兼容：`GameManager.route_enabled = false` → start_game → state==BATTLE 且零面板（旧行为）；`_start_next_wave()` 默认 -1 累加不变
+- [x] §6 路线模式端到端（白盒直驱动）：固定 seed route → start_game → state==ROUTE_SELECT → `select_route_node(战斗行)` → state==BATTLE + wave==映射值 → `on_wave_cleared()` → 下一层选择（ROUTE_SELECT）或连续战斗；shop 节点 → close_shop → 推进；boss 节点清 → victory
+- [x] **回归锚点同步更新**：day6_integration_check boot 后注入 `GameManager.route_enabled = false`（1-2 行，其余断言不动）；day4_level_check 断言 10 回归（on_wave_cleared 清残敌保留）
+- [x] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + seed 固定 + 白盒直构造（见 Day 11-12/13 flaky 修复记录）
+- [x] 文件域：W1 只写 `tools/`
+
+#### D14-15-EXIT【W5】阶段 C 首段收口
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [x] `day14_15_route_check` CLEAN + **回归十件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14·注入 route 兼容后 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36）+ `gen_weapons_day7.py verify` 36/36
+- [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/level_up_panel.gd.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
+- [x] 主观项登记：节点地图观感 / 路线选择 UI 手感 / 层节奏体感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
+
+### Day 16 — 事件节点　🎯【下一目标日 · 已预拆解到函数级 · 2026-08-06 17:1x】
+
+> ✅ **数据侧已由 08-04 并发冲刺预交付**：`events.json` = `{events:[10]}`，w4 落盘（f78e29e），JSON 校验通过；`effect_on_route` 负值为设计内代价（`TEST_REPORT` §5）。
+> 🎯 **Day 16 已预拆解（2026-08-06 17:1x · #2 第 15 轮）**：Day 14-15 实现已 100% 落地（待 EXIT 收口）→ 预拆 Day 16 = **事件节点系统**。核心交付 = **弹窗 UI（描述 + 选项 A/B）+ 奖励结算（10 型）+ 改线（5 型）**。数据已就绪，`scripts/` 全域**尚无事件消费方**（`_enter_node` 的 event 分支为 push_warning 占位）——本日为纯代码日 + 1 条数据补齐。
+
+> 📌 **Day 16 实测基线（#2 第 15 轮新核，供 #3 免排查）**
+> - **events.json 10 事件结构**：`{id, title, theme, description(超长 100-250 字), choiceA:{text, reward:{type,value,label}}, choiceB:{text, effect_on_route:{type,value,label}}}`
+> - **reward type 10 型实测**：`attack_speed_percent`(攻速+8%) / `max_hp`(生命+20 加算) / `gold`(星尘+150) / `item`(**resonant_shard 悬空**——items.json 无此 id，实测 grep 零匹配) / `weapon_upgrade`(随机武器+1 级) / `luck`(+15) / `attack_percent`(攻击+12%——**STAT_MAP 无此键**，需别名) / `heal_percent`(回 40% 血) / `trade`(value=dict：{max_hp_percent:-15, damage_percent:+30} 复合双键) / `level_up`(升 2 级)
+> - **effect_on_route type 5 型实测**：`reroute`(echo_cradle「事件减战斗增」/ mirror_pool「下一节点必定精英」) / `flag`(alliance_report_filed/choir_silenced/debt_acknowledged 全局标记) / `unlock_node`(rib_layer_shortcut 跳战斗直通精英 / boss_corrupted_tree_early 直达 Boss 层 / awakening_archive 局外档案) / `add_node`(**value=rescue_signal 不在 events.json 10 事件内**——悬空，须随机兜底) / `difficulty`(本层敌人强度-1 档)
+> - **奖励结算接口全部已验证就位（零新基建）**：`player.apply_stat_modifier(stat, v, is_multiplicative)`(player.gd:361，max_health 乘算负值 0.85 已支持 :363-365) ｜ `player.gain_exp(v)`(:317) / `get_xp_to_next_level()`(:326) / `heal(v)`(:299) ｜ `GameManager.economy.add_coins(v)`(economy.gd:19) ｜ `GameManager.inventory.add_item_from_data(id)`(inventory.gd:75) + `apply_item_bonuses` 装配（D11-12 已通）｜ 武器升级分支参照 `level_up_panel.gd:110-114`（`weapon.upgrade()`）
+> - **STAT_MAP 缺口**（player.gd:50-66）：有 `damage_percent/attack_speed_percent/max_hp/luck/crit_damage_percent`，**无 `attack_percent`、无 `max_hp_percent`** → 事件结算层别名（`attack_percent→damage`、`max_hp_percent→max_health` 乘算），**不改 STAT_MAP**（避免波及 D4/D11-12 探针口径）
+> - **route_generator 改线接口现状**：`generate()` 一次性生成全部层；`_weighted_pick` 已消费 `modifiers.reroute` 权重覆盖(:118-136) 但**无对外改线方法** → 本日新增静态方法 `reroute_remaining(route, from_layer, weights)` + `force_node_type(route, li, ni, type)`（RNG 实例 + 禁 Array.shuffle）
+> - **UI 范式**：事件 = **暂停式**弹窗（阅读+抉择，同 LevelUpPanel：`paused=true` + `PROCESS_MODE_WHEN_PAUSED` + game_over 防悬挂）；商店/选层不暂停（spawner 非 BATTLE 自动停）——二者范式在 D14-15 已区分
+> - **探针坑（沿用）**：随机抽武器升级/随机取事件 → **RandomNumberGenerator 实例**（GameManager 新增 `_event_rng` 成员），禁 Array.shuffle/pick_random（全局 RNG 种子不可控）
+> - **回归锚点**：商店池 53（33 武器−3 结果 + 20 被动）**不变**（resonant_shard 不设 is_passive 不入池）；被动池 20 不变；day11_12 探针若断言 items 总项数 48 → 同步 49（20 被动/icon 0-19 断言不动）
+
+#### D16-PRE【W1+W2】事件节点系统定案表
+| # | 决策 | 依据 |
+|---|---|---|
+| 1 | **事件弹窗 = 暂停式**（同 LevelUpPanel：paused=true + WHEN_PAUSED + game_over 防悬挂 + `_add_to_ui_layer`）；事件是阅读+抉择，必须暂停 | LevelUpPanel 范式（D4-T4 已验证）；D14-15 已区分商店/选层「不暂停」 |
+| 2 | **事件绑定 = GameManager 随机取**：`_start_event` 时从 `DataLoader.get_events()` 随机取 1 条（零 route_generator 改动；事件可重复符合肉鸽；`add_node` 的悬空 id 同理随机兜底） | route_generator 只生成 type 无 event_id（D14-15 定案）；events.json 10 条全量可用 |
+| 3 | **reward 10 型结算表**：见下「D16-T2」分派——`attack_percent→damage` / `max_hp_percent→max_health` 代码层别名（**禁改 STAT_MAP**，防波及 D4/D11-12 探针）；`item` 直装 `apply_item_bonuses`（resonant_shard 获得即生效、不占 6 被动槽——遗物语义，完整遗物槽归 Day 20） | STAT_MAP 实测缺口；D11-12 装配链路已通；30DAY_PLAN D20 遗物 |
+| 4 | **effect_on_route 5 型改线表**：`reroute`=策略表→`route_generator.reroute_remaining()`（未访问层按新权重重抽，wave_index 重算）；`flag`= `route.flags[value]=true` 登记（消费归 Day 17/20/25）；`unlock_node`=策略分派（rib_layer_shortcut→force_node_type 精英 / boss_corrupted_tree_early→跳层+flag / awakening_archive→flag）；`add_node`=当前层+2 追加 event 节点（不超末层，超则末层前）；`difficulty`= `route.flags["difficulty_delta"]=value` 登记（敌人强度消费归 Day 17 精英/平衡） | events.json 5 型实测；route_generator modifiers/flags 接口（D14-15 预留） |
+| 5 | **改线深消费边界（W5 不得判失败）**：`flag` 的商店折扣/事件增减/Boss 护盾、`difficulty` 的敌人强度缩放、`unlock_node` 的局外档案——本日仅登记进 `route.flags`/`modifiers`，实际消费标注归 Day 17（精英）/Day 20（遗物）/Day 25（剧情）/Day 27（局外） | 渐进式收口；D14-15 同类占位先例 |
+| 6 | **resonant_shard 数据补齐**（W2）：items.json +1 条 `{id:"resonant_shard", rarity:"epic", price:0, effects:{crit_damage_percent:25}, tags:["relic"], name:"共鸣碎晶"}`——**不设 is_passive**（不入被动池/商店池，53 池与 20 被动口径零破坏）；**回归同步**：day11_12 探针 items 总项数断言 48→49（若有）；图标占位登记 `[!]`（items.png 第 21 帧实绘归 W3/美术，icon_atlas 越界兜底帧 0） | events.json crystal_vein 选 A 实测悬空（grep 零匹配）；D11-12 被动池定案不可破坏 |
+| 7 | **随机性管控**：GameManager 新增 `_event_rng := RandomNumberGenerator.new()`（种子可复现，探针注入 seed）；随机取事件/随机抽武器一律走 `_event_rng.randi_range()` | 探针坑：Array.shuffle/pick_random 走全局 RNG（D11-12/D14-15 铁律） |
+| 8 | **长文本适配**：description 实测最长 200+ 字 → 面板放大（~560×320 内）+ 描述 Label `autowrap_mode = WORD_SMART` + 视口 640×360 内可读；字号 8-10 | events.json 实测；UI 视口 640×360（ART_STYLE v2） |
+| 9 | **占位边界（后续日收口，W5 不得判失败）**：遗物槽位/图标 = Day 20/21-23；事件文案调性/弹窗排版 = 主观项 → PLAYTEST（#5） | 30DAY_PLAN D20/D21-23；主观项隔离铁律 |
+
+#### D16-T1【W1】新建 `scenes/EventSelectPanel.tscn` + `scripts/ui/event_select_panel.gd`（事件弹窗）
+- [ ] 仿 LevelUpPanel：`CanvasLayer` + `CenterContainer` + `Panel`(NinePatchRect 复用 `assets/sprites/ui/panel_card.png`) + VBox：标题 Label（`event.title`）+ theme 标签 + 描述 Label（**autowrap_mode = TEXT_AUTOWRAP_WORD_SMART**，面板尺寸 ~560×320 适配长文本）+ 2 个选项 Button
+- [ ] `_ready()`：`GameManager.game_over.connect` → 防悬挂 queue_free（仿 level_up_panel.gd:23-28）
+- [ ] `setup(event_data: Dictionary)`：渲染 title/theme/description + 选项按钮文本 = `choiceA.text`（下附小字 reward.label）/ `choiceB.text`（下附小字 effect_on_route.label）
+- [ ] 按钮点击 → `GameManager.resolve_event_choice("A"/"B")` → `queue_free()`（面板释放由 GameManager 在结算后管理，防双释放）
+- [ ] **暂停式**：节点 `process_mode = PROCESS_MODE_WHEN_PAUSED`（GameManager 在 `_start_event` 设 `get_tree().paused = true`）
+- [ ] **测试点**：白盒实例化 + setup(事件 dict) → 按钮数 == 2 + 标题/描述非空；点击 A → 回调 resolve_event_choice("A") 且面板销毁；无头可实例化不崩
+- [ ] 文件域：W1 只写 `scenes/` + `scripts/`
+
+#### D16-T2【W1】GameManager 事件接入 + 奖励结算 + 改线（`scripts/autoload/game_manager.gd`）
+- [ ] `_enter_node()` event 分支：替换 push_warning 占位 → `_start_event()`
+- [ ] 状态：`var _event_rng := RandomNumberGenerator.new()` / `var _current_event: Dictionary = {}` / `var _event_panel: Node = null`；preload `EventSelectPanelScene`（仿 LevelUpPanelScene 常量范式）；DataLoader 补只读接口 `get_events() -> Array`（仿 get_wave，缓存 events.json，缺失返回 []）
+- [ ] `_start_event()`：随机取事件（`_event_rng.randi_range(0, events.size()-1)`）→ `_current_event = events[i]` → `get_tree().paused = true` → 实例化面板 + `_add_to_ui_layer` + `setup(_current_event)`（**随机取 → 事件可重复，符合肉鸽；零 route_generator 改动**）
+- [ ] `resolve_event_choice(choice: String)`：choice=="A" → `_apply_event_reward(_current_event.choiceA.reward)`；=="B" → `_apply_route_effect(_current_event.choiceB.effect_on_route)`；`get_tree().paused = false` → `_on_node_completed()`
+- [ ] **`_apply_event_reward(reward)` 10 型分派**（接口全部已验证）：
+  - `attack_speed_percent` → `player.apply_stat_modifier("attack_speed", 1+value/100, true)`
+  - `attack_percent` → **别名 damage**：`player.apply_stat_modifier("damage", 1+value/100, true)`
+  - `max_hp` → `player.apply_stat_modifier("max_health", value)`（add）
+  - `max_hp_percent`（trade 内键）→ `player.apply_stat_modifier("max_health", 1+value/100, true)`（负值乘算已验证）
+  - `damage_percent`（trade 内键）→ `player.apply_stat_modifier("damage", 1+value/100, true)`
+  - `gold` → `economy.add_coins(int(value))`
+  - `luck` → `player.apply_stat_modifier("luck", value)`
+  - `heal_percent` → `player.heal(player.max_health * value/100.0)`
+  - `item` → `DataLoader.get_item(value)` 存在 → 直装 `player.apply_item_bonuses(item_resource)`（**不进 inventory 槽**，获得即生效）；不存在 → push_warning 登记（resonant_shard 由 D16-T4 补齐；其余未知 id 兜底不崩）
+  - `weapon_upgrade` → 已装备武器非空 → `_event_rng.randi_range(0, n-1)` 抽 1 把 `upgrade()`；空 → push_warning（**禁 Array.pick_random**）
+  - `level_up` → `player.gain_exp(player.get_xp_to_next_level() * int(value))`（升 value 级；连升面板合并策略已有 game_manager.gd:219-227）
+  - 未知 type → push_warning 登记（禁静默）
+- [ ] **`_apply_route_effect(effect)` 5 型改线**：
+  - `reroute` → 策略表映射（`silent_corridor` = {"event":-0.1,"battle":+0.1} / `shattered_path` = 下一节点强制 elite）→ `route_generator.reroute_remaining(route, current_layer+1, weights)` 或 `force_node_type`
+  - `flag` → `route.flags[value] = true`（登记；消费归 Day 17/20/25）
+  - `unlock_node` → 策略分派：`rib_layer_shortcut` = 下一层首个战斗节点 `force_node_type` → elite；`boss_corrupted_tree_early` = `current_layer` 跳到 Boss 前一层 + `route.flags["boss_early"]=true`；`awakening_archive` = `route.flags["archive_unlocked"]=true`（局外归 Day 27）
+  - `add_node` → 目标层 = `current_layer + 2`（不超 `layers.size()-1`，超则末层前）→ `append({type:"event", wave_index:0})`（value 为悬空 id → 随机事件兜底已由 T2 的随机取机制覆盖）
+  - `difficulty` → `route.flags["difficulty_delta"] = int(value)`（登记；敌人强度消费归 Day 17）
+- [ ] **测试点**：白盒注入 event 节点 → `_enter_node` → state 暂停 + 面板出现；resolve "A"(gold) → coins +150 + paused=false + 面板释放 + 层推进；resolve "B"(reroute) → modifiers 生效；10 型 reward 逐型白盒断言（探针 D16-T5 主战场）
+- [ ] 文件域：W1 只写 `scripts/`
+
+#### D16-T3【W1】`route_generator.gd` 扩展改线静态方法（改线接口落点）
+- [ ] `static func reroute_remaining(route: Dictionary, from_layer: int, weights_override: Dictionary) -> void`：对 `route.layers[from_layer..]` 未访问节点按**新权重**逐节点 `_weighted_pick` 重抽（RNG 实例 + 禁 Array.shuffle；elite 低层禁抽保持）；重抽后**重算战斗序号 → wave_index 重映射**（沿用 `_resolve_wave`）
+- [ ] `static func force_node_type(route: Dictionary, layer_index: int, node_index: int, new_type: String) -> void`：单点强制类型 + 重算该节点 wave_index（battle/elite → 重分配；event/shop → 0；越界 push_warning 返回）
+- [ ] **边界**：两方法均不碰 `route.seed/modifiers/flags` 之外字段；boss 层不可改写（末层保护）；`battle_count` 上限校验保持
+- [ ] **测试点**：reroute_remaining 后未访问层 battle 占比变化 + 全部 wave_index ∈ [1,19] 合法；force_node_type 后指定节点类型变化 + wave_index 合法；末层 boss 调用 force → 拒绝 + push_warning
+- [ ] 文件域：W1 只写 `scripts/systems/`
+
+#### D16-T4【W2】`resonant_shard` 遗物数据补齐 + 回归同步
+- [ ] items.json +1 条：`{"id":"resonant_shard", "name":"共鸣碎晶", "rarity":"epic", "price":0, "effects":{"crit_damage_percent":25}, "tags":["relic"]}` —— **不设 is_passive**（不入被动池/商店池，商店 53 / 被动 20 口径零破坏）；四字段 is_passive/slot/category/icon_index 缺省（遗物语义，完整字段归 Day 20）
+- [ ] **回归同步**：day11_12 探针若断言 items 总项数 == 48 → 同步 49（20 被动 / icon 0-19 唯一 / 3 核心命中断言**不动**）；day13 商店池断言（53）不受影响
+- [ ] 图标占位登记：items.png 第 21 帧实绘 = `[!]` 美术项（归 W3/Day 21-22，icon_atlas 越界兜底帧 0，不阻塞）
+- [ ] **测试点**：`python tools/baseline_check.py` JSON 校验通过；商店池仍 53（20 被动）；`DataLoader.get_item("resonant_shard")` 非空；装配 `apply_item_bonuses` → crit_damage ×1.25
+- [ ] 文件域：W2 只写 `data/items.json`（回归同步文件归 W5/执行者确认）
+
+#### D16-T5【W1】新建 `tools/day16_event_check.gd`（事件系统探针 ≥18 断言）
+- [ ] §1 数据层：events.json 10 事件结构完整（id/title/description/choiceA.text/choiceB.text 全非空）；reward type ∈ 10 型枚举；effect_on_route type ∈ 5 型枚举
+- [ ] §2 reward 结算（白盒直构造 10 型）：gold→coins+150；max_hp→max_health+20；luck→+15；attack_speed_percent→×1.08；attack_percent→damage ×1.12；heal_percent→health 恢复；level_up→level+2 + 升级面板触发（连升合并）；trade→max_health×0.85 + damage×1.30 双键；weapon_upgrade→随机武器 level+1（seed 固定）；item→resonant_shard 装配 crit_damage ×1.25
+- [ ] §3 effect 改线：reroute(silent_corridor)→modifiers.reroute 生效 + 未访问层比例变化；flag→route.flags 登记；unlock_node 三策略（rib_layer_shortcut 强制精英 / boss_early 跳层 / archive flag）；add_node→层+2 追加 event；difficulty→flags["difficulty_delta"] 登记
+- [ ] §4 端到端（白盒直驱动）：注入 event 节点 → `_enter_node` → 暂停 + 面板出现 → resolve "A" → 结算 + 面板释放 + `_on_node_completed` 推进；resolve "B"(reroute) → 改线生效
+- [ ] §5 回归锚点：商店池 53（resonant_shard 不入池）；被动池 20；day14_15 探针全量回归（route event 节点 wave_index==0 断言保持）；`_event_rng.seed` 固定（禁 flaky）
+- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + seed 固定 + 白盒直构造（D11-12/13/14-15 flaky 修复记录）
+- [ ] 文件域：W1 只写 `tools/`
+
+#### D16-EXIT【W5】阶段 C 第二节收口
+- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [ ] `day16_event_check` CLEAN + **回归十一件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22·总项数 48→49 同步后 / day13 36 / day14_15）+ `gen_weapons_day7.py verify` 36/36
+- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
+- [ ] 主观项登记：事件文案调性 / 弹窗排版可读性 / 抉择体感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
 ### Day 17 — 精英战斗
 - [ ] 精英敌人特殊能力 / 强化属性

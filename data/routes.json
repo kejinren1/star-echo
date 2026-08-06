@@ -1,0 +1,16 @@
+{
+  "layers": 5,
+  "nodes_per_layer": 3,
+  "default_seed": 20260806,
+  "weights": {
+    "battle": 0.5,
+    "event": 0.2,
+    "elite": 0.15,
+    "shop": 0.15
+  },
+  "constraints": {
+    "first_layer_has_battle": true,
+    "final_layer_boss": true,
+    "max_battle_nodes": 19
+  }
+}

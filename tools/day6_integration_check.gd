@@ -104,6 +104,9 @@ func _spawn(hero: String) -> void:
 	_instance = (load(MAIN_SCENE) as PackedScene).instantiate()
 	root.add_child(_instance)
 	_manager = root.get_node_or_null("GameManager")
+	# D14-15：路线模式默认开启（阶段 C 新体验）→ 注入关闭，保持 day6 端到端旧波次制回归口径
+	if _manager != null:
+		_manager.set("route_enabled", false)
 	_player = _instance.get_node_or_null("World/Player")
 	_controller = _player.get_node_or_null("WeaponController") if _player else null
 	_level_up_signals.clear()

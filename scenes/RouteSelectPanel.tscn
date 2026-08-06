@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1routeselect01"]
+
+[ext_resource type="Script" path="res://scripts/ui/route_select_panel.gd" id="1_route"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/panel_shop.png" id="2_pshop"]
+
+[node name="RouteSelectPanel" type="CanvasLayer"]
+script = ExtResource("1_route")
+
+[node name="BG" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.08, 0.12, 0.85)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="NinePatchRect" parent="CenterContainer"]
+custom_minimum_size = Vector2(280, 180)
+layout_mode = 2
+texture = ExtResource("2_pshop")
+patch_margin_left = 12
+patch_margin_top = 12
+patch_margin_right = 12
+patch_margin_bottom = 12
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "选择路线"
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="NodeContainer" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8

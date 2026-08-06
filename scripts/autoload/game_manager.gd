@@ -16,6 +16,9 @@ signal state_changed(new_state: GameState)
 
 const LevelUpPanelScene: PackedScene = preload("res://scenes/LevelUpPanel.tscn")
 const GameOverPanelScene: PackedScene = preload("res://scenes/GameOverPanel.tscn")
+## D14-15-T3：路线生成器（无 class_name，preload 仿 shop.gd 范式）
+const RouteGeneratorScript: GDScript = preload("res://scripts/systems/route_generator.gd")
+const RouteSelectPanelScene: PackedScene = preload("res://scenes/RouteSelectPanel.tscn")
 
 # ========== 枚举 ==========
 
@@ -23,6 +26,7 @@ enum GameState {
 	MENU,       ## 主菜单
 	BATTLE,     ## 战斗中
 	SHOP,       ## 商店选购
+	ROUTE_SELECT,  ## 路线选择（D14-15：随机节点地图选层节点）
 	GAME_OVER,  ## 游戏结束（胜利或失败）
 }
 
@@ -33,6 +37,12 @@ var current_wave: int = 0          ## 当前波次 (从 1 开始)
 var max_waves: int = 20            ## 总波次数 (启动时从 DataLoader 加载)
 var is_boss_wave: bool = false     ## 当前是否为 Boss 波
 var current_character_id: String = ""      ## 本局英雄 id（Main._ready 写入，供 Day 3 主动技能系统读取）
+
+# D14-15-T3：路线模式状态（route 空 = 旧波次制；非空 = 随机节点地图模式）
+var route: Dictionary = {}                 ## 本局路线（{seed, layers, modifiers, flags}）
+var route_enabled: bool = true             ## 路线模式开关（默认开启；注入 false = 完全旧行为）
+var current_layer: int = 0                 ## 当前层索引（0 起）
+var current_node: Dictionary = {}          ## 当前节点（{type, wave_index}）
 
 # 子系统引用 (由 Main.tscn 在 _ready 中赋值)
 var player: Node = null
@@ -45,24 +55,40 @@ var vfx_container: Node = null             ## 特效容器节点
 # UI 面板实例引用（防止连升多级/重复弹窗叠加）
 var _level_up_panel: Node = null
 var _game_over_panel: Node = null
+var _route_select_panel: Node = null      ## 路线选择面板（D14-15）
 
 # ========== 状态流转方法 ==========
 
-## 开始新游戏
+## 开始新游戏（D14-15：route_enabled → 生成路线；route 空 → 旧波次制回归零破坏）
 func start_game() -> void:
 	current_wave = 0
 	# 从 DataLoader 加载总波次数
 	max_waves = DataLoader.get_max_waves()
 	if max_waves <= 0:
 		max_waves = 20
-	current_state = GameState.BATTLE
-	state_changed.emit(current_state)
+	current_layer = 0
+	current_node = {}
+	route = {}
+	if route_enabled:
+		var default_seed: int = int(DataLoader.get_routes().get("default_seed", -1))
+		route = RouteGeneratorScript.generate(default_seed)
+	if route.is_empty():
+		# 旧波次制（路线生成失败/被禁用 → 完全旧行为）
+		current_state = GameState.BATTLE
+		state_changed.emit(current_state)
+		game_started.emit()
+		_start_next_wave()
+		return
+	# 路线模式：先发局开始信号，再进入第 1 层路线选择
 	game_started.emit()
-	_start_next_wave()
+	_start_route_select()
 
-## 开始下一波
-func _start_next_wave() -> void:
-	current_wave += 1
+## 开始下一波（D14-15：wave_number < 0 → 旧累加行为；≥1 → 指定波次）
+func _start_next_wave(wave_number: int = -1) -> void:
+	if wave_number >= 1:
+		current_wave = wave_number
+	else:
+		current_wave += 1
 	# 检查是否为 Boss 波 (wave 10 和 20 有 boss: 前缀敌人)
 	var wave_data := DataLoader.get_wave(current_wave)
 	is_boss_wave = false
@@ -78,11 +104,14 @@ func _start_next_wave() -> void:
 	if wave_manager:
 		wave_manager.start_wave(current_wave)
 
-## 波次完成，进入商店
+## 波次完成（D14-15：首行保留清残敌——day4 断言 10；路线模式 → 节点完成推进）
 func on_wave_cleared() -> void:
 	# D4-T8（BUG-001-F2）：先清残敌、后发奖，避免商店期间残敌继续攻击玩家
 	_clear_remaining_enemies()
 	wave_cleared.emit(current_wave)
+	if not route.is_empty():
+		_on_node_completed()
+		return
 	if current_wave >= max_waves:
 		end_game(true)
 		return
@@ -98,10 +127,64 @@ func _clear_remaining_enemies() -> void:
 		if is_instance_valid(enemy):
 			enemy.queue_free()
 
-## 关闭商店，进入下一波
+## 关闭商店（D14-15：路线模式 → 节点完成推进；旧模式 → 下一波）
 func close_shop() -> void:
 	shop_closed.emit()
+	if not route.is_empty():
+		_on_node_completed()
+		return
 	_start_next_wave()
+
+# ========== 路线模式（Day 14-15 · D14-15-T3） ==========
+
+## 进入第 current_layer 层路线选择：状态 + 面板（复用已有面板实例防叠加）
+func _start_route_select() -> void:
+	current_state = GameState.ROUTE_SELECT
+	state_changed.emit(current_state)
+	if _route_select_panel == null or not is_instance_valid(_route_select_panel):
+		_route_select_panel = RouteSelectPanelScene.instantiate()
+		_route_select_panel.tree_exited.connect(func() -> void: _route_select_panel = null)
+		_add_to_ui_layer(_route_select_panel)
+	if _route_select_panel.has_method("setup"):
+		_route_select_panel.setup(route, current_layer)
+
+## 玩家选中本层某节点（row = 本层内索引）→ 进入对应节点
+func select_route_node(row: int) -> void:
+	var layers: Array = route.get("layers", [])
+	if current_layer < 0 or current_layer >= layers.size():
+		push_warning("[Route] 层索引越界: %d" % current_layer)
+		return
+	var layer_nodes: Array = layers[current_layer]
+	if row < 0 or row >= layer_nodes.size():
+		push_warning("[Route] 节点索引越界: %d/%d" % [row, layer_nodes.size()])
+		return
+	current_node = layer_nodes[row]
+	_enter_node(str(current_node.get("type", "")), int(current_node.get("wave_index", 0)))
+
+## 按节点类型进入：战斗类 → 波次；shop → 商店段；event → Day 16 占位推进
+func _enter_node(node_type: String, wave_index: int) -> void:
+	match node_type:
+		"battle", "elite", "boss":
+			_start_next_wave(wave_index)
+		"shop":
+			current_state = GameState.SHOP
+			state_changed.emit(current_state)
+			shop_opened.emit()
+		"event":
+			# Day 16 占位：事件节点交互逻辑归 Day 16，本日仅推进
+			push_warning("[Route] 事件节点交互归 Day 16")
+			_on_node_completed()
+		_:
+			push_warning("[Route] 未知节点类型: %s，按已完成处理" % node_type)
+			_on_node_completed()
+
+## 当前节点完成 → 下一层选择；末层完成 → 胜利
+func _on_node_completed() -> void:
+	current_layer += 1
+	if current_layer >= route.get("layers", []).size():
+		end_game(true)
+		return
+	_start_route_select()
 
 ## 结束游戏
 func end_game(victory: bool) -> void:
@@ -118,8 +201,14 @@ func reset() -> void:
 	current_state = GameState.MENU
 	current_wave = 0
 	is_boss_wave = false
+	route = {}
+	current_layer = 0
+	current_node = {}
 	_level_up_panel = null
 	_game_over_panel = null
+	if _route_select_panel != null and is_instance_valid(_route_select_panel):
+		_route_select_panel.queue_free()
+	_route_select_panel = null
 	state_changed.emit(current_state)
 
 # ========== 升级面板（Day 4 · D4-T1/D4-T4） ==========
