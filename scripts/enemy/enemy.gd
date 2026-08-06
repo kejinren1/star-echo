@@ -302,7 +302,9 @@ func _move_chase(_delta: float) -> void:
 func _move_charge(delta: float) -> void:
 	_charge_timer -= delta
 	if _is_charging:
-		velocity = _charge_dir * move_speed * 2.5
+		# F-15（用户拍板 2026-08-06 · P0）：冲锋倍率 ×2.5 → ×1.5（配合 F-01 移速×0.5，
+		# 冲速 425×1.5×0.5≈319，恢复可反应区间，消除「被冲脸瞬秒」围杀体验）
+		velocity = _charge_dir * move_speed * 1.5
 		move_and_slide()
 		if _charge_timer <= 0.0:
 			_is_charging = false
