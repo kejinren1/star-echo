@@ -36,29 +36,6 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HealthBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/TopBar/LeftSection"]
-custom_minimum_size = Vector2(120, 8)
-layout_mode = 2
-max_value = 100.0
-value = 100.0
-nine_patch_stretch = false
-texture_under = ExtResource("2_hpbg")
-texture_progress = ExtResource("3_hpfill")
-
-[node name="XpBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/TopBar/LeftSection"]
-custom_minimum_size = Vector2(120, 4)
-layout_mode = 2
-max_value = 100.0
-value = 0.0
-nine_patch_stretch = false
-texture_under = ExtResource("4_xpbg")
-texture_progress = ExtResource("5_xpfill")
-
-[node name="HealthLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar/LeftSection"]
-layout_mode = 2
-text = "100/100"
-theme_override_font_sizes/font_size = 8
-
 [node name="CenterSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -94,6 +71,34 @@ theme_override_font_sizes/font_size = 8
 custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="StatsBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="HealthBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/StatsBar"]
+custom_minimum_size = Vector2(120, 8)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+nine_patch_stretch = false
+texture_under = ExtResource("2_hpbg")
+texture_progress = ExtResource("3_hpfill")
+
+[node name="HealthLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsBar"]
+layout_mode = 2
+text = "100/100"
+theme_override_font_sizes/font_size = 8
+
+[node name="XpBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/StatsBar"]
+custom_minimum_size = Vector2(120, 4)
+layout_mode = 2
+max_value = 100.0
+value = 0.0
+nine_patch_stretch = false
+texture_under = ExtResource("4_xpbg")
+texture_progress = ExtResource("5_xpfill")
 
 [node name="BottomBar" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2

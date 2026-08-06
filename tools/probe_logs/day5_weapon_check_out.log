@@ -1,0 +1,21 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 5 weapon / 6-slot check ===
+  PASS  slots / 6 把装满 is_full == true
+  PASS  slots / 第 7 把被拒，size 保持 6
+  PASS  slots / se_star_flame 连升 7 次到 Lv8（全部 true）
+  PASS  slots / Lv8 后再升级被拒
+  PASS  slots / Lv2 base_damage == levels[1].damage = 8.0
+  PASS  slots / 裸武器 base_damage 通用成长 5 → 6.25（×1.25 兜底）
+  PASS  slots / 裸武器 fire_rate 通用成长 2.0 → 2.2（×1.1 兜底）
+  PASS  slots / 选项池含「升级『X』」武器项
+  PASS  slots / 注入升级武器 → 星刃 level == 2
+  PASS  slots / 升级 → 面板出现且 paused == true
+  PASS  slots / 点击选项后游戏恢复（paused = false）
+  PASS  orbit / OrbitWeapon 已自动挂载（挂 Player 子节点）
+  PASS  orbit / Lv1 刃数 == 1
+  PASS  orbit / bonus_stats +3 → 刃数 == 4（D3-T5 埋点收口）
+  PASS  orbit / 刃接触伤害 = 7.0（30.0 → 23.0）
+  PASS  orbit / 卸下星刃后 OrbitWeapon 被清理
+--- 16 项断言，0 项失败 ---
+DAY5 WEAPON CHECK CLEAN

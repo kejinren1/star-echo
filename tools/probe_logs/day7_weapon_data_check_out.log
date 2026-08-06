@@ -1,0 +1,18 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 7 weapon data check ===
+  PASS  JSON / 11 把 levels 8 条 + max_level≥8 全部满足
+  PASS  JSON / 3 把 Lv1==顶层 + 11 把 levels 单调性全部满足
+  PASS  JSON / 4 把签名武器 levels 未被 D7-T1 破坏
+  PASS  装配 / pistol crit/icon_index 字段已就绪 + sword Lv2 数据正确
+  PASS  装配 / pistol 装配后 crit_chance == 0.05
+  PASS  装配 / sword upgrade() → Lv2 属性 == levels[1] (damage 15 / fire_rate 2.0)
+  PASS  图标 / get_icon('weapons', 39) 非 null
+  PASS  图标 / get_icon('weapons', 40) 越界返回 null 不崩
+  PASS  图标 / 关键帧 0/39 非 null + 40 越界保护就绪
+  PASS  回归 / equip_from_data('se_star_flame') 首武器正常 + icon_index 25
+  PASS  枚举 / 36 把武器 icon_index 互不重复且 0≤v≤35（D7+D10 合并：33 既有 + 3 结果武器）
+  PASS  枚举 / MVP 15 把 icon_index 互不重复
+  PASS  done
+--- 13 项断言，0 项失败 ---
+DAY7 WEAPON DATA CHECK CLEAN

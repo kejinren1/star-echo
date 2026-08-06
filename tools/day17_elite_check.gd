@@ -429,12 +429,12 @@ func _advance(sub: int) -> int:
 					var wi: int = int(node.get("wave_index", -1))
 					if t == "elite":
 						elite_found = true
-						if wi < 6 or wi > 19:
+						if wi < 1 or wi > 9:
 							elite_wi_ok = false
-					if t == "boss" and wi != 20:
+					if t == "boss" and wi != 10:
 						boss_ok = false
-			_ok(elite_wi_ok, "回归: 路线 elite 节点 wave_index ∈ [6,19]（条件断言，实含 %s）" % ("是" if elite_found else "否"))
-			_ok(boss_ok, "回归: 路线 boss 节点 wave_index == 20")
+			_ok(elite_wi_ok, "回归: 路线 elite 节点 wave_index ∈ [1,9]（条件断言，实含 %s）" % ("是" if elite_found else "否"))
+			_ok(boss_ok, "回归: 路线 boss 节点 wave_index == 10")
 			# 确定性覆盖：白盒构造路线 → force_node_type 强制精英 → wave_index 重映射 ∈ [1,19]（合法战斗映射）
 			var route2: Dictionary = _gen.generate_from(1234, _loader.get_routes())
 			var l1: Array = route2.get("layers")[1]

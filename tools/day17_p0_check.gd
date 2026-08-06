@@ -167,7 +167,9 @@ func _advance(sub: int) -> int:
 			_ok(_gm.get("debug_cheat") == false and absf(_player.debug_mult - 1.0) < 0.001,
 				"F-04/初始: debug_cheat=false + debug_mult=1（零残留）")
 			# toggle ON：debug_cheat true + debug_mult 10 + 跳关（current_wave 3→4）
+			# P1 Fix-4：金手指仅在 BATTLE 状态跳关（防路线选择/商店误触）
 			_gm.set("current_wave", 3)
+			_gm.set("current_state", _gm.GameState.BATTLE)
 			_gm.call("toggle_debug_cheat")
 			_ok(_gm.get("debug_cheat") == true, "F-04/toggle: ON → debug_cheat=true")
 			_ok(absf(_player.debug_mult - 10.0) < 0.001, "F-04/toggle: ON → debug_mult=10")

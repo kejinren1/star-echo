@@ -24,6 +24,7 @@
 > ④ **difficulty_delta 消费**（战斗节点入口 → 敌人 ±10%/档）+ 精英节点横幅提示
 > ⑤ **探针 `day17_elite_check.gd` 39/39 CLEAN** + 回归十二件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41）+ baseline **BASELINE CLEAN** + verify 36/36。**day13 探针 flaky 修复**（商店购买段白盒直构造，去随机洗牌依赖 ≈14% 全武器概率）。提交见本轮收口 commit。
 > 🎯 **Day 18-19 已预拆解（2026-08-06 21:1x · #2 第 17 轮）**：Day 16 已收口（`ee7603b`/`748d2b7`）→ 目标日 = **Day 17（精英战斗，已就绪）**，本轮预拆 **Day 18-19 = Boss 多阶段（phases 状态机 + attacks 指令映射）**（见 Day 18-19 区）——W1 `enemy.gd` Boss 阶段状态机（take_damage 阈值切换 + speed_multiplier + 阶段横幅）+ **attacks 字符串指令解析器**（summon/spread/aoe/charge/barrage/all_attacks_2x 全量实测映射）+ **新建 `scripts/enemy/enemy_projectile.gd`**（敌人弹幕独立弹丸，命中玩家，禁物理查询；player projectile.gd 零改动防回归）+ GameManager Boss 接入（boss 节点横幅 + `boss_killed`/`boss_defeated` 登记）+ 探针 `tools/day18_19_boss_check.gd`；W2 ◐核验 Boss phases 数据完整性（只读，数据已完备零改动）；W5 回归十二件套。**大纲「腐化巨树藤蔓/毒雨」vs 数据 invoker/predator phases 差异 → 以数据为准（登记，不臆造新指令）；「森林区域解锁」深消费归 Day 27**。
+> 🎯 **Day 20 已预拆解（2026-08-06 23:1x · #2 第 18 轮）**：Day 17（`2abba3c`）+ Day 17-P0（`6e84751`/`1bc0255`）已收口 → **目标日 = Day 18-19（Boss 多阶段，第 17 轮已预拆，直接执行）**，本轮预拆 **Day 20 = 遗物系统（阶段 C 收口）**（见 Day 20 区）——W2 `items.json` +2 遗物（**破碎王冠** `{damage_percent:50, damage_taken_percent:30}` / **机械引擎** `{structure_damage_percent:100}`，**⚠️ 大纲「机械核心」与 se_mech_core 进化核心重名 → 改名「机械引擎」**）+ W1 两个新装配键（**damage_taken_percent 受伤倍率**：take_damage armor 后乘 / **structure_damage_percent 结构伤害**：turret.gd 补消费点，**顺带激活 se_mech_core/mech_heart 悬空词条**）+ 遗物**直装不占被动槽**（D16 resonant_shard 先例，MAX_RELICS=2）+ 商店第三池（53→55）+ 图标 22 帧（W3）；W5 探针 `day20_relic_check.gd` + **回归同步 2 处**（day13 池 53→55 / day11_12 frame_count 20→22）+ `REPORT_PHASE_C.md`。**W5 不得判失败**：遗物 HUD 槽（P1）/ 遗物 VFX（Day 23）/ mech_heart 入池（登记可选 P1）。
 > 🎯 **Day 11–12 已拆解（2026-08-06 09:1x · #2 第 11 轮）**：阶段 B 被动+商店 = **20 被动数据（四类）+ 6 被动槽 + 商店真实商品闭环 + 图标扩容**（见 Day 11-12 区）——W2 从现有 48 项筛 20 项为被动池（3 进化核心必选 + 四类划分 + effects 白名单化 + is_passive/slot/category/icon_index 四字段）；W1 6 被动槽（inventory MAX_ITEMS 20→6 + HUD ItemBar 4→6）+ 被动装配链路（player.apply_item_bonuses + GameManager 监听 inventory 信号）+ 商店真实商品购买（武器 33 池 + 被动 20 池随机 4 卡）+ replace_weapon 补 sync inventory；W3 items.png 4→20 帧实绘（gen_item_icons.py 新建）；W5 探针 + 回归八件套。**关键定案：被动只从商店获取（不进升级池）；裸 range 像素键统一 range_percent（200px 基准）；3 核心 effects 禁键仅占位登记不判失败；武器两套完整统一归 Day 13**。
 > ✅ **Day 10 已收口（2026-08-06 07:3x · #3）**：阶段 B 进化机制完成 —— 3 把结果武器数据（se_star_fall 炎星陨落 / se_turret_array 机械炮阵 / se_blade_storm 星刃风暴，elemental/engineering/melee，tier 4，evolution_result + 平曲线 levels 8 条 + icon_index 33/34/35）+ items.json +se_blade_core 补齐星刃进化链（D10-PRE 定案）+ weapon.gd +explosion_radius/explosion_damage + weapon_controller.gd +replace_weapon（find→build→升满→原子替换→_sync 一次）+ level_up_panel.gd 进化池 + evolution 分支（先替换成功、后消耗核心）+ weapons.png 帧 33/34/35 实绘 + icon_index 0-32→0-35 + 探针 `day10_evolution_check.gd` 20/20 CLEAN + 回归七件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19）+ baseline **BASELINE CLEAN** + `gen_weapons_day7 verify` 36/36 CLEAN，提交 `ca7c0a2`。
 > 🎯 **Day 8–9 已拆解（2026-08-06 05:1x · #2 第 9 轮）**：阶段 B 续段 = **18 把全量武器 levels + 18 帧图标实绘 + 全量数据回归**（见 Day 8-9 区）——W2 给 18 把通用武器补 `levels` 8 条 + `max_level:8`（fist/stick/dagger/hammer/flaming_knuckles/slingshot/crossbow/rocket_launcher/minigun/lightning_shiv/venom_staff/storm_staff/frost_nova/plasma_cannon/wrench/laser_turret/mech_arm/force_field，扩展 `gen_weapons_day7.py` LEVELS 表幂等 apply）；W3 18 帧占位图标逐帧替换实绘（扩展 `gen_weapon_icons.py`，含 force_field 护盾 / minigun 多管等特征）；W1 新建 `day8_weapon_data_check.gd` 探针（≥13 断言含 force_field damage 恒 0 特例）；W5 回归六件套。**纯数据 + 图标 + 探针日，零装配代码改动**（D7-T2 已铺路）。
@@ -1639,9 +1640,85 @@
 - [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
 - [ ] 主观项登记：Boss 战难度曲线 / 阶段切换表现力 / Boss 视觉辨识度 / 弹幕躲避手感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
-### Day 20 — 遗物 + 阶段 C 回归
-- [ ] 遗物：破碎王冠（攻击+50%/受伤+30%）、机械核心（机械伤害+100%）
-- [ ] 阶段 C 平衡回归；产出阶段 C 报告
+### Day 20 — 遗物系统 + 阶段 C 回归　🎯【已预拆解到函数级 · 2026-08-06 23:1x · #2 第 18 轮】
+
+> 🎯 **Day 20 已预拆解（2026-08-06 23:1x · #2 第 18 轮）**：Day 17（精英 `2abba3c`）+ Day 17-P0（P0 四件套 `6e84751`/`1bc0255`）已收口 → 目标日 = **Day 18-19（Boss 多阶段，第 17 轮已预拆好，直接执行）**，本轮预拆 **Day 20 = 遗物系统（阶段 C 收口）**。核心交付 = **2 件遗物数据（破碎王冠 / 机械引擎）+ 遗物直装不占被动槽（D16 resonant_shard 先例）+ 2 个新装配键（damage_taken_percent / structure_damage_percent）+ 商店第三池 + 阶段 C 报告**。**⚠️ 关键发现：`structure_damage_percent`（机械伤害）在 scripts/ 全域零消费点（grep 空）——se_mech_core/mech_heart 词条静默无效，本日必须补炮台消费点**。**⚠️ 命名冲突：大纲遗物「机械核心」与 se_mech_core（进化核心）重名 → 遗物命名「机械引擎 mech_engine」**。回归同步 2 处：day13 探针商店池 53→55、day11_12 探针 icon_atlas 20→22 帧。
+
+> 📌 **Day 20 实测基线（#2 第 18 轮新核，供 #3 免排查）**
+> - **items.json 49 项现状**：**「破碎王冠」不存在**（需新建）；「机械核心」被 se_mech_core（进化核心，is_passive=true + evolution_core）占用 → 遗物改名；`resonant_shard`（共鸣碎晶，epic/price 0/`{crit_damage_percent:25}`/tags:["relic"]/无 slot）= **事件 item 奖励先例（D16 直装不占槽）**；`mech_heart`（机械之心，legendary/price 105/`{engineering:10, structure_damage_percent:50, auto_turret_per_wave:1}`/无 slot）= 非被动非武器，**不在商店池/升级池/事件池 = 悬空数据**（无风险，登记可后续纳入遗物池）
+> - **STAT_MAP（player.gd:53-69）15 键**：`damage_percent` → damage（percent 乘算）✅ 已有；**无 `damage_taken_*`（受伤倍率）**、**无 `structure_damage_percent`** → 2 新键必补
+> - **take_damage（player.gd:281-300）**：`actual_damage = max(amount - armor, 1.0)`（armor 平直减伤）→ F-04 debug_cheat ×0.001（最后兜底）→ health 扣减。**受伤+30% 插入点 = armor 之后、debug_cheat 之前**
+> - **炮台伤害通道（turret.gd:89-94）**：`dmg = damage` → `if player and "damage_multiplier" in player: dmg *= player.damage_multiplier` —— 结构伤害消费点 = 在此链上再乘 `player.structure_damage_mult`（同范式）
+> - **商店池（shop.gd:91-110）**：`_build_shop_pool` = 33 武器（36−3 evolution_result）+ 20 被动 = **53**；返回**资源实例**（D13-T6 BUG-002 修复）；遗物池 = 第三循环（slot=="relic" 且 price>0）
+> - **inventory（inventory.gd）**：`MAX_ITEMS=6`（被动槽）；`add_item_from_data`(:75-92) 已透传 slot/category（:89-90）+ effects → stat_bonuses；装配链路 item_added → player.apply_item_bonuses（D11-12 已通，零新装配代码）；`inventory_full(category)` 信号已有
+> - **items.png = 640×32（20 帧）**（assets/sprites/ui/items.png）；icon_atlas items frame_count=20（icon_atlas.gd:16）；**回归同步**：day11_12 探针 `frame_count == 20` 断言（day11_12_passive_check.gd:480）→ 22；day13 探针 `pool.size() != 53`（day13_build_check.gd:200）→ 55（:243 概率注释同步）
+> - **day11_12 探针 icon_index 0-19 唯一**（:200-212）只查 is_passive 项 → 遗物（is_passive 缺省）不在此列，**无需动**；resonant_shard 无 icon_index（缺省 0 与 coffee 撞）但不显示图标（事件直装无感），保持现状
+> - **回归锚点**：3 核心 effects 豁免（D11-12 定案：禁键仅占位登记不判失败）→ se_mech_core/mech_heart 的 structure_damage_percent 本日补消费点后**顺带激活，不破坏探针**（豁免只查不判）
+> - **W5 不得判失败**：遗物 HUD 槽位显示（P1 顺延 Day 26 整合）；遗物获得特效/VFX（Day 23）；mech_heart 纳入遗物池（登记可选 P1）；遗物平衡体感（主观 → PLAYTEST）
+
+#### D20-PRE【W1 主责 + W2 协作】遗物系统定案表
+| # | 决策 | 依据 |
+|---|---|---|
+| 1 | **遗物定义**：`slot: "relic"`（is_passive 缺省）的 items.json 条目；**直装不占被动槽**（D16 resonant_shard 先例统一），持有上限 2（`MAX_RELICS`）；获得即生效（item_added → apply_item_bonuses 复用，零新装配代码） | D16 事件 item 直装先例实测；D11-12 装配链路已通 |
+| 2 | **新建 2 件遗物**（W2，items.json 49→51）：`broken_crown` 破碎王冠（legendary/price 120，`{damage_percent: 50, damage_taken_percent: 30}` 双刃剑）+ `mech_engine` 机械引擎（legendary/price 120，`{structure_damage_percent: 100}`）；各带 `slot:"relic"` + `icon_index: 20/21` | 30DAY_PLAN D20 两条目直译；effects 键全部白名单化 |
+| 3 | **⚠️ 命名冲突定案**：大纲遗物「机械核心」与 se_mech_core（进化核心）重名 → 遗物命名 **「机械引擎 mech_engine」**；「机械伤害+100%」语义 → 键 `structure_damage_percent: 100`（结构/召唤物伤害，se_mech_core/mech_heart 已用此键的先例） | items.json se_mech_core 实测（evolution_core 占用） |
+| 4 | **新键 damage_taken_percent（受伤倍率）**：STAT_MAP 注册 `"damage_taken_percent": {"stat": "damage_taken_mult", "mode": "percent"}` + player 新属性 `damage_taken_mult: float = 1.0`；take_damage 插入 `actual_damage = max(amount - armor, 1.0) * damage_taken_mult`（armor 先减后乘），F-04 debug_cheat ×0.001 保持最后兜底 | take_damage :281-300 结构实测；破碎王冠「受伤+30%」无现成键 |
+| 5 | **新键 structure_damage_percent（结构伤害）消费点补全**：STAT_MAP 注册 + player 新属性 `structure_damage_mult: float = 1.0`；turret.gd 弹药伤害链补乘（:89-94 已有 player.damage_multiplier 范式）——**顺带激活 se_mech_core/mech_heart 悬空词条** | scripts/ 全域 grep structure_damage_percent 零消费点实测 |
+| 6 | **遗物上限**：inventory `MAX_RELICS: int = 2` + `get_relic_count()`；`add_item_from_data` slot=="relic" 分支 → 持有 ≥2 拒（`inventory_full.emit("relic")`）；仍走 items.append + item_added（装配复用）；6 被动 + 2 遗物共存互不挤占 | inventory.gd 结构实测；防无限叠 |
+| 7 | **商店第三池**：`_build_shop_pool` 追加遗物循环（`idata.get("slot") == "relic"` 且 `price > 0`）→ 池 **53→55**（33 武器 + 20 被动 + 2 遗物）；4 卡随机含遗物概率 ≈3.6%（不保底，防过度设计）；resonant_shard（price 0）保持事件专属不入池 | shop.gd :91-110 实测；D13-T6 资源实例范式 |
+| 8 | **图标**：items.png 20→22 帧（640×32→704×32）+ `gen_item_icons.py` +2 函数（broken_crown 王冠金 / mech_engine 齿轮银蓝）+ icon_atlas frame_count 20→22；**回归同步**：day11_12 探针 frame_count 断言 20→22 | items.png 实测 20 帧；day11_12 探针 :480 |
+| 9 | **阶段 C 收口**：`day20_relic_check.gd` 探针 + 回归十五件套（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41 / day17 39 / day17_p0 20 / day18_19 N）+ baseline + `REPORT_PHASE_C.md`（仿 A/B：§1 阶段 C 七日回顾 / §2 各系统结论 / §3 平衡对照（F-01 移速×0.5 后曲线 + 遗物叠加边界）/ §4 遗留）+ commit | REPORT_PHASE_A/B 先例；回归锚点保护 |
+
+#### D20-T1【W2】items.json +2 遗物条目（数据）
+- [ ] `broken_crown` 破碎王冠：`{id, name, rarity:"legendary", price:120, effects:{damage_percent:50, damage_taken_percent:30}, tags:["relic","damage"], slot:"relic", icon_index:20}`
+- [ ] `mech_engine` 机械引擎：`{id, name, rarity:"legendary", price:120, effects:{structure_damage_percent:100}, tags:["relic","engineering"], slot:"relic", icon_index:21}`
+- [ ] 总项数 49→51；**不设 is_passive**（不入被动池，day11_12 20 被动断言零波及）；effects 键 ⊂ 白名单（damage_percent / damage_taken_percent / structure_damage_percent 三键，前 1 后 2 为 D20-T2 新注册键）
+- [ ] **测试点**：JSON 可解析 + 51 项 + 2 项 slot=="relic" + icon_index 20/21 唯一 + price>0
+- [ ] 文件域：W2 只写 `data/items.json`
+
+#### D20-T2【W1】player.gd 新装配键（damage_taken_mult / structure_damage_mult）
+- [ ] STAT_MAP 注册 2 键（:53-69）：`"damage_taken_percent": {"stat": "damage_taken_mult", "mode": "percent"}` + `"structure_damage_percent": {"stat": "structure_damage_mult", "mode": "percent"}`
+- [ ] 新属性：`var damage_taken_mult: float = 1.0` / `var structure_damage_mult: float = 1.0`（`reset()` 复位 1.0）
+- [ ] `take_damage`（:290 后、debug_cheat 前）插入：`actual_damage *= damage_taken_mult`（armor 平直减伤后乘；debug_cheat ×0.001 保持最后兜底，金手指语义不变）
+- [ ] **测试点**：白盒 broken_crown 装配 → `damage_multiplier ×1.5` + `damage_taken_mult == 1.3`；take_damage(100) armor=0 → 扣 130；armor=20 → 扣 104（`max(80,1)×1.3`）；debug_cheat 开 → ×0.001 仍最后
+- [ ] 文件域：W1 只写 `scripts/`
+
+#### D20-T3【W1】inventory 遗物上限（MAX_RELICS=2 直装不占被动槽）
+- [ ] `const MAX_RELICS: int = 2` + `func get_relic_count() -> int`（遍历 items 统计 `slot == "relic"`）
+- [ ] `add_item_from_data`（:75-92）slot=="relic" 分支：`get_relic_count() >= MAX_RELICS → inventory_full.emit("relic") + return false`（`inventory_full` 信号已有，HUD 提示归 P1）
+- [ ] 其余走原路径（items.append + item_added → apply_item_bonuses 装配复用）；6 被动 + 2 遗物共存（items 数组混存，槽位按 slot 分类计数不互挤占）
+- [ ] **测试点**：白盒 add broken_crown ×2 → 成功 2 + 计数 2；第 3 次 → false + inventory_full("relic")；6 被动满 + 2 遗物共存 → 被动再 add 仍拒（MAX_ITEMS 语义不变）
+- [ ] 文件域：W1 只写 `scripts/`
+
+#### D20-T4【W1】商店第三池（遗物）
+- [ ] `_build_shop_pool`（shop.gd:91-110）追加第三循环：`idata.get("slot") == "relic" and int(idata.get("price", 0)) > 0` → `_build_item_resource(iid)` 入池（resonant_shard price 0 天然排除 = 事件专属保持）
+- [ ] 池 53→55（33 武器 + 20 被动 + 2 遗物）；4 卡随机含遗物概率 ≈3.6%（`C(53,3)/C(55,4)` 反向 ≈ 1 − 3.6%，不保底不加权，防过度设计）
+- [ ] **回归同步**：day13_build_check.gd :200 `pool.size() != 53` → **55**（:243 概率注释同步更新）
+- [ ] **测试点**：白盒 `_build_shop_pool().size() == 55` + 全为资源实例 + 池内含 2 遗物（broken_crown/mech_engine id）+ 零 String
+- [ ] 文件域：W1 只写 `scripts/ui/shop.gd` + `tools/day13_build_check.gd`
+
+#### D20-T5【W3 + W1 协作】遗物图标 2 帧 + 图集扩容
+- [ ] `tools/gen_item_icons.py` +2 实绘函数：broken_crown（金色王冠，icon 20）/ mech_engine（银蓝齿轮，icon 21）；PIL 像素原语 + bounds check（描边越界 IndexError 坑）
+- [ ] items.png 20→22 帧（640×32→704×32）；`icon_atlas.gd:16` items frame_count 20→22
+- [ ] **回归同步**：day11_12_passive_check.gd :480 `frame_count == 20` 断言 → **22**（icon 0-19 唯一断言只查 is_passive 项，遗物不在此列零改动）
+- [ ] **测试点**：items.png 尺寸 704×32 + 帧 20/21 中心非空 + 透明键合规；icon_atlas get_frame_count("items") == 22
+- [ ] 文件域：W3 写 `assets/sprites/ui/items.png` + `tools/gen_item_icons.py`；W1 写 `scripts/utils/icon_atlas.gd` + `tools/day11_12_passive_check.gd`
+
+#### D20-T6【W1】新建 `tools/day20_relic_check.gd`（遗物系统探针 ≥18 断言五段）
+- [ ] §1 数据层：items 51 项；2 遗物 slot=="relic" + icon_index 20/21 唯一 + price>0 + effects 键 ∈ {damage_percent, damage_taken_percent, structure_damage_percent}；resonant_shard 保持无 slot（事件专属不破坏）；is_passive 仍 20 项（被动池零波及）
+- [ ] §2 新键装配（白盒直构造 + apply_item_bonuses）：broken_crown → damage ×1.5 + damage_taken_mult 1.3；mech_engine → structure_damage_mult 2.0；remove 回退 → 全复位 1.0/1.0
+- [ ] §3 take_damage 乘算：armor=0 受伤 130；armor=20 → 104（先减后乘）；debug_cheat 开 → 仍 ×0.001 最后兜底
+- [ ] §4 商店/上限：`_build_shop_pool().size() == 55`（33+20+2）+ 含 2 遗物 + 零 String；add broken_crown ×2 成功 → 第 3 次拒（inventory_full("relic")）；6 被动 + 2 遗物共存互不挤占
+- [ ] §5 结构伤害消费 + 回归：白盒 turret 弹药伤害 ×structure_damage_mult（se_mech_core/mech_heart 词条顺带激活——装配 se_mech_core → structure_damage_mult == 1.4）；回归锚点：day11_12 frame_count 22 / day13 池 55 / icon_index 0-19 唯一仍成立
+- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 固定 seed + 白盒直构造（D11-12/13 flaky 修复记录）
+- [ ] 文件域：W1 只写 `tools/`
+
+#### D20-EXIT【W5】阶段 C 收口
+- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [ ] `day20_relic_check` CLEAN + **回归十五件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41 / day17 39 / day17_p0 20 / day18_19 N）+ `gen_weapons_day7.py verify` 36/36
+- [ ] 新建 `docs/REPORT_PHASE_C.md`（仿 A/B 先例）：§1 阶段 C 七日回顾（D14-15 随机节点地图 / D16 事件节点 / D17 精英战斗 / D17-P0 围杀四件套 / D18-19 Boss 多阶段 / D20 遗物）+ §2 各系统集成结论 + §3 平衡对照（F-01 移速×0.5 后曲线 vs D6 对照表 / 遗物叠加边界：damage_percent 乘算链 1.5×1.08×… 与被动同键叠加）+ §4 遗留风险（R4 攻击力口径 / 森林区域深消费 Day 27 / 遗物 HUD 槽 P1 / 进化选项加权待决策）——**不写 PROGRESS.md**（#1 独占追加）
+- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
+- [ ] 主观项登记：遗物平衡体感（破碎王冠双刃剑取舍）/ 遗物 Build 质变感知 / 阶段 C 整体流程体验 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
 ---
 

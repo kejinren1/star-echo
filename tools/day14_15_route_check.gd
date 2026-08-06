@@ -8,7 +8,7 @@
 ##   2. 拓扑合法性：layers == routes.json.layers；每层节点数 == nodes_per_layer（末层 1 boss）；
 ##      首层含 battle；boss 仅末层；类型 ∈ 5 类；battle_count ≤ 19
 ##   3. 数据驱动：weights 归一化（和≈1.0）；default_seed 可读；weights 全空 → 默认权重兜底
-##   4. 波次映射：battle/elite → wave_index ∈ [1,19] 且 DataLoader.get_wave 非空；boss → 20；
+##   4. 波次映射：battle/elite → wave_index ∈ [1,19] 且 DataLoader.get_wave 非空；boss → 10；
 ##      shop/event → 0
 ##   5. 模式兼容：route_enabled=false → start_game → BATTLE 且零面板（旧行为）；
 ##      _start_next_wave() 默认 -1 累加不变；route_enabled=true → ROUTE_SELECT
@@ -25,7 +25,7 @@ const FIXED_SEED: int = 20260806   ## 固定复现种子（routes.json default_s
 const SEED_A: int = 1
 const SEED_B: int = 2
 
-## 端到端固定路线：L0=[battle w1, shop, event] · L1=[battle w2] · L2=[boss w20]
+## 端到端固定路线：L0=[battle w1, shop, event] · L1=[battle w2] · L2=[boss w10]
 const FIXED_ROUTE: Dictionary = {
 	"seed": 999,
 	"layers": [
@@ -38,7 +38,7 @@ const FIXED_ROUTE: Dictionary = {
 			{"type": "battle", "wave_index": 2},
 		],
 		[
-			{"type": "boss", "wave_index": 20},
+			{"type": "boss", "wave_index": 10},
 		],
 	],
 	"modifiers": {},
@@ -222,13 +222,13 @@ func _advance(sub: int) -> int:
 					if wi < 1 or wi > 19 or _loader.call("get_wave", wi).is_empty():
 						map_ok = false
 				elif t == "boss":
-					if wi != 20:
+					if wi != 10:
 						boss_ok = false
 				elif t == "shop" or t == "event":
 					if wi != 0:
 						zero_ok = false
 			_ok(map_ok, "battle/elite → wave ∈ [1,19] 且 get_wave 非空")
-			_ok(boss_ok, "boss → wave_index == 20")
+			_ok(boss_ok, "boss → wave_index == 10")
 			_ok(zero_ok, "shop/event → wave_index == 0")
 			return 7
 		# ---------- §5 模式兼容 ----------
@@ -308,19 +308,22 @@ func _advance(sub: int) -> int:
 			# 面板按钮回调已 queue_free → 下一帧 tree_exited 清引用
 			_ok(_gm.get("_route_select_panel") == null, "E2E: 按钮回调后面板销毁")
 			_gm.call("on_wave_cleared")
-			var p3: Node = _gm.get("_route_select_panel")
+			# P1 Fix-1：战斗后自动弹商店（不再直接进路线选择）
 			_ok(int(_gm.get("current_layer")) == 2, "E2E: battle 清后推进到 L2")
-			_ok(_gm.get("current_state") == _states.ROUTE_SELECT, "E2E: L2 → ROUTE_SELECT")
+			_ok(_gm.get("current_state") == _states.SHOP, "E2E: 战斗后自动弹商店（P1 Fix-1）")
+			_gm.call("close_shop")
+			var p3: Node = _gm.get("_route_select_panel")
+			_ok(_gm.get("current_state") == _states.ROUTE_SELECT, "E2E: close_shop 后回 ROUTE_SELECT")
 			_ok(_panel_buttons(p3).size() == 1, "E2E: L2 按钮数 == 1（boss）")
 			return 14
 		14:
-			# boss 节点（L2 row 0, wave 20）
+			# boss 节点（L2 row 0, wave 10）
 			var p4: Node = _gm.get("_route_select_panel")
 			var btn4: Button = _panel_buttons(p4)[0]
 			btn4.pressed.emit()
 			_ok(str(_gm.get("current_node").get("type")) == "boss", "E2E: 选中 boss 节点")
 			_ok(_gm.get("current_state") == _states.BATTLE, "E2E: boss → BATTLE")
-			_ok(int(_gm.get("current_wave")) == 20, "E2E: boss 波次映射 wave == 20")
+			_ok(int(_gm.get("current_wave")) == 10, "E2E: boss 波次映射 wave == 10")
 			_ok(_gm.get("is_boss_wave") == true, "E2E: is_boss_wave == true")
 			return 15
 		15:

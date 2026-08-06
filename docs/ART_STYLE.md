@@ -55,10 +55,35 @@
 1. **暗色舞台 + 高亮角色**：背景使用低明度/低饱和的暗色调（深灰、深蓝、暗紫），角色和敌人使用高饱和/高明度的色彩，确保满屏混战时玩家能瞬间定位自身和威胁。
 2. **硬朗轮廓线**：所有精灵使用 1-2px 的深色描边（接近纯黑），增强辨识度。不使用 Brotato 式的软萌轮廓，而是更偏硬朗的剪影风格。
 3. **霓虹色点缀**：武器特效、暴击数字、拾取物使用高亮霓虹色（青、品红、电黄），在暗色背景上形成"光源感"。
-4. **32px 像素密度**：角色精灵基准 32x32px，敌人 24x24~32x32px，保证同屏 100+ 敌人时的性能和可读性。
-5. **有限调色板**：全局使用 32 色限定调色板（见下文），所有美术资产从该调色板取色，确保视觉统一。
+4. **64px 像素密度**：角色精灵基准 64x64px，敌人 48x48~64x64px。2D 渲染瓶颈是屏幕像素面积而非源纹理分辨率，64px 对同屏 100+ 敌人流畅度几乎无影响（Halls of Torment 同级别）。
+5. **有限调色板**：全局使用**色板字典登记制（≤216 色）**（见下文），所有美术资产取色登记入字典，确保视觉统一。
 
-### 调色板（32 色限定）
+### 色板字典（216 色上限 + 锚点色板）
+
+> **色数政策升级（2026-08-06 拍板）：从「32 色硬约束」改为「216 色上限 + 字典登记制」**
+> - 技术上 RGB 不限色数，限制色数是**风格工具**（统一感）而非技术需求
+> - 64px 高细节素材下 32 色实测观感大幅下降，故上限放宽至 **216 色**（网页安全色量级 6³）
+> - 新素材（AI/人工生成）导出时：**提取实际用色 → 登记入字典 → 容差内归并邻近色**，人工只审查异常色
+> - 保留下方 32 色「锚点色板」作为推荐基础色，关键色（描边/皮肤/发色）硬编码锚点、不容差归并
+
+#### 色号编码规范（仿拼豆色卡）
+- 格式：`前缀字母 + 两位数字`，如 `S05`、`H12`、`E07`（与拼豆图纸色号体系同构）
+- 前缀表：`B`=背景基底 / `S`=皮肤 / `H`=发色 / `M`=金属装备 / `C`=服装 / `E`=特效霓虹 / `U`=UI / `N`=中性描边
+- 编号 00-99，单类 100 号，总量 26×100=2600 容量，远超 216 上限
+- 色号由工具自动分配并登记，人工只负责审美审查
+
+#### 登记与归并规则
+- **新颜色**：首次出现即分配新色号，登记 `色号 - 名称 - HEX - 用途` 四元组
+- **容差归并**：与已有色号 RGB 距离 ≤ 容差（默认 ΔRGB ≤ 12）的像素自动归并，防字典膨胀
+- **锚点色**：描边 / 皮肤 / 发色等关键色硬编码锚点，禁止容差归并
+
+#### 透明键协议（背景识别，与拼豆图纸惯例一致）
+- **每张精灵 PNG 左上角 (0,0) 像素的颜色 = 透明键（背景色）**，全图与该色相同的像素一律视为透明镂空
+- 该色只允许用于背景，**禁止出现在角色关键位置**（会造成"透视"破洞）
+- 美工在导出时审查（拼豆网站提供此审查功能），工具链同步输出透明键色占用警告
+- 引擎侧：Godot 导入后透明键像素 alpha=0，不影响渲染
+
+#### 锚点色板（推荐基础色，32 色，可扩展）
 
 ```
 === 暗色基底 (8色) ===
@@ -128,14 +153,14 @@
 
 | 资产类型 | 尺寸 (px) | 说明 |
 |----------|-----------|------|
-| 玩家角色 | **32 x 32** | 含 1px 描边的完整精灵 |
-| 普通敌人 | **24 x 24** 或 **32 x 32** | 小型敌人 24px，中型 32px |
-| 精英敌人 | **32 x 32** | 带光环/配色区分 |
-| Boss | **64 x 64** | 需要更大视觉冲击 |
-| 武器图标 | **32 x 32** | 商店/装备栏用 |
-| 道具图标 | **32 x 32** | 商店/装备栏用 |
+| 玩家角色 | **64 x 64** | 含 1-2px 描边的完整精灵（2026-08-06 由 32px 升级） |
+| 普通敌人 | **48 x 48** 或 **64 x 64** | 小型敌人 48px，中型 64px |
+| 精英敌人 | **64 x 64** | 带光环/配色区分 |
+| Boss | **128 x 128** | 需要更大视觉冲击 |
+| 武器图标 | **32 x 32** | 商店/装备栏用（UI 视口 640x360 下保持，不随精灵升级） |
+| 道具图标 | **32 x 32** | 商店/装备栏用（UI 视口 640x360 下保持） |
 | 属性图标 | **16 x 16** | UI 小图标 |
-| 地面 Tile | **32 x 32** | 方格化地面 |
+| 地面 Tile | **64 x 64** | 方格化地面（2026-08-06 升级，支撑后期大地图） |
 | 命中特效 | **32 x 32** | 4-8 帧爆破 |
 | 拾取物 | **8 x 8** 或 **16 x 16** | 金币/经验/血瓶 |
 | 弹幕/投射物 | **8 x 8** 或 **16 x 16** | 小型飞行物 |
@@ -170,30 +195,30 @@
 - **造型**：身披简易铠甲的人形战士，肩宽体壮，手持短剑（或空手，武器由装备系统叠加显示）
 - **色彩**：银灰色铠甲 + #e94560 红色披风，深色肤色
 - **辨识特征**：红色披风在暗色背景中极醒目，玩家一眼定位
-- **尺寸**：32x32，体宽约 14px，身高约 28px
+- **尺寸**：64x64，体宽约 28px，身高约 56px
 
 #### 2.「游侠」(Ranger)
 - **造型**：斗篷兜帽的瘦长身形，持弓姿态，兜帽遮住面部只露发光的眼
 - **色彩**：#4e89de 钴蓝斗篷 + 暗色内衣，兜帽内 #00f5ff 青色微光眼
 - **辨识特征**：青色微光眼睛在暗背景中如星点
-- **尺寸**：32x32，体宽约 12px，身高约 30px（偏瘦长）
+- **尺寸**：64x64，体宽约 24px，身高约 60px（偏瘦长）
 
 #### 3.「法师」(Mage)
 - **造型**：长袍法师，手持法杖，帽檐宽大，袍角飘动
 - **色彩**：#9d4edd 暗紫长袍 + #ff00ff 品红法杖宝石，袍底暗色
 - **辨识特征**：法杖宝石的品红微光，移动时袍摆动画
-- **尺寸**：32x32，体宽约 14px，身高约 30px
+- **尺寸**：64x64，体宽约 28px，身高约 60px
 
 ### 敌人设计方向（MVP 6 种）
 
 | 敌人 | 造型 | 尺寸 | 色彩 | 行为特征 |
 |------|------|------|------|----------|
-| **史莱姆** | 半圆胶状，无腿无臂，整体弹跳 | 24x24 | #6bc86b 毒绿 | 慢速直线追击 |
-| **骷髅兵** | 人形骨架，持小盾，歪斜步态 | 32x32 | 冷灰 #cccccc | 中速追击 |
-| **蝙蝠群** | 翅膀展开的小型飞行体 | 16x16 | #2d2d3f 暗色 + #ff073a 红眼 | 之字形飞行 |
-| **火精灵** | 火焰拖尾的球体，无固定形态 | 24x24 | #ff6b35 烈焰橙 → #ff5e00 | 快速冲刺 |
-| **精英骑士** | 高大骑士，巨剑/重盾，带光环 | 32x32 | 银灰 + #f6c90e 警示黄光环 | 慢速高伤 |
-| **Boss：深渊领主** | 巨大暗影体，多眼，触手 | 64x64 | #1a1a2e + #9d4edd 多眼 #ff073a | 多阶段，全屏技能 |
+| **史莱姆** | 半圆胶状，无腿无臂，整体弹跳 | 48x48 | #6bc86b 毒绿 | 慢速直线追击 |
+| **骷髅兵** | 人形骨架，持小盾，歪斜步态 | 64x64 | 冷灰 #cccccc | 中速追击 |
+| **蝙蝠群** | 翅膀展开的小型飞行体 | 32x32 | #2d2d3f 暗色 + #ff073a 红眼 | 之字形飞行 |
+| **火精灵** | 火焰拖尾的球体，无固定形态 | 48x48 | #ff6b35 烈焰橙 → #ff5e00 | 快速冲刺 |
+| **精英骑士** | 高大骑士，巨剑/重盾，带光环 | 64x64 | 银灰 + #f6c90e 警示黄光环 | 慢速高伤 |
+| **Boss：深渊领主** | 巨大暗影体，多眼，触手 | 128x128 | #1a1a2e + #9d4edd 多眼 #ff073a | 多阶段，全屏技能 |
 
 ---
 
@@ -273,15 +298,24 @@
 
 | 特效 | 帧数 | 尺寸 | 说明 |
 |------|------|------|------|
-| 命中溅射 | 4 | 32x32 | 白色闪光 + 碎片飞溅 |
-| 暴击爆发 | 6 | 32x32 | #fffd00 黄色星形放射 |
-| 敌人死亡 | 4 | 32x32 | 碎片飞溅 + 淡出 |
-| 升级光环 | 6 | 32x32 | #39ff14 绿色扩散圆环 |
+| 命中溅射 | 4 | 64x64 | 白色闪光 + 碎片飞溅 |
+| 暴击爆发 | 6 | 64x64 | #fffd00 黄色星形放射 |
+| 敌人死亡 | 4 | 64x64 | 碎片飞溅 + 淡出 |
+| 升级光环 | 6 | 64x64 | #39ff14 绿色扩散圆环 |
 | 拾取闪烁 | 4 | 16x16 | 金币 #fffd00 / 经验 #6bc86b / 血瓶 #e94560 |
 | 弹幕拖尾 | 2 | 8x8 | 单色半透明渐变 |
-| 火焰范围 | 4 | 32x32 | #ff5e00 橙色跳动 |
-| 冰冻覆盖 | 2 | 32x32 | #00f5ff 青色覆盖 |
-| Boss 警告 | 4 | 32x32 | 红色圆圈预警范围标记 |
+| 火焰范围 | 4 | 64x64 | #ff5e00 橙色跳动 |
+| 冰冻覆盖 | 2 | 64x64 | #00f5ff 青色覆盖 |
+| Boss 警告 | 4 | 64x64 | 红色圆圈预警范围标记 |
+
+### 特效色机制（升级奖励规则绑定，Backlog 2026-08-06）
+
+- **规则奖励 → 触发指定特效 → 特效实现包含「替换对应坐标区域色块为特效色块」**
+- 例：魔法师眼睛增亮（特殊升级奖励）= 替换眼睛区域色块为特效霓虹色（E 系色号）
+- 落地时按具体特效三选一实现路径（**不推荐运行时逐像素改纹理**）：
+  1. 升级换 sprite 变体贴图（最便宜最稳）
+  2. shader 按区域调色（不换图，动态）
+  3. 叠加发光层（最灵活，多一层 draw）
 
 ---
 
@@ -294,35 +328,35 @@
 
 | ID | 名称 | 尺寸 | 动画 | 总帧数 | 优先级 | 文件路径 |
 |----|------|------|------|--------|--------|----------|
-| P01 | 战士 idle | 32x32 | 4帧 | 4 | P0 | assets/sprites/characters/fighter_idle.png |
-| P02 | 战士 walk | 32x32 | 6帧 | 6 | P0 | assets/sprites/characters/fighter_walk.png |
-| P03 | 战士 hit | 32x32 | 2帧 | 2 | P1 | assets/sprites/characters/fighter_hit.png |
-| P04 | 战士 death | 32x32 | 6帧 | 6 | P1 | assets/sprites/characters/fighter_death.png |
-| P05 | 游侠 idle | 32x32 | 4帧 | 4 | P1 | assets/sprites/characters/ranger_idle.png |
-| P06 | 游侠 walk | 32x32 | 6帧 | 6 | P1 | assets/sprites/characters/ranger_walk.png |
-| P07 | 法师 idle | 32x32 | 4帧 | 4 | P2 | assets/sprites/characters/mage_idle.png |
-| P08 | 法师 walk | 32x32 | 6帧 | 6 | P2 | assets/sprites/characters/mage_walk.png |
+| P01 | 战士 idle | 64x64 | 4帧 | 4 | P0 | assets/sprites/characters/fighter_idle.png |
+| P02 | 战士 walk | 64x64 | 6帧 | 6 | P0 | assets/sprites/characters/fighter_walk.png |
+| P03 | 战士 hit | 64x64 | 2帧 | 2 | P1 | assets/sprites/characters/fighter_hit.png |
+| P04 | 战士 death | 64x64 | 6帧 | 6 | P1 | assets/sprites/characters/fighter_death.png |
+| P05 | 游侠 idle | 64x64 | 4帧 | 4 | P1 | assets/sprites/characters/ranger_idle.png |
+| P06 | 游侠 walk | 64x64 | 6帧 | 6 | P1 | assets/sprites/characters/ranger_walk.png |
+| P07 | 法师 idle | 64x64 | 4帧 | 4 | P2 | assets/sprites/characters/mage_idle.png |
+| P08 | 法师 walk | 64x64 | 6帧 | 6 | P2 | assets/sprites/characters/mage_walk.png |
 
-> **Sprite Sheet 格式**：每个动画横向排列，单帧 32x32，整图 32*N x 32。
+> **Sprite Sheet 格式**：每个动画横向排列，单帧 64x64，整图 64*N x 64。
 > 留 1px 边距防止采样溢出。
 
 ### 7.2 敌人精灵
 
 | ID | 名称 | 尺寸 | 动画 | 总帧数 | 优先级 | 文件路径 |
 |----|------|------|------|--------|--------|----------|
-| E01 | 史莱姆 move | 24x24 | 2帧 | 2 | P0 | assets/sprites/enemies/slime_move.png |
-| E02 | 史莱姆 death | 24x24 | 4帧 | 4 | P0 | assets/sprites/enemies/slime_death.png |
-| E03 | 骷髅兵 move | 32x32 | 4帧 | 4 | P0 | assets/sprites/enemies/skeleton_move.png |
-| E04 | 骷髅兵 death | 32x32 | 4帧 | 4 | P0 | assets/sprites/enemies/skeleton_death.png |
-| E05 | 蝙蝠 move | 16x16 | 4帧 | 4 | P1 | assets/sprites/enemies/bat_move.png |
-| E06 | 蝙蝠 death | 16x16 | 2帧 | 2 | P1 | assets/sprites/enemies/bat_death.png |
-| E07 | 火精灵 move | 24x24 | 4帧 | 4 | P1 | assets/sprites/enemies/firefly_move.png |
-| E08 | 火精灵 death | 24x24 | 4帧 | 4 | P1 | assets/sprites/enemies/firefly_death.png |
-| E09 | 精英骑士 move | 32x32 | 4帧 | 4 | P2 | assets/sprites/enemies/eliteknight_move.png |
-| E10 | 精英骑士 death | 32x32 | 4帧 | 4 | P2 | assets/sprites/enemies/eliteknight_death.png |
-| E11 | Boss 深渊领主 idle | 64x64 | 6帧 | 6 | P2 | assets/sprites/enemies/boss_idle.png |
-| E12 | Boss 深渊领主 attack | 64x64 | 4帧 | 4 | P2 | assets/sprites/enemies/boss_attack.png |
-| E13 | Boss 深渊领主 death | 64x64 | 6帧 | 6 | P2 | assets/sprites/enemies/boss_death.png |
+| E01 | 史莱姆 move | 48x48 | 2帧 | 2 | P0 | assets/sprites/enemies/slime_move.png |
+| E02 | 史莱姆 death | 48x48 | 4帧 | 4 | P0 | assets/sprites/enemies/slime_death.png |
+| E03 | 骷髅兵 move | 64x64 | 4帧 | 4 | P0 | assets/sprites/enemies/skeleton_move.png |
+| E04 | 骷髅兵 death | 64x64 | 4帧 | 4 | P0 | assets/sprites/enemies/skeleton_death.png |
+| E05 | 蝙蝠 move | 32x32 | 4帧 | 4 | P1 | assets/sprites/enemies/bat_move.png |
+| E06 | 蝙蝠 death | 32x32 | 2帧 | 2 | P1 | assets/sprites/enemies/bat_death.png |
+| E07 | 火精灵 move | 48x48 | 4帧 | 4 | P1 | assets/sprites/enemies/firefly_move.png |
+| E08 | 火精灵 death | 48x48 | 4帧 | 4 | P1 | assets/sprites/enemies/firefly_death.png |
+| E09 | 精英骑士 move | 64x64 | 4帧 | 4 | P2 | assets/sprites/enemies/eliteknight_move.png |
+| E10 | 精英骑士 death | 64x64 | 4帧 | 4 | P2 | assets/sprites/enemies/eliteknight_death.png |
+| E11 | Boss 深渊领主 idle | 128x128 | 6帧 | 6 | P2 | assets/sprites/enemies/boss_idle.png |
+| E12 | Boss 深渊领主 attack | 128x128 | 4帧 | 4 | P2 | assets/sprites/enemies/boss_attack.png |
+| E13 | Boss 深渊领主 death | 128x128 | 6帧 | 6 | P2 | assets/sprites/enemies/boss_death.png |
 
 ### 7.3 武器图标
 
@@ -372,26 +406,49 @@
 
 | ID | 名称 | 尺寸 | 优先级 | 文件路径 |
 |----|------|------|--------|----------|
-| T01 | 石地板 tileset | 32x32 x4 变体 | P0 | assets/sprites/effects/tileset_ground.png |
-| T02 | 裂纹/血迹叠加 | 32x32 x3 | P1 | assets/sprites/effects/tileset_overlay.png |
-| T03 | 边界墙 | 32x32 x4 | P0 | assets/sprites/effects/tileset_wall.png |
-| T04 | 场景装饰（骸骨/碎石） | 16x16 x4 | P2 | assets/sprites/effects/tileset_deco.png |
+| T01 | 石地板 tileset | 64x64 x4 变体 | P0 | assets/sprites/effects/tileset_ground.png |
+| T02 | 裂纹/血迹叠加 | 64x64 x3 | P1 | assets/sprites/effects/tileset_overlay.png |
+| T03 | 边界墙 | 64x64 x4 | P0 | assets/sprites/effects/tileset_wall.png |
+| T04 | 场景装饰（骸骨/碎石） | 32x32 x4 | P2 | assets/sprites/effects/tileset_deco.png |
+
+### 7.6.1 大地图 Tileset 规格（2026-08-06 立项，交主程落地）
+
+> 背景：地面 Tile 从 32px 升至 64px（与角色基准一致，1 tile = 1 网格）。后期将加入**有逻辑的完整大地图**增强沉浸感（参考明日方舟集成战略的地图叙事感）。
+
+**设计分层（美术产出 3 层 + 1 套规则）**
+1. **L1 基础地面层**：64×64 可平铺纹理（石地/草地/沙地等，每地形 ≥4 变体防重复感）
+2. **L2 过渡边缘层**：地形边界混合变体（如石地→草地过渡 8 方向 + 角），配合 Godot TileSet **Terrains（自动地形）**，艺术家只画边界变体，引擎自动过渡
+3. **L3 装饰层**：稀疏摆放（骸骨/碎石/植被/星骸碎片），32×32 起，不参与碰撞或仅小碰撞，用于打破平铺重复感
+
+**大地图两种落地路线（主程选型）**
+- **A. 手绘整图切 tile（沉浸感最强）**：艺术家绘制完整大地图（如 4096×4096）→ 按 64px 网格切片 → TileMap 加载。适合 Boss 区域、商店、事件节点等关键场景
+- **B. 程序化 tile 拼接（复用性最高）**：L1/L2 变体 + Terrains 自动过渡，用于普通战斗区域随机生成
+
+**沉浸感增强（后续迭代）**
+- 远景层：Parallax 2D 分层背景（暗色山脉/星骸剪影）
+- 迷雾/光照：暗色舞台 + 局部光源（与角色霓虹色呼应）
+- 地标节点：Boss 区/商店/事件区用 L3 装饰 + 专属 tile 变体标识
+
+**落地分工**
+- 主程（godot-dev）：TileSet/TileMapLayer 配置、Terrains 规则、场景加载、parallax
+- 美术（pixel-artist）：L1/L2/L3 素材、过渡变体、整图切片
+- 验收：64px 网格对齐、Nearest 无混色、过渡无缝、透明键协议生效
 
 ### 7.7 特效精灵
 
 | ID | 名称 | 尺寸 | 帧数 | 优先级 | 文件路径 |
 |----|------|------|------|--------|----------|
-| F01 | 命中溅射 | 32x32 | 4 | P0 | assets/sprites/effects/fx_hit.png |
-| F02 | 暴击爆发 | 32x32 | 6 | P0 | assets/sprites/effects/fx_crit.png |
-| F03 | 敌人死亡 | 32x32 | 4 | P0 | assets/sprites/effects/fx_death.png |
-| F04 | 升级光环 | 32x32 | 6 | P0 | assets/sprites/effects/fx_levelup.png |
+| F01 | 命中溅射 | 64x64 | 4 | P0 | assets/sprites/effects/fx_hit.png |
+| F02 | 暴击爆发 | 64x64 | 6 | P0 | assets/sprites/effects/fx_crit.png |
+| F03 | 敌人死亡 | 64x64 | 4 | P0 | assets/sprites/effects/fx_death.png |
+| F04 | 升级光环 | 64x64 | 6 | P0 | assets/sprites/effects/fx_levelup.png |
 | F05 | 拾取闪烁 | 16x16 | 4 | P0 | assets/sprites/effects/fx_pickup.png |
 | F06 | 弹幕-物理 | 8x8 | 1 | P0 | assets/sprites/effects/fx_proj_physical.png |
 | F07 | 弹幕-火焰 | 8x8 | 2 | P1 | assets/sprites/effects/fx_proj_fire.png |
 | F08 | 弹幕-冰 | 8x8 | 2 | P1 | assets/sprites/effects/fx_proj_ice.png |
 | F09 | 弹幕-电 | 8x8 | 2 | P1 | assets/sprites/effects/fx_proj_lightning.png |
-| F10 | 火焰范围 | 32x32 | 4 | P2 | assets/sprites/effects/fx_aoe_fire.png |
-| F11 | Boss 警告 | 32x32 | 4 | P2 | assets/sprites/effects/fx_boss_warn.png |
+| F10 | 火焰范围 | 64x64 | 4 | P2 | assets/sprites/effects/fx_aoe_fire.png |
+| F11 | Boss 警告 | 64x64 | 4 | P2 | assets/sprites/effects/fx_boss_warn.png |
 
 ### 7.8 字体
 
@@ -473,10 +530,10 @@ assets/
 ### 1. 制作工具
 - **像素绘制**：Aseprite（推荐，支持动画/调色板/sprite sheet 导出）
 - **备用**：LibreSprite（开源免费）、PixelLab（在线）
-- **调色板**：使用本文档定义的 32 色限定调色板的 .aseprite / .hex 文件分发
+- **调色板**：使用本文档定义的**色板字典**（216 色上限 + 锚点色板）的 .aseprite / .hex 文件分发
 
 ### 2. 制作流程
-1. 确认调色板（加载 32 色 .aseprite 调色板文件）
+1. 确认色板字典（加载锚点色板 .aseprite 文件，新色自动登记）
 2. 草图：先画 1 帧静态精灵，确认轮廓和配色
 3. 审查：与 team-lead 确认设计方向
 4. 动画：基于确认的静态帧制作 idle/walk/hit/death 动画
@@ -557,15 +614,15 @@ assets/
 | `fps` | int | 播放帧率 |
 | `death_sprite` | string | 死亡动画帧 strip（可选） |
 | `collision_radius` | int | 碰撞 / 拾取半径（像素） |
-| `palette_variant` | string | 指向 32 色调色板的色系，用于换色变体 |
+| `palette_variant` | string | 指向色板字典的色系（B/S/H/M/C/E/U/N），用于换色变体 |
 
 ### 12.4 帧 strip 硬约束
 
 - **横向排列**，单帧尺寸见第十四章规格表。
 - 整图宽 = 帧宽 × 帧数；整图高 = 帧宽（单行动画）。
-- 帧宽 = 精灵基准宽（角色 32、杂兵 24、Boss 64）。
+- 帧宽 = 精灵基准宽（角色 64、杂兵 48、Boss 128）。
 - 留 **1px 安全边距**防采样溢出（与第七章一致）。
-- 示例：4 帧 32px idle = `128×32` PNG；2 帧 24px move = `48×24` PNG。
+- 示例：4 帧 64px idle = `256×64` PNG；2 帧 48px move = `96×48` PNG。
 
 ### 12.5 进阶：导出 SpriteFrames .tres（Phase 2 推荐）
 
@@ -597,9 +654,9 @@ assets/
 
 ### 13.3 标准工序（5 步，第 3 步最关键）
 
-1. **缩到目标小尺寸**（如宽 32px）——这一步决定像素粒度。
+1. **缩到目标小尺寸**（如宽 64px）——这一步决定像素粒度。
 2. **最近邻放大**回显示尺寸（保持硬边，不开抗锯齿）。
-3. **量化调色板到本文档 32 色**（Indexed / palette remap）——★ 漏掉这步素材会"花"，脱离统一感。
+3. **提取用色并登记入色板字典**（≤216 色，容差内归并邻近色，见第二章）——★ 漏掉这步素材会"花"，脱离统一感。
 4. **加 1px 硬描边**（接近 `#0d0d12`），统一暗色像素风剪影。
 5. **Aseprite 精修**抖动与轮廓细节。
 
@@ -607,13 +664,13 @@ assets/
 
 ```bash
 # 1) 缩小到目标尺寸并保持硬边（Point 过滤器 = 最近邻）
-magick in.png -resize 32x32! -filter Point -scale 1000% draft.png
+magick in.png -resize 64x64! -filter Point -scale 1000% draft.png
 
-# 2) 套用本文档 32 色调色板（palette.png 为 1px 宽条，见第二章）
+# 2) 按需套用锚点色板（palette.png 为 1px 宽条，见第二章；新素材默认提取+登记，不强制 remap）
 magick draft.png -remap palette.png goblin_move.png
 ```
 
-> 注意：当前已产 26 张素材为 **RGBA 未强制 Indexed**。新素材一律 **Indexed 32 色** 导出；或在 Godot 用后处理 shader 把颜色 snap 到调色板，避免后期素材增多后逐步脱离统一感。
+> 注意：当前已产素材为 RGBA 未强制 Indexed。新素材一律**提取实际用色 → 登记色板字典（≤216 色）→ 容差归并**；或在 Godot 用后处理 shader 把颜色 snap 到锚点色板，避免后期素材增多后逐步脱离统一感。
 
 ---
 
@@ -621,15 +678,16 @@ magick draft.png -remap palette.png goblin_move.png
 
 | 项目 | 规格 | 说明 |
 |------|------|------|
-| 基准网格 | **32px** | 所有精灵对齐 8 / 16 倍数 |
-| 角色 | 32×32 | 俯视角，单帧或 4 方向 |
-| 杂兵 | 24×24 | 同屏数量优先 |
-| 精英 | 32×32 | 加描边 / 霓虹描边区分 |
-| Boss | 64×64 | 视觉权重 |
-| 帧 strip | 横向排列，帧宽 = 精灵尺寸，高固定 | 如 4 帧 idle = 128×32 |
+| 基准网格 | **64px** | 所有精灵对齐 8 / 16 倍数 |
+| 角色 | 64×64 | 俯视角，单帧或 4 方向 |
+| 杂兵 | 48×48 | 同屏数量优先 |
+| 精英 | 64×64 | 加描边 / 霓虹描边区分 |
+| Boss | 128×128 | 视觉权重 |
+| 帧 strip | 横向排列，帧宽 = 精灵尺寸，高固定 | 如 4 帧 idle = 256×64 |
 | 帧率 | idle 4–6fps（呼吸）、move 6–8fps、death 一次性 | 低帧保性能 |
-| 颜色 | **Indexed 32 色**（本文档调色板） | 统一感来源 |
-| 描边 | 1px 深色（接近 `#0d0d12`） | 硬朗剪影 |
+| 颜色 | **字典登记制，≤216 色**（色板字典 + 容差归并） | 统一感来源 |
+| 描边 | 1-2px 深色（接近 `#0d0d12`） | 硬朗剪影 |
+| 透明键 | **左上角 (0,0) 像素 = 背景色**，全图同色镂空 | 与拼豆图纸惯例一致 |
 | 导出 | PNG 无损，RGBA 或 Indexed | 关闭压缩损失 |
 
 > 本表与第三章「精灵尺寸规范 / 动画帧数规范」及第七章资产清单互为参照，扩展新素材时以上表为硬标准。

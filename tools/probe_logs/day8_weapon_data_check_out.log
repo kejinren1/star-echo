@@ -1,0 +1,24 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 8-9 weapon data check ===
+  PASS  JSON / 36 把 levels 8 条 + max_level≥8 全部满足（D7+D10 合并：33 既有 + 3 结果武器）
+  PASS  JSON / 3 把 Lv1==顶层（fist/rocket_launcher/force_field）
+  PASS  JSON / 18 把 levels damage 单调不减 + cooldown 单调不增
+  PASS  特例 / force_field levels damage 恒 0（护盾放行）
+  PASS  特例 / minigun Lv1 cooldown == 0.08（顶层一致）
+  PASS  装配 / fist base_damage == 3
+  PASS  装配 / fist icon_index == 0
+  PASS  装配 / force_field base_damage == 0（护盾不崩）
+  PASS  装配 / force_field icon_index == 31
+  PASS  装配 / force_field upgrade() 后 damage 仍 0
+  PASS  装配 / rocket_launcher icon_index == 14
+  PASS  图标 / PNG 尺寸 1280×32 不变
+  PASS  图标 / 18 帧中心 16×16 非全透明 + (0,0) 透明键
+  PASS  图标 / 帧 36-39 全透明（空余帧）
+  PASS  回归 / sword Lv8 damage == 50（day7 未破坏）
+  PASS  回归 / se_star_flame Lv8 projectiles == 3（day7 未破坏）
+  PASS  回归 / se_star_blade Lv8 blade_count == 4（day7 未破坏）
+  PASS  回归 / 36 把 icon_index 与 D7-T5+D10-T1 映射表一致
+  PASS  done
+--- 19 项断言，0 项失败 ---
+DAY8 WEAPON DATA CHECK CLEAN

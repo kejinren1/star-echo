@@ -1,0 +1,25 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 10 evolution check ===
+  PASS  数据 / 3 条进化链 + 交叉引用 + 平曲线全部合法
+  PASS  装配 / se_star_fall explosion_radius == 90
+  PASS  装配 / se_blade_storm orbit_data.blade_count == 6
+  PASS  装配 / se_turret_array base_damage == 30
+  PASS  背包 / add_item_from_data + has_item_id 验证通过
+  PASS  背包 / remove_item_id 消耗成功
+  PASS  背包 / remove 后 has_item_id == false
+  PASS  链路 / 满级 se_star_flame（Lv8/max=8）
+  PASS  链路 / replace_weapon 槽位数不变（满级→满级 1 把）
+  PASS  链路 / replace_weapon → source_id == se_star_fall
+  PASS  链路 / 替换后 level == max_level（平曲线即满级）
+  PASS  链路 / _roll_options 含 evolution「炎星陨落」选项
+  PASS  链路 / 无核心时 _roll_options 不含 evolution（互斥验证）
+  PASS  链路 / _apply_option 后武器替换为 se_star_fall
+  PASS  链路 / _apply_option 后核心已消耗
+  PASS  回归 / sword Lv8 damage == 50（day7 未破坏）
+  PASS  回归 / se_star_flame Lv8 projectiles == 3
+  PASS  回归 / se_star_blade Lv8 blade_count == 4
+  PASS  回归 / 36 把 icon_index 边界合法（0-35）
+  PASS  回归 / PNG 帧 33/34/35 实绘 + 36-39 全透明
+--- 20 项断言，0 项失败 ---
+DAY10 EVOLUTION CHECK CLEAN

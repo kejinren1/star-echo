@@ -2,9 +2,9 @@
 ## 层式分支拓扑（集成战略式）：L 层 × N 节点/层，末层固定 1 Boss 节点；
 ## 种子可复现：RandomNumberGenerator 实例（禁全局 RNG shuffle）；
 ## 事件改写预留：modifiers.reroute 可覆盖类型权重（消费归 Day 16）；
-## 节点→波次映射：战斗类（battle/elite）按战斗序号映射 wave n（waves.json 6-19
-## 天然含 elite 前缀 → elite 节点即取对应波），boss 固定 wave 20，shop/event 无战斗
-## （wave_index=0）；首层保证含 battle；硬校验 battle_count <= 19。
+## 节点→波次映射：P1 Fix-2 改为按层号分配（layer_index+1），
+## 玩家每层只选1节点 → 波次连续不跳号；boss 固定 wave 10（invoker 2阶段），
+## shop/event 无战斗（wave_index=0）；首层保证含 battle。
 extends RefCounted
 
 # ========== 类型常量 ==========
@@ -30,9 +30,11 @@ const DEFAULT_WEIGHTS: Dictionary = {
 
 ## 精英禁抽阈值：当前战斗序号 < 6 时禁抽 elite（waves.json 前 5 波无 elite 前缀敌人）
 const MIN_ELITE_WAVE: int = 6
-## 硬约束：战斗类节点数上限（boss 占 wave 20，战斗类映射 wave 1-19）
+## 硬约束：战斗类节点数上限（boss 占 wave 10，战斗类映射 wave 1-9）
 const MAX_BATTLE_NODES: int = 19
-const BOSS_WAVE: int = 20
+## P1 试玩反馈 Fix-2：Boss 波次从 20 改为 10（invoker 2阶段），
+## 配合层制 wave_index 分配消除跳号（4→10 远好于 4→20）
+const BOSS_WAVE: int = 10
 
 # ========== 生成入口 ==========
 
@@ -85,7 +87,8 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 			first_layer[0] = {"type": NODE_BATTLE, "wave_index": 0}
 			battle_count += 1
 
-	# 3) 战斗序号分配（battle/elite 按生成顺序映射 wave n；shop/event 保持 0）
+	# 3) 波次分配（P1 Fix-2：按层号分配 wave_index，玩家每层只选1节点 → 不跳号）
+	# battle/elite → wave = layer_index + 1；shop/event → 0；boss 末层单独追加
 	battle_count = 0
 	for li in layers.size():
 		var layer_nodes: Array = layers[li]
@@ -93,8 +96,8 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 			var node_data: Dictionary = layer_nodes[ni]
 			var node_type: String = str(node_data.get("type", ""))
 			if node_type == NODE_BATTLE or node_type == NODE_ELITE:
+				node_data["wave_index"] = li + 1
 				battle_count += 1
-				node_data["wave_index"] = _resolve_wave(battle_count)
 
 	# 4) 末层 boss
 	layers.append([{"type": NODE_BOSS, "wave_index": BOSS_WAVE}])
@@ -205,19 +208,18 @@ static func _count_battles_before(layers: Array, from_layer: int) -> int:
 				count += 1
 	return count
 
-## 全路线战斗序号 → wave_index 重映射（battle/elite 按顺序 1..19；boss 固定 20；shop/event 0）
+## 全路线 wave_index 重映射（P1 Fix-2：按层号分配，与生成主路径一致）
+## battle/elite → wave = layer_index + 1；boss → BOSS_WAVE(10)；shop/event → 0
 ## 生成器主路径与改线接口共用同一套映射逻辑（D16-T3）
 static func _reassign_wave_indices(route: Dictionary) -> void:
 	var layers: Array = route.get("layers", [])
-	var battle_count: int = 0
 	for li in layers.size():
 		var layer_nodes: Array = layers[li]
 		for ni in layer_nodes.size():
 			var node: Dictionary = layer_nodes[ni]
 			var node_type: String = str(node.get("type", ""))
 			if node_type == NODE_BATTLE or node_type == NODE_ELITE:
-				battle_count += 1
-				node["wave_index"] = _resolve_wave(battle_count)
+				node["wave_index"] = li + 1
 			elif node_type == NODE_BOSS:
 				node["wave_index"] = BOSS_WAVE
 			else:

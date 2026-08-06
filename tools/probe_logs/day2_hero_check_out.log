@@ -1,0 +1,37 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 2 hero pipeline check ===
+  PASS  se_irene / character_id = se_irene
+  PASS  se_irene / starting_weapon = se_star_flame
+  PASS  se_irene / 武器槽数量 = 1
+  PASS  se_irene / weapon_name = 炎星术
+  PASS  se_irene / base_damage = 6.000
+  PASS  se_irene / fire_rate = 1.818
+  PASS  se_irene / max_health = 90.000
+  PASS  se_noa / character_id = se_noa
+  PASS  se_noa / starting_weapon = se_auto_turret
+  PASS  se_noa / 武器槽数量 = 1
+  PASS  se_noa / weapon_name = 自动炮台
+  PASS  se_noa / attack_speed = 0.850
+  PASS  se_ren / character_id = se_ren
+  PASS  se_ren / starting_weapon = se_star_blade
+  PASS  se_ren / 武器槽数量 = 1
+  PASS  se_ren / weapon_name = 星刃
+  PASS  se_ren / crit_chance = 0.150
+  PASS  se_ren / life_steal = 0.050
+  PASS  <no-selection> / character_id = well_rounded
+  PASS  <no-selection> / starting_weapon = pistol
+  PASS  <no-selection> / 武器槽数量 = 1
+  PASS  <no-selection> / weapon_name = 手枪
+  PASS  brawler / character_id = brawler
+  PASS  brawler / 武器槽数量 = 1
+  PASS  ranger / character_id = ranger
+  PASS  ranger / 武器槽数量 = 1
+  PASS  mage / character_id = mage
+  PASS  mage / 武器槽数量 = 1
+  PASS  engineer / character_id = engineer
+  PASS  engineer / 武器槽数量 = 1
+  PASS  gambler / character_id = gambler
+  PASS  gambler / 武器槽数量 = 1
+--- 32 项断言，0 项失败 ---
+DAY2 HERO CHECK CLEAN

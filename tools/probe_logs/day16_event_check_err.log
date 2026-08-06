@@ -1,0 +1,4 @@
+WARNING: [GameManager] 事件奖励道具缺失: ghost_relic
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+WARNING: [RouteGenerator] reroute_remaining 层越界: 4（末层 boss 不可改写）
+     at: push_warning (core/variant/variant_utility.cpp:1112)

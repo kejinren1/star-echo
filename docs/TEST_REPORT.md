@@ -907,3 +907,1082 @@ DAY3 SKILL CHECK CLEAN
 **✅ 2026-08-05 21:05 自动化测试轮次 #5：PASS（0 阻断 WARNING）。** 工程（HEAD=752dc5c）可导入、可运行、数据完整且边界健康、全部场景可实例化；Day2 管线回归 32/32、Day3 主动技能出口校验 16/16 全过。相较 19:05 轮次，本轮覆盖 5 个新提交（launcher 修复 ×2 / art-brief / BUG-001 登记+排期），唯一功能级风险为 **BUG-001（wave-2 冻结，Day 4 排期修复）**——属流程/UI 缺陷，无头验证不受影响，已登记追踪。无需回退或修复。
 
 *追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 追加条目 · 2026-08-05 23:05（自动化测试轮次 #6）
+
+> 执行器：自动化测试工程师（hourly @ :45）· 全程只读，仅测与报告，未改任何游戏代码/数据/美术。
+> 基线版本：`git HEAD = 609a9fa`（docs: D21-T0 提前实装收口标记 + 常驻抠图工具 tools/cutout_bg.py）
+> 引擎：`tools/Godot_v4.3-stable_win64.exe`（Godot 4.3.stable.official.77dcf97d8）
+> 主场景：`res://scenes/CharacterSelect.tscn`
+> 工作树状态：`docs/PLAYTEST_CHECKLIST.md`（自动化 #5 产出，不影响验证）；`tools/_probe_turret_tmp.gd` 为被 gitignore 忽略的临时探针残留（无害）；**无游戏逻辑/数据/美术在途改动**。
+
+### 执行摘要（TL;DR）
+
+**✅ PASS（0 阻断 WARNING）。** 自 21:05 轮次（HEAD=752dc5c）以来工程推进 5 个提交至 `609a9fa`，覆盖 **Day4 finalize（XP/升级/10 属性面板/炮台/GameOver+波次清理 —— BUG-001 修复入库）**、**希亚 se_siia 数据预建 + 4 英雄 portrait/idle 素材**、D21-T0 提前实装收口。十项检查全绿：无头导入、4 帧运行、600 帧深度运行、全量 JSON 解析、跨引用完整性、数值边界、**14 场景实例化（+3 个 Day4 新增场景）**、Day2 回归（32/32）、Day3 出口（16/16）、**Day4 出口（21/21，本轮新增）**。
+
+| # | 检查项 | 结果 | 详情 |
+|---|---|---|---|
+| 1 | 无头导入（`--quit`） | ✅ PASS | exit 0，`baseline_import_err.log` 0 B |
+| 2 | 浅层运行（`--quit-after 4`） | ✅ PASS | exit 0，`baseline_runtime_err.log` 0 B |
+| 3 | 深度运行（`--quit-after 600` ≈10s） | ✅ CLEAN | exit 0，`deep_runtime_err.log` 0 B |
+| 4 | `data/*.json` 解析 | ✅ 8/8 | 无 JSONDecodeError / 截断 |
+| 5 | 跨引用完整性 | ✅ PASS | 0 硬悬空（ID 无重复；chars→weapons 10/10；waves→enemies 前缀感知 + mixed 家族放行） |
+| 6 | 数值边界（1050 数值字段） | ✅ PASS | 39 负值（+2 希亚）+ 1 零伤害，全部有意设计；负百分比越界 0 |
+| 7 | **14 场景实例化 smoke（+3）** | ✅ 14/14 | 正常模式 SMOKE_EXIT=0，零脚本错误 |
+| 8 | Day2 出口功能回归 | ✅ 32/32 | `day2_hero_check.gd` 断言全过 |
+| 9 | Day3 出口校验 | ✅ 16/16 | `day3_skill_check.gd` CLEAN |
+| 10 | **Day4 出口校验（本轮新增）** | ✅ 21/21 | `day4_level_check.gd` CLEAN（升级/面板/BUG-001 收口） |
+
+### 1. Godot 无头校验（godot-headless-verify 流程）
+
+- **导入阶段**：`baseline_check.py` → `[import] PASS - exit 0, stderr clean`。
+- **运行时阶段**：`[runtime] PASS - exit 0, stderr clean`（4 帧 `_ready` + 首帧）。
+- **日志落盘复检**：`baseline_import_err.log` / `baseline_runtime_err.log` / `deep_runtime_err.log` **均为 0 字节** → 排除空跑假通过。
+
+### 2. 深度运行探测（600 帧）
+
+主场景（CharacterSelect.tscn）`_ready` / `_process` / 定时器 / 信号初始化路径无报错（exit=0, stderr=0 B）。Day4 finalize 大提交（Player 升级/LevelUpPanel/Turret/GameOverPanel 新节点）未引入导入期或首帧期脚本回归。
+
+### 3. 数据层 JSON 校验
+
+| 文件 | 解析 | 顶层键 | 变化 |
+|---|---|---|---|
+| characters.json | ✅ | `characters`(**10**) | ⬆ 9→10（**新增 se_siia 希亚**） |
+| elements.json | ✅ | elemental_status(5)/element_reactions(10)/reaction_rules(4) | — |
+| enemies.json | ✅ | enemies(3 档 23)/scaling(5) | — |
+| events.json | ✅ | events(10) | — |
+| items.json | ✅ | items(47) | — |
+| stats.json | ✅ | stats(3)/formulas(15)/leveling(3) | — |
+| waves.json | ✅ | waves(20)/generation(3)/rewards(3) | ⬆ composition 池令牌迭代（见 §4） |
+| weapons.json | ✅ | weapons(4 类/**33** 叶子) | ⬆ 32→33（**新增 se_holy_staff 希亚签名武器**） |
+
+`TOTAL=8 OK=8 FAIL=0`。希亚数据预建提交（fd3ba69）将 characters 9→10、weapons 32→33，**数据层与 HERO_IDS 导入层同步就绪**。
+
+### 4. 跨引用完整性（静态只读，前缀感知）
+
+- **ID 唯一性**：characters 10 / weapons 33 / items 47 / enemies 23（reg 15/elite 6/boss 2）—— **均无重复 ID**。
+- **characters → weapons（starting_weapon）**：**10/10 全命中**（含 `se_siia→se_holy_staff` 新链路；`gambler→dagger` 维持修复态）。
+- **waves → enemies**：20 波经 `elite:`/`boss:` 前缀 strip + `mixed*` 聚合池令牌放行后，**0 硬悬空**。本轮数据迭代：`waves[15/17/19].composition` 新增 **`elite:mixed`** 池令牌 ×3（strip 前缀后为 `mixed` 家族），`waves[17]` 原 `mixed_with_curse` 变体已演进为 `elite:mixed`；全量 `mixed*` 令牌集合 = `{mixed, mixed_with_curse, elite:mixed}`，均按约定放行（见 §11 latent）。
+
+### 5. 数值边界扫描（1050 数值字段）
+
+| 异常 | 命中 | 核查结论 |
+|---|---|---|
+| 负值（39 处 = 37 存量 + 2） | characters penalty 17 处（**含 se_siia 新增 2 处**）/ 诅咒物品 18 处 / 事件代价 2 处 / Boss 波哨兵 2 处 | 角色惩罚 / 诅咒物品 / 事件代价语义本为负；哨兵 `-1` 配合 `composition` 表达 Boss 持续生成，全部设计预期内 |
+| 零伤害（1 处） | `weapons.engineering[5].damage=0`（force_field） | 力场发生器（护盾区域），防御型武器，0 伤害有意 |
+| 负百分比越界（`*_percent < -100`） | 0 | 合法区间内（最低 -100：狂战士近战/远程双禁） |
+| 哨兵值 `total_enemies=-1`（waves[10]/[20]） | 2 | Boss 波哨兵，非数据错误 |
+
+**数值层结论：无越界、无非法数值。**（数值字段口径 1050 = 历史 977 + 73：希亚角色 + se_holy_staff + waves 池令牌迭代；命中模式与历史一致，新增负值仅来自希亚 penalty 2 处。）
+
+### 6. 场景实例化 smoke（正常模式，14 场景）
+
+```
+OK res://scenes/CharacterSelect.tscn children=2
+OK res://scenes/Enemy.tscn children=2
+OK res://scenes/EnemySpawner.tscn children=0
+OK res://scenes/GameOverPanel.tscn children=2   ← Day4 新增
+OK res://scenes/Ground.tscn children=0
+OK res://scenes/HUD.tscn children=1
+OK res://scenes/LevelUpPanel.tscn children=1    ← Day4 新增
+OK res://scenes/Main.tscn children=6
+OK res://scenes/Player.tscn children=4
+OK res://scenes/Projectile.tscn children=0
+OK res://scenes/Shop.tscn children=2
+OK res://scenes/Turret.tscn children=0          ← Day4 新增
+OK res://scenes/VfxPlayer.tscn children=1
+OK res://scenes/WaveManager.tscn children=0
+SMOKE CLEAN (14 scenes)
+```
+
+**14/14 场景 `load()` + `instantiate()` 全部成功，零脚本错误**（沿用 #5 正常模式方法学，临时场景+脚本已清理）。Main.tscn children=6、Player.tscn children=4 均与上轮一致，Day4 新增 3 场景全部可实例化。
+
+### 7. Day2 出口功能回归（`day2_hero_check.gd`）
+
+**32 项断言，0 失败**：`DAY2 HERO CHECK CLEAN`。起始武器注入 / 被动 / 无选择兜底管线在新增希亚后无回归。
+
+### 8. Day3 出口校验（`day3_skill_check.gd`）
+
+**16 项断言，0 失败**：`DAY3 SKILL CHECK CLEAN`。主动技能系统（火球爆炸 AOE + 元素附着 / 星刃爆发攻速 ×1.5 精确还原 / 炮台占位零 error）行为级验证维持通过。
+
+### 9. 本轮新增：Day4 出口校验（`day4_level_check.gd`，仓库内既有脚本）
+
+Day 4 升级 / Build / 终局管线出口校验（对应 `docs/TASKS.md` D4-EXIT 十项断言）：
+
+- **21 项断言，0 失败**：`DAY4 LEVEL CHECK CLEAN`（较脚本注释的 10 项断言拆细为 21 项，覆盖 3 英雄用例）。
+- 关键覆盖：击杀获 exp、经验曲线（0→1 需 20 / 1→2 需 30）、升级暂停 + LevelUpPanel、攻击 +10% → ×1.10、范围 +8% → ×1.08、吸血 0.2×10 → +2 血、诺亚炮台 3→0（15s 到期）、连升 2 级信号 ×2、well_rounded 直升不崩、**波次清空敌人归零（BUG-001-F2）**、**die → GameOver 面板 + 暂停 + 标题「你已阵亡」+ 点重开零 error（BUG-001-F1）**。
+
+### 10. 已知缺陷状态追踪（BUG-001 → ✅ 已修复，本轮关闭）
+
+21:05 轮次登记的 **BUG-001（wave-2 冻结：玩家死亡无 GameOver UI + 波次切换不清理残敌）** 已随 `eb8e2f5`（Day4 finalize: XP/level-up core + 10-stat upgrade panel + turret + GameOver/wave-cleanup）**修复入库**，并经 `day4_level_check.gd` 断言 9（GameOver 面板 + 重开零 error）与断言 10（波次切换残敌归零）**行为级收口确认**。上轮「建议 Day 6 集成前修复」action item 关闭。
+
+### 11. 遗留 latent（非阻断，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = **`{mixed, mixed_with_curse, elite:mixed}`**（本轮 waves[15/17/19] 新增 `elite:mixed` ×3，`waves[17]` 的 `mixed_with_curse` 变体已演进）：按前缀约定放行、非硬悬空；**WaveManager 落地时需确认池解析器覆盖全部变体（含 `elite:` 前缀的 mixed）**。优先级低。
+- 数据侧无其他 latent；`tools/_probe_turret_tmp.gd` 为 gitignore 忽略的临时探针残留，建议 w1-code 顺手清理（非阻断）。
+
+### 12. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— 均 PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN（0 B stderr）
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons + waves→enemies（前缀感知 + mixed 家族）悬空引用 —— 0 硬悬空
+- [x] 数值边界扫描（1050 数值字段）—— 全部异常为有意设计，无越界
+- [x] 14 场景实例化 smoke（正常模式）—— 14/14 成功
+- [x] 运行 `day2_hero_check.gd` —— 32/32 断言通过
+- [x] 运行 `day3_skill_check.gd` —— 16/16 断言通过
+- [x] 运行 `day4_level_check.gd` —— 21/21 断言通过
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke 脚本/场景已清理
+
+### 结论
+
+**✅ 2026-08-05 23:05 自动化测试轮次 #6：PASS（0 阻断 WARNING）。** 工程（HEAD=609a9fa）可导入、可运行、数据完整且边界健康、全部 14 场景可实例化；Day2 回归 32/32、Day3 出口 16/16、**Day4 出口 21/21（本轮新增）**全过。相较 21:05 轮次，本轮覆盖 5 个新提交（希亚数据预建 / 4 英雄 portrait+idle / D21-T0 收口 / **BUG-001 修复** / Day4 closure），**上轮唯一功能级风险 BUG-001 已修复并行为级收口**。数据层扩容（characters 10 / weapons 33 / 数值 1050 字段）零缺陷。唯一遗留为 `mixed*` 池令牌家族 latent（WaveManager 落地时确认池解析器覆盖 `elite:mixed` 变体），非阻断。无需回退或修复。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 追加条目 · 2026-08-06 03:00（自动化测试轮次 #8）
+
+> 执行器：自动化测试工程师（hourly @ :45，实际 03:00 触发）· 全程只读，仅测与报告，未改任何游戏代码/数据/美术。
+> 基线版本：`git HEAD = 5b41e45`（**Day6 finalize**：阶段A集成测试 — T-A exp_value 数据化(23敌) + 端到端探针 + 回归四件套 + 平衡校准 + 经验飘字）
+> 引擎：`tools/Godot_v4.3-stable_win64.exe`（Godot 4.3.stable.official.77dcf97d8）
+> 主场景：`res://scenes/CharacterSelect.tscn`
+> 工作树状态：仅 `docs/*`（#1/#2/#7 自动化产出）+ `tools/pixel_to_pindou.py` + `docs/pindou/`（美术管线工具）——**无游戏代码/数据在途改动**。
+
+### 执行摘要（TL;DR）
+
+**✅ PASS（0 阻断 WARNING）。** 自 #7（01:05，HEAD=535d7c3）以来工程推进 1 个提交至 `5b41e45`（Day6 finalize，阶段A集成测试）。十一项检查全绿：无头导入、4 帧运行、600 帧深度运行、全量 JSON 解析、跨引用完整性、数值边界、14 场景实例化、Day2 回归（32/32）、Day3 出口（16/16）、Day4 出口（21/21）、Day5 出口（15/15），**并新增 Day6 出口校验（14/14，本轮纳入）**。
+
+| # | 检查项 | 结果 | 详情 |
+|---|---|---|---|
+| 1 | 无头导入（`--quit`） | ✅ PASS | exit 0，`baseline_import_err.log` 0 B |
+| 2 | 浅层运行（`--quit-after 4`） | ✅ PASS | exit 0，`baseline_runtime_err.log` 0 B |
+| 3 | 深度运行（`--quit-after 600` ≈10s） | ✅ CLEAN | exit 0，`deep_runtime_err.log` 0 B |
+| 4 | `data/*.json` 解析 | ✅ 8/8 | 无 JSONDecodeError / 截断 |
+| 5 | 跨引用完整性 | ✅ PASS | 0 悬空（ID 无重复；chars→weapons 10/10；waves 78 tokens 前缀感知全解析） |
+| 6 | 数值边界（**1073** 数值字段） | ✅ PASS | 39 负值 + 1 零伤害 + 2 哨兵，全部有意设计；百分比越界 0 |
+| 7 | 14 场景实例化 smoke | ✅ 14/14 | 正常模式 SMOKE_EXIT=0，零脚本错误 |
+| 8 | Day2 出口功能回归 | ✅ 32/32 | `day2_hero_check.gd` 断言全过 |
+| 9 | Day3 出口校验 | ✅ 16/16 | `day3_skill_check.gd` CLEAN |
+| 10 | Day4 出口校验 | ✅ 21/21 | `day4_level_check.gd` CLEAN |
+| 11 | Day5 出口校验 | ✅ 15/15 | `day5_weapon_check.gd` CLEAN |
+| 12 | **Day6 出口校验（本轮新增）** | ✅ 14/14 | `day6_integration_check.gd` CLEAN（阶段A端到端 + T-A 收口） |
+
+### 1. Godot 无头校验（godot-headless-verify 流程）
+
+- **导入阶段**：`baseline_check.py` → `[import] PASS - exit 0, stderr clean`。
+- **运行时阶段**：`[runtime] PASS - exit 0, stderr clean`（4 帧 `_ready` + 首帧）。
+- **日志落盘复检**：`baseline_import_err.log` / `baseline_runtime_err.log` / `deep_runtime_err.log` **均为 0 字节** → 排除空跑假通过。Day6 finalize 大提交（exp_value 数据化 + 平衡校准 + 经验飘字）未引入导入期/首帧期脚本回归。
+
+### 2. 深度运行探测（600 帧）
+
+主场景（CharacterSelect.tscn）`_ready` / `_process` / 定时器 / 信号初始化路径无报错（exit=0, stderr=0 B）。
+
+### 3. 数据层 JSON 校验
+
+`TOTAL=8 OK=8 FAIL=0`。与 #7（HEAD=535d7c3）对比：数据文件体积/结构无变化（Day6 改动集中在 `scripts/` 消费端与 `data/enemies.json` 的 `exp_value` 字段——见 §5），无半截 JSON、无编码异常。
+
+### 4. 跨引用完整性（静态只读，前缀感知）
+
+- **ID 唯一性**：characters 10 / weapons 33 / items 47 / enemies 23（reg 15/elite 6/boss 2）—— **均无重复 ID**。
+- **characters → weapons（starting_weapon）**：**10/10 全命中**（`se_siia→se_holy_staff` / `gambler→dagger` 维持）。
+- **waves → enemies**：20 波共 **78 个 composition 令牌**，经 `elite:`/`boss:` 前缀 strip + `mixed*` 家族（`{mixed, mixed_with_curse, elite:mixed}`）放行后 **0 悬空**。
+
+### 5. 数值边界扫描（1073 数值字段）
+
+| 异常 | 命中 | 核查结论 |
+|---|---|---|
+| 负值（39 处） | characters penalty 17 处（含希亚 2 处）/ 诅咒物品 18 处 / 事件代价 2 处 / Boss 波哨兵 2 处 | 角色惩罚 / 诅咒物品 / 事件代价语义本为负；哨兵 `-1` 表达 Boss 持续生成，全部设计预期内 |
+| 零伤害（1 处） | `weapons.engineering[5].damage=0`（force_field） | 力场发生器（护盾区域），防御型武器，0 伤害有意 |
+| 负百分比越界（`*_percent < -100`） | 0 | 合法区间内（最低 -100：狂战士双禁） |
+| 哨兵值 `total_enemies=-1`（waves[9]/[19]） | 2 | Boss 波哨兵，非数据错误 |
+
+**数值层结论：无越界、无非法数值。**（数值字段口径 **1073** = 历史 1050 + **23**，对应 **Day6 T-A `exp_value` 数据化**：23 个敌人条目全部新增 `exp_value` 字段，正是 08-05 真人试玩反馈 T-A「经验数据化」的落地。命中模式与历史完全一致。）
+
+### 6. 场景实例化 smoke（正常模式，14 场景）
+
+**14/14 全部成功，零脚本错误**：CharacterSelect / Enemy / EnemySpawner / GameOverPanel / Ground / HUD / LevelUpPanel / Main(children=6) / Player(children=4) / Projectile / Shop / Turret / VfxPlayer / WaveManager。临时 smoke 脚本+场景已清理。
+
+### 7~11. Day2~Day5 出口回归（四件套维持全绿）
+
+- **Day2 32/32** `DAY2 HERO CHECK CLEAN`：起始武器注入 / 被动 / 无选择兜底。
+- **Day3 16/16** `DAY3 SKILL CHECK CLEAN`：火球 AOE + 元素附着 / 星刃爆发 ×1.5 精确还原 / 炮台占位零 error。
+- **Day4 21/21** `DAY4 LEVEL CHECK CLEAN`：经验曲线 / 升级暂停 / 10 属性 / BUG-001 F1+F2 维持收口。
+- **Day5 15/15** `DAY5 WEAPON CHECK CLEAN`：6 槽上限 / Lv1-8 查表 / orbit 刃数埋点。
+
+### 12. 本轮新增：Day6 出口校验（`day6_integration_check.gd`，随 Day6 提交入库）
+
+Day 6 阶段 A 集成端到端探针（对应 `docs/TASKS.md` D6-T3 七段全链路 + D6-T1/T2 出口）：
+
+- **14 项断言，0 失败**：`DAY6 INTEGRATION CHECK CLEAN`（Case A boot + Case B chain 双用例）。
+- 关键覆盖：
+  - **boot / 无 meta 直开兜底 well_rounded 零 error**（D2-T1a 回归）+ **die → GameOver 面板 + paused + 重开零 error**（D4-T7 / BUG-001-F1 回归）；
+  - **chain / 艾琳首武器炎星术 + exp==0 + level==1**（D2 链路）；
+  - **杀 1 chaser → exp == 3（JSON `exp_value` 值，≠1）**——T-A 收口实证：经验不再硬编码 1，数据化落地；
+  - **杀 1 fly → 累计 6（chaser+fly）**；**累计跨 30 → level==2 + level_up 信号**——平衡校准实证（首升 20→30，D6 校准后实测曲线 Lv1→2=30）；
+  - 火球 try_cast 成功 + 冷却生效（D3 链路）；6 槽装满 + 第 7 把被拒（D5 链路）；
+  - **重开（teardown + 重 spawn）零 error**。
+
+> 结论：08-05 真人试玩反馈的可切割任务 **T-A（经验数据化 + 首升配比校准 + 端到端探针）已全部行为级收口**；T-B（经验可见性）以「经验飘字 D6-T4 P1」形态同步入库。详见 `docs/PLAYTEST_CHECKLIST.md` 追踪区。
+
+### 13. 已知缺陷状态追踪
+
+- **BUG-001（wave-2 冻结）**：维持 ✅ 已修复关闭（Day4 finalize 入库 + Day4/Day6 双重回归确认）。
+- 真人试玩反馈 T-A 已闭环（见 §12）；T-B / T-C / T-D / T-E 状态以 `docs/PLAYTEST_CHECKLIST.md`「📌 未解决开放项」为准。
+
+### 14. 遗留 latent（非阻断，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：按前缀约定放行、非硬悬空；**WaveManager 落地时确认池解析器覆盖全部变体**（优先级低，维持）。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` 为 gitignore 忽略的临时探针残留（历史遗留），建议 w1-code 顺手清理（非阻断）。
+
+### 15. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN（0 B stderr）
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons 10/10 + waves→enemies（前缀感知 + mixed 家族）—— 0 悬空
+- [x] 数值边界扫描（1073 字段）—— 全部异常为有意设计，无越界
+- [x] 14 场景实例化 smoke（正常模式）—— 14/14 成功
+- [x] 运行 `day2_hero_check.gd` —— 32/32 断言通过
+- [x] 运行 `day3_skill_check.gd` —— 16/16 断言通过
+- [x] 运行 `day4_level_check.gd` —— 21/21 断言通过
+- [x] 运行 `day5_weapon_check.gd` —— 15/15 断言通过
+- [x] 运行 `day6_integration_check.gd` —— **14/14 断言通过（本轮新增）**
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke/校验脚本已清理
+
+### 结论
+
+**✅ 2026-08-06 03:00 自动化测试轮次 #8：PASS（0 阻断 WARNING）。** 工程（HEAD=5b41e45，Day6 finalize）可导入、可运行、数据完整且边界健康、全部 14 场景可实例化；Day2 回归 32/32、Day3 出口 16/16、Day4 出口 21/21、Day5 出口 15/15、**Day6 出口 14/14（本轮新增）**全过。相较 01:05 轮次，本轮覆盖 1 个大提交（阶段A集成测试：**T-A exp_value 数据化 23 敌 → 数值字段 1050→1073，真人试玩反馈 T-A 三项全部行为级收口**）。数据层健康（0 悬空、0 越界）。唯一遗留为 `mixed*` 池令牌家族 latent（WaveManager 落地时确认），非阻断。无需回退或修复。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 追加条目 · 2026-08-06 01:05（自动化测试轮次 #7）
+
+> 基线：`git HEAD = 535d7c3`（较 #6 的 609a9fa **+2 提交**：`5092874` Day5 finalize: 6-slot cap + Lv1-8 level-table upgrade + orbit weapon + mixed upgrade panel / `535d7c3` Day5 closure note）
+> 工作区在途：仅 docs/*（#1/#2/#7 自动化产出）+ `tools/pixel_to_pindou.py` + `docs/pindou/`（美术管线工具，非游戏逻辑）——**无游戏代码在途改动**
+> 测试窗口：2026-08-06 01:04–01:07 · 引擎 Godot 4.3.stable
+
+### 1. baseline 基线校验
+
+```
+[import] PASS - exit 0, stderr clean
+[runtime] PASS - exit 0, stderr clean
+BASELINE CLEAN - safe to commit.
+```
+
+### 2. 600 帧深度运行探测
+
+`--quit-after 600` exit 0，`tools/deep_runtime_err.log` **0 B** → CLEAN（覆盖 Day5 新管线：6 槽挂载 / Lv1-8 升级表 / 环绕刃，无运行时错误/警告）。
+
+### 3. 数据层 JSON 校验（8/8）
+
+- `data/*.json` 全量 `json.load()` 解析 **8/8 通过**（无语法/编码错误）。
+- **weapons 结构**（本轮校验脚本口径确认）：`{weapons: {melee: 8, ranged: 9, elemental: 9, engineering: 7}}` → 扁平化后 **33** 把（与 #6 一致，数据层零变更）。
+- **enemies 结构**：`{enemies: {regular: 15, elite: 6, boss: 2}, scaling}` → 分类名 **`regular`**（非 normal，上轮记忆口径修正）。
+
+### 4. 跨引用完整性
+
+- ID 唯一性：chars 10 / weapons 33 / enemies（regular 15 + elite 6 + boss 2）**无重复**。
+- characters→weapons：**10/10** 命中（含 se_siia→se_holy_staff 新链路）。
+- waves→enemies：strip `elite:`/`boss:` 前缀后 **0 硬悬空**；`mixed*` 池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}` 按约定放行（同 #6，latent 维持）。
+
+### 5. 数值边界扫描
+
+**1050 数值字段**（= #6 持平，数据层零变更）：负值 39（37 存量 + 2 希亚 penalty，均为惩罚/诅咒有意设计）、零伤害 1（force_field 护盾发生器）、Boss 波哨兵 `total_enemies=-1` ×2（waves[9]/[19]）、百分比越界 0。**全部异常为有意设计，0 缺陷。**
+
+### 6. 场景实例化 smoke（正常模式）
+
+**14/14 成功**，零脚本错误：CharacterSelect / Enemy / EnemySpawner / GameOverPanel / Ground / HUD / LevelUpPanel / Main(children=6) / Player(children=4) / Projectile / Shop / Turret / VfxPlayer / WaveManager。临时 smoke 脚本+场景已清理。
+
+### 7. Day2 出口回归（`day2_hero_check.gd`）
+
+**32/32 断言 CLEAN**：起始武器注入 / 被动 / 无选择兜底管线在希亚加入后无回归。
+
+### 8. Day3 出口校验（`day3_skill_check.gd`）
+
+**16/16 断言 CLEAN**：火球爆炸 AOE + 元素附着 / 星刃爆发攻速 ×1.5 精确还原 / 炮台占位零 error。
+
+### 9. Day4 出口校验（`day4_level_check.gd`）
+
+**21/21 断言 CLEAN**：经验曲线 / 升级暂停 + LevelUpPanel / 10 属性升级 / 吸血 / 连升 / BUG-001 F1（GameOver 面板+重开零 error）/ F2（波次清敌归零）维持收口。
+
+### 10. 本轮新增：Day5 出口校验（`day5_weapon_check.gd`，随 Day5 提交入库）
+
+Day 5 武器槽 / 升级表 / 环绕刃管线出口校验（对应 D5-T1~T4）：
+
+- **15 项断言，0 失败**：`DAY5 WEAPON CHECK CLEAN`（脚本注释 7 项断言拆细为 15 项，覆盖 well_rounded/se_ren 两用例）。
+- 关键覆盖：连装 6 把满槽 + 第 7 把被拒 / se_star_flame Lv1→Lv8 查表升级、Lv8 后拒升 / pistol 无 levels 表走通用成长（5×1.25）/ 升级面板选项池注入「升级『星刃』」→ 星刃 Lv2 / 真实按钮点击恢复运行 / 装备星刃 → OrbitWeapon 刃数 1、bonus `orbit_blade_count=3` → 刃数 4（D3 埋点收口）/ 刃接触伤害 = 7×multiplier 精确 / 卸下星刃节点清理。
+
+### 11. 遗留 latent（非阻断，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：按前缀约定放行、非硬悬空；**WaveManager 落地时确认池解析器覆盖全部变体**（优先级低）。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` 为 gitignore 忽略的临时探针残留（历史遗留，非本轮产生），建议 w1-code 顺手清理。
+
+### 12. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN（0 B stderr）
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons 10/10 + waves→enemies（前缀感知 + mixed 家族）—— 0 硬悬空
+- [x] 数值边界扫描（1050 字段）—— 全部异常为有意设计，无越界
+- [x] 14 场景实例化 smoke（正常模式）—— 14/14 成功
+- [x] 运行 `day2_hero_check.gd` —— 32/32 断言通过
+- [x] 运行 `day3_skill_check.gd` —— 16/16 断言通过
+- [x] 运行 `day4_level_check.gd` —— 21/21 断言通过
+- [x] 运行 `day5_weapon_check.gd` —— **15/15 断言通过（本轮新增）**
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke/校验脚本已清理
+
+### 结论
+
+**✅ 2026-08-06 01:05 自动化测试轮次 #7：PASS（0 阻断 WARNING）。** 工程（HEAD=535d7c3）可导入、可运行、数据完整且边界健康、全部 14 场景可实例化；Day2 回归 32/32、Day3 出口 16/16、Day4 出口 21/21、**Day5 出口 15/15（本轮新增）**全过。相较 23:05 轮次，本轮覆盖 2 个新提交（Day5 finalize 武器槽/升级表/环绕刃 + closure），**Day5 核心管线（6 槽上限、Lv1-8 查表升级、orbit 刃数埋点收口）行为级验证通过**。数据层与 #6 完全持平（1050 数值字段零变更）。唯一遗留为 `mixed*` 池令牌家族 latent（WaveManager 落地时确认池解析器覆盖 `elite:mixed` 变体），非阻断。无需回退或修复。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+
+---
+
+## 追加条目 · 2026-08-06 04:55（自动化测试轮次 #9）
+
+> 基线：`git HEAD = 3021f66`（较 #8 的 5b41e45 +2 提交：`fc2a636` Day7 finalize（阶段B首段：11 把通用武器 levels 8 条 / 33 把 icon_index / crit/pierce/icon 装配消费 / `_on_upgrade` 进阶键 / weapons.png 4→40 帧 / icon_atlas 4→40）+ `3021f66` Day7 closure docs）
+> 工作区在途：仅 `docs/*`（30DAY_PLAN/ART_STYLE/ART_ANIME_SPEC/DAY_ROLE_ASSIGNMENTS/PLAYTEST/PROGRESS/TEST_REPORT + LOOP_HEALTH/pindou 目录）+ `tools/pixel_to_pindou.py`（美术工具），**无游戏代码改动**。
+
+### 1. 无头基线
+
+- `baseline_check.py`（import `--quit` + runtime `--quit-after 4`）：**PASS**，`BASELINE CLEAN`，err 日志 0 B。
+- 追加 600 帧深度运行探测（`--quit-after 600`）：**CLEAN**（stderr 0 B）。
+
+### 2. 数据层 JSON 解析
+
+**8/8 通过**：characters(8243B) / elements / enemies(7501B) / events / items / stats / waves / weapons(**39841B**，较 #8 的 33.5KB 显著扩容，Day7 新增 11 把 levels + 33 把 icon_index 等字段)。
+
+### 3. 数据结构口径（本轮确认）
+
+- **weapons 结构**：`{weapons: {melee: 8, ranged: 9, elemental: 9, engineering: 7}}` → 扁平化 **33** 把（与 #6/#7/#8 一致）。
+- **enemies 结构**：`{enemies: {regular: 15, elite: 6, boss: 2}}` → 分类名 **`regular`**。
+
+### 4. 跨引用完整性
+
+- ID 唯一性：chars **10** / weapons **33** / items **47** / events **10** / enemies **23** —— 全部无重复。
+- characters→weapons：**10/10** 命中（含 se_siia→se_holy_staff 链路），0 悬空。
+- waves→enemies：**78 tokens**（composition 键为单数 `enemy`，非 `enemies`——本轮脚本口径修正），strip `elite:`/`boss:` 前缀后 **0 硬悬空**；`mixed*` 池令牌 6 个（w15 ×2 / w17 ×2 / w19 ×2）按约定放行（latent 维持）。
+
+### 5. 数值边界扫描
+
+**1477 数值字段**（= #8 的 1073 + 404，Day7 新增 11 把 levels 8 条 × ~4 字段 + 33 把 icon_index 等）：负值 37（全部为角色 penalty / 物品惩罚，有意设计）、零伤害 1（`engineering[5]=force_field` 护盾发生器，有意）、Boss 波哨兵 `total_enemies=-1` ×2、percent/chance 越界 **0**。crit 双口径验证：`crit_chance ∈ [0,1]` 33 把全合法（0.05–0.25）、`crit_chance_percent ∈ [0,100]` 全合法（-5/1/5/8/10 中负值为惩罚有意）。**全部异常为有意设计，0 缺陷。**
+
+### 6. 场景实例化 smoke（正常模式）
+
+**14/14 成功**，零脚本错误：CharacterSelect / Enemy / EnemySpawner / GameOverPanel / Ground / HUD / LevelUpPanel / Main / Player / Projectile / Shop / Turret / VfxPlayer / WaveManager。临时 smoke 脚本+场景已用 Python `os.remove` 清理（无残留）。
+
+### 7. Day2 出口回归（`day2_hero_check.gd`）
+
+**32/32 断言 CLEAN**：三英雄起始武器注入 / 被动 / 无选择兜底，希亚加入后无回归。
+
+### 8. Day3 出口校验（`day3_skill_check.gd`）
+
+**16/16 断言 CLEAN**：火球爆炸 AOE + 元素附着 / 星刃爆发 / 炮台占位零 error。
+
+### 9. Day4 出口校验（`day4_level_check.gd`）
+
+**21/21 断言 CLEAN**：经验曲线 / 升级面板 / 10 属性升级 / BUG-001 F1+F2 维持收口。
+
+### 10. Day5 出口校验（`day5_weapon_check.gd`）
+
+**15/15 断言 CLEAN**：6 槽上限 / Lv1-8 查表升级 / orbit 刃数埋点收口。
+
+### 11. Day6 出口校验（`day6_integration_check.gd`）
+
+**14/14 断言 CLEAN**：T-A exp_value 数据化端到端 / die→GameOver→重开零 error。
+
+### 12. 本轮新增：Day7 出口校验（`day7_weapon_data_check.gd`，随 Day7 提交入库）
+
+阶段 B 武器数据 + 装配 + 图标集端到端探针（对应 D7-T6 / D7-EXIT）：
+
+- **13 项断言，0 失败**：`DAY7 WEAPON DATA CHECK CLEAN`。
+- 关键覆盖：11 把 levels 8 条 + max_level≥8 / Lv1==顶层 + 单调性 / 4 把签名武器 levels 未被破坏 / pistol crit_chance=0.05 + icon_index 装配消费 / sword Lv2==levels[1]（damage 15 / fire_rate 2.0）/ `get_icon('weapons', 39)` 非 null、40 越界返回 null 不崩 / se_star_flame 首武器 icon_index 25 / 33 把 icon_index 互不重复且 0≤v≤32 / MVP 15 把互不重复。
+- **说明**：探针 stderr 有 124B WARNING（`[IconAtlas] 索引越界: weapons[40]`）——为探针**主动触发越界保护测试**（断言 40 越界返回 null 不崩）时的预期输出，**非缺陷**。
+
+### 13. 遗留 latent（非阻断，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：按前缀约定放行、非硬悬空；**WaveManager 落地时确认池解析器覆盖全部变体**（优先级低）。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` 为 gitignore 忽略的临时探针残留（历史遗留），建议 w1-code 顺手清理。
+
+### 14. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN（0 B stderr）
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons 10/10 + waves→enemies（前缀感知 + mixed 家族 6 令牌）—— 0 硬悬空
+- [x] 数值边界扫描（1477 字段，crit 双口径）—— 全部异常为有意设计，无越界
+- [x] 14 场景实例化 smoke（正常模式）—— 14/14 成功
+- [x] 运行 `day2_hero_check.gd` —— 32/32 断言通过
+- [x] 运行 `day3_skill_check.gd` —— 16/16 断言通过
+- [x] 运行 `day4_level_check.gd` —— 21/21 断言通过
+- [x] 运行 `day5_weapon_check.gd` —— 15/15 断言通过
+- [x] 运行 `day6_integration_check.gd` —— 14/14 断言通过
+- [x] 运行 `day7_weapon_data_check.gd` —— **13/13 断言通过（本轮新增）**
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke/校验脚本已清理
+
+### 结论
+
+**✅ 2026-08-06 04:55 自动化测试轮次 #9：PASS（0 阻断 WARNING）。** 工程（HEAD=3021f66）可导入、可运行、数据完整且边界健康、全部 14 场景可实例化；Day2 回归 32/32、Day3 出口 16/16、Day4 出口 21/21、Day5 出口 15/15、Day6 出口 14/14、**Day7 出口 13/13（本轮新增）**全过。相较 03:00 轮次，本轮覆盖 2 个新提交（**Day7 finalize：阶段 B 武器数据首段——11 把通用武器 Lv1-8 数据化 + 33 把 icon_index + crit/pierce/icon 装配消费 + 图标集 4→40 帧** + closure），**Day7 武器数据管线行为级验证通过**（levels 单调性 / Lv1==顶层 / 签名武器完整 / icon 越界保护 / icon_index 互不重复）。数据层扩容至 1477 数值字段（+404）零缺陷；waves 遍历口径修正为 `composition[].enemy` 单数键后 78 tokens 仍 0 悬空。工作区在途仅 docs/* + 美术工具，无游戏代码改动。唯一遗留为 `mixed*` 池令牌家族 latent（WaveManager 落地时确认），非阻断。无需回退或修复。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 2026-08-06 06:55 · 自动化测试轮次 #10
+
+**HEAD = `256d2ff`**（较 #9 的 `3021f66` **+2 提交**：`d1e72f1` **Day8-9 finalize**——阶段B续段：18 把全量武器 levels 8 条 + 18 帧图标实绘 + 全量数据回归；`256d2ff` Day8-9 closure docs）。工作区在途仅 `docs/*` + 美术工具（`tools/pixel_to_pindou.py` / `docs/pindou/` / `docs/LOOP_HEALTH.md` 未跟踪），**无游戏代码改动**。本轮验证快照 = HEAD（在途均为文档/工具，不参与游戏逻辑）。
+
+### 1. Baseline 校验（`tools/baseline_check.py`）
+
+- [import] `--quit`：**PASS**（exit 0，stderr clean）
+- [runtime] `--quit-after 4`：**PASS**（exit 0，stderr clean）
+- 结果：**BASELINE CLEAN**，baseline_*_err.log 均为 0 B
+
+### 2. 600 帧深度运行探测
+
+`--headless --quit-after 600`：**CLEAN**（exit 0，`deep_runtime_err.log` 0 B）。600 帧无脚本错误 / 无运行时告警。
+
+### 3. 数据层 JSON 解析
+
+`data/*.json` 全量 `json.load()` —— **8/8 通过**（characters / elements / enemies / events / items / stats / waves / weapons）。
+
+### 4. 跨引用完整性
+
+- ID 唯一性：**0 重复**（chars 10 / weapons 33 / items 47 / events 10 / enemies 23）。
+- characters→weapons（starting_weapon）：**10/10 全命中**（含 se_siia→se_holy_staff 新链路）。
+- waves→enemies：**78 tokens，0 硬悬空**（`elite:`/`boss:` 前缀感知 + `mixed*` 家族 6 令牌放行：mixed×2 / elite:mixed×3 / mixed_with_curse×1）。
+
+### 5. 数值边界扫描
+
+**2071 数值字段**（= #9 的 1477 + **594**，Day8-9 新增 18 把全量武器 levels 8 条 × ~4 字段等）：负值 **39**（= 37 存量 + 2 希亚 penalty，全部为角色 penalty / 物品惩罚，有意设计）、零伤害 **0**（force_field 护盾特例按武器 id 归属判定后排除，其 8 条 levels damage 恒 0 为有意设计）、Boss 波哨兵 `total_enemies=-1` ×2、`crit_chance>1` 越界 **0**（口径修正：`crit_chance`∈[0,1] 与 `crit_chance_percent`∈[0,100] 分开判定，percent 字段 10/5/8 等合法）。**全部异常为有意设计，0 缺陷。**
+
+### 6. 场景实例化 smoke（正常模式）
+
+**14/14 成功**，零脚本错误：CharacterSelect / Enemy / EnemySpawner / GameOverPanel / Ground / HUD / LevelUpPanel / Main / Player / Projectile / Shop / Turret / VfxPlayer / WaveManager。临时 smoke 脚本+场景已用 Python `os.remove` 清理（无残留）。
+
+### 7-12. 回归探针六件套（维持）
+
+| 探针 | 结果 | 备注 |
+|---|---|---|
+| `day2_hero_check.gd` | **32/32** | 三英雄起始武器注入 / 被动 / 无选择兜底 |
+| `day3_skill_check.gd` | **16/16** | 火球爆炸 AOE + 元素附着 / 星刃爆发 / 炮台 |
+| `day4_level_check.gd` | **21/21** | 经验曲线 / 升级面板 / BUG-001 F1+F2 维持收口 |
+| `day5_weapon_check.gd` | **15/15** | 6 槽上限 / Lv1-8 查表升级 / orbit 刃数 |
+| `day6_integration_check.gd` | **14/14** | T-A exp_value 端到端 / die→GameOver→重开 |
+| `day7_weapon_data_check.gd` | **13/13** | 11 把 levels 8 条 / Lv1==顶层+单调性 / icon 越界保护 |
+
+stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越界: weapons[40]`）——探针主动触发越界保护测试的预期输出，**非缺陷**。
+
+### 13. 本轮新增：Day8 出口校验（`day8_weapon_data_check.gd`，随 Day8-9 提交入库）
+
+阶段 B 续段武器数据 + 装配 + 图标实绘端到端探针（对应 D8-T3 / D8-EXIT）：
+
+- **19 项断言，0 失败**：`DAY8 WEAPON DATA CHECK CLEAN`。
+- 关键覆盖：33/33 把 levels 8 条 + max_level≥8 / 18 把 Lv1 与顶层 damage/cooldown/range 一致 / 18 把 damage 单调不减 + cooldown 单调不增 / force_field levels damage 全 0 + upgrade() 后仍 0 / minigun Lv1 cooldown==0.08 / `build_weapon_from_data` 装配（fist→damage3 icon0、force_field→damage0 icon31、rocket_launcher→icon14）/ 图标层 18 帧中心 16×16 非全透明 + (0,0) 透明键 + 帧 33-39 空余全透明 / 回归 sword Lv8==50、se_star_flame Lv8 projectiles==3、se_star_blade Lv8 blade_count==4（day7 未破坏）/ 33 把 icon_index 与 D7-T5 映射表一致。
+
+### 14. 遗留 latent（非阻断，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：按前缀约定放行、非硬悬空；**WaveManager 落地时确认池解析器覆盖全部变体**（优先级低）。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` 为 gitignore 忽略的临时探针残留（历史遗留），建议 w1-code 顺手清理。
+
+### 15. 验证清单（本次已执行）
+
+- [x] `baseline_check.py` 完整执行（import + 4 帧 runtime）—— PASS，err 日志 0 B
+- [x] 追加 600 帧深度运行探测 —— CLEAN（0 B stderr）
+- [x] `data/*.json` 全量 `json.load()` —— 8/8 通过
+- [x] ID 唯一性 + characters→weapons 10/10 + waves→enemies（前缀感知 + mixed 家族 6 令牌）—— 0 硬悬空
+- [x] 数值边界扫描（2071 字段，crit 双口径）—— 全部异常为有意设计，无越界
+- [x] 14 场景实例化 smoke（正常模式）—— 14/14 成功
+- [x] 运行 `day2_hero_check.gd` —— 32/32 断言通过
+- [x] 运行 `day3_skill_check.gd` —— 16/16 断言通过
+- [x] 运行 `day4_level_check.gd` —— 21/21 断言通过
+- [x] 运行 `day5_weapon_check.gd` —— 15/15 断言通过
+- [x] 运行 `day6_integration_check.gd` —— 14/14 断言通过
+- [x] 运行 `day7_weapon_data_check.gd` —— 13/13 断言通过
+- [x] 运行 `day8_weapon_data_check.gd` —— **19/19 断言通过（本轮新增）**
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke/校验脚本已清理
+
+### 结论
+
+**✅ 2026-08-06 06:55 自动化测试轮次 #10：PASS（0 阻断 WARNING）。** 工程（HEAD=256d2ff）可导入、可运行、数据完整且边界健康、全部 14 场景可实例化；Day2 回归 32/32、Day3 出口 16/16、Day4 出口 21/21、Day5 出口 15/15、Day6 出口 14/14、Day7 出口 13/13、**Day8 出口 19/19（本轮新增）**全过。相较 04:55 轮次，本轮覆盖 2 个新提交（**Day8-9 finalize：阶段 B 续段——18 把全量武器 Lv1-8 数据补全 + 18 帧图标实绘 + 全量数据回归** + closure），**Day8-9 武器数据管线行为级验证通过**（33/33 levels 完整、单调性、force_field 护盾特例维持、装配层消费、图标实绘 18 帧含透明键、day7 数据零回归）。数据层扩容至 **2071** 数值字段（+594）零缺陷；waves 78 tokens 仍 0 硬悬空。工作区在途仅 docs/* + 美术工具，无游戏代码改动。唯一遗留为 `mixed*` 池令牌家族 latent（WaveManager 落地时确认），非阻断。无需回退或修复。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 2026-08-06 08:45 自动化测试轮次 #11
+
+**HEAD = `1e2d763`**（较上轮 #10 新增 2 提交：`ca7c0a2` **Day10 finalize** — 阶段B进化机制（3 签名进化链 se_star_flame/auto_turret/star_blade + 3 结果武器数据 + 进化池 `_roll_options` + 爆炸 AOE + day10 探针）；`1e2d763` Day10 closure docs）。工作区在途仅 `docs/*` + 美术工具（pixel_to_pindou.py / docs/pindou/ / docs/LOOP_HEALTH.md），**无游戏代码改动**。
+
+### 1. baseline 检查（import + 4 帧 runtime）
+
+- **PASS**：`baseline_import_err.log` 0 B / `baseline_runtime_err.log` 0 B，exit 0。
+
+### 2. 600 帧深度运行探测
+
+- **CLEAN（0 B stderr）**：`deep_runtime_err.log` 0 B，exit 0。
+
+### 3. 数据层 JSON 校验
+
+- **8/8 全部 OK**（characters/enemies/events/items/stats/waves/weapons/elements）。
+- 本轮数据层更新：`weapons.json` 36 把（=33 既有 + **3 把 Day10 进化结果武器** se_star_fall/se_blade_storm/se_turret_array，分类 melee 9/ranged 9/elemental 10/engineering 8）；`items.json` 48 个（含 3 个进化核心 se_flame_core/se_mech_core/se_blade_core）；`characters.json` 10 / `enemies.json` 23（regular 15/elite 6/boss 2）/ `events.json` 10。
+
+### 4. ID 唯一性 + 跨引用
+
+- **0 重复 ID**：characters 10 / weapons 36 / items 48 / events 10 / enemies 23。
+- **characters→weapons 10/10 全命中**（含 se_siia→se_holy_staff、gambler→dagger 修复链路）。
+- **waves→enemies 全解析**：78 tokens 前缀感知（strip `elite:`/`boss:`）0 悬空；池令牌放行 3 种 `{mixed, mixed_with_curse, elite:mixed}`。
+
+### 5. 数值边界扫描
+
+- **2212 数值字段**（=2071+141：Day10 3 把结果武器 levels 8 条 + 进化核心字段）。
+- 负值 **39** 处全有意（37 存量惩罚/诅咒 + 2 希亚 penalty）；哨兵 `total_enemies=-1` ×2（Boss 波）；**非特例零伤害 0**（force_field 按武器 id 豁免，8 条 levels damage 恒 0 为护盾特例）；百分比>100 **0**；`crit_chance`>1 **0**（percent 口径分开）。**0 越界缺陷**。
+
+### 6. 场景实例化 smoke（正常模式）
+
+- **14/14 成功，0 错误**。
+- **方法论修正（重要，防下轮误报）**：smoke 循环先实例化 `Main.tscn` 再 `queue_free` 后，后续 `Shop.tscn` `_ready()`（shop.gd:40 `GameManager.economy.coins_changed.connect`）会报 `Invalid access to 'coins_changed' on 'previously freed'`——根因：`GameManager.economy` 由 Main 的 `$Economy`（main.gd:40）赋值，Main free 后悬空。**实验证伪**：将 Main 移至列表末尾重跑 → 0 ERROR。判定为 **smoke 顺序假象，非游戏缺陷**（真实游戏 Main 常驻、economy 存活）。
+
+### 7. Day 回归探针
+
+- [x] `day2_hero_check.gd` —— **32/32**
+- [x] `day3_skill_check.gd` —— **16/16**
+- [x] `day4_level_check.gd` —— **21/21**
+- [x] `day5_weapon_check.gd` —— **16/16**（本轮实测 16 项 PASS 断言）
+- [x] `day6_integration_check.gd` —— **14/14**
+- [x] `day7_weapon_data_check.gd` —— **13/13**
+- [x] `day8_weapon_data_check.gd` —— **19/19**
+- [x] `day10_evolution_check.gd` —— **20/20（本轮首次纳入；见 §8 flaky）**
+
+### 8. 关键发现：day10 探针 flaky（WARNING-1，探针缺陷非游戏缺陷）
+
+- **现象**：首跑 `day10_evolution_check.gd` 出现 **3 FAIL**（链路层：`_roll_options` 缺 evolution 选项 → `_apply_option` 后 source_id/核心消耗断言连锁失败），退出码仍 0 且重跑 **20/20 CLEAN**。
+- **根因**：`level_up_panel.gd:_roll_options(8)` 内部 `pool.shuffle()`（RNG）+ `slice(0,8)`。池 = 属性池 12 项（stats.json upgrade_options）+ 进化 1 项 = 13 项，进化选项被挤出前 8 的概率 = **1/13 ≈ 7.7%**。探针断言「持核心 → `_roll_options(8)` 必含 evolution」不成立。
+- **性质**：真实游戏中选项随机展示属合理设计，**非游戏逻辑缺陷**；属探针断言缺陷（CI 误报风险）。
+- **修复建议（交下轮探针维护）**：① 断言侧 `count` 传大值（如 99）验证「进化选项在池中」，或直接检查 `pool` 而非 `slice` 结果；② `_apply_option` 用例白盒直构造 evolution option 字典传入，不依赖 roll 命中。
+
+### 9. 设计侧提示（WARNING-2，非阻断）
+
+- 真实 LevelUpPanel 中进化选项出现概率 ≈ 1/13（count=8 时 92.3% 可见）；若面板展示位 < 8（如 3/4），进化出现率骤降（count=4 ≈ 31%）。**建议设计侧评估「进化选项加权/优先」机制**，避免玩家满级持核心后迟迟看不到进化入口。交设计决策，不阻塞本轮。
+
+### 10. 遗留 latent（存量，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：WaveManager 落地时确认池解析器覆盖全部变体。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` gitignore 忽略的临时探针残留，建议 w1-code 清理。
+
+### 11. 验证清单（本次已执行）
+
+- [x] `baseline_check.py`（import + 4 帧）—— PASS，err 0 B
+- [x] 600 帧深度运行 —— CLEAN（0 B）
+- [x] `data/*.json` 8/8 解析 + ID 唯一 + 跨引用 + 数值边界（2212 字段）
+- [x] 14 场景 smoke（Main 置后方法学）—— 14/14，0 错误
+- [x] Day2~Day10 八件套探针回归（32/16/21/16/14/13/19/20）
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke/校验脚本已清理（Python os.remove）
+
+### 结论
+
+**✅ 2026-08-06 08:45 自动化测试轮次 #11：PASS（2 非阻断 WARNING）。** 工程（HEAD=1e2d763）可导入、可运行、数据完整且边界健康、14 场景全可实例化；**Day10 进化机制（3 签名进化链 + 结果武器 + 进化池 + 爆炸 AOE）行为级验证通过（20/20）**，数据层扩容至 **2212** 数值字段（+141）零缺陷，weapons 36 把（33+3）ID 唯一、chars→weapons 10/10、waves 78 tokens 0 硬悬空。两个新增非阻断 WARNING：① day10 探针 `_roll_options(8)` 断言 flaky（≈7.7% 误报率，探针缺陷，修复建议见 §8）；② 真实面板进化选项出现率设计提示（§9）。存量 latent `mixed*` 家族维持。**无需回退；建议下一轮修复 day10 探针断言方式**。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+## 2026-08-06 10:45 自动化测试轮次 #12
+
+**HEAD = `1e2d763`**（较上轮 #11 **无新提交**），但工作区出现**在途未提交改动 = Day 11-12 被动+商店体系**（w2 在途，未 commit）：`data/items.json` +125 行（20 项补 `is_passive/slot/category/icon_index` 四字段）、`scripts/` 9 文件（main/player/inventory/hud/shop/icon_atlas/weapon/weapon_controller/item）+ `scenes/HUD.tscn` + `assets/sprites/ui/items.png`（4→20 帧）+ 新工具 `tools/day11_12_passive_check.gd`（出口探针）/ `gen_passives_day11.py` / `gen_item_icons.py`。**本轮验证快照 = HEAD + 在途改动**。
+
+### 1. baseline 检查（import + 4 帧 runtime）
+
+- **PASS**：`baseline_import_err.log` 0 B / `baseline_runtime_err.log` 0 B，exit 0。
+
+### 2. 600 帧深度运行探测
+
+- **CLEAN（0 B stderr）**：`deep_runtime_err.log` 0 B，exit 0。
+
+### 3. 数据层 JSON 校验
+
+- **8/8 全部 OK**（characters/enemies/events/items/stats/waves/weapons/elements）。
+- 本轮数据层 = Day11 在途扩展：`items.json` 48 项中 **20 项 is_passive=true（常规 17 + 核心 3：se_flame_core/se_mech_core/se_blade_core）**，icon_index 0-19 唯一；其余 28 项 is_passive 缺省。`weapons.json` 36 把 / `characters.json` 10 / `enemies.json` 23 / `events.json` 10 与 #11 持平。
+
+### 4. ID 唯一性 + 跨引用
+
+- **ID 全唯一**：characters 10 / weapons 36 / items 48 / events 10 / enemies 23，0 重复。
+- **chars→weapons 10/10** 命中（含 se_siia→se_holy_staff 链路）。
+- **waves 78 tokens 前缀感知 0 硬悬空**（strip `elite:`/`boss:` 前缀，6 个 mixed 池令牌放行）。
+- **items effects 键白名单**（探针同口径：仅 17 常规被动项校验，3 核心豁免、武器类 28 项不查）：**0 越界**。
+
+### 5. 数值边界扫描
+
+- 叶子数值字段 **2231**（=上轮 2212 + **19**：Day11 items.json 四字段/效果值扩展），越界 **0**。
+- 负值 39（37 存量 + 2 希亚 penalty）全有意；**零伤害 9 处全部按武器 id 归属豁免**（force_field 顶层 damage=0 + 8 条 levels damage=0 = 9，护盾发生器特例）；`crit_chance>1` 0；`percent>100` 0；`total_enemies=-1` 哨兵 ×2（Boss 波）全有意。
+
+### 6. 场景 smoke（正常模式，Main 置后方法学）
+
+- **14/14 全部实例化成功，0 ERROR**（含在途改动的 HUD.tscn）。
+
+### 7. Day2~Day10 探针回归（八件套）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 16 | CLEAN |
+
+### 8. Day11-12 出口探针（`day11_12_passive_check.gd`，本轮首次纳入，在途功能行为级验证）
+
+- **首跑 19 项断言 1 项失败**：`商店 / shop_items 无被动，无法验证购买`（购买被动断言链中断）。
+- **重跑 22/22 全 PASS，DAY11_12 PASSIVE CHECK CLEAN**。
+- **根因（探针 flaky，非游戏缺陷）**：`shop.gd:_refresh_shop` 混合池 = 武器 33（36-3 结果武器）+ 被动 20 = **53 项**，`pool.shuffle()` + 取前 4 卡；首跑 4 卡恰好全武器（无被动）概率 = (33/53)^4 ≈ **15%**。与 day10 `_roll_options(8)` 同类 RNG 依赖问题。
+- **修复建议（交下轮探针维护）**：断言前固定 `seed()`，或白盒直构造 `shop_items`（如 `[武器, 被动, 武器, 被动]`）再验购买链路，不依赖 shuffle 命中。
+- 功能验证通过项：20 被动数据四字段 / 6 槽 cap（第 7 个 add_item false）/ 装配链 coffee attack_speed 1.0→1.08→移除精确还原 1.0（percent 除法）/ se_blade_core crit_damage 2.0→2.4（crit_damage_percent 映射）/ 未映射键注入 push_warning 不崩 / 混合池 53 / 4 卡非 null / 购买被动→属性变+扣费 / 槽满购买拒绝+coins 不变 / 购买武器→equipped_weapons+1 / items.png 640×32 20 帧 + icon_atlas frame_count 20。
+
+### 9. WARNING 汇总
+
+- **W-1（探针 flaky，非阻断）**：day11_12 商店购买断言 RNG 依赖，≈15% 误报率（见 §8）。首跑失败经重跑证伪，**非游戏缺陷**。
+- **W-2（延续，非阻断）**：day10 `_roll_options(8)` 进化选项挤出 flaky（≈7.7%）——本轮未复现但探针未修复，上轮修复建议维持（count 传大值或白盒直构造 option）。
+- **W-3（探针级 minor，非阻断）**：探针退出时 `1 RID of type Canvas leaked` + ObjectDB instances leaked + `3 resources still in use at exit`——探针实例化 shop/player 后未完全 free 的退出清理问题，属探针自身，不影响游戏。
+- **说明**：探针中 3 条 `[Player] 被动效果键未实现，仅登记: melee_damage/engineering/fire_damage_percent` 为**探针主动触发未映射键注入测试的预期输出**（这些键属 3 核心/高级词条，装配实现待 Day 13），非缺陷。
+
+### 10. 遗留 latent（存量，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：WaveManager 落地时确认池解析器覆盖全部变体。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` gitignore 忽略的临时探针残留，建议 w1-code 清理。
+- 本轮数据层在途改动（items.json + scripts 9 文件）**建议尽快 commit 入库**，避免跨轮漂移。
+
+### 11. 验证清单（本次已执行）
+
+- [x] `baseline_check.py`（import + 4 帧）—— PASS，err 0 B
+- [x] 600 帧深度运行 —— CLEAN（0 B）
+- [x] `data/*.json` 8/8 解析 + ID 唯一 + 跨引用 + 数值边界（2231 字段）
+- [x] 14 场景 smoke（Main 置后方法学）—— 14/14，0 错误
+- [x] Day2~Day10 八件套探针回归（32/16/21/16/14/13/19/16 全 CLEAN）
+- [x] Day11-12 出口探针：首跑 19 项 1 FAIL（flaky）→ 重跑 22/22 CLEAN
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke/校验脚本已清理（Python os.remove）
+
+### 结论
+
+**✅ 2026-08-06 10:45 自动化测试轮次 #12：PASS（2 非阻断 WARNING + 1 探针级 minor）。** 工程（HEAD=1e2d763 + **Day11-12 在途被动+商店体系**）可导入、可运行、数据完整且边界健康、14 场景全可实例化、Day2~Day10 八件套回归全绿；**Day11-12 被动+商店在途实现行为级验证通过（重跑 22/22）**——20 被动数据四字段、6 槽 cap、装配链 percent 精确还原、crit 映射、商店真实混合池 4 卡与购买扣费闭环、items.png 20 帧。数据层 2231 数值字段（+19）零缺陷。**唯一 FAIL 项（商店购买断言首跑 1 项）经重跑证伪为探针 RNG flaky（≈15%），非游戏缺陷**。建议：① Day11-12 在途改动尽快 commit；② 下轮修复 day11_12 探针商店断言（固定 seed/白盒构造）与 day10 `_roll_options` 断言。存量 latent `mixed*` 家族维持。**无需回退**。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+# 轮次 #13 · 2026-08-06 12:45（自动化测试）
+
+> 基线 `git HEAD = d631e7b`（较上轮 +2 提交：`4bc79df` Day11-12 finalize — 阶段B被动+商店收口 / `d631e7b` Day11-12 closure docs）
+> 工作区在途：仅 `docs/*` + 美术工具（pixel_to_pindou.py / docs/pindou/ / docs/LOOP_HEALTH.md / level_up_panel.gd.bak），**无游戏代码改动**
+> 上轮 action item 状态：① Day11-12 在途已 commit（关闭）② day11_12 商店断言 flaky 已修复（关闭）③ day10 `_roll_options` 断言已修复（关闭）
+
+### 1. baseline + 深探
+
+- `baseline_check.py`（import + 4 帧）：**PASS，stderr 0 B**；600 帧深探：**CLEAN（0 B）**。
+
+### 2. 数据层 JSON（8/8）
+
+- 全部解析 OK。**结构确认（防下轮误报）**：characters/events/items 均为 **list（含 id 字段）**；weapons = `{weapons:{分类:[list]}}`（36 把：melee 9/ranged 9/elemental 10/engineering 8）；enemies = `{enemies:{regular/elite/boss:[list]}}`（23 只）。
+- **ID 唯一性 0 重复**：chars 10 / weapons 36 / items 48 / events 10 / enemies 23。
+
+### 3. 跨引用完整性
+
+- `characters→weapons(starting_weapon)`：**10/10 命中**。
+- `waves→enemies`：**0 硬悬空**（20 波全解析）；池令牌放行 3 种 = `{mixed, mixed_with_curse, elite:mixed}`（latent 维持）。
+- **items effects 白名单**（17 常规被动项校验，3 核心 + 28 武器类豁免）：**0 越界**。
+
+### 4. 数值边界扫描
+
+- 叶子数值字段 **2231**（与上轮持平，数据层零变更），越界 **0**。
+- 负值 39（37 存量 + 2 希亚 penalty）全有意；零伤害 9 处按**武器 id 归属**豁免（force_field 顶层 + 8 levels，护盾特例）；crit 双口径（`crit_chance`∈[0,1] / `crit_chance_percent`∈[0,100]）合法；`total_enemies=-1` 哨兵 ×2 全有意。
+
+### 5. 场景 smoke（正常模式，Main 置后方法学）
+
+- **14/14 全部实例化成功，0 ERROR**（Player children=4 / Main children=6）。
+
+### 6. Day2~Day11-12 探针回归（九件套）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN（⚠️ stderr 见 §7 BUG-002） |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN（图标越界 124B 为主动测试预期） |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 20 | CLEAN（首跑，flaky 已修复） |
+| day11_12_passive_check | 23 | CLEAN（**首跑**，flaky 已修复） |
+
+- 探针 flaky 修复确认（入库，上轮 action item 关闭）：day10 改独立环境白盒直构造（清空+装备满级+注入核心，`_roll_options` 首跑含 evolution）；day11_12 改 `weapon_pool.slice(0,2)+passive_pool.slice(0,2)` 确定性构造（注释明示 Array.shuffle 走全局 RNG）。
+
+### 7. ⚠️ BUG-002（本轮新发现，P1 功能缺陷）—— 商店真实路径 0 卡片
+
+- **现象**：day4 探针 Case C（完整场景流程）中 `wr / 直升不崩` 与 `波次切换清空` 之间出现 **4 条恒定 ERROR**：`Attempted to push_back a variable of type 'String' into a TypedArray of type 'Object'`。
+- **根因（100% 复现，非 flaky）**：`scripts/ui/shop.gd` 三处类型脱节——
+  1. `var shop_items: Array[Resource]`（:35）
+  2. `_refresh_shop()`（:71-75）把 `_build_shop_pool()` 返回的 **String id 列表**（武器 33 id + 被动 20 id = 53）直接 `shop_items.append(pool[i])`（:75）→ **String push 进 `Array[Resource]` 每次都被类型校验拒绝** → 循环 `count=4` → 恰 **4 条 ERROR**（与观测吻合）
+  3. `_purchase_item`（:192）`var item: Resource = shop_items[index]` 后按 Dictionary 语义 `item.get("price"/"weapon_type")` 取值
+- **影响链**：`Shop._ready` → `GameManager.shop_opened` → `_on_shop_opened` → `_refresh_shop()`，**真实游戏每波结束进商店必触发** → `shop_items` 恒空 → `_render_cards()` 渲染 **0 张卡** → **商店空白、无商品可购**（金币 UI 正常）。
+- **为何上轮未暴露**：day11_12 探针白盒直构造 `shop_items`（`_shop.set("shop_items", [])` 后手动 build Weapon/Item 资源实例 append，:378-400）——**绕开了 `_refresh_shop()` 的池构建路径**；探针本身验证的是「资源实例→渲染→购买」半链，`_refresh_shop` 的 id→资源转换环节从未被执行。600 帧深探不进商店（无玩家流程），故 baseline 全绿。
+- **修复建议（交 w1-code / Day13）**：`_build_shop_pool()` 改为返回**资源实例或完整数据字典**（参照 day11_12 探针 :380-397：武器走 `WeaponController.build_weapon_from_data(sid)`、被动走 `Item.new()` + 字段赋值），或 `_refresh_shop` 内先 build 再 append；同时把 `shop_items` 元素口径统一（`Array[Resource]` 或 `Array[Dictionary]` 二选一，勿留 String）。修复后需补「真实路径进商店」行为断言（探针勿再绕开 `_refresh_shop`）。
+- **定性**：P1（阶段 B 核心功能不可用）；无头不崩溃故不阻塞提交，但**真人试玩（T-B/C）必现**。**建议 Day 13 优先修复 + 补回归**。
+
+### 8. WARNING 汇总
+
+- **W-1（本轮新发现，即 BUG-002）**：商店 `shop_items` 类型矛盾 → 4 条恒定 ERROR + 商店 0 卡（见 §7，升级为缺陷）。
+- **W-2（探针级 minor，维持）**：day11_12 探针退出 `1 RID of type Canvas leaked` + ObjectDB instances leaked + `3 resources still in use`——探针实例化未完全 free，非游戏缺陷。
+- **说明**：day7 探针 `[IconAtlas] 索引越界: weapons[40]` 为主动越界保护测试的预期输出；day11_12 探针 3 条 `被动效果键未实现` push_warning 为主动未映射键测试预期（装配待 Day 13）——均非缺陷。
+
+### 9. 遗留 latent（存量，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：WaveManager 落地时确认池解析器覆盖全部变体。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` gitignore 忽略的临时探针残留，建议 w1-code 清理。
+- `scripts/ui/level_up_panel.gd.bak` 未跟踪残留（本轮新发现于 git status），建议一并清理或入库。
+
+### 10. 验证清单（本次已执行）
+
+- [x] `baseline_check.py`（import + 4 帧）—— PASS，err 0 B
+- [x] 600 帧深度运行 —— CLEAN（0 B）
+- [x] `data/*.json` 8/8 解析 + ID 唯一 + 跨引用 + 数值边界（2231 字段）
+- [x] 14 场景 smoke（Main 置后方法学）—— 14/14，0 错误
+- [x] Day2~Day11-12 九件套探针回归（32/16/21/16/14/13/19/20/23 全 CLEAN）
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke/校验脚本已清理（Python os.remove）
+
+### 结论
+
+**⚠️ 2026-08-06 12:45 自动化测试轮次 #13：PASS（1 缺陷 BUG-002 + 1 探针级 minor）。** 工程（HEAD=d631e7b，Day11-12 已收口）可导入、可运行、数据完整且边界健康、14 场景全可实例化、九件套探针回归全绿（**day10/day11_12 探针 flaky 均已修复，首跑 CLEAN，上轮 action item 全关闭**）。**本轮关键新发现：BUG-002（P1）—— 商店真实路径 `_refresh_shop()` 把 String id 塞进 `Array[Resource]` 类型化数组，每波结束进商店 100% 触发 4 条恒定 ERROR 且商店 0 卡片不可用**；该缺陷被 day11_12 探针的白盒构造方式遮蔽（探针绕开 `_refresh_shop`），600 帧深探不进商店故 baseline 未捕获。修复建议：统一 shop_items 元素口径（Resource/Dictionary 二选一）+ `_build_shop_pool` 返回资源实例，并补「真实进商店」行为断言。**建议 Day 13 优先修复；无头工程其余指标健康，无需回退**。
+
+*追加条目生成：自动化测试工程师（hourly @ :45）· 唯一写入文件：`docs/TEST_REPORT.md`*
+
+---
+
+# 轮次 #14 · 2026-08-06 14:45（自动化测试）
+
+> 基线 `git HEAD = a082457`（较上轮 +1 提交：**Day13 finalize** — 阶段B收口：暴击结算+武器两套统1+炮台常驻+**BUG-002 修复**+攻速消费点+数值冒烟；含 `day13_build_check.gd` 新探针 + `docs/REPORT_PHASE_B.md`）
+> **验证快照说明**：本轮启动时工作区含 6 游戏脚本在途改动（Day13 构建），测试运行期间被并发进程提交为 `a082457`（14:49:52）——测试覆盖内容与提交内容完全一致，快照 = HEAD。
+> 上轮 action item 状态：**BUG-002（P1）修复已入库（关闭）**；Day11-12 入库 / 双 flaky 修复（上上轮项，维持关闭）。
+
+### 1. baseline + 深探
+
+- `baseline_check.py`（import + 4 帧）：**PASS，stderr 0 B**；600 帧深探：**CLEAN（0 B）**。
+
+### 2. 数据层 JSON（8/8）
+
+- 全部解析 OK。结构口径沿用 #13：weapons = `{weapons:{分类:[list]}}`（36 把：melee 9/ranged 9/elemental 10/engineering 8）；enemies = `{enemies:{regular/elite/boss:[list]}}`（23 只）；chars/events/items 为 list。
+- **ID 唯一性 0 重复**：chars 10 / weapons 36 / items 48 / events 10 / enemies 23。
+- **新增可复用校验工具 `tools/qa_validate.py`**（本轮固化，替代每轮内联 Python 校验）：含武器 id 上下文零伤害豁免、crit 双口径、bool 字段排除（2231 = 2271 全字段 − 40 bool）、waves 前缀感知（strip `elite:`/`boss:` + 放行 `mixed*`）。
+
+### 3. 跨引用完整性
+
+- `characters→weapons(starting_weapon)`：**10/10 命中**。
+- `waves→enemies`：**0 硬悬空**（20 波全解析）；池令牌放行 3 种 = `{mixed, mixed_with_curse, elite:mixed}`（latent 维持）。
+- items effects 白名单（17 常规被动项）：**0 越界**（口径维持 #12）。
+
+### 4. 数值边界扫描
+
+- 叶子数值字段 **2231**（与上轮持平，数据层零变更——Day13 纯脚本改动），越界 **0**。
+- 负值 39（37 存量 + 2 希亚 penalty）全有意；零伤害 0 非豁免（force_field 顶层 + 8 levels 按**武器 id** 豁免）；crit 双口径合法；`total_enemies=-1` 哨兵 ×2 全有意。
+
+### 5. 场景 smoke（正常模式，Main 置后方法学）
+
+- **14/14 全部实例化成功，0 ERROR**。
+
+### 6. Day2~Day13 探针回归（十件套）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN（⚠️ stderr 242B = 探针级 minor，见 §8） |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN（图标越界 124B 为主动测试预期） |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 20 | CLEAN（132B 为预期 warning） |
+| day11_12_passive_check | **24** | CLEAN（23→24：商店段改按 weapon_type 区分，随 Day13 入库；763B 含 3 预期 warning + minor） |
+| **day13_build_check（本轮首次纳入）** | **36** | **CLEAN（6 段全过，859B = 探针级 minor，见 §8）** |
+
+- **Day13 出口行为级确认（六段）**：① **BUG-002 修复实证**——`_build_shop_pool()` 返回 53 个资源实例（33 Weapon + 20 Item，零 String），`_refresh_shop()` 真实路径 4 卡全 Resource 零 ERROR，购买链路 inventory+1 + 扣费闭环；② 大纲 10 属性消费字段全存在 + formulas 关键公式 + 攻速消费点（0.5 倍速 → 冷却半速递减）；③ 暴击结算（crit=1 → base×mult / crit=0 零回归 / 命中与 AOE 同口径）；④ 进化 3 链交叉引用一致 + 商店池无 evolution_result 泄漏 + 升级池满级天然排除；⑤ 被动叠加边界（双 +8% → ×1.1664 → remove → ×1.08 → ×1.0 精确还原）；⑥a 两套体系统一（equip_from_data → inventory 写入、双写幂等、无 source_id 占位跳过）；⑥b 炮台常驻/多台（未装备 3 台临时回归 / 装备 se_turret_array → 3+2=5 台全常驻 / 常驻 5s 不消亡 / 临时 16s 到期消亡）。
+
+### 7. BUG-002 关闭确认（上轮 P1）
+
+- `scripts/ui/shop.gd` `_build_shop_pool()` 已改为返回**资源实例**（武器走 `WeaponControllerScript.build_weapon_from_data` 懒构建器 / 被动走 `Item.new()` + 字段装载），`shop_items: Array[Resource]` 类型矛盾消除；`_purchase_item` 取值口径随之统一（Resource 语义）。
+- day13 探针 **Part 1 走真实 `_refresh_shop()` 路径**（不再白盒绕开），4 卡零 ERROR + 购买扣费闭环实证——修复有效，上轮「补真实进商店断言」建议已落实。**BUG-002 关闭**。
+
+### 8. WARNING 汇总
+
+- **W-1（探针级 minor，新增）**：day13 探针退出泄漏较多 RID/资源（5×Area2D + 1 Canvas + 31 CanvasItem + 3 Texture + 9 ShapedText + 1 Font + ObjectDB + 9 resources）——探针 mock 节点（player/inventory/economy/weapon_controller/炮台）未完全 free，**非游戏缺陷**（exit 0，36-36 全过）。建议后续探针维护时统一收尾清理。
+- **W-2（探针级 minor，维持）**：day4 探针 `ObjectDB leaked + 1 resource still in use`；day11_12 探针 `1 RID Canvas + ObjectDB + 4 resources`——同为探针自身未完全 free，非游戏缺陷。
+- **说明（预期输出，非缺陷）**：day7 `[IconAtlas] 索引越界: weapons[40]` 为主动越界保护测试；day10 `[Inventory] items.json 无此道具: non_existent_core_xyz` 为主动缺数据测试；day11_12 3 条 `被动效果键未实现`（melee_damage/engineering/fire_damage_percent）为主动未映射键测试——均预期。
+
+### 9. 遗留 latent（存量，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：WaveManager 落地时确认池解析器覆盖全部变体。
+- `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` gitignore 忽略的临时探针残留，建议 w1-code 清理。
+- `scripts/ui/level_up_panel.gd.bak` 未跟踪残留，建议一并清理或入库。
+- 工作区在途：仅 `docs/*` + 美术工具（pixel_to_pindou.py / docs/pindou/ / docs/LOOP_HEALTH.md）+ **新增 `tools/qa_validate.py`（可复用校验工具）**，无游戏代码改动。
+
+### 10. 验证清单（本次已执行）
+
+- [x] `baseline_check.py`（import + 4 帧）—— PASS，err 0 B
+- [x] 600 帧深度运行 —— CLEAN（0 B）
+- [x] `data/*.json` 8/8 解析 + ID 唯一 + 跨引用 + 数值边界（2231 字段，qa_validate.py）
+- [x] 14 场景 smoke（Main 置后方法学）—— 14/14，0 错误
+- [x] Day2~Day13 十件套探针回归（32/16/21/16/14/13/19/20/24/36 全 CLEAN，首跑）
+- [x] 全程只读，未触碰 `scripts/` / `data/` / `assets/` / `scenes/`；临时 smoke 脚本已清理（Python os.remove）
+
+### 结论
+
+**✅ 2026-08-06 14:45 自动化测试轮次 #14：PASS（0 阻断 / 0 功能缺陷，3 探针级 minor）。** 工程（HEAD=**a082457**，Day13 阶段B收口已入库）可导入、可运行、数据完整且边界健康、14 场景全可实例化、**十件套探针回归全绿且首跑**（含本轮首次纳入的 day13_build_check 36/36）。**上轮 BUG-002（P1 商店 0 卡）已修复并行为级实证关闭**；Day13 六段出口（真实商店/10属性/暴击/进化池/叠加边界/两套统一+炮台常驻）全部收口。唯一遗留为探针自身资源未完全 free 的 minor（day4/day11_12/day13，建议探针维护时统一收尾），latent `mixed*` 家族维持。**无需回退，可进入 Day 14。**
+
+---
+
+## 2026-08-06 16:47 轮次 #15（追加条目）
+
+### 0. 快照
+
+- HEAD = **a082457**（= 轮次 #14，**无新提交**；Day13 finalize 保持为最新入库版本）
+- 工作区在途：仅 `docs/*` + 美术工具（pixel_to_pindou.py / docs/pindou/ / docs/LOOP_HEALTH.md）+ `tools/qa_validate.py` + `scripts/ui/level_up_panel.gd.bak` 残留，**无游戏代码改动** → 本轮为纯回归确认轮（空轮次）。
+
+### 1. 无头基线
+
+- `baseline_check.py`（import `--quit` + runtime `--quit-after 4`）：**PASS，err 0 B**。
+- 600 帧深度运行（`--quit-after 600`）：**CLEAN（0 B stderr）**。
+
+### 2. 数据层（tools/qa_validate.py）
+
+- JSON **8/8 解析 OK**：characters=10 · weapons=36 · items=48 · events=10 · enemies=23 · waves=20。
+- 跨引用：chars→weapons **10/10 命中**；waves 20 波 **0 硬悬空**（池令牌 `{mixed, mixed_with_curse, elite:mixed}` 放行）。
+- 数值字段 **2231**（与 #14 持平，数据层零变更）：负值 39 全有意；零伤害非豁免 **0**（force_field 按武器 id 豁免）；`total_enemies=-1` 哨兵 ×2；crit 双口径越界 **0**。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **14/14 全部实例化成功，0 ERROR**（临时脚本 `_smoke_tmp.gd/.tscn` 运行后 Python os.remove 清理）。
+
+### 4. Day2~Day13 探针回归（十件套，全部首跑）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN（242B = 探针级 minor） |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN（124B = 主动越界测试预期） |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 20 | CLEAN（132B = 主动缺数据测试预期） |
+| day11_12_passive_check | 24 | CLEAN（763B = 3 预期 warning + minor） |
+| day13_build_check | 36 | CLEAN（859B = 探针级 minor） |
+
+- 合计 **211 断言全 CLEAN 且首跑**，与 #14 计数完全一致，无新增 FAIL / 无新增异常 stderr（全部输出与历史口径逐项比对一致）。
+- 关键回归确认：Day13 六段出口（真实商店 BUG-002 修复实证 / 10 属性 / 暴击结算 / 进化池 / 被动叠加边界 / 两套统一+炮台常驻）行为保持稳定。
+
+### 5. WARNING 汇总
+
+- **探针级 minor（维持，非游戏缺陷）**：day4（ObjectDB + 1 resource）、day11_12（1 Canvas RID + ObjectDB + 4 resources）、day13（5 Area2D + 1 Canvas + 31 CanvasItem + 3 Texture + 9 ShapedText + 1 Font + ObjectDB + 9 resources）——探针 mock 节点未完全 free，exit 0，建议后续探针维护统一收尾。
+- **预期输出（非缺陷）**：day7 图标越界保护 / day10 无此道具 / day11_12 3 条未映射被动键 push_warning。
+
+### 6. 遗留 latent（存量，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：WaveManager 落地时覆盖全部变体。
+- 探针残留 `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd`（gitignore 忽略）+ `scripts/ui/level_up_panel.gd.bak`（未跟踪），建议 w1-code 清理。
+- **本轮无新增发现、无新增 action item。**
+
+### 结论
+
+**✅ 2026-08-06 16:47 自动化测试轮次 #15：PASS（0 阻断 / 0 功能缺陷，3 探针级 minor，无新增）。** 空轮次回归确认：HEAD=**a082457**（Day13 阶段B收口）工程可导入、可运行、数据完整且边界健康（2231 字段零缺陷）、14 场景全可实例化、**十件套探针 211 断言全绿首跑**。工作区无游戏代码在途改动，与 #14 快照一致。**无需回退；待 Day 14 提交后可进入下一轮验证。**
+
+---
+
+## 2026-08-06 18:45 轮次 #16（追加条目）
+
+### 0. 快照
+
+- HEAD = **fa077e0**（较 #15 +1 提交：**Day14-15 finalize — 阶段C首段**：随机节点地图（路线生成器 + GameManager 路线模式 + RouteSelectPanel 选择面板 + `routes.json`）+ `get_wave` int 键修复 + **day14_15_route_check.gd 探针 51 断言**）。
+- 工作区在途：仅 `docs/*` + 美术工具（pixel_to_pindou.py / docs/pindou/ / docs/LOOP_HEALTH.md）+ `tools/qa_validate.py` + `scripts/ui/level_up_panel.gd.bak` 残留 + `tools/probe_logs/`（本轮探针输出产物），**无游戏代码改动** → 验证快照 = HEAD。
+
+### 1. 无头基线
+
+- `baseline_check.py`（import `--quit` + runtime `--quit-after 4`）：**PASS，err 0 B**。
+- 600 帧深度运行（`--quit-after 600`）：**CLEAN（0 B stderr）**。
+
+### 2. 数据层（tools/qa_validate.py）
+
+- JSON **9/9 解析 OK**（**data/ 新增第 9 表 `routes.json`**，配置型：layers/nodes_per_layer/default_seed/weights/constraints）：characters=10 · weapons=36 · items=48 · events=10 · enemies=23 · waves=20。
+- 跨引用：chars→weapons **10/10 命中**；waves 20 波 **0 硬悬空**（池令牌 `{mixed, mixed_with_curse, elite:mixed}` 放行）。
+- 数值字段 **2239**（=2231+8，routes.json 新增 8 数值字段，qa_validate 递归扫描自动覆盖新表，校验脚本零改动）：负值 39 全有意；零伤害非豁免 **0**（force_field 按武器 id 豁免）；`total_enemies=-1` 哨兵 ×2；crit 双口径越界 **0**。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **15/15 全部实例化成功，0 ERROR**（**新增 RouteSelectPanel.tscn**，children=2；Main.tscn children=6；临时脚本 `_smoke_tmp.gd/.tscn` 运行后 Python os.remove 清理，无残留）。
+
+### 4. Day2~Day15 探针回归（十一件套，全部首跑）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN（**stderr 0 B，历史 242B 探针级 minor 本轮消失**） |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN（124B = 主动越界测试预期） |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 20 | CLEAN（132B = 主动缺数据测试预期） |
+| day11_12_passive_check | 24 | CLEAN（763B = 3 预期 warning + minor） |
+| day13_build_check | 36 | CLEAN（859B = 探针级 minor） |
+| **day14_15_route_check** | **51** | **CLEAN（110B = 1 条主动 WARNING「事件节点交互归 Day 16」，预期输出）** |
+
+- 合计 **262 断言全 CLEAN 且首跑**（十件套 211 与 #15 完全一致 + day14_15 新增 51），无新增 FAIL / 无异常 stderr。
+- **day14_15_route_check（本轮首次纳入）**行为级验证：路线生成器层数/节点数配置、默认种子确定性、权重与约束生效、GameManager 路线模式切换、RouteSelectPanel 选项渲染、`get_wave` int 键修复（route 模式按层取波）——51/51 收口。
+
+### 5. WARNING 汇总
+
+- **预期输出（非缺陷）**：day14_15「事件节点交互归 Day 16」push_warning（探针主动标记阶段待办）；day7 图标越界保护 / day10 无此道具 / day11_12 3 条未映射被动键。
+- **探针级 minor（维持）**：day11_12（1 Canvas RID + ObjectDB + 4 resources）、day13（5 Area2D + 1 Canvas + 31 CanvasItem + 3 Texture + 9 ShapedText + 1 Font + ObjectDB + 9 resources）——探针 mock 节点未完全 free，exit 0，建议探针维护统一收尾。**day4 泄漏输出本轮归零（历史 242B），无回归。**
+
+### 6. 遗留 latent（存量，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：WaveManager 落地时覆盖全部变体。
+- 探针残留 `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd`（gitignore 忽略）+ `scripts/ui/level_up_panel.gd.bak`（未跟踪），建议 w1-code 清理。
+- **本轮无新增缺陷、无新增 action item**；阶段C 事件节点交互待 Day 16 落地（探针已登记预期）。
+
+### 结论
+
+**✅ 2026-08-06 18:45 自动化测试轮次 #16：PASS（0 阻断 / 0 功能缺陷，1 新增预期 WARNING，探针级 minor 维持无新增）。** HEAD=**fa077e0**（Day14-15 阶段C首段已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2239 字段零缺陷**，routes.json 自动纳入扫描）、**15 场景全可实例化**（新增 RouteSelectPanel）、**十一件套探针 262 断言全绿首跑**（day14_15_route_check 51/51 本轮纳入回归套件）。阶段C 路线生成器行为级收口；Day16 事件节点交互已在探针内登记待办。**无需回退，可进入 Day 16。**
+
+---
+
+## 2026-08-06 20:45 轮次 #17（追加条目）
+
+### 0. 快照
+
+- HEAD = **ee7603b**（较 #16 +2 提交：**748d2b7 Day16 finalize — 事件节点系统**：EventSelectPanel 暂停式弹窗 + GameManager `_apply_event_reward` 10 型奖励结算 + `_apply_route_effect` 5 型改线 + route_generator `reroute_remaining`/`force_node_type` 改线方法 + `items.json` +resonant_shard（48→49）+ **day16_event_check.gd 探针 41 断言** + 修复 GameManager 4 处面板 tree_exited 回调身份校验（Day14-15 潜伏 bug）+ **day14_15 探针同步 51→53 断言**；ee7603b Day16 closure docs）。
+- 工作区在途：仅 `docs/*` + 美术工具（pixel_to_pindou.py / docs/pindou/ / docs/LOOP_HEALTH.md）+ `tools/qa_validate.py`（未跟踪，待入库）+ `scripts/ui/level_up_panel.gd.bak` 残留 + `tools/probe_logs/`（探针输出产物），**无游戏代码改动** → 验证快照 = HEAD。
+
+### 1. 无头基线
+
+- `baseline_check.py`（import `--quit` + runtime `--quit-after 4`）：**PASS，err 0 B**。
+- 600 帧深度运行（`--quit-after 600`）：**CLEAN（0 B stderr）**。
+
+### 2. 数据层（tools/qa_validate.py + 内联白名单补充）
+
+- JSON **9/9 解析 OK**：characters=10 · weapons=36 · **items=49（+resonant_shard「共鸣碎晶」epic 遗物，effects.crit_damage_percent=25，不设 is_passive → 商店池/被动数零破坏）** · events=10 · enemies=23 · waves=20。
+- 跨引用：chars→weapons **10/10 命中**；waves **78 tokens 0 硬悬空**（池令牌 `{mixed, mixed_with_curse, elite:mixed}` 放行）；ID 唯一 chars/weapons/items/events/enemies **0 重复**。
+- 数值字段 **2241**（=2239+2，resonant_shard 新增）：负值 39 全有意；零伤害非豁免 **0**（force_field 按武器 id 豁免）；`total_enemies=-1` 哨兵 ×2；crit 双口径越界 **0**。
+- **被动白名单（内联补充校验，qa_validate 未覆盖）**：20 被动 = **17 常规 + 3 核心**，effects 键白名单违规 **0**。
+  - ⚠️ **口径修正（防下轮误报）**：3 进化核心实际 ID = **`se_flame_core`/`se_mech_core`/`se_blade_core`**（非 evolution_core_*）；其 effects 含 `elemental_damage`/`fire_damage_percent`/`engineering`/`summon_count`/`melee_damage` 等豁免键（装配待高级阶段），白名单检查须按此 3 ID 豁免。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全部实例化成功，0 ERROR**（**新增 EventSelectPanel.tscn**；Main.tscn children=6；临时脚本 `_smoke_tmp.gd/.tscn` 运行后 Python os.remove 清理，无残留）。
+
+### 4. Day2~Day16 探针回归（十二件套，全部首跑）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN（stderr 0 B 维持） |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN（124B = 主动越界测试预期） |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 20 | CLEAN（132B = 主动缺数据测试预期） |
+| day11_12_passive_check | 24 | CLEAN（763B = 3 预期 warning + minor） |
+| day13_build_check | 36 | CLEAN（859B = 探针级 minor） |
+| **day14_15_route_check** | **53**（51→53） | **CLEAN（130B = 1 条主动 WARNING「玩家未绑定，事件奖励结算跳过」，Day16 有意演进）** |
+| **day16_event_check** | **41** | **CLEAN（276B = 2 条主动 push_warning：事件奖励道具缺失 ghost_relic / reroute_remaining 层越界 4，均预期测试输出）** |
+
+- 合计 **305 断言全 CLEAN 且首跑**（#16 十件套 211 + day14_15 53 + day16 41），无新增 FAIL。
+- **day14_15 51→53 为 Day16 提交有意演进**（commit 748d2b7 明示：event 节点进入真实事件流程，paused 同 sub 同步 resolve 防死锁）；旧 WARNING「事件节点交互归 Day 16」因阶段实现完成而消失 → 阶段待办已闭环。
+- **day16_event_check（本轮首次纳入）**行为级验证：事件数据完整性、10 型奖励结算（attack_percent→damage / max_hp_percent→max_health 代码层别名 / trade 复合键 / item 遗物直装不占槽 / weapon_upgrade 独立 RNG / level_up 逐级循环）、5 型改线（reroute 策略表 / flag 登记 / unlock_node 三策略 / add_node 层+2 / difficulty 登记）、末层 boss 保护、端到端事件暂停弹窗——41/41 收口。
+
+### 5. WARNING 汇总
+
+- **预期输出（非缺陷）**：day16 2 条主动 push_warning（ghost_relic 缺失测试 / reroute 层越界保护测试）；day14_15「玩家未绑定」防御分支测试（内容自 #16 演进，旧阶段待办 warning 已消失）；day7/day10/day11_12 口径与历史一致。
+- **探针级 minor（维持）**：day11_12（Canvas RID + ObjectDB + 4 resources）、day13（RID 组泄漏）——探针自身未完全 free，exit 0，建议探针维护统一收尾。day4 stderr 0 B 维持。
+- **⚠️ 测试基础设施维护项（非游戏缺陷）**：`tools/_regression_run.py` 未同步 Day16 —— ① day14_15 期望断言仍写 51（实际 53，判定逻辑 `>=expect` 故仍 PASS，但应同步 53）；② day16_event_check 未加入 runner 列表（本轮手动补跑）。建议 Day17 维护 runner 时同步。
+
+### 6. 遗留 latent（存量，持续追踪）
+
+- `mixed*` 聚合池令牌家族 = `{mixed, mixed_with_curse, elite:mixed}`：WaveManager 落地时覆盖全部变体。
+- 探针残留 `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` + `scripts/ui/level_up_panel.gd.bak`（未跟踪），建议 w1-code 清理。
+- **本轮无新增游戏缺陷、无新增游戏 action item**；唯一待办为测试基础设施同步（runner 期望值 51→53 + 纳入 day16）。
+
+### 结论
+
+**✅ 2026-08-06 20:45 自动化测试轮次 #17：PASS（0 阻断 / 0 功能缺陷，1 测试基础设施维护项，探针级 minor 维持无新增）。** HEAD=**ee7603b**（Day16 事件节点系统已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2241 字段零缺陷**，resonant_shard 新增零破坏）、**16 场景全可实例化**（新增 EventSelectPanel）、**十二件套探针 305 断言全绿首跑**（day16_event_check 41/41 与 day14_15 53/53 本轮纳入/演进）。Day16 事件奖励/改线 10+5 型行为级收口，Day14-15 面板回调潜伏 bug 修复实证；阶段C 事件系统闭环。**无需回退，可进入 Day 17。**
+
+---
+
+## 2026-08-06 22:45 轮次 #18（追加条目）
+
+### 0. 快照
+
+- HEAD = **2abba3c**（较 #17 +1 提交：**Day17 finalize — 精英战斗**：`enemies.json` 3 精英 ability 数据（butcher `aoe` 90/3.0/1.2 · monk `self_heal` 50%/15%/4.0 · mom `spawn` chaser×2/5.0）+ `enemy.gd` AOE/自愈/产卵三行为 + **BUG-003 mixed 池解析收口**（wave15/17/19 全量生成零 null）+ difficulty_delta 消费（route flag +1 → 敌 ×1.1）+ 精英横幅 + **day17_elite_check.gd 探针 39 断言** + **day13 探针 flaky 修复**（白盒直构造去随机洗牌）+ 回归十二件套全绿）。
+- 工作区在途：仅 `docs/*` + 美术工具（pixel_to_pindou.py / docs/pindou/ / docs/LOOP_HEALTH.md）+ `tools/qa_validate.py`（未跟踪，待入库）+ `scripts/ui/level_up_panel.gd.bak` 残留 + `tools/probe_logs/`（探针输出产物），**无游戏代码改动** → 验证快照 = HEAD。
+
+### 1. 无头基线
+
+- `baseline_check.py`（import `--quit` + runtime `--quit-after 4`）：**PASS，err 0 B**。
+- 600 帧深度运行（`--quit-after 600`）：**CLEAN（0 B stderr）**。
+
+### 2. 数据层（tools/qa_validate.py）
+
+- JSON **9/9 解析 OK**：characters=10 · weapons=36 · items=49 · events=10 · enemies=23 · waves=20。
+- 跨引用：chars→weapons **10/10 命中**；waves **78 tokens 0 硬悬空**（池令牌 `{mixed, mixed_with_curse, elite:mixed}` 放行）；ID 唯一 chars/weapons/items/events/enemies **0 重复**。
+- 数值字段 **2249**（=2241+8，Day17 精英 ability 新增）：负值 39 全有意（惩罚/诅咒）；零伤害非豁免 **0**（force_field 按武器 id 豁免）；`total_enemies=-1` 哨兵 ×2（wave 9/19）；crit 双口径越界 **0**。
+- 精英数据抽查：6 精英（butcher/colossus/rhino/monk/croc/mom），3 只有 ability 且 type ∈ {aoe, self_heal, spawn}、数值 > 0，mom.minion=`chaser` 存在；colossus/rhino/croc 缺省无 ability（有意，验证零行为路径）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全部实例化成功，0 ERROR**（清单同 #17，Main.tscn children=6；临时脚本 `_smoke_tmp.gd/.tscn` 运行后 Python os.remove 清理，无残留）。
+
+### 4. Day2~Day17 探针回归（十三件套，全部首跑，runner 已同步）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN（stderr 0 B 维持） |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN（124B = 主动越界测试预期） |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 20 | CLEAN（132B = 主动缺数据测试预期） |
+| day11_12_passive_check | 24 | CLEAN（763B = 3 预期 warning + minor） |
+| day13_build_check | 36 | CLEAN（859B = 探针级 minor；**flaky 修复实证：首跑即全绿**） |
+| day14_15_route_check | 53 | CLEAN（130B = 1 条主动 WARNING「玩家未绑定，事件奖励结算跳过」，防御分支预期） |
+| day16_event_check | 41 | CLEAN（276B = 2 条主动 push_warning：ghost_relic 缺失 / reroute 层越界 4，均预期测试输出） |
+| **day17_elite_check** | **39** | **CLEAN（stderr 0 B 全新）** |
+
+- 合计 **344 断言全 CLEAN 且首跑**（#17 305 + day17 39），无新增 FAIL。
+- **day17_elite_check（本轮首次纳入）**行为级验证：① 数据层 6 精英/3 ability 齐备；② 三能力白盒直构造（固定 delta）——butcher AOE 玩家掉 damage×mult 且 timer 重置 / monk 低血自愈不超上限 / mom 产卵只出 chaser 且 wave_number 缩放正确 / 无 ability 零新行为；③ **BUG-003 mixed 池解析收口**：wave15（swarm_wave）真实 spawn_queue 120=count×2 与池解析顺序兼容、wave17（mixed_with_curse）同法零 null、`elite:mixed` 不抽 boss/regular；④ difficulty_delta：route flag +1 → max_health/damage ×1.1、0 → 零影响；⑤ 回归锚点 6 精英 behavior ∈ 9 枚举、is_elite 标记、elite 节点 wave_index ∈ [6,19]。
+- **上轮 action item 关闭**：`tools/_regression_run.py` 已同步 —— ① day14_15 期望 51→**53**；② day11_12 期望 22→**24**；③ 新增 day16_event_check(**41**) / day17_elite_check(**39**) 入 runner 列表（13 探针全量自动化）。本轮即经 runner 全量驱动，验证同步生效。
+
+### 5. WARNING 汇总
+
+- **预期输出（非缺陷）**：day16 2 条主动 push_warning；day14_15「玩家未绑定」防御分支测试；day7/day10/day11_12 口径与历史一致；**day17 0 B 全新 CLEAN**。
+- **探针级 minor（维持）**：day11_12（Canvas RID + ObjectDB + 4 resources）、day13（RID 组泄漏）——探针自身未完全 free，exit 0，建议探针维护统一收尾。day4/day17 stderr 0 B。
+- **本轮无新增 WARNING、无新增测试基础设施待办**（runner 同步完成）。
+
+### 6. 遗留 latent（存量更新）
+
+- ✅ **`mixed*` 聚合池令牌家族 = {mixed, mixed_with_curse, elite:mixed} 已关闭**（BUG-003 收口实证：wave15/17/19 全量生成零 null，`elite:mixed` 不抽 boss/regular）——自 2026-08-05 起追踪的 latent 于 Day17 行为级关闭。
+- 探针残留 `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` + `scripts/ui/level_up_panel.gd.bak`（未跟踪）+ `tools/qa_validate.py`/`tools/probe_logs/`（产物，建议入库或 gitignore），建议 w1-code 清理。
+- **本轮无新增游戏缺陷、无新增游戏 action item**。
+
+### 结论
+
+**✅ 2026-08-06 22:45 自动化测试轮次 #18：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**2abba3c**（Day17 精英战斗已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷**，3 精英 ability 新增零破坏）、**16 场景全可实例化**、**十三件套探针 344 断言全绿首跑**（day17_elite_check 39/39 本轮纳入；day13 flaky 修复实证首跑全绿；runner 同步关闭上轮基础设施待办）。Day17 精英三行为 + difficulty 消费行为级收口，**BUG-003 收口实证关闭 `mixed*` 家族 latent（自 Day 5 追踪至今）**。**无需回退，可进入 Day 18。**

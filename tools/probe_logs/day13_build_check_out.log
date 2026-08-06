@@ -1,0 +1,41 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 13 build integration + numeric smoke check ===
+  PASS  商店 / 混合池 53（资源实例）
+  PASS  商店 / 池内 53 项全为资源实例（零类型 ERROR）
+  PASS  商店 / 池武器 33（36 - 3 evolution_result）
+  PASS  商店 / 池被动 20
+  PASS  商店 / _refresh_shop 真实路径 4 卡（BUG-002 修复后零 ERROR 渲染）
+  PASS  商店 / 4 卡全部为资源实例
+  PASS  商店 / 购买被动：inventory+1 + coins 扣费（真实路径回归）
+  PASS  属性 / 大纲 10 属性消费字段全部存在（攻击/攻速/范围/移速/暴率/暴伤/生命/护甲/吸血/幸运）
+  PASS  属性 / STAT_MAP 15 键（角色被动/惩罚/被动道具装配全通道）
+  PASS  属性 / formulas 关键公式全在（crit_check/armor_reduction/attack_speed/dodge）
+  PASS  攻速 / attack_speed=0.5 → 冷却半速递减（消费点真实生效）
+  PASS  暴击 / _roll_crit crit=1 → base×mult（30）
+  PASS  暴击 / _roll_crit crit=0 → 原值（零回归）
+  PASS  暴击 / _on_body_entered crit=1 → 敌人实收 base×mult（30）
+  PASS  暴击 / crit=0 命中实收原值（既有武器零回归）
+  PASS  暴击 / _explode AOE crit=1 → 敌人实收 base×mult（30，与线弹同口径）
+  PASS  进化 / 3 条链交叉引用一致（requires_item ↔ 核心 tags ↔ result_id ↔ evolution_result）
+  PASS  进化 / 商店池无 evolution_result 结果武器泄漏（33 把全为常规武器）
+  PASS  进化 / data 层 evolution_result 恰 3 把（36 - 3 = 33 进商店池）
+  PASS  进化 / 满级结果武器天然不在升级池（level<max_level 条件排除）
+  PASS  进化 / 未满级武器正常出现在升级池（无泄漏无遗漏）
+  PASS  叠加 / 双 +8% 被动 → ×1.1664（同键乘法叠加）
+  PASS  叠加 / remove 一 → ×1.08（除法还原）
+  PASS  叠加 / 全移除 → ×1.0（精确还原）
+  PASS  统一 / 进局 equip_from_data → inventory.weapons 1 条（HUD 显示起始武器）
+  PASS  统一 / inventory[0].source_id == se_star_flame
+  PASS  统一 / 商店/升级装备 → inventory 同步 2 条（双写幂等）
+  PASS  统一 / unequip → inventory 同步移除
+  PASS  统一 / 重复 sync 幂等无副作用
+  PASS  统一 / 无 source_id 占位武器跳过 inventory（初始枪不污染 HUD）
+  PASS  炮台 / 未装备 se_turret_array → 3 台（回归口径）
+  PASS  炮台 / 3 台均临时（duration 15s，到期消亡回归）
+  PASS  炮台 / 装备 se_turret_array → 3+2=5 台
+  PASS  炮台 / 5 台全部常驻（duration=-1 → permanent 模式）
+  PASS  炮台 / 常驻炮台推进 5s 仍存活
+  PASS  炮台 / 临时炮台推进 16s 到期消亡（15s 口径回归）
+--- 36 项断言，0 项失败 ---
+DAY13 BUILD CHECK CLEAN

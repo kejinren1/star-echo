@@ -1,0 +1,2 @@
+WARNING: [IconAtlas] 索引越界: weapons[40] (共 40 帧)
+     at: push_warning (core/variant/variant_utility.cpp:1112)

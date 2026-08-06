@@ -1,0 +1,19 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 6 integration check ===
+  PASS  boot / 无 meta 直开兜底 well_rounded（cid=well_rounded）
+  PASS  boot / die() → paused == true
+  PASS  boot / GameOverPanel 已出现
+  PASS  boot / 重开零 error（新实例 player 正常）
+  PASS  chain / 艾琳首武器 == 炎星术
+  PASS  chain / 进局 exp == 0, level == 1
+  PASS  chain / 杀 chaser 得经验 3（JSON 值）
+  PASS  chain / 累计经验 == 6（chaser+fly）
+  PASS  chain / 累计经验跨 30 → level == 2
+  PASS  chain / level_up 信号触发 1 次
+  PASS  chain / 火球 try_cast 成功且二次进入冷却
+  PASS  chain / 6 槽装满 is_full，第 7 把被拒
+  PASS  chain / die → GameOver 面板 + paused
+  PASS  chain / 重开（se_irene）零 error
+--- 14 项断言，0 项失败 ---
+DAY6 INTEGRATION CHECK CLEAN

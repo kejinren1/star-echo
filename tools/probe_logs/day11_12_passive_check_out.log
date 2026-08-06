@@ -1,0 +1,29 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+=== Day 11-12 passive+shop check ===
+  PASS  数据 / 20 被动 is_passive=true
+  PASS  数据 / icon_index 0-19 唯一
+  PASS  数据 / 四类各 ≥4（attack=5 defense=5 stat=5 special=5）
+  PASS  数据 / 17 常规项 effects 键 ⊂ 白名单
+  PASS  数据 / 核心 se_flame_core 命中
+  PASS  数据 / 核心 se_mech_core 命中
+  PASS  数据 / 核心 se_blade_core 命中
+  PASS  槽位 / inventory.MAX_ITEMS == 6
+  PASS  槽位 / 第 7 个 add_item_from_data 返回 false（满槽拒绝）
+  PASS  槽位 / is_item_slots_full 口径正确
+  PASS  装配 / coffee attack_speed 1.0 → 1.08
+  PASS  装配 / coffee 移除后 attack_speed 1.0（percent 除法精确还原）
+  PASS  装配 / se_blade_core crit_damage 2.0 → 2.4（crit_damage_percent 映射生效）
+  PASS  装配 / 未映射键 passive 注入：push_warning + 不崩（不修改玩家属性）
+  PASS  商店 / 混合池 53（武器 33 排除 3 结果武器 + 被动 20）
+  PASS  商店 / 池含 33 把 Weapon 资源实例
+  PASS  商店 / 池含 20 个 Item 资源实例
+  PASS  商店 / shop_items 4 卡非 null
+  PASS  商店 / 槽满时购买被动：add_item 拒绝 + coins 不变
+  PASS  商店 / 购买被动：inventory+1 + 玩家属性变 + coins 扣费（验证属性变化）
+  PASS  商店 / 购买武器：equipped_weapons +1 + coins 扣费（33 武器池生效）
+  PASS  图标 / icon_atlas items frame_count == 20
+  PASS  图标 / items.png 尺寸 640×32
+  PASS  图标 / 20 帧中心非空 + 透明键 (0,0) 全透明
+--- 24 项断言，0 项失败 ---
+DAY11_12 PASSIVE CHECK CLEAN

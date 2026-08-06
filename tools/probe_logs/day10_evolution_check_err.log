@@ -1,0 +1,2 @@
+WARNING: [Inventory] items.json 无此道具: non_existent_core_xyz
+     at: push_warning (core/variant/variant_utility.cpp:1112)

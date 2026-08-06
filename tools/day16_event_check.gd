@@ -32,7 +32,7 @@ const REWARD_TYPES: Array = [
 ## effect_on_route 5 型枚举
 const EFFECT_TYPES: Array = ["reroute", "flag", "unlock_node", "add_node", "difficulty"]
 
-## 端到端固定路线：L0=[battle w1, shop, event] · L1=[battle w2] · L2=[boss w20]
+## 端到端固定路线：L0=[battle w1, shop, event] · L1=[battle w2] · L2=[boss w10]
 const FIXED_ROUTE: Dictionary = {
 	"seed": 999,
 	"layers": [
@@ -45,7 +45,7 @@ const FIXED_ROUTE: Dictionary = {
 			{"type": "battle", "wave_index": 2},
 		],
 		[
-			{"type": "boss", "wave_index": 20},
+			{"type": "boss", "wave_index": 10},
 		],
 	],
 	"modifiers": {},
@@ -189,7 +189,7 @@ func _count_battles_from(route: Dictionary, from_layer: int) -> int:
 				c += 1
 	return c
 
-## 全路线 wave_index 合法性（battle/elite ∈ [1,19]；boss==20；shop/event==0）
+## 全路线 wave_index 合法性（battle/elite ∈ [1,19]；boss==10；shop/event==0）
 func _wave_indices_ok(route: Dictionary) -> bool:
 	var layers: Array = route.get("layers", [])
 	for li in layers.size():
@@ -198,7 +198,7 @@ func _wave_indices_ok(route: Dictionary) -> bool:
 			var wi: int = int(node.get("wave_index", -1))
 			if (t == "battle" or t == "elite") and (wi < 1 or wi > 19):
 				return false
-			if t == "boss" and wi != 20:
+			if t == "boss" and wi != 10:
 				return false
 			if (t == "shop" or t == "event") and wi != 0:
 				return false
@@ -295,7 +295,7 @@ func _advance(sub: int) -> int:
 				"layers": [
 					[{"type": "battle", "wave_index": 1}],
 					[{"type": "shop", "wave_index": 0}, {"type": "shop", "wave_index": 0}, {"type": "shop", "wave_index": 0}],
-					[{"type": "boss", "wave_index": 20}],
+					[{"type": "boss", "wave_index": 10}],
 				],
 				"modifiers": {},
 				"flags": {},

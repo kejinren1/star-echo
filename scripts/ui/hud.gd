@@ -5,9 +5,9 @@ extends CanvasLayer
 
 # ========== 节点引用 ==========
 
-@onready var health_bar: TextureProgressBar = $MarginContainer/VBoxContainer/TopBar/LeftSection/HealthBar
-@onready var xp_bar: TextureProgressBar = $MarginContainer/VBoxContainer/TopBar/LeftSection/XpBar
-@onready var health_label: Label = $MarginContainer/VBoxContainer/TopBar/LeftSection/HealthLabel
+@onready var health_bar: TextureProgressBar = $MarginContainer/VBoxContainer/StatsBar/HealthBar
+@onready var xp_bar: TextureProgressBar = $MarginContainer/VBoxContainer/StatsBar/XpBar
+@onready var health_label: Label = $MarginContainer/VBoxContainer/StatsBar/HealthLabel
 @onready var wave_label: Label = $MarginContainer/VBoxContainer/TopBar/CenterSection/WaveLabel
 @onready var timer_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/TimerLabel
 @onready var coins_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/CoinsLabel
@@ -56,12 +56,9 @@ func _ready() -> void:
 	if GameManager.economy:
 		GameManager.economy.coins_changed.connect(_on_coins_changed)
 
-	# 连接玩家信号
-	if GameManager.player:
-		GameManager.player.health_changed.connect(_on_health_changed)
-		# D4-T1：经验条刷新（kill → gain_exp 后 xp_changed 触发）
-		if GameManager.player.has_signal("xp_changed"):
-			GameManager.player.xp_changed.connect(_on_xp_changed)
+	# 连接玩家信号（P1 Fix-3：延迟一帧——HUD 是 Main 子节点，_ready 先于 Main._ready 执行，
+	# 此时 GameManager.player 尚未赋值；与 _connect_skill_controller 同范式）
+	_connect_player_signals()
 
 	# 连接背包信号
 	if GameManager.inventory:
@@ -108,6 +105,19 @@ func _on_xp_changed(current: float, need: float) -> void:
 	update_xp(current, need)
 
 # ========== 技能冷却指示（Day 4 · D4-T6） ==========
+
+## P1 Fix-3：延迟一帧连接玩家信号（HUD _ready 先于 Main _ready，player 尚未赋值）
+func _connect_player_signals() -> void:
+	await get_tree().process_frame
+	if GameManager.player == null:
+		return
+	GameManager.player.health_changed.connect(_on_health_changed)
+	if GameManager.player.has_signal("xp_changed"):
+		GameManager.player.xp_changed.connect(_on_xp_changed)
+	# 首次刷新（连接时 player 已完成 apply_character，取实时值）
+	_on_health_changed(GameManager.player.health, GameManager.player.max_health)
+	if GameManager.player.has_method("get_xp_to_next_level"):
+		_on_xp_changed(GameManager.player.exp, GameManager.player.get_xp_to_next_level())
 
 ## 延迟连接 SkillController（Main._ready 需先装载英雄数据；取不到只告警不崩）
 func _connect_skill_controller() -> void:

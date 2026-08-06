@@ -52,6 +52,8 @@ var route: Dictionary = {}                 ## 本局路线（{seed, layers, modi
 var route_enabled: bool = true             ## 路线模式开关（默认开启；注入 false = 完全旧行为）
 var current_layer: int = 0                 ## 当前层索引（0 起）
 var current_node: Dictionary = {}          ## 当前节点（{type, wave_index}）
+## P1 Fix-1：战后商店标志（区分"战后自动弹商店"与"shop节点商店"的关闭后流向）
+var _shop_from_battle: bool = false
 
 # 子系统引用 (由 Main.tscn 在 _ready 中赋值)
 var player: Node = null
@@ -150,10 +152,14 @@ func _clear_remaining_enemies() -> void:
 		if is_instance_valid(enemy):
 			enemy.queue_free()
 
-## 关闭商店（D14-15：路线模式 → 节点完成推进；旧模式 → 下一波）
+## 关闭商店（P1 Fix-1：战后商店 → 路线选择；shop节点商店 → 节点完成推进；旧模式 → 下一波）
 func close_shop() -> void:
 	shop_closed.emit()
 	if not route.is_empty():
+		if _shop_from_battle:
+			_shop_from_battle = false
+			_start_route_select()
+			return
 		_on_node_completed()
 		return
 	_start_next_wave()
@@ -242,8 +248,8 @@ func toggle_debug_cheat() -> void:
 	debug_cheat = not debug_cheat
 	if player and "debug_mult" in player:
 		player.debug_mult = 10.0 if debug_cheat else 1.0
-	if debug_cheat:
-		# 跳关：清残敌 + 直接进入下一波（金手指核心：跳过当前关快速推进）
+	if debug_cheat and current_state == GameState.BATTLE:
+		# 跳关：清残敌 + 直接进入下一波（仅战斗状态可跳，防路线选择/商店误触）
 		_clear_remaining_enemies()
 		_start_next_wave(current_wave + 1)
 	_show_debug_banner()
@@ -271,10 +277,19 @@ func _show_debug_banner() -> void:
 	tween.chain().tween_callback(banner.queue_free)
 
 ## 当前节点完成 → 下一层选择；末层完成 → 胜利
+## P1 Fix-1：battle/elite 完成后先弹商店（玩家需要花战斗赚的金币），关闭后再进路线选择
 func _on_node_completed() -> void:
 	current_layer += 1
 	if current_layer >= route.get("layers", []).size():
 		end_game(true)
+		return
+	# 战斗类节点完成后自动弹商店（Brotato 式每波后购物）
+	var prev_type: String = str(current_node.get("type", ""))
+	if prev_type == "battle" or prev_type == "elite":
+		_shop_from_battle = true
+		current_state = GameState.SHOP
+		state_changed.emit(current_state)
+		shop_opened.emit()
 		return
 	_start_route_select()
 
@@ -505,6 +520,7 @@ func reset() -> void:
 	route = {}
 	current_layer = 0
 	current_node = {}
+	_shop_from_battle = false
 	_level_up_panel = null
 	_game_over_panel = null
 	if _route_select_panel != null and is_instance_valid(_route_select_panel):
