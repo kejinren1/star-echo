@@ -69,6 +69,10 @@ func _load_mocks() -> void:
 	var econ: Node = load("res://scripts/systems/economy.gd").new()
 	econ.name = "MockEconomy"
 	_gm.set("economy", econ)
+	# mock inventory（§5 商店购买入库需要；成员变量 _inv 持有防悬垂）
+	_inv = load("res://scripts/systems/inventory.gd").new()
+	_inv.name = "MockInventory"
+	_gm.set("inventory", _inv)
 	# HUD 实例（独立场景，_ready 的延迟连接与 SkillController 告警为主动预期）
 	_hud = load(HUD_SCENE_PATH).instantiate()
 	root.add_child(_hud)
@@ -258,6 +262,9 @@ func _part5_click_purchase() -> void:
 		return
 	var card: Control = container.get_child(0)
 	var center: Vector2 = card.get_global_rect().get_center()
+	# push_input 同步派发 → 先记录点击前状态
+	var coins_before: int = int(_gm.get("economy").get("coins"))
+	var inv_before: int = _inv.get("weapons").size() + _inv.get("items").size()
 	var ev := InputEventMouseButton.new()
 	ev.button_index = MOUSE_BUTTON_LEFT
 	ev.pressed = true
@@ -268,9 +275,7 @@ func _part5_click_purchase() -> void:
 	ev2.pressed = false
 	ev2.position = center
 	root.push_input(ev2)
-	var coins_before: int = int(_gm.get("economy").get("coins"))
-	await process_frame  # GUI 事件一帧内处理
 	var coins_after: int = int(_gm.get("economy").get("coins"))
-	var inv_total: int = _gm.get("inventory").get("weapons").size() + _gm.get("inventory").get("items").size()
+	var inv_after: int = _inv.get("weapons").size() + _inv.get("items").size()
 	_ok(coins_after < coins_before, "真实点击购买 → 金币扣减（%d → %d）" % [coins_before, coins_after])
-	_ok(inv_total >= 1, "真实点击购买 → 背包入库（总数 %d）" % inv_total)
+	_ok(inv_after > inv_before, "真实点击购买 → 背包入库（%d → %d）" % [inv_before, inv_after])
