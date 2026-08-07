@@ -266,6 +266,60 @@ func _play_hit_flash() -> void:
 	var tw := create_tween()
 	tw.tween_property(_anim, "modulate", Color.WHITE, 0.1)
 
+# ========== Boss attacks 指令解析（D18-19-T2 · 纯函数） ==========
+## enemies.json phases[].attacks 字符串指令 → 结构化字典（决策 D8：禁物理查询，全距离/容器遍历）
+## 输出统一含 5 键 {kind, count, interval, mult, elite}；未知指令 push_warning + 返回 {}（不崩）
+## 指令表（定案 T2-A）：
+##   summon_N_enemies_every_Xs → {kind:"summon", count:N, interval:X, elite:false}
+##   summon_N_elite            → {kind:"summon", count:N, interval:0.0, elite:true}（一次性）
+##   N_projectile_spread       → {kind:"spread", count:N, interval:4.0}（决策 D4）
+##   projectile_barrage        → {kind:"barrage", interval:4.0}（决策 D4）
+##   aoe_every_Xs              → {kind:"aoe", interval:X}
+##   charge_attack / _2x       → {kind:"charge", mult:1.0/2.0, interval:-1.0}（永续置位无计时）
+##   all_attacks_2x            → {kind:"mult", mult:2.0, interval:-1.0}（阶段修饰符无计时）
+
+func _parse_attack(cmd: String) -> Dictionary:
+	var parts: PackedStringArray = cmd.split("_")
+	if parts.is_empty():
+		push_warning("[Boss] 未知攻击指令: %s" % cmd)
+		return {}
+	var head: String = parts[0]
+	# 召唤系: summon_N_enemies_every_Xs / summon_N_elite
+	if head == "summon":
+		if parts.size() >= 3:
+			var count: int = maxi(int(parts[1]), 0)
+			if parts[2] == "elite":
+				return {"kind": "summon", "count": count, "interval": 0.0, "mult": 1.0, "elite": true}
+			if parts.size() >= 5 and parts[3] == "every":
+				var interval: float = float(parts[4].trim_suffix("s"))
+				return {"kind": "summon", "count": count, "interval": interval, "mult": 1.0, "elite": false}
+	# 弹幕系: N_projectile_spread / projectile_barrage
+	elif head == "projectile":
+		if parts.size() >= 2 and parts[1] == "barrage":
+			return {"kind": "barrage", "count": 0, "interval": 4.0, "mult": 1.0, "elite": false}
+	# AOE: aoe_every_Xs
+	elif head == "aoe":
+		if parts.size() >= 3 and parts[1] == "every":
+			var interval: float = float(parts[2].trim_suffix("s"))
+			return {"kind": "aoe", "count": 0, "interval": interval, "mult": 1.0, "elite": false}
+	# 冲锋: charge_attack / charge_attack_2x
+	elif head == "charge":
+		if parts.size() == 2 and parts[1] == "attack":
+			return {"kind": "charge", "count": 0, "interval": -1.0, "mult": 1.0, "elite": false}
+		if parts.size() == 3 and parts[1] == "attack" and parts[2] == "2x":
+			return {"kind": "charge", "count": 0, "interval": -1.0, "mult": 2.0, "elite": false}
+	# 阶段修饰符: all_attacks_2x
+	elif head == "all":
+		if parts.size() >= 3 and parts[1] == "attacks" and parts[2] == "2x":
+			return {"kind": "mult", "count": 0, "interval": -1.0, "mult": 2.0, "elite": false}
+	# 数字开头: N_projectile_spread（int 转换须回验防 "abc"→0 误判）
+	elif parts.size() >= 3 and parts[1] == "projectile" and parts[2] == "spread":
+		var count: int = int(head)
+		if str(count) == head:
+			return {"kind": "spread", "count": count, "interval": 4.0, "mult": 1.0, "elite": false}
+	push_warning("[Boss] 未知攻击指令: %s" % cmd)
+	return {}
+
 # ========== 行为系统 ==========
 
 ## 根据行为模式更新移动
