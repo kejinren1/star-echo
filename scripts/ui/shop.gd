@@ -115,11 +115,11 @@ func _check_star_grace() -> void:
 	if star_grace_used or star_grace_available:
 		return
 	# 第四关：current_wave == 4（route 模式 wave_index 4 / 旧制第 4 波，商店打开时值保持）
-	if GameManager == null or int(GameManager.get("current_wave", 0)) != 4:
+	if GameManager == null or not ("current_wave" in GameManager) or int(GameManager.get("current_wave")) != 4:
 		return
 	# 已升级两次技能：player.level >= 3（从 1 起升两次；player 缺失/未绑定 → 不激活）
 	var p: Node = GameManager.get("player") if GameManager else null
-	if p == null or not ("level" in p) or int(p.get("level", 0)) < 3:
+	if p == null or not ("level" in p) or int(p.get("level")) < 3:
 		return
 	# 本商店已刷出星刃核心 → 无需保底
 	if _has_blade_core():
@@ -130,7 +130,7 @@ func _check_star_grace() -> void:
 ## 当前商店 4 卡中是否有星刃核心（item_id == se_blade_core）
 func _has_blade_core() -> bool:
 	for item in shop_items:
-		if item and str(item.get("item_id", "")) == "se_blade_core":
+		if item and ("item_id" in item) and str(item.get("item_id")) == "se_blade_core":
 			return true
 	return false
 
