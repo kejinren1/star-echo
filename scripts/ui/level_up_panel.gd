@@ -49,6 +49,8 @@ func setup() -> void:
 ## → shuffle → 取前 count 个（天然不重复）
 func _roll_options(count: int) -> Array:
 	var pool: Array = []
+	# 2026-08-08 反馈专员·方案A（用户拍板）：进化选项单独收集 → 保底入选
+	var evolutions: Array = []
 	var leveling: Dictionary = DataLoader.get_leveling()
 	for group in leveling.get("upgrade_options", []):
 		for opt in group.get("options", []):
@@ -82,12 +84,25 @@ func _roll_options(count: int) -> Array:
 				if requires_item.is_empty():
 					continue
 				if GameManager.inventory.has_item_id(requires_item):
-					pool.append({
+					evolutions.append({
 						"label": "进化『%s』" % str(evolution.get("result_name", "")),
 						"type": "evolution",
 						"weapon": weapon,
 						"evolution": evolution,
 					})
+	# 2026-08-08 反馈专员·方案A（用户拍板「开发期优先质变闭环，暂不考虑玩法丰富度限制」）：
+	# 满级 + 持核心时进化选项【保底入选】——进化选项全部放入结果（至 count 上限），
+	# 剩余位置由属性/升级池随机补足；无进化可做时保持原随机 3 选 1 逻辑。
+	if not evolutions.is_empty():
+		var result: Array = evolutions.duplicate()
+		if result.size() < count:
+			pool.shuffle()
+			for opt in pool:
+				if result.size() >= count:
+					break
+				result.append(opt)
+		result.shuffle()
+		return result
 	pool.shuffle()
 	return pool.slice(0, count)
 

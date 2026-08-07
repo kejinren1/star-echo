@@ -331,6 +331,24 @@ func _part_evolution_apply_panel() -> void:
 	else:
 		_pass("链路 / 无核心时 _roll_options 不含 evolution（互斥验证）")
 
+	# 2026-08-08 反馈专员·方案A（用户拍板「开发期优先质变闭环」）：满级+持核心时
+	# 3 选 1 【保底必含】进化选项——50 次真实 3 选 1 抽样，出现率必须 100%
+	_inv.call("add_item_from_data", "se_flame_core")
+	var guarantee_ok: bool = true
+	for i in 50:
+		var opts3: Array = panel.call("_roll_options", 3)
+		var has_evo3: bool = false
+		for o in opts3:
+			if str(o.get("type", "")) == "evolution":
+				has_evo3 = true
+				break
+		if not has_evo3:
+			guarantee_ok = false
+			_fail("链路: 方案A保底失败 —— 第 %d 次 3 选 1 缺 evolution 选项" % i)
+			break
+	if guarantee_ok:
+		_pass("链路 / 方案A保底：持核心 50 次 3 选 1 抽样全含 evolution（出现率 100%）")
+
 	# 注入核心 → _apply_option → 武器替换 + 核心消耗
 	_inv.call("add_item_from_data", "se_flame_core")
 	panel.call("_apply_option", evo_opt)
