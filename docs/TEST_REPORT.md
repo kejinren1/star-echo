@@ -1986,3 +1986,328 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-06 22:45 自动化测试轮次 #18：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**2abba3c**（Day17 精英战斗已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷**，3 精英 ability 新增零破坏）、**16 场景全可实例化**、**十三件套探针 344 断言全绿首跑**（day17_elite_check 39/39 本轮纳入；day13 flaky 修复实证首跑全绿；runner 同步关闭上轮基础设施待办）。Day17 精英三行为 + difficulty 消费行为级收口，**BUG-003 收口实证关闭 `mixed*` 家族 latent（自 Day 5 追踪至今）**。**无需回退，可进入 Day 18。**
+
+---
+
+## 2026-08-07 00:45 自动化测试轮次 #19
+
+**验证快照**：HEAD=**140b655**（较 #18 +4 提交：6e84751 **Day17-P0 finalize**（F-01 移速×0.5 / F-02 碰撞层分离 / F-04 金手指 / F-15 根因复核 + day17_p0 探针）/ 1bc0255 **F-15 冲锋倍率调参**（`_move_charge` ×2.5→×1.5，冲速 531→319 恢复可反应区间）/ 999a1bd **P1 试玩反馈修复四项**（Fix-1 战后自动弹商店 / Fix-2 波次按层分配消除跳号 BOSS_WAVE 20→10 / Fix-3 HP/EXP 条信号连接+移底部 / Fix-4 金手指方向键）/ 140b655 docs）。工作区**干净无在途**，验证快照=HEAD。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- **9/9 解析 OK**：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（+elements/stats/routes）。
+- 数值字段 **2249**（= #18 持平，数据层零变更）：负值 39 全有意（惩罚/诅咒）、零伤害（非 force_field）0、哨兵 -1×2（boss 波）、crit 双口径越界 0。
+- 跨引用：chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空（3 池令牌放行）。**0 缺陷**。
+
+### 3. 场景 smoke（正常模式，16 场景）
+
+- **16/16 全部实例化成功，0 ERROR**（清单同 #18；Main 置后方法学维持；临时脚本 Python os.remove 清理无残留）。
+
+### 4. Day2~Day17-P0 探针回归（十四件套，全部首跑）
+
+| 探针 | 断言 | 结果 |
+|---|---|---|
+| day2_hero_check | 32 | CLEAN |
+| day3_skill_check | 16 | CLEAN |
+| day4_level_check | 21 | CLEAN（stderr 0 B） |
+| day5_weapon_check | 16 | CLEAN |
+| day6_integration_check | 14 | CLEAN |
+| day7_weapon_data_check | 13 | CLEAN（124B = 主动越界测试预期） |
+| day8_weapon_data_check | 19 | CLEAN |
+| day10_evolution_check | 20 | CLEAN（132B = 主动缺数据测试预期） |
+| day11_12_passive_check | 24 | CLEAN（763B = 3 预期 warning + minor） |
+| day13_build_check | 36 | CLEAN（859B = 探针级 minor） |
+| day14_15_route_check | **54**（53→54） | CLEAN（130B = 主动 WARNING 预期；**+1 断言随 P1 Fix-2 同步：boss→wave_index==10 映射）** |
+| day16_event_check | 41 | CLEAN（276B = 2 条主动 push_warning 预期） |
+| day17_elite_check | 39 | CLEAN（stderr 0 B） |
+| **day17_p0_check** | **20** | **CLEAN（stderr 0 B，本轮首次纳入）** |
+
+- 合计 **365 断言全 CLEAN 且首跑**（#18 344 + day17_p0 20 + day14_15 +1），无新增 FAIL。
+- **day17_p0_check（本轮首次纳入）**行为级验证：① F-01 全敌移速 ×0.5（chaser 320×1.01×0.5=161.6，elite/boss 同乘）；② F-02 碰撞层分离（enemy layer=2 / player layer=1 / projectile mask 指向目标层）；③ F-04 金手指 toggle 跳关+攻击×10+受伤 0.1% 聚合/关闭还原；④ F-15 根因复核。**用户拍板 P0 四件套全部行为级收口**。
+- **P1 四修复（999a1bd）回归实证**：Fix-2 波次跳号修复经 day14_15 探针 54 断言覆盖（layer_index+1 映射 / boss→wave 10 / shop/event→0）；Fix-1/3/4 无独立断言但 baseline+600帧+16 场景零 ERROR 佐证无回归。
+
+### 5. WARNING 汇总
+
+- **预期输出（非缺陷）**：day7/day10/day11_12 口径与历史一致；day14_15「玩家未绑定」防御分支 + Fix-2 映射断言；day16 2 条主动 push_warning。
+- **探针级 minor（维持）**：day11_12（Canvas RID + ObjectDB + 4 resources）、day13（RID 组泄漏）——探针自身未完全 free，exit 0，建议探针维护统一收尾。
+- **本轮无新增 WARNING、无新增测试基础设施待办**。
+
+### 6. 遗留 latent（存量更新）
+
+- ✅ `mixed*` 聚合池令牌家族已关闭（Day17 BUG-003 收口实证，维持关闭状态）。
+- 探针残留 `tools/_probe_turret_tmp.gd` / `tools/_probe_elin_sprite_tmp.gd` + `scripts/ui/level_up_panel.gd.bak`（未跟踪）+ `tools/qa_validate.py`/`tools/probe_logs/`（产物），建议 w1-code 清理。
+- **待办**：`tools/_regression_run.py` 未含 day17_p0_check（20 断言）——建议下轮并入 runner 实现十五件套全量自动化（该文件被 .gitignore `tools/_*` 忽略，改动仅本地生效）。
+- **本轮无新增游戏缺陷、无新增游戏 action item**。
+
+### 结论
+
+**✅ 2026-08-07 00:45 自动化测试轮次 #19：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**140b655**（Day17-P0 四件套 + F-15 调参 + P1 试玩四修复已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷**）、**16 场景全可实例化**、**十四件套探针 365 断言全绿首跑**（day17_p0_check 20/20 本轮纳入；day14_15 随 P1 Fix-2 更新至 54 断言并覆盖波次跳号修复）。**用户拍板 P0 四件套与 P1 试玩修复四项均行为级收口，零回归**。**无需回退，可进入 Day 18。**
+
+---
+
+## 2026-08-07 02:45 自动化测试轮次 #20
+
+**验证快照**：HEAD=**140b655**（= #19，**空轮次无新提交**；工作区在途仅 docs/* 五个文件——DAY_ROLE_ASSIGNMENTS/PLAYTEST_CHECKLIST/PROGRESS/TASKS/TEST_REPORT——无游戏代码改动，验证快照=HEAD）。当前阶段：Day 18 筹备（阶段 C 剩余 + 阶段 D 局外养成待拆解）。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（routes/elements/stats 配置型）。
+- 数值字段 **2249** 与 #19 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2（Boss 波）；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**，stderr 0 B，exit 0。
+- 本轮方法学复核：首跑时 Main.tscn 误置于列表第 9 位（Shop 之前），触发 `shop.gd:53 coins_changed previously freed` 顺序假象——Main free 后 autoload 残留引用导致后续 Shop `_ready` 访问已释放节点（`if GameManager.economy:` 仅防空值、防不了悬垂指针）。Main 移至列表末尾后 **0 ERROR**，与 #11 记录一致，确认为 smoke 顺序假象而非游戏缺陷（真实对局中 Shop 由 GameManager 生命周期内实例化，不触发）。
+
+### 4. Day2~Day17-P0 探针回归（十四件套，全部首跑）
+
+**14/14 PASS，365 断言**，计数与 #19 完全一致：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20。stderr 口径与历史全部一致：day7 124B / day10 132B = 主动越界保护测试预期输出；day14_15 130B / day16 276B = 主动 push_warning（事件奖励跳过 / reroute 越界 / 道具缺失）；day11_12 763B / day13 859B = 探针级 minor 维持（未完全 free 泄漏）；day4 0 B（历史 242B minor 维持消失态）；其余 0 B。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护、day14_15/day16 push_warning | 测试主动触发，预期输出 |
+| 无 | — | 本轮无新增 |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口，WaveManager 全量生成零 null）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py`（gitignore `tools/_*` 忽略，建议 w1 统一清理，非阻断）。
+- 本轮新增杂物：无。
+
+### 结论
+
+**✅ 2026-08-07 02:45 自动化测试轮次 #20：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**140b655**（空轮次无新提交）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**（Main 置后方法学复核无误）、**十四件套探针 365 断言全绿首跑**。**无新增发现、无新增 action item**，状态与 #19 完全持平。**无需回退。**
+
+---
+
+## 2026-08-07 04:37 自动化测试轮次 #21
+
+**验证快照**：HEAD=**140b655**（= #20，**空轮次无新提交**；工作区在途仅 docs/* 六个文件——DAY_ROLE_ASSIGNMENTS/LOOP_HEALTH/PLAYTEST_CHECKLIST/PROGRESS/TASKS/TEST_REPORT——无游戏代码改动，验证快照=HEAD）。当前阶段：Day 18 筹备（阶段 C 剩余 + 阶段 D 局外养成待拆解）。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（routes/elements/stats 配置型）。
+- 数值字段 **2249** 与 #20 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2（Boss 波）；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**，stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. Day2~Day17-P0 探针回归（十四件套，全部首跑）
+
+**14/14 PASS，365 断言**，计数与 #19/#20 完全一致：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20。stderr 口径与历史全部一致：day7 124B / day10 132B = 主动越界保护测试预期输出；day14_15 130B / day16 276B = 主动 push_warning（事件奖励跳过 / reroute 越界 / 道具缺失）；day11_12 763B / day13 859B = 探针级 minor 维持（未完全 free 泄漏）；day4 0 B（维持消失态）；其余 0 B。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护、day14_15/day16 push_warning | 测试主动触发，预期输出 |
+| 无 | — | 本轮无新增 |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口，WaveManager 全量生成零 null）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py`（gitignore `tools/_*` 忽略，建议 w1 统一清理，非阻断）。
+- 本轮新增杂物：无（在途 docs 增 LOOP_HEALTH.md，属文档维护）。
+
+### 结论
+
+**✅ 2026-08-07 04:37 自动化测试轮次 #21：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**140b655**（空轮次无新提交）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**、**十四件套探针 365 断言全绿首跑**。**无新增发现、无新增 action item**，状态与 #19/#20 完全持平。**无需回退。**
+
+---
+
+## 2026-08-07 06:34 自动化测试轮次 #22
+
+**验证快照**：HEAD=**140b655**（= #21，**空轮次无新提交**；工作区在途仅 docs/* 六个文件——DAY_ROLE_ASSIGNMENTS/LOOP_HEALTH/PLAYTEST_CHECKLIST/PROGRESS/TASKS/TEST_REPORT——无游戏代码改动，验证快照=HEAD）。当前阶段：Day 18 筹备（阶段 C 剩余 + 阶段 D 局外养成待拆解）。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（routes/elements/stats 配置型）。
+- 数值字段 **2249** 与 #21 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2（Boss 波）；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**，stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. Day2~Day17-P0 探针回归（十四件套，全部首跑）
+
+**14/14 PASS，365 断言**，计数与 #19/#20/#21 完全一致：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20。stderr 口径与历史全部一致：day7 124B / day10 132B = 主动越界保护测试预期输出；day14_15 130B / day16 276B = 主动 push_warning（事件奖励跳过 / reroute 越界 / 道具缺失）；day11_12 763B / day13 859B = 探针级 minor 维持（未完全 free 泄漏）；day4 0 B（维持消失态）；其余 0 B。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护、day14_15/day16 push_warning | 测试主动触发，预期输出 |
+| 无 | — | 本轮无新增 |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口，WaveManager 全量生成零 null）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py`（gitignore `tools/_*` 忽略，建议 w1 统一清理，非阻断）。
+- 本轮新增杂物：无（在途 docs 与 #21 相同六文件，属文档维护）。
+
+### 结论
+
+**✅ 2026-08-07 06:34 自动化测试轮次 #22：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**140b655**（空轮次无新提交）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**、**十四件套探针 365 断言全绿首跑**。**无新增发现、无新增 action item**，状态与 #19/#20/#21 完全持平。**无需回退。**
+
+---
+
+## 2026-08-07 08:26 自动化测试轮次 #23
+
+**验证快照**：HEAD=**140b655**（= #22，**空轮次无新提交**；工作区在途仅 docs/* 六个文件——DAY_ROLE_ASSIGNMENTS/LOOP_HEALTH/PLAYTEST_CHECKLIST/PROGRESS/TASKS/TEST_REPORT——无游戏代码改动，验证快照=HEAD）。当前阶段：Day 18 筹备（阶段 C 剩余 + 阶段 D 局外养成待拆解）。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（routes/elements/stats 配置型）。
+- 数值字段 **2249** 与 #22 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2（Boss 波）；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**，stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. Day2~Day17-P0 探针回归（十四件套，全部首跑）
+
+**14/14 PASS，365 断言**，计数与 #19/#20/#21/#22 完全一致：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20。stderr 口径与历史全部一致：day7 124B / day10 132B = 主动越界保护测试预期输出；day14_15 130B / day16 276B = 主动 push_warning（事件奖励跳过 / reroute 越界 / 道具缺失）；day11_12 763B / day13 859B = 探针级 minor 维持（未完全 free 泄漏）；day4 0 B（维持消失态）；其余 0 B。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护、day14_15/day16 push_warning | 测试主动触发，预期输出 |
+| 无 | — | 本轮无新增 |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口，WaveManager 全量生成零 null）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py`（gitignore `tools/_*` 忽略，建议 w1 统一清理，非阻断）。
+- 本轮新增杂物：无（在途 docs 与 #22 相同六文件，属文档维护）。
+
+### 结论
+
+**✅ 2026-08-07 08:26 自动化测试轮次 #23：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**140b655**（空轮次无新提交）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**、**十四件套探针 365 断言全绿首跑**。**无新增发现、无新增 action item**，状态与 #19/#20/#21/#22 完全持平。**无需回退。**
+
+---
+
+## 2026-08-07 12:15 自动化测试轮次 #24
+
+**验证快照**：HEAD=**140b655**（= #23，**空轮次无新提交**；工作区在途仅 docs/* 六个文件——DAY_ROLE_ASSIGNMENTS/LOOP_HEALTH/PLAYTEST_CHECKLIST/PROGRESS/TASKS/TEST_REPORT——无游戏代码改动，验证快照=HEAD）。当前阶段：Day 18 筹备（阶段 C 剩余 + 阶段 D 局外养成待拆解）。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（routes/elements/stats 配置型）。
+- 数值字段 **2249** 与 #23 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2（Boss 波）；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**（Player.tscn children=4），stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. Day2~Day17-P0 探针回归（十四件套，全部首跑）
+
+**14/14 PASS，365 断言**，计数与 #19~#23 完全一致：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20。stderr 口径与历史全部一致：day7 124B / day10 132B = 主动越界保护测试预期输出；day14_15 130B / day16 276B = 主动 push_warning（事件奖励跳过 / reroute 越界 / 道具缺失）；day11_12 763B / day13 859B = 探针级 minor 维持（未完全 free 泄漏）；day4 0 B（维持消失态）；其余 0 B。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护、day14_15/day16 push_warning | 测试主动触发，预期输出 |
+| 无 | — 本轮无新增 |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口，WaveManager 全量生成零 null）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py`（gitignore `tools/_*` 忽略，建议 w1 统一清理，非阻断）。
+- 本轮新增杂物：无（在途 docs 与 #23 相同六文件，属文档维护）。
+- 工具维护（#22 遗留关闭）：`tools/_regression_run.py` PROBES 表 day14_15 expect 53→**54** 已同步（`tools/_*` gitignore 忽略，仅本地生效不进 git）。
+
+### 结论
+
+**✅ 2026-08-07 12:15 自动化测试轮次 #24：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**140b655**（空轮次无新提交）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**、**十四件套探针 365 断言全绿首跑**。**无新增发现、无新增 action item**，状态与 #19~#23 完全持平。**无需回退。**
+
+---
+
+## §7.25 轮次 #25 · 2026-08-07 14:12（自动化 · 阶段 C 收口 / Day 18-FB）
+
+**验证快照**：HEAD=**4a43f8c**（较 #24 +2 提交：**16c6dd3 Day18-FB finalize** — 反馈专员用户拍板六件套（F-05 通关回血50% / F-07 火球穿透 pierce 0→3 / F-08 星刃贴身必中 / F-06 HUD 剩余怪数 / F-03 受伤相机震动 / F-11 伤害数字）+ **day18_feedback_check.gd 探针 16 断言**；4a43f8c docs）。工作区在途仅 docs/* 六文件 + SOLUTION_PLAN.md，**无游戏代码改动**，验证快照=HEAD。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（routes/elements/stats 配置型）。
+- 数值字段 **2249** 与 #24 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2（Boss 波）；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**（Player.tscn children=4），stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. Day2~Day18-FB 探针回归（十五件套，全部首跑）
+
+**15/15 PASS，381 断言**（= #24 365 + day18 16）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / **day18_feedback 16（本轮首次纳入）**。stderr 口径与历史全部一致：day7 124B / day10 132B = 主动越界保护测试预期输出；day14_15 130B / day16 276B = 主动 push_warning；day11_12 763B / day13 859B = 探针级 minor 维持；day4 0 B（维持消失态）；**day18 497B 新增**（见 §5）；其余 0 B。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B / day18 泄漏 3 条（1 RID CanvasItem + ObjectDB + 1 resources still in use）探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护、day14_15/day16 push_warning、**day18 1 条「[HUD] 未找到 SkillController」** | 测试主动触发/防御分支预期输出（hud.gd:155 D4-T6 设计：取不到只告警不崩；探针独立实例化 HUD 无 Player→SkillController 触发） |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py`（gitignore `tools/_*` 忽略，建议 w1 统一清理，非阻断）。
+- 本轮新增杂物：docs/SOLUTION_PLAN.md 未跟踪（文档侧，非阻断）。
+
+### 结论
+
+**✅ 2026-08-07 14:12 自动化测试轮次 #25：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**4a43f8c**（Day18-FB 六件套已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**、**十五件套探针 381 断言全绿首跑**（day18_feedback 16/16 行为级收口 F-03/F-05/F-06/F-07/F-08/F-11）。**无新增缺陷、无新增 action item**。**无需回退。**
