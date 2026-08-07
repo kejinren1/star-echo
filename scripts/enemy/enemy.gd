@@ -11,6 +11,8 @@ signal health_changed(current_hp: float, max_hp: float)
 ## F-11（用户拍板 2026-08-06）：伤害数字飘字脚本。preload 而非依赖 class_name——
 ## 无头 --script 模式（探针）不注册全局类名（main.gd:20 同策略），静态方法经脚本引用调用
 const DamageNumberScript: GDScript = preload("res://scripts/effects/damage_number.gd")
+## D18-19-T3：敌人弹丸脚本。同策略 preload（决策 D1：弹丸挂 Boss 节点自身，非 Enemies 容器）
+const EnemyProjectileScript: GDScript = preload("res://scripts/enemy/enemy_projectile.gd")
 
 # ========== 行为枚举 ==========
 
@@ -135,6 +137,20 @@ var ability: Dictionary = {}
 var wave_number: int = 1
 var _ability_timer: float = 0.0
 
+# ========== Boss 阶段（Day 18-19 · T1/T2） ==========
+## enemies.json phases 状态机：take_damage 阈值切换 + attacks 指令执行
+## 全部行为以 `is_boss and not phases.is_empty()` 双条件守卫——普通/精英敌人零新行为
+var phases: Array = []                       ## Boss 阶段定义（get_scaled_enemy 恒返回 phases 键透传）
+var _current_phase_idx: int = 0              ## 当前阶段索引（0 起）
+var _attack_timers: Dictionary = {}          ## 攻击计时器: cmd -> {parsed: Dictionary, timer: float}
+var _attack_mult: float = 1.0                ## 阶段修饰符（决策 D3：all_attacks_2x → ×2.0，仅伤害类生效）
+var _boss_charge: bool = false               ## 冲锋置位（决策 D2：charge 型指令置位后 _move_charge 自动生效）
+var _boss_charge_mult: float = 1.0           ## 冲锋命中伤害倍率（_try_contact_damage 消费，普通敌人恒 1.0）
+var _base_speed: float = 120.0               ## 基础移速（阶段 speed_multiplier 基准，F-15 移动倍率零改动）
+var _rng := RandomNumberGenerator.new()      ## 攻击随机源（探针可注 _rng.seed；禁 Array.shuffle/pick_random 全局 RNG）
+var _barrage_wave: int = 0                   ## barrage 剩余波次（决策 D4：8 向 × 3 波）
+var _barrage_timer: float = 0.0              ## barrage 波间隔计时（0.25s）
+
 # ========== 生命周期 ==========
 
 func _ready() -> void:
@@ -162,7 +178,8 @@ func _try_contact_damage() -> void:
 	var dist := global_position.distance_to(target.global_position)
 	var contact_range: float = frame_size.x * 0.5 + 12.0
 	if dist <= contact_range and target.has_method("take_damage"):
-		target.take_damage(damage)
+		# D18-19-T2（决策 D2）：Boss 冲锋命中伤害 × _boss_charge_mult（普通敌人恒 ×1.0）
+		target.take_damage(damage * (_boss_charge_mult if (is_boss and _boss_charge) else 1.0))
 		_contact_cd = 0.5
 
 # ========== 动画 ==========
@@ -325,6 +342,14 @@ func _parse_attack(cmd: String) -> Dictionary:
 ## 根据行为模式更新移动
 func _update_behavior(delta: float) -> void:
 	if not is_target_valid():
+		return
+	# Day 18-19 · T1/T2：Boss 阶段模式（优先于行为枚举；普通/精英零影响——双条件守卫）
+	if is_boss and not phases.is_empty():
+		_process_boss_attacks(delta)
+		if _boss_charge:
+			_move_charge(delta)
+		else:
+			_move_chase(delta)
 		return
 	match behavior:
 		Behavior.CHASE:
@@ -508,6 +533,183 @@ func _elite_spawn(delta: float) -> void:
 		container.add_child(minion_node)
 	_ability_timer = float(ability.get("interval", 1.0))
 
+# ========== Boss 阶段状态机与攻击执行器（Day 18-19 · T1/T2） ==========
+## 决策引用：D1 弹丸挂自身 / D2 冲锋复用 _move_charge 只乘命中倍率 / D3 all_attacks_2x 阶段修饰符 /
+## D4 spread/barrage 默认间隔 4.0s、barrage=8 向×3 波 0.25s / D5 aoe 半径 120px / D8 禁物理查询
+## 全部以 is_boss + phases 双守卫，普通/精英敌人零新行为
+
+## 血量阈值相位切换：从下一阶段起找第一个命中阈值的阶段；无更低阈值 → 保持
+func _check_phase_transition() -> void:
+	for i in range(_current_phase_idx + 1, phases.size()):
+		var threshold: float = float(phases[i].get("hp_threshold_percent", 0.0)) / 100.0
+		if health / max_health <= threshold:
+			_reset_boss_phase(i)
+			return
+
+## 激活指定阶段：清计时器 → 解析 attacks 缓存 → 修饰符/冲锋置位 → 移速 → 阶段横幅
+func _reset_boss_phase(idx: int) -> void:
+	_current_phase_idx = idx
+	_attack_timers.clear()
+	var phase: Dictionary = phases[idx]
+	var attacks: Array = phase.get("attacks", [])
+	for cmd in attacks:
+		var parsed: Dictionary = _parse_attack(str(cmd))
+		if parsed.is_empty():
+			continue
+		_attack_timers[str(cmd)] = {"parsed": parsed, "timer": 0.0}
+	# 阶段修饰符（决策 D3：all_attacks_2x → _attack_mult ×2.0，仅伤害类生效；对 summon 无效）
+	if _attack_timers.has("all_attacks_2x"):
+		_attack_mult *= 2.0
+	# 冲锋置位（决策 D2：charge 型永续置位 _boss_charge + 命中倍率）
+	_boss_charge = false
+	_boss_charge_mult = 1.0
+	for key in _attack_timers:
+		var entry: Dictionary = _attack_timers[key]
+		if str(entry.get("parsed", {}).get("kind", "")) == "charge":
+			_boss_charge = true
+			_boss_charge_mult = float(entry["parsed"].get("mult", 1.0))
+			break
+	# 阶段移速（speed_multiplier 基准 _base_speed；F-15 已定型移动倍率零改动）
+	move_speed = _base_speed * float(phase.get("speed_multiplier", 1.0))
+	# 阶段横幅「⚠ Boss 进入第 N 阶段」（1.5s 淡出上浮，容器缺失静默）
+	_show_boss_phase_banner(idx + 1)
+
+## 阶段切换横幅（仿 _spawn_exp_popup / D17 精英横幅范式；容器缺失静默跳过不崩）
+func _show_boss_phase_banner(phase_num: int) -> void:
+	var container: Node = _resolve_fx_container()
+	if container == null:
+		return
+	var banner := Node2D.new()
+	banner.name = "BossPhaseBanner"
+	var label := Label.new()
+	label.text = "⚠ Boss 进入第 %d 阶段" % phase_num
+	label.add_theme_font_size_override("font_size", 22)
+	label.add_theme_color_override("font_color", Color(0.95, 0.4, 0.4))
+	banner.add_child(label)
+	container.add_child(banner)
+	banner.global_position = Vector2(320.0, 90.0)
+	var tween := banner.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "modulate:a", 0.0, 1.5)
+	tween.tween_property(banner, "global_position:y", banner.global_position.y - 30.0, 1.5)
+	tween.chain().tween_callback(banner.queue_free)
+
+## 攻击执行主循环：遍历 _attack_timers 计时结算；barrage 波次独立推进
+func _process_boss_attacks(delta: float) -> void:
+	# barrage 波次推进（8 向 × 3 波、波间隔 0.25s，决策 D4）
+	if _barrage_wave > 0:
+		_barrage_timer -= delta
+		if _barrage_timer <= 0.0:
+			_boss_spread(8)
+			_barrage_wave -= 1
+			_barrage_timer = 0.25
+	if _attack_timers.is_empty():
+		return
+	var remove_keys: Array = []
+	for key in _attack_timers:
+		var entry: Dictionary = _attack_timers[key]
+		var parsed: Dictionary = entry.get("parsed", {})
+		var interval: float = float(parsed.get("interval", -1.0))
+		if interval < 0.0:
+			continue  # charge/mult 置位型无计时
+		entry["timer"] = float(entry.get("timer", 0.0)) - delta
+		if float(entry["timer"]) > 0.0:
+			continue
+		_execute_attack(str(parsed.get("kind", "")), parsed)
+		if interval <= 0.0:
+			remove_keys.append(key)  # 一次性（summon_N_elite）执行后移除
+		else:
+			entry["timer"] = interval
+	for key in remove_keys:
+		_attack_timers.erase(key)
+
+## 按 kind 分派执行器（全距离/容器遍历，禁物理查询，决策 D8）
+func _execute_attack(kind: String, parsed: Dictionary) -> void:
+	match kind:
+		"summon":
+			_boss_summon(maxi(int(parsed.get("count", 0)), 0), bool(parsed.get("elite", false)))
+		"spread":
+			_boss_spread(maxi(int(parsed.get("count", 0)), 0))
+		"barrage":
+			_boss_barrage()
+		"aoe":
+			_boss_aoe()
+		_:
+			push_warning("[Boss] 未知执行指令 kind: %s" % kind)
+
+## Boss 召唤（regular/elite 池随机取 id，同波缩放，进 Enemies 容器计入存活 ✅）
+## 容器/场景解析复用 _elite_spawn 范式（:425-440）
+func _boss_summon(count: int, elite: bool) -> void:
+	if count <= 0:
+		return
+	var pool: Array = DataLoader.get_enemy_ids_by_category("elite" if elite else "regular")
+	if pool.is_empty():
+		return
+	var container: Node = null
+	if GameManager and GameManager.enemies_container:
+		container = GameManager.enemies_container
+	elif GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
+		container = GameManager.enemy_spawner.enemies_container
+	if container == null:
+		return
+	var scene: PackedScene = null
+	if GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemy_scene:
+		scene = GameManager.enemy_spawner.enemy_scene
+	else:
+		scene = load("res://scenes/Enemy.tscn")
+	if scene == null:
+		return
+	for _i in count:
+		var enemy_id: String = str(pool[_rng.randi_range(0, pool.size() - 1)])
+		var stats: Dictionary = DataLoader.get_scaled_enemy(enemy_id, wave_number)
+		if stats.is_empty():
+			continue
+		var minion_node: Node = scene.instantiate()
+		if minion_node.has_method("initialize"):
+			minion_node.initialize(stats)
+		if GameManager and GameManager.player and minion_node.has_method("set_target"):
+			minion_node.set_target(GameManager.player)
+		container.add_child(minion_node)
+
+## 环形弹幕：count 向均匀分布，基准角朝玩家，单发伤害 damage × _attack_mult
+func _boss_spread(count: int) -> void:
+	if count <= 0:
+		return
+	var base: float = 0.0
+	if is_target_valid():
+		base = global_position.direction_to(target.global_position).angle()
+	for i in count:
+		var angle: float = base + TAU * float(i) / float(count)
+		_spawn_enemy_projectile(Vector2.from_angle(angle))
+
+## 弹幕风暴：8 向 × 3 波、波间隔 0.25s（决策 D4；由 _process_boss_attacks 推进波次）
+func _boss_barrage() -> void:
+	_barrage_wave = 3
+	_barrage_timer = 0.0
+
+## AOE：玩家距离 ≤ 120px（决策 D5）→ 伤害 × _attack_mult + crit 特效（容器缺失静默）
+func _boss_aoe() -> void:
+	if not is_target_valid() or not target.has_method("take_damage"):
+		return
+	if global_position.distance_to(target.global_position) <= 120.0:
+		target.take_damage(damage * _attack_mult)
+		var fx_container: Node = _resolve_fx_container()
+		if fx_container:
+			VfxPlayer.spawn(fx_container, target.global_position, "crit")
+
+## 实例化敌人弹丸并挂到自身（决策 D1：防 Enemies 容器 alive-count 污染；随父销毁）
+func _spawn_enemy_projectile(dir: Vector2) -> void:
+	var proj: Node = EnemyProjectileScript.new()
+	if proj.has_method("initialize"):
+		proj.initialize({
+			"speed": 220.0,
+			"damage": damage * _attack_mult,
+			"lifetime": 2.0,
+		})
+	if proj.has_method("set_direction"):
+		proj.set_direction(dir)
+	add_child(proj)
+
 func is_target_valid() -> bool:
 	if not is_instance_valid(target):
 		return false
@@ -532,6 +734,10 @@ func take_damage(amount: float, is_crit: bool = false) -> void:
 	_spawn_damage_number(actual_damage, is_crit)
 	if health <= 0.0:
 		die()
+		return
+	# Day 18-19 · T1：存活命中 → 相位阈值检查（决策 D6：击杀瞬间不触发切换/残留横幅）
+	if is_boss and not phases.is_empty():
+		_check_phase_transition()
 
 ## 死亡处理：播放死亡动画，掉落金币/经验，发射信号
 func die() -> void:
@@ -540,6 +746,9 @@ func die() -> void:
 	_is_dying = true
 	_drop_rewards()
 	died.emit(self)
+	# Day 18-19 · T1：Boss 击杀登记（GameManager.register_boss_killed；双守卫防纯数据探针异常）
+	if is_boss and GameManager and GameManager.has_method("register_boss_killed"):
+		GameManager.register_boss_killed()
 	# 播放死亡动画后销毁
 	if _anim and _anim.sprite_frames and _anim.sprite_frames.has_animation("death"):
 		_anim.play("death")
@@ -620,6 +829,14 @@ func initialize(stats: Dictionary) -> void:
 			is_elite = true
 		"boss":
 			is_boss = true
+	# Day 18-19 · T1：Boss 阶段初始化（phases 透传 + 激活初始阶段 + scale ×2 视觉过渡 D7）
+	# 决策 D7：接触判定用 frame_size（未缩放值）恒定 + 物理已按 F-02 与玩家分层 → 纯视觉零逻辑影响
+	if stats.has("phases"):
+		phases = stats["phases"]
+	_base_speed = move_speed
+	if is_boss and not phases.is_empty():
+		_reset_boss_phase(0)
+		scale = Vector2(2.0, 2.0)
 	health = max_health
 	health_changed.emit(health, max_health)
 
