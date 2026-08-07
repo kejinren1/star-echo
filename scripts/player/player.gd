@@ -86,6 +86,7 @@ var bonus_stats: Dictionary = {}             ## 引擎尚未实现的被动/惩�
 var health: float                            ## 当前生命值
 var is_alive: bool = true
 var _invulnerable_timer: float = 0.0         ## 无敌帧计时
+var _last_stand_active: bool = false         ## D24-F13-2（F-13 low_health · last_stand 背水一战）当前是否生效
 
 # 经验与升级（D4-T1）
 var exp: float = 0.0                         ## 当前经验值
@@ -367,6 +368,8 @@ func take_damage(amount: float) -> void:
 	_play_hit_flash()
 	# 短无敌帧，避免被群体敌人每帧叠伤
 	_invulnerable_timer = 0.4
+	# D24-F13-2（F-13 low_health · last_stand 背水一战）：受击后统一刷新低血状态（乘算开/关 + 逆运算回滚）
+	_update_last_stand()
 
 	if health <= 0.0:
 		die()
@@ -375,6 +378,28 @@ func take_damage(amount: float) -> void:
 func heal(amount: float) -> void:
 	health = min(health + amount, max_health)
 	health_changed.emit(health, max_health)
+	# D24-F13-2（F-13 low_health · last_stand 背水一战）：回血后刷新低血状态（回血 >30% 自动解除）
+	_update_last_stand()
+
+## D24-F13-2（F-13 low_health · last_stand 背水一战）：低血爆发状态统一入口
+## 持有 last_stand 且血量 ≤ max_health×30% → damage ×1.5 + attack_speed ×1.2（乘算开）；
+## 解除/未持有 → 逆运算回滚（×1/1.5、×1/1.2）。状态变化才切换一次，防每帧重复应用。
+## ⚠️ 边缘风险（D29 已标注可接受）：开启期间若发生其它乘算 buff 变更（遗物装配/升级），
+## 关闭逆运算可能引入 ±小偏差——低血状态通常数秒即回血解除，期间装配/升级概率极低。
+func _update_last_stand() -> void:
+	var should: bool = false
+	if is_alive and health > 0.0 and GameManager and GameManager.inventory \
+			and GameManager.inventory.has_item_id("last_stand") \
+			and health <= max_health * 0.3:
+		should = true
+	if should and not _last_stand_active:
+		apply_stat_modifier("damage", 1.5, true)
+		apply_stat_modifier("attack_speed", 1.2, true)
+		_last_stand_active = true
+	elif not should and _last_stand_active:
+		apply_stat_modifier("damage", 1.0 / 1.5, true)
+		apply_stat_modifier("attack_speed", 1.0 / 1.2, true)
+		_last_stand_active = false
 
 ## 死亡
 func die() -> void:

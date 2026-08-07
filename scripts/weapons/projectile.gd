@@ -78,6 +78,9 @@ func _on_body_entered(body: Node) -> void:
 		# F-11（用户拍板 2026-08-06）：伤害数字子系统——命中时透传暴击态（enemy 侧展示）
 		body.take_damage(final_damage, _is_crit_hit())
 		_apply_life_steal(final_damage)
+		# D24-F13-2（F-13 on_crit）：暴击命中 → 连锁伤害（overload_capacitor，_is_crit_hit 依赖 _last_crit 须在 _roll_crit 后）
+		if _is_crit_hit():
+			_trigger_on_crit_chain(body.global_position, final_damage)
 		_hit_count += 1
 		# Day 23-T1：普通命中 VFX（线弹 + 穿透沿途每个被命中敌人都触发；
 		# 与 F-11 伤害数字同帧叠加，VfxPlayer 挂 vfx_container(Node2D) 天然盖于
@@ -124,6 +127,9 @@ func _do_explosion() -> void:
 				# F-11：AOE 暴击态透传（enemy 侧展示伤害数字）
 				enemy.take_damage(final_damage, _is_crit_hit())
 				_apply_life_steal(final_damage)
+				# D24-F13-2（F-13 on_crit）：AOE 暴击命中 → 连锁伤害（overload_capacitor）
+				if _is_crit_hit():
+					_trigger_on_crit_chain(enemy.global_position, final_damage)
 			if not status_type.is_empty() and enemy.has_method("apply_status"):
 				enemy.apply_status(status_type, status_duration, status_dps)
 
@@ -173,6 +179,29 @@ func _roll_crit(base: float) -> float:
 ## F-11：最近一次 _roll_crit 是否暴击（线弹/AOE 命中后透传给 enemy.take_damage 展示样式）
 func _is_crit_hit() -> bool:
 	return _last_crit
+
+## D24-F13-2（F-13 on_crit · overload_capacitor 过载电容）：暴击命中 → 目标周围 80px 敌人
+## 受到该次暴击伤害 ×0.3 的连锁伤害（D27 语义：每次暴击命中触发一次，不额外防重；
+## AOE 一次命中 N 敌暴击 → 最多 N 次连锁，接受）。
+## F-19 升级冲击波容器遍历范式（禁物理查询）：GameManager.enemies_container.get_children()
+## + is_alive 守卫 + has_method("take_damage") + 距离判断；连锁命中 is_crit=false（不再二次暴击）
+func _trigger_on_crit_chain(target_pos: Vector2, crit_damage: float) -> void:
+	if not (GameManager and GameManager.inventory and GameManager.inventory.has_item_id("overload_capacitor")):
+		return
+	if GameManager.enemies_container == null or crit_damage <= 0.0:
+		return
+	const CHAIN_RADIUS: float = 80.0
+	const CHAIN_RATIO: float = 0.3
+	for enemy in GameManager.enemies_container.get_children():
+		if enemy == null or not is_instance_valid(enemy):
+			continue
+		if not ("is_alive" in enemy and enemy.is_alive):
+			continue
+		if not enemy.has_method("take_damage"):
+			continue
+		if enemy.global_position.distance_to(target_pos) > CHAIN_RADIUS:
+			continue
+		enemy.take_damage(crit_damage * CHAIN_RATIO, false)
 
 # ========== 工具 ==========
 
