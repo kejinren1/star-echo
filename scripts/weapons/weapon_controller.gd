@@ -284,6 +284,9 @@ func _fire_weapon(weapon: Resource) -> void:
 	weapon.fire(owner_node, null)
 	_spawn_projectile(weapon, aim_dir)
 	weapon_fired.emit(weapon)
+	# D21-22-T3：开火 → 播玩家 attack 动画（owner 无该方法/动画缺失时静默降级）
+	if owner_node and owner_node.has_method("_play_attack_anim"):
+		owner_node._play_attack_anim()
 
 ## 生成弹丸
 func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:

@@ -15,7 +15,7 @@
 ##      all_attacks_2x → _attack_mult == 2.0
 ##   4. 弹丸（enemy_projectile 白盒）：命中玩家掉血 + 销毁；lifetime 耗尽销毁；damage 透传
 ##   5. 回归：wave 10 boss:invoker / wave 20 boss:predator 白盒 spawn → is_boss + category=boss +
-##      phases 透传非空 + scale×2（D7）；route 末层 boss wave_index == 10；boss 波击杀 → boss_killed 登记
+##      phases 透传非空 + scale 复位 ×1（D17）；route 末层 boss wave_index == 10；boss 波击杀 → boss_killed 登记
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -191,7 +191,7 @@ func _advance(sub: int) -> int:
 			var inv_stats: Dictionary = _loader.call("get_scaled_enemy", "invoker", 10)
 			var boss: Node = _build_enemy(inv_stats)
 			_ok(boss.get("is_boss") == true, "状态机: invoker is_boss == true")
-			_ok(boss.get("scale") == Vector2(2.0, 2.0), "状态机: scale ×2 视觉过渡（D7，实得 %s）" % str(boss.get("scale")))
+			_ok(boss.get("scale") == Vector2(1.0, 1.0), "状态机: scale 复位 ×1（D17·128px 真精灵，实得 %s）" % str(boss.get("scale")))
 			_ok(int(boss.get("_current_phase_idx")) == 0, "状态机: 初始 phase 0")
 			var timers: Dictionary = boss.get("_attack_timers")
 			_ok(timers.size() == 2, "状态机: _attack_timers 键数 == P1 attacks 数 2（实得 %d）" % timers.size())

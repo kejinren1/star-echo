@@ -95,6 +95,8 @@ var _xp_curve_cache: Expression = null       ## 经验曲线表达式缓存（�
 # 动画
 var _anim: AnimatedSprite2D
 var _is_walking: bool = false
+## D21-22-T3：角色精灵前缀（_apply_character_sprite 写入；空 = 默认 fighter 无 attack/skill）
+var _sprite_prefix: String = ""
 
 # ========== 生命周期 ==========
 
@@ -102,6 +104,10 @@ func _ready() -> void:
 	health = max_health
 	health_changed.emit(health, max_health)
 	_setup_animation()
+	# D21-22-T3：连接技能释放信号 → 播技能动画（SkillController 为子节点，_ready 先于本节点执行）
+	var sc: Node = get_node_or_null("SkillController")
+	if sc and sc.has_signal("skill_cast"):
+		sc.skill_cast.connect(_play_skill_anim)
 
 # ========== 角色装载（由 Main 在 _ready 中调用） ==========
 
@@ -197,6 +203,7 @@ func _apply_character_sprite(prefix: String) -> void:
 		return
 	idle_texture = idle_res as Texture2D
 	walk_texture = walk_res as Texture2D
+	_sprite_prefix = prefix
 	_is_walking = false
 	_setup_animation()
 
@@ -218,17 +225,73 @@ func _setup_animation() -> void:
 		{"texture": idle_texture, "frame_count": 4, "frame_size": frame_size, "fps": idle_fps, "loop": true, "name": "idle"},
 		{"texture": walk_texture, "frame_count": 6, "frame_size": frame_size, "fps": walk_fps, "loop": true, "name": "walk"},
 	])
+	# D21-22-T3：追加 attack/skill 动画（D19① 守卫：缺帧文件不追加该动画，防 create_multi 吃 null 纹理）
+	if not _sprite_prefix.is_empty():
+		var attack_path: String = "%s%s_attack.png" % [SPRITE_DIR, _sprite_prefix]
+		var skill_path: String = "%s%s_skill.png" % [SPRITE_DIR, _sprite_prefix]
+		if ResourceLoader.exists(attack_path):
+			var attack_tex: Texture2D = ResourceLoader.load(attack_path)
+			if attack_tex is Texture2D:
+				sf.add_animation("attack")
+				sf.set_animation_loop("attack", false)
+				sf.set_animation_speed("attack", 12.0)
+				for i in 4:
+					var atlas := AtlasTexture.new()
+					atlas.atlas = attack_tex
+					atlas.region = Rect2(i * frame_size.x, 0, frame_size.x, frame_size.y)
+					sf.add_frame("attack", atlas)
+		if ResourceLoader.exists(skill_path):
+			var skill_tex: Texture2D = ResourceLoader.load(skill_path)
+			if skill_tex is Texture2D:
+				sf.add_animation("skill")
+				sf.set_animation_loop("skill", false)
+				sf.set_animation_speed("skill", 10.0)
+				for i in 4:
+					var atlas := AtlasTexture.new()
+					atlas.atlas = skill_tex
+					atlas.region = Rect2(i * frame_size.x, 0, frame_size.x, frame_size.y)
+					sf.add_frame("skill", atlas)
 	_anim.sprite_frames = sf
 	_anim.play("idle")
+	# D19③：attack/skill 播完回 idle（命名方法，_ready 前已连一次即可；此处守卫防重复连接）
+	if not _anim.animation_finished.is_connected(_on_anim_finished):
+		_anim.animation_finished.connect(_on_anim_finished)
 
 func _update_animation() -> void:
 	if not _anim:
+		return
+	# D21-22-T3（D19②）：攻击/技能动画播放中禁止 move_and_slide 立即切回 idle 打断
+	if _anim.animation in ["attack", "skill"]:
 		return
 	var moving := velocity.length() > 10.0
 	if moving and not _is_walking:
 		_is_walking = true
 		_anim.play("walk")
 	elif not moving and _is_walking:
+		_is_walking = false
+		_anim.play("idle")
+
+## D21-22-T3（D19②/③）：开火 → 播 attack（武器控制器调用；动画缺失静默降级）
+func _play_attack_anim() -> void:
+	if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("attack"):
+		return
+	if _anim.animation == "attack":
+		return
+	_anim.play("attack")
+
+## D21-22-T3：技能释放 → 播 skill（skill_cast 信号连接；动画缺失静默降级）
+func _play_skill_anim(_skill_id: String = "") -> void:
+	if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("skill"):
+		return
+	if _anim.animation == "skill":
+		return
+	_anim.play("skill")
+
+## D21-22-T3（D19③）：attack/skill 播完 → 回 idle 且复位行走态（下次移动自动 walk）
+func _on_anim_finished() -> void:
+	if not _anim:
+		return
+	if _anim.animation in ["attack", "skill"]:
 		_is_walking = false
 		_anim.play("idle")
 

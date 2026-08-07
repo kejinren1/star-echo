@@ -2406,3 +2406,49 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-07 18:13 自动化测试轮次 #27：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**0ba7c7f→b9f815a**（Day 20 遗物系统 + 商店第三池 + 遗物图标 + T-D 技能图标全部入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2256 字段零缺陷**，items 49→51）、**16 场景全可实例化**、**十七件套探针 452 断言全绿首跑**（day20_relic_check 23/23 行为级收口遗物装配/上限/商店池/技能图标全链路）。**无新增功能缺陷；1 次探针首跑 FAIL 定性为并发写入中间态竞态（重跑 23/23 实证），非缺陷**。**无需回退。**
+
+---
+
+## §7.28 轮次 #28 · 2026-08-07 20:13（自动化 · Day 18-FB2 反馈修复批次 / 商店点击穿透 / 阶段 C 收口）
+
+**验证快照**：HEAD=**2d99053**（较 #27 的 b9f815a +6 提交：662f22a Day20 收口（阶段C完成，REPORT_PHASE_C.md 产出）/ 02fa9c1 **Day18-FB2 08-07 真人整合局客观反馈三项修复**（①金币产出数据化 enemies.json 23 敌补 coin_value 2-200 + data_loader 消费 coin_value 兜底 drop——修复核心 120G 永远买不起；②Boss 血条 HUD.tscn 顶部 BossBar 名称+HP 条，兼容 invoker/predator 两制；③星刃贴体环绕 se_star_blade orbit_radius 110→40~68、blade_storm 120→68）/ e2bcf40 Day20-FB2 后整理（shop.gd 卡片 mouse_filter=STOP + .gitignore 补 probe_logs/）/ 97021b3 **Day18-FB2b 商店点击购买修复**（NinePatchRect 默认 MOUSE_FILTER_IGNORE 致点击穿透全屏 BG「点商品无反应」→ 卡片显式 MOUSE_FILTER_STOP + day18_feedback2 探针 32/32 含 §5 真实点击购买 push_input——补充测试盲区：此前商店探针只白盒直调 _purchase_item 从未测 GUI 点击）/ 2d99053 docs PLAYTEST 追踪区增量#33）。工作区在途仅 docs/* 六文件 + GIT_COLLAB.md，**无游戏代码改动**。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=51 / events=10 / enemies=23 / waves=20。
+- 数值字段 **2279**（=2256+23：**Day18-FB2 给 23 敌全量新增 coin_value 2-200**）；负值 39 全有意；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**，stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. 探针回归（十八件套，484 断言全 CLEAN 首跑）
+
+**十八件套 18/18 PASS，484 断言**（= #27 的 452 + **day18_feedback2_check 32/32 首纳入**）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 **32** / day18_19 48 / day20_relic 23。
+
+**day18_feedback2_check 32/32（首纳入）**：§1-4 金币 coin_value 数据化消费（杀敌掉落金币=JSON 值，兜底 drop）/ Boss 血条（HUD BossBar 扫描存活 Boss + 每帧刷新）/ 星刃 orbit_radius 40~68 贴体（blade_storm 68）/ 商店卡片 MOUSE_FILTER_STOP 修复 + **§5 真实点击购买（push_input 模拟 GUI 点击卡片→购买→扣费闭环）32 断言全 CLEAN**——补上此前商店探针「白盒直调 _purchase_item、从未测 GUI 点击」的盲区，97021b3 修复行为级实证。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B / day20 1044B（2 RID Canvas + 1 CanvasItem + ObjectDB + 4 resources）/ **day18_feedback2 362B（新增：1 RID CanvasItem + ObjectDB + 5 resources）** 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7 124B / day10 132B 越界保护；day14_15 130B / day16 276B push_warning；day18_feedback 497B「[HUD] 未找到 SkillController」防御分支；day18_19 117B「[Boss] 未知攻击指令」；day20 3 条「[Player] 被动效果键未实现」+ 1 条「[HUD] 未知技能 id」 | 测试主动触发/防御分支预期输出（键未实现属待办登记；未知 id 兜底 hud.gd D20-T8 设计） |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- 在途：`docs/*` 六文件 + `docs/GIT_COLLAB.md`（文档侧，非阻断）。
+- **#26/#27 遗留 action item 关闭**：`tools/day18_19_boss_check.gd` 的 `%` 转义修复（`60%%`）已随 e2bcf40 入库，实测 stderr 117B 仅剩主动「未知攻击指令」WARNING，ERROR 位消除。
+
+### 结论
+
+**✅ 2026-08-07 20:13 自动化测试轮次 #28：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**2d99053**（Day 18-FB2 反馈修复批次 + 商店点击穿透修复 + 阶段 C 收口全部入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2279 字段零缺陷**，23 敌新增 coin_value 金币数据化）、**16 场景全可实例化**、**十八件套探针 484 断言全绿首跑**（day18_feedback2_check 32/32 行为级收口金币掉落/Boss 血条/星刃贴体/GUI 真实点击购买全链路，补充商店 GUI 点击测试盲区）。**无新增功能缺陷、无 action item**。**无需回退。**

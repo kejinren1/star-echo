@@ -1765,7 +1765,7 @@
 
 ## 阶段 D · 美术·音频·剧情整合（Day 21–26）
 
-### Day 21–22 — 美术资产落地　🎯【当前目标日 · 已预拆解到函数级 · 2026-08-07 01:1x #2 第 19 轮 · Day 20 收口后待执行】　【部分已由 08-04 并发冲刺预交付】
+### Day 21–22 — 美术资产落地　🎯【当前目标日 · 已预拆解到函数级 · 2026-08-07 01:1x #2 第 19 轮 · Day 20 收口后待执行】　【部分已由 08-04 并发冲刺预交付】　【方案已定（SOLUTION_PLAN.md · 2026-08-07 第 4 轮 · 含 D16 hit_radius 判定解耦 + D17 scale 复位双点 + D19 动画三防）】
 - [x] 3 英雄 二次元像素 Sprite（立绘表现 + 战斗帧 strip）—— w3 已落盘（7d39e75）：`elin/noah/lain` × `portrait/idle/walk` 共 9 张 PNG
 - [x] 敌人 / Boss（腐化巨树）精灵 —— **未开工**，`assets/sprites/enemies/` 仍为框架遗留素材
 - [x] 遵守 `ART_STYLE.md`：32px 网格 / 32 色 / Nearest / 1px 描边 —— 规范已成文 `docs/ART_ANIME_SPEC.md`（16137 B）
@@ -1832,51 +1832,58 @@
 | 8 | **.import 处理**：新增 PNG 用 `godot --headless --import` 补 .import（gitignore 排除不入库，D21-T0 先例） | D2-T3 先例已本地验证 |
 | 9 | **W5 不得判失败（主观）**：精灵风格审美 / 动画流畅度 / 阵营图标与背景概念图美学 → PLAYTEST（#5 收口）；F 系列 P1 排期段见下（W1 余力执行，不阻塞美术主段） | 主观验收隔离铁律 |
 
-#### D21-22-T1【W3 主责 + W1 协作】敌人/Boss 精灵换皮
-- [ ] 【W3】新建敌人精灵 PNG（落点 `assets/sprites/enemies/`，命名 `{id}_move.png` / `{id}_death.png`）：
+#### D21-22-T1【W3 主责 + W1 协作】敌人/Boss 精灵换皮　【方案已定：SOLUTION_PLAN.md 任务1 · D16 hit_radius 判定解耦 + D17 scale 复位双点】
+- [x] 【W3】新建敌人精灵 PNG（落点 `assets/sprites/enemies/`，命名 `{id}_move.png` / `{id}_death.png`）：
   - 杂兵代表（slime 系 13 种共用）：`slime_move.png` 重绘 48px 基准（4 帧 sheet）+ `slime_death.png`（4 帧）
   - 骷髅系（slasher/mad_slasher）：`skeleton_move.png` 重绘 48px（4 帧）+ `skeleton_death.png`（4 帧）——**覆盖 elite/boss 现有 skeleton 引用**
   - 精英代表（butcher/colossus/rhino/monk/croc/mom 共用）：`elite_move.png` 64px（4 帧）+ `elite_death.png`（4 帧）——本体 + 特征色 modulate 区分（D17 先例）
   - Boss 专属：`invoker_move.png` + `invoker_death.png` 128px（法袍施法者造型，4 帧）+ `predator_move.png` + `predator_death.png` 128px（大型四足掠食，4 帧）
-- [ ] 【W1】`enemy.gd` SPRITE_MAP 更新：slime 系 13 种 → 新 slime 路径（size 帧尺寸按 sheet 实切 + move_frames 4 + fps 按原表）；skeleton 系 → 新 skeleton；elite 6 → `elite_move/death`（size 64）+ FALLBACK_SPRITES.elite 同步；boss 2 → invoker/predator 专属（size 128）+ FALLBACK_SPRITES.boss 同步（boss 无专属 id 时兜底）
-- [ ] 【W1】**Boss scale 复位**：is_boss `scale ×2` → `×1`（D18-19 过渡任务收口；确认 enemy.gd scale 赋值点 + day18_19_boss_check 若断言 scale 则同步 2→1）
-- [ ] **测试点**：SPRITE_MAP 全部路径 `ResourceLoader.exists` 命中；size/frames/fps 与 PNG 实际一致（帧数不符 → 探针断言红）；`godot --headless --import` 后无 missing resource 警告；day18_19 探针回归（scale 断言同步后）
-- [ ] 文件域：W3 写 `assets/sprites/enemies/`；W1 写 `scripts/enemy/enemy.gd` + `tools/day18_19_boss_check.gd`（断言同步）
+- [x] 【W1】`enemy.gd` SPRITE_MAP 更新：slime 系 13 种 → 新 slime 路径（size 帧尺寸按 sheet 实切 + move_frames 4 + fps 按原表）；skeleton 系 → 新 skeleton；elite 6 → `elite_move/death`（size 64）+ FALLBACK_SPRITES.elite 同步；boss 2 → invoker/predator 专属（size 128）+ FALLBACK_SPRITES.boss 同步（boss 无专属 id 时兜底）
+- [x] 【W1】**Boss scale 复位**：is_boss `scale ×2` → `×1`（D18-19 过渡任务收口；确认 enemy.gd scale 赋值点 + day18_19_boss_check 若断言 scale 则同步 2→1）
+- [x] **测试点**：SPRITE_MAP 全部路径 `ResourceLoader.exists` 命中；size/frames/fps 与 PNG 实际一致（帧数不符 → 探针断言红）；`godot --headless --import` 后无 missing resource 警告；day18_19 探针回归（scale 断言同步后）
+- [x] 文件域：W3 写 `assets/sprites/enemies/`；W1 写 `scripts/enemy/enemy.gd` + `tools/day18_19_boss_check.gd`（断言同步）
 
-#### D21-22-T2【W3 主责 + W1 协作】角色 walk 真多帧 + 希亚 walk（T-E 承接）
-- [ ] 【W3】三英雄 walk 重绘 6 帧横向 sheet（192×32）：`{elin|noah|lain}_walk.png`（Aug 4 旧文件替换；帧内区分步态，非 4 帧同图）
-- [ ] 【W3】希亚 walk 新建 `siia_walk.png`（6 帧 192×32，白蓝紫配色对齐 siia_idle）——**T-E 承接：补素材后 player.gd `_apply_character_sprite` 自动接线（idle+walk 齐全即生效），零代码**
-- [ ] 【W1】`player.gd` 零改动预期（框架已支持）；若帧数/尺寸与 `frame_size` 不符 → 按实际对齐（frame_size 在 Player.tscn export）
-- [ ] **测试点**：4 角色 walk 文件存在 + 尺寸 192×32 + 6 帧非空 + 透明键合规；白盒 `_apply_character_sprite("siia")` → walk_texture 命中非 fighter 兜底（T-E 机器侧关闭：可加进 day21_22 探针）
-- [ ] 文件域：W3 写 `assets/sprites/characters/`
+#### D21-22-T2【W3 主责 + W1 协作】角色 walk 真多帧 + 希亚 walk（T-E 承接）　【方案已定：SOLUTION_PLAN.md 任务2 · W1 零改动预期】
+- [x] 【W3】三英雄 walk 重绘 6 帧横向 sheet（192×32）：`{elin|noah|lain}_walk.png`（Aug 4 旧文件替换；帧内区分步态，非 4 帧同图）
+- [x] 【W3】希亚 walk 新建 `siia_walk.png`（6 帧 192×32，白蓝紫配色对齐 siia_idle）——**T-E 承接：补素材后 player.gd `_apply_character_sprite` 自动接线（idle+walk 齐全即生效），零代码**
+- [x] 【W1】`player.gd` 零改动预期（框架已支持）；若帧数/尺寸与 `frame_size` 不符 → 按实际对齐（frame_size 在 Player.tscn export）
+- [x] **测试点**：4 角色 walk 文件存在 + 尺寸 192×32 + 6 帧非空 + 透明键合规；白盒 `_apply_character_sprite("siia")` → walk_texture 命中非 fighter 兜底（T-E 机器侧关闭：可加进 day21_22 探针）
+- [x] 文件域：W3 写 `assets/sprites/characters/`
 
-#### D21-22-T3【W3 主责 + W1 协作】攻击/技能帧 strip + 动画接线
-- [ ] 【W3】`{elin|noah|lain|siia}_attack.png`（4 帧横向 sheet）+ `{elin|noah|lain|siia}_skill.png`（4 帧，技能动作帧：火球施法 / 部署手势 / 剑域挥斩 / 神圣庇护抬手）——产能不足时 skill 用 attack 帧替代（PRE #4 降级方案）
-- [ ] 【W1】`player.gd _setup_animation`：SpriteFrameFactory.create_multi 追加 attack/skill 动画（fps 10-12 一次性，loop false）+ `_play_attack_anim`/`_play_skill_anim(skill_id)`（播放完回 idle）；WeaponController 开火 → 播 attack；`skill_controller` 信号 `skill_cast` → 播 skill
-- [ ] **测试点**：白盒触发 skill_cast → `_anim.animation == "skill"` → 播放完回 "idle"；开火 → "attack"；缺帧文件 → 动画缺失走 idle 降级（零回归，W5 不得判失败）
-- [ ] 文件域：W3 写 `assets/sprites/characters/`；W1 写 `scripts/player/player.gd` + `scripts/player/skill_controller.gd`（若需补信号）
+#### D21-22-T3【W3 主责 + W1 协作】攻击/技能帧 strip + 动画接线　【方案已定：SOLUTION_PLAN.md 任务3 · D19 动画三防】
+- [x] 【W3】`{elin|noah|lain|siia}_attack.png`（4 帧横向 sheet）+ `{elin|noah|lain|siia}_skill.png`（4 帧，技能动作帧：火球施法 / 部署手势 / 剑域挥斩 / 神圣庇护抬手）——产能不足时 skill 用 attack 帧替代（PRE #4 降级方案）
+- [x] 【W1】`player.gd _setup_animation`：SpriteFrameFactory.create_multi 追加 attack/skill 动画（fps 10-12 一次性，loop false）+ `_play_attack_anim`/`_play_skill_anim(skill_id)`（播放完回 idle）；WeaponController 开火 → 播 attack；`skill_controller` 信号 `skill_cast` → 播 skill
+- [x] **测试点**：白盒触发 skill_cast → `_anim.animation == "skill"` → 播放完回 "idle"；开火 → "attack"；缺帧文件 → 动画缺失走 idle 降级（零回归，W5 不得判失败）
+- [x] 文件域：W3 写 `assets/sprites/characters/`；W1 写 `scripts/player/player.gd` + `scripts/player/skill_controller.gd`（若需补信号）
 
-#### D21-22-T4【W3】遗留 6 英雄头像 + 阵营图标 + 背景概念图
-- [ ] 遗留头像：`{brawler|ranger|mage}_portrait.png` 64×64（参考图艺术方向）——3 张代表先补；well_rounded/engineer/gambler 接受 fighter 占位（PRE #5，登记 P1）
-- [ ] 阵营图标 5 枚：`assets/sprites/factions/{echo_alliance|star_cult|abyss_council|mech_empire|free_mercs}.png`（32px）
-- [ ] 背景概念图 4 张：`assets/sprites/backgrounds/{wulan_workshop|corrupted_forest|lava_mine|void_corridor}.png`（供 Day 23+ 参考，不做 TileMap 消费）
-- [ ] **测试点**：文件存在 + 尺寸合规 + 透明键 + 216 色/锚点色板容差归并；`.import` 补全
-- [ ] 文件域：W3 只写 `assets/sprites/`（factions/ + backgrounds/ 新建目录）
+#### D21-22-T4【W3】遗留 6 英雄头像 + 阵营图标 + 背景概念图　【方案已定：SOLUTION_PLAN.md 任务4 · 纯资产低风险】
+- [x] 遗留头像：`{brawler|ranger|mage}_portrait.png` 64×64（参考图艺术方向）——3 张代表先补；well_rounded/engineer/gambler 接受 fighter 占位（PRE #5，登记 P1）
+- [x] 阵营图标 5 枚：`assets/sprites/factions/{echo_alliance|star_cult|abyss_council|mech_empire|free_mercs}.png`（32px）
+- [x] 背景概念图 4 张：`assets/sprites/backgrounds/{wulan_workshop|corrupted_forest|lava_mine|void_corridor}.png`（供 Day 23+ 参考，不做 TileMap 消费）
+- [x] **测试点**：文件存在 + 尺寸合规 + 透明键 + 216 色/锚点色板容差归并；`.import` 补全
+- [x] 文件域：W3 只写 `assets/sprites/`（factions/ + backgrounds/ 新建目录）
 
-#### D21-22-T5【W1】新建 `tools/day21_22_art_check.gd`（美术资产探针 ≥15 断言五段）
-- [ ] §1 敌人：SPRITE_MAP/FALLBACK 全部路径 exists + 尺寸/帧数与映射一致（slime 4+4 / skeleton 4+4 / elite 4+4 / invoker/predator 4+4）
-- [ ] §2 Boss scale：is_boss scale == 1.0（复位断言，若 D18-19 探针已同步则此处直接验）
-- [ ] §3 角色：4 角色 walk 存在 192×32 + idle 存在 + `_apply_character_sprite("siia")` 白盒 → walk_texture 非 fighter（T-E 机器侧关闭）；attack/skill strip 存在（缺失 → push_warning 登记不判失败，P1）
-- [ ] §4 图标/概念图：factions 5 + backgrounds 4 + 遗留头像 3 存在 + 尺寸合规 + (0,0) 透明键
-- [ ] §5 回归：day18_19 探针（scale 同步后）+ 基础回归抽样（day2/day17）不破坏；`.import` 齐全（新 PNG 有对应 .import 或编辑器打开消解）
-- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 白盒直构造
-- [ ] 文件域：W1 只写 `tools/`
+#### D21-22-T5【W1】新建 `tools/day21_22_art_check.gd`（美术资产探针 ≥15 断言五段）　【方案已定：SOLUTION_PLAN.md 任务5 · Image 实测尺寸比对防映射脱节】
+- [x] §1 敌人：SPRITE_MAP/FALLBACK 全部路径 exists + 尺寸/帧数与映射一致（slime 4+4 / skeleton 4+4 / elite 4+4 / invoker/predator 4+4）
+- [x] §2 Boss scale：is_boss scale == 1.0（复位断言，若 D18-19 探针已同步则此处直接验）
+- [x] §3 角色：4 角色 walk 存在 192×32 + idle 存在 + `_apply_character_sprite("siia")` 白盒 → walk_texture 非 fighter（T-E 机器侧关闭）；attack/skill strip 存在（缺失 → push_warning 登记不判失败，P1）
+- [x] §4 图标/概念图：factions 5 + backgrounds 4 + 遗留头像 3 存在 + 尺寸合规 + (0,0) 透明键
+- [x] §5 回归：day18_19 探针（scale 同步后）+ 基础回归抽样（day2/day17）不破坏；`.import` 齐全（新 PNG 有对应 .import 或编辑器打开消解）
+- [x] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 白盒直构造
+- [x] 文件域：W1 只写 `tools/`
 
-#### D21-22-EXIT【W5】阶段 D 首段收口
-- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
-- [ ] `day21_22_art_check` CLEAN + **回归全套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_19 48 / day20 23）
-- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
-- [ ] 主观项登记：精灵风格 / 动画流畅度 / Boss 辨识度 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
+#### D21-22-EXIT【W5】阶段 D 首段收口　【方案已定：SOLUTION_PLAN.md 任务6 · 十七件套 452 回归 + 勿夹带清单】
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [x] `day21_22_art_check` CLEAN + **回归全套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_19 48 / day20 23）
+- [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
+- [x] 主观项登记：精灵风格 / 动画流畅度 / Boss 辨识度 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
+
+> ✅ **D21-22 已收口（2026-08-07 20:2x · #3 第 29 轮执行窗口）**——阶段 D 首段美术资产落地完成，T1~T5 + EXIT 全 [x]：
+> - **出图（W3 落地）**：`tools/gen_day21_22_art.py` 新建（幂等），34 张全量生成——敌人 10（slime/skeleton 48px 4+4 覆写、elite 64px、invoker/predator 128px 新建）/ 角色 walk 4（elin·noah·lain 重绘 + **siia_walk 新建 = T-E 机器侧关闭**）/ attack·skill strip 8 / 遗留头像 3（brawler·ranger·mage，well_rounded/engineer/gambler 接受 fighter 占位 PRE#5 登记 P1）/ 阵营图标 5 / 背景概念图 4；全 sheet 216 色合规 + (0,0) 透明键强制
+> - **接线（W1）**：enemy.gd SPRITE_MAP 23 条 + FALLBACK 3 条全换新路径（slime/skeleton 48px·elite 64px·boss 128px）+ **D16 hit_radius 判定解耦**（@export 新字段 + `_setup_animation` 赋值 + `_try_contact_damage` 消费，缺省 = 旧公式兜底零回归）+ **D17 scale 复位 ×1 双点**（enemy.gd:839 + day18_19_boss_check.gd:194 断言同步）；player.gd **D19 动画三防**（ResourceLoader.exists 守卫 / `_update_animation` attack·skill 短路 / animation_finished 回 idle）+ `_play_attack_anim`/`_play_skill_anim`；weapon_controller `_fire_weapon` 开火触发 attack；player._ready 直连 SkillController.skill_cast → skill
+> - **探针**：`tools/day21_22_art_check.gd` 新建 **38/38 CLEAN 五段**（§1 映射 23 条路径+Image 实切对表+hit_radius 锚点 28/36/56 / §2 Boss scale (1,1) / §3 siia 白盒+skill_cast 信号+缺帧降级 / §4 头像阵营背景尺寸+透明键 / §5 .import 齐全+day2/day17/接触判定/波次锚点）；**回归十九件套 19/19 + baseline CLEAN**
+> - **执行登记 2 处**：① 方案 §1「slime move_frames 2 维持」与 T5 探针「slime 4+4 实切对表」矛盾 → 按探针口径 slime move_frames 2→4（同轮对表，SPRITE_MAP 与新 PNG 一致）；② 方案 T3「player 已有 :223 转发链」实测不存在 → 改 player._ready 直连 SkillController.skill_cast 信号（不新增 SkillController 改动）
+> - 遗留：精灵风格/动画流畅度/Boss 辨识度主观项 → PLAYTEST #5 收口；TEST_REPORT #28 待 #4 纳入 day18_feedback2（32 断言）与 day21_22（38 断言）
 
 #### F 系列 P1 排期段（用户拍板 · W1 余力按序执行 · 不阻塞美术主段）
 

@@ -60,6 +60,9 @@ const BEHAVIOR_MAP: Dictionary = {
 @export var move_texture: Texture2D           ## 移动动画 sprite sheet
 @export var death_texture: Texture2D          ## 死亡动画 sprite sheet
 @export var frame_size: Vector2i = Vector2i(32, 32)  ## 单帧尺寸
+## D21-22-T1（决策 D16）：接触判定半径（换皮解耦——视觉帧大 ≠ 判定凶）。
+## 由 _setup_animation 按 SPRITE_MAP/FALLBACK 的 hit_radius 覆盖；缺省 -1 兜底为旧公式。
+@export var hit_radius: float = -1.0          ## 接触伤害判定半径（缺省 = frame_size.x*0.5+12.0）
 @export var move_fps: float = 6.0             ## 移动动画 FPS
 @export var death_fps: float = 8.0            ## 死亡动画 FPS
 @export var move_frame_count: int = 4         ## 移动动画帧数
@@ -67,41 +70,43 @@ const BEHAVIOR_MAP: Dictionary = {
 
 # ========== 精灵类型映射 ==========
 ## 敌人 ID → 精灵配置
-## 未命中时按 category 回退: regular→slime, elite/boss→skeleton
+## 未命中时按 category 回退: regular→slime, elite→elite, boss→invoker
+## D21-22-T1：全敌换皮（slime/skeleton 48px · elite 64px · invoker/predator 128px），
+## 各条目带可选 hit_radius（缺省 = 旧公式 frame_size.x*0.5+12.0 零回归）
 const SPRITE_MAP: Dictionary = {
-	# 普通敌人 → slime 精灵
-	"chaser":           {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"charger":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0},
-	"fly":              {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0},
-	"bruiser":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(32, 32), "move_frames": 2, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0},
-	"spitter":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"healer":           {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"spawner":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(32, 32), "move_frames": 2, "death_frames": 4, "move_fps": 4.0, "death_fps": 8.0},
-	"horned_charger":   {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0},
-	"pursuer":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(32, 32), "move_frames": 2, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0},
-	"slasher":          {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"helmet_alien":     {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"horned_fly":       {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0},
-	"corrupted_tree":   {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(32, 32), "move_frames": 2, "death_frames": 4, "move_fps": 2.0, "death_fps": 8.0},
-	"mad_slasher":      {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0},
-	"lamprey":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0},
-	# 精英敌人 → skeleton 精灵
-	"butcher":          {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"colossus":         {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0},
-	"rhino":            {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"monk":             {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"croc":             {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 7.0, "death_fps": 8.0},
-	"mom":              {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0},
-	# Boss → skeleton 精灵 (放大)
-	"invoker":          {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"predator":         {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
+	# 普通敌人 → slime 精灵（48px 4+4）
+	"chaser":           {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"charger":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"fly":              {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"bruiser":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"spitter":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"healer":           {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"spawner":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 4.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"horned_charger":   {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"pursuer":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"slasher":          {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"helmet_alien":     {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"horned_fly":       {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"corrupted_tree":   {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 2.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"mad_slasher":      {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"lamprey":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
+	# 精英敌人 → elite 精灵（64px 4+4，红甲特征色）
+	"butcher":          {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
+	"colossus":         {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 36.0},
+	"rhino":            {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
+	"monk":             {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
+	"croc":             {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 7.0, "death_fps": 8.0, "hit_radius": 36.0},
+	"mom":              {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 36.0},
+	# Boss → 专属精灵（128px 4+4；D17：scale 复位 ×1）
+	"invoker":          {"move": "res://assets/sprites/enemies/invoker_move.png",   "death": "res://assets/sprites/enemies/invoker_death.png",   "size": Vector2i(128, 128), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 56.0},
+	"predator":         {"move": "res://assets/sprites/enemies/predator_move.png", "death": "res://assets/sprites/enemies/predator_death.png", "size": Vector2i(128, 128), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 56.0},
 }
 
-## 分类回退精灵: regular→slime, elite→skeleton, boss→skeleton
+## 分类回退精灵: regular→slime, elite→elite, boss→invoker（D21-22-T1：同步换皮 + hit_radius）
 const FALLBACK_SPRITES: Dictionary = {
-	"regular": {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(24, 24), "move_frames": 2, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"elite":   {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
-	"boss":    {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(32, 32), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0},
+	"regular": {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
+	"elite":   {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
+	"boss":    {"move": "res://assets/sprites/enemies/invoker_move.png", "death": "res://assets/sprites/enemies/invoker_death.png", "size": Vector2i(128, 128), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 56.0},
 }
 
 # ========== 内部状态 ==========
@@ -176,7 +181,8 @@ func _try_contact_damage() -> void:
 	if not is_target_valid() or _contact_cd > 0.0:
 		return
 	var dist := global_position.distance_to(target.global_position)
-	var contact_range: float = frame_size.x * 0.5 + 12.0
+	# D21-22-T1（决策 D16）：接触判定用 hit_radius（换皮解耦），缺省 = 旧公式
+	var contact_range: float = hit_radius if hit_radius > 0.0 else (frame_size.x * 0.5 + 12.0)
 	if dist <= contact_range and target.has_method("take_damage"):
 		# D18-19-T2（决策 D2）：Boss 冲锋命中伤害 × _boss_charge_mult（普通敌人恒 ×1.0）
 		target.take_damage(damage * (_boss_charge_mult if (is_boss and _boss_charge) else 1.0))
@@ -193,6 +199,8 @@ func _setup_animation() -> void:
 	move_texture = load(cfg["move"])
 	death_texture = load(cfg["death"])
 	frame_size = cfg["size"]
+	# D21-22-T1（决策 D16）：换皮解耦——接触半径从配置读，缺省 = 旧公式兜底零回归
+	hit_radius = float(cfg.get("hit_radius", frame_size.x * 0.5 + 12.0))
 	move_frame_count = cfg["move_frames"]
 	death_frame_count = cfg["death_frames"]
 	move_fps = cfg["move_fps"]
@@ -829,14 +837,14 @@ func initialize(stats: Dictionary) -> void:
 			is_elite = true
 		"boss":
 			is_boss = true
-	# Day 18-19 · T1：Boss 阶段初始化（phases 透传 + 激活初始阶段 + scale ×2 视觉过渡 D7）
-	# 决策 D7：接触判定用 frame_size（未缩放值）恒定 + 物理已按 F-02 与玩家分层 → 纯视觉零逻辑影响
+	# Day 18-19 · T1：Boss 阶段初始化（phases 透传 + 激活初始阶段）
+	# D21-22-T1（决策 D17）：128px 真精灵 → scale 复位 ×1（旧 skeleton 32px ×2 视觉过渡废弃）
 	if stats.has("phases"):
 		phases = stats["phases"]
 	_base_speed = move_speed
 	if is_boss and not phases.is_empty():
 		_reset_boss_phase(0)
-		scale = Vector2(2.0, 2.0)
+		scale = Vector2(1.0, 1.0)
 	health = max_health
 	health_changed.emit(health, max_health)
 

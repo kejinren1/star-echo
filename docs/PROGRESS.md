@@ -2141,3 +2141,66 @@
 - **状态终局**：目标日 Day 20 在途（核心 6/8 + 探针 CLEAN，差 T-D + 报告 + commit）；整体 ≈74.5%（+0.65）；执行者故障彻底闭环后连续产出 2 批次；T-D 时限 08-08 为下一盯守点
 
 *本日报由自动化 #1 生成 · 仅分析、记录与调度，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
+
+---
+
+# 📋 第 30 轮进度日报（2026-08-07 20:1x · 自动化 #1 · 阶段 C 收官 + 真人整合局启幕型）
+
+## 一、进度总览
+
+- **目标开发日：Day 21-22（美术资产落地，阶段 D 首段）—— 🟠 拆解就绪零开工（19:35 窗口被真人反馈挤占）**
+- **整体进度：≈76.7%**（Day 等效 23.0/30，+0.65）；超前 ≈20 开发日（日历 Day 3/30）
+- **阶段完成度**：A 100%（6/6）｜B 100%（7/7）｜**C 100%（7/7，Day 20 收口）**｜D ≈13%（0.8/6，预交付折算：D21-T0 希亚 + 技能图标实装）｜E 0%（0/4）
+- **基线**：本轮 20:1x 实跑 `BASELINE CLEAN` ✅
+
+## 二、本轮实测（git + 磁盘 · 收尾复核铁律执行）
+
+- **git 实证**：HEAD = `2d99053`（19:37），近 2 小时六连提交 —— `662f22a`（**Day 20 收口 @18:17**：REPORT_PHASE_C.md + 十七件套 452 断言全绿 + verify 36/36 + D20-T1~T8/EXIT 全 [x]）+ `02fa9c1`（**Day18-FB2 真人整合局反馈三项修复 @19:26**）+ `e2bcf40`（shop 卡片 mouse_filter=STOP + .gitignore 补 probe_logs）+ `97021b3`（**F-16 商店点击穿透 @19:36**，探针 32/32 + 回归 18/18）+ `2d99053`（PLAYTEST 增量 #33）
+- **Day 20 收口确认（上轮 🟠 → 🟢）**：T1-T6 遗物核心 + **T7/T8 T-D 技能图标全部落地**（`b9f815a`：gen_skill_icons.py + skills.png 128×32 4 帧实绘 + hud.gd `_apply_skill_icon`）→ **T-D 时限（08-08）提前 1 天解除，P0 排期风险清零**；阶段 C 全四节机器闭环
+- **🔴 重大事件 = 真人「超级整合局」已开跑**：用户实玩反馈三连（`02fa9c1`）：① **金币产出数据化**（enemies.json 23 敌补 coin_value 2-200 + data_loader 消费键统一 —— 修复「核心 120G 永远买不起」平衡缺陷）② **Boss 血条**（HUD.tscn 顶部 BossBar + hud.gd 0.25s 扫描存活 Boss，兼容 invoker/predator 两制）③ **星刃贴体环绕**（orbit_radius 110→40~68 / blade_storm 120→68）+ **F-16 商店点击穿透**（NinePatchRect 默认 mouse_filter=IGNORE → 卡片显式 STOP，补测试盲区：此前商店探针只白盒直调 `_purchase_item` 从未测 GUI 点击）
+- **Day 21-22 磁盘五查零开工**：enemies/ 仍仅框架遗留 skeleton/slime（4 文件，无 Boss 128px）/ 无 `assets/sprites/boss/` 目录 / 无 `tools/day21_22*` 探针 / 角色无 walk 多帧 / 阵营概念图零产出 —— 但 **19:26-19:37 窗口被真人反馈修复挤占（合理挤占，非空转）**，21:35 窗口为开工裁决点
+- 工作区在途 = **5 docs 零代码**：README.md / PLAYTEST_CHECKLIST.md / SOLUTION_PLAN.md / TASKS.md（M）+ **`docs/GIT_COLLAB.md`（?? 新文件**：主控产出 Git 协作交接说明，SSH-over-443 通道 + 成员接入方法，建议入库）
+
+## 三、已完成 / 进行中 / 阻塞
+
+| 状态 | 内容 |
+|---|---|
+| ✅ 完成 | **阶段 C 全收口（100%）**：Day 20 遗物系统 + T-D 技能图标 + REPORT_PHASE_C.md；真人反馈三连修复（金币/Boss 血条/星刃）+ F-16 商店点击穿透 |
+| 🟠 进行中 | Day 21-22（阶段 D 首段）拆解就绪零开工；真人整合局主观项回归（E-0 终审 / K-1~K-4 / P0 围杀体感）挂 #5 |
+| 🟢 无阻塞 | 执行链无阻塞（故障解除后连续产出）；R4（🟡 第 26 轮）非阻塞；D21-22/23/24/26/27 拆解全函数级就绪 |
+
+## 四、角色状态表
+
+| 角色 | 文件域 | 状态 | 本轮要点 |
+|---|---|---|---|
+| **W1** godot-dev | scripts/scenes | 🟢 正常 | Day 20 收口（T7/T8 接线）+ FB2 反馈修复（金币/Boss 血条/F-16）；**D21-22 T1 接线待启动** |
+| **W2** game-designer | data JSON | 🟢 正常 | enemies.json 23 敌补 coin_value（真人反馈数据化）；Day 21-22 无数据任务 |
+| **W3** pixel-artist | assets/sprites | 🟢 健康 | 技能图标 4 帧实绘完成（T-D 时限解除）；**敌人/Boss 换皮 + walk 多帧 + 阵营概念图 = D21-22 主责零开工** |
+| **W4** NarrativeDesigner | 叙事 doc | ⚪ 空闲 | LORE.md 已预交付；GIT_COLLAB.md 主控产出 |
+| **W5** QA | 只读 + TEST_REPORT | 🟢 正常 | 回归 18/18 随 FB2 全绿；探针 32/32 |
+
+## 五、风险表（更新）
+
+| 风险 | 级别 | 状态 |
+|---|---|---|
+| **Day 21-22 开工** | 🟠 新列 | 拆解就绪零拍板依赖；19:35 窗口合理挤占（真人反馈）→ **21:35 窗口为开工裁决点**（零产出则重排 T1→T5 交空闲 W，但 W3 美术为独占域，重排=拆粒度） |
+| **R10 变体** | 🟡 挂账第 3 轮 | 5 docs 在途（README/SOLUTION_PLAN/TASKS/PLAYTEST + GIT_COLLAB ?? 新增）零代码；建议收口 commit 一并入库；probe_logs/ 已 .gitignore ✅ |
+| R4 攻击力口径 | 🟡 挂账第 26 轮 | 非阻塞；已标 [!] 交 Owner |
+| 真人整合局主观项 | 🟡 挂 #5 | E-0 阶段 C 终审 + K-1~K-4 Boss 主观 + P0 围杀体感 + F-16 真人回归 |
+| Day 25 剧情接线 | 🟡 已登记 | LORE.md 预交付在盘；剩余接线 = Day 27 依赖（不并入 Day 26） |
+
+## 六、下一步（按优先级）
+
+1. **执行者（最高优先级）**：21:35 窗口消费 **D21-22-PRE**（T1 敌人/Boss 换皮 —— SPRITE_MAP 映射就绪 + **⚠️ 换上 128px 真 Boss 后 D18-19 scale×2 过渡须复位 ×1**（day18_19 探针 :194 / enemy.gd :839）→ T2 角色 walk 真多帧 + 希亚 walk（T-E 承接）→ T3 attack/skill strip → T4 遗留头像 3 张（brawler/ranger/mage）→ T5 阵营图标 5 + 概念图 4 → EXIT 探针 + 回归十六件套）；**收口 commit 一并入库 R10 变体（5 docs + GIT_COLLAB）**；勿夹带 probe_logs/（已 gitignore）
+2. **方案师**：D23 特效 / D24 音频 / D26 校验 / D27 养成已函数级预拆就绪可直接引用；待命预拆 Day 28-30 发布段
+3. **#5 反馈专员**：追踪区刷新「Day 20 收口 + 真人反馈三连 + F-16 修复落地 🟢」；真人整合局主观项保持挂起（E-0 终审等用户继续）
+4. **Owner**：R4 放行（一句话）；确认 `docs/GIT_COLLAB.md` 入库；真人整合局继续（E-0 阶段 C 终审）
+5. **收尾**：_repro_tmp 清理复检；SOLUTION_PLAN.md 状态保持（Day 21-22 方案已在其中）
+
+## 七、流程记录
+
+- ✅ **收尾复核铁律执行**：git log/status（HEAD `2d99053` + 5 docs 在途零代码）+ baseline 实跑（20:1x `BASELINE CLEAN`）+ TASKS 头部核读（Day 20 收口 ✅ / 目标日 Day 21-22）+ 磁盘五查（enemies/boss/day21_22 探针/多帧/概念图）
+- 本轮**未改写 TASKS.md**（Day 21-22 拆解已就绪无重排需求，在途维护归 #3 收口）；仅追加 PROGRESS.md 第 30 轮
+- **状态终局**：阶段 C 全收口（A/B/C 三阶段 100%）；目标日 = Day 21-22（阶段 D 首段）拆解就绪待 21:35 窗口执行；真人整合局反馈流高速闭环（2 小时 6 提交含 4 项用户反馈修复）；T-D 时限解除；整体 ≈76.7%
+
+*本日报由自动化 #1 生成 · 仅分析、记录与调度，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
