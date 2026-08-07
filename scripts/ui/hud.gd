@@ -18,6 +18,14 @@ extends CanvasLayer
 @onready var skill_slot: TextureRect = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot
 @onready var skill_label: Label = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot/SkillLabel
 
+## 08-07 反馈：Boss 血条（顶部中央 名称 + HP 条；轮询敌人容器找 is_boss 存活目标，
+## 天然兼容两制 Boss：路线模式 invoker(wave10) / 旧制 predator(wave20)）
+@onready var boss_bar: VBoxContainer = $MarginContainer/VBoxContainer/BossBar
+@onready var boss_name_label: Label = $MarginContainer/VBoxContainer/BossBar/BossNameLabel
+@onready var boss_health_bar: TextureProgressBar = $MarginContainer/VBoxContainer/BossBar/BossHealthBar
+var _boss_target: Node = null
+var _boss_scan_timer: float = 0.0
+
 ## 武器槽位背景节点 (6 个 TextureRect, texture = slot_weapon.png)
 @onready var weapon_slots: Array[TextureRect] = [
 	$MarginContainer/VBoxContainer/BottomBar/WeaponBar/WeaponSlot0,
@@ -91,17 +99,62 @@ func _on_state_changed(new_state) -> void:
 var _enemy_count_timer: float = 0.0
 
 func _process(delta: float) -> void:
+	# Boss 血条：血量每帧刷新（单目标开销可忽略），目标扫描 0.25s 节流
+	_boss_scan_timer -= delta
+	if _boss_scan_timer <= 0.0:
+		_boss_scan_timer = 0.25
+		_scan_boss_target()
+	_update_boss_bar()
 	_enemy_count_timer -= delta
 	if _enemy_count_timer > 0.0:
 		return
 	_enemy_count_timer = 0.25
 	_refresh_enemy_count()
 
-func _refresh_enemy_count() -> void:
-	var alive: int = 0
+## 敌人容器获取（Boss 扫描 / 剩余怪计数共用；GameManager.enemies_container 优先）
+func _get_enemy_container() -> Node:
 	var container: Node = GameManager.enemies_container if GameManager.enemies_container else null
 	if container == null and GameManager.enemy_spawner:
 		container = GameManager.enemy_spawner.get("enemies_container")
+	return container
+
+## 扫描存活 Boss（首个 is_boss && is_alive；Boss 出场/死亡时 0.25s 内切换）
+func _scan_boss_target() -> void:
+	var target: Node = null
+	var container: Node = _get_enemy_container()
+	if container != null:
+		for enemy in container.get_children():
+			if is_instance_valid(enemy) and enemy.get("is_boss") == true and enemy.get("is_alive") != false:
+				target = enemy
+				break
+	_boss_target = target
+
+## Boss 血条显示：名称 + health/max_health 比例；无目标/死亡 → 隐藏
+func _update_boss_bar() -> void:
+	if _boss_target == null or not is_instance_valid(_boss_target):
+		boss_bar.visible = false
+		return
+	var max_hp: float = float(_boss_target.get("max_health"))
+	var hp: float = float(_boss_target.get("health"))
+	if max_hp <= 0.0:
+		boss_bar.visible = false
+		return
+	var nm: String = "BOSS"
+	var eid: Variant = _boss_target.get("enemy_id")
+	if eid != null and not str(eid).is_empty():
+		var ed: Dictionary = DataLoader.get_enemy(str(eid))
+		if not ed.is_empty():
+			var nm2: Variant = ed.get("name")
+			if nm2 != null and not str(nm2).is_empty():
+				nm = str(nm2)
+	boss_name_label.text = nm
+	boss_health_bar.max_value = max_hp
+	boss_health_bar.value = hp
+	boss_bar.visible = true
+
+func _refresh_enemy_count() -> void:
+	var alive: int = 0
+	var container: Node = _get_enemy_container()
 	if container == null:
 		enemy_count_label.text = "剩余 0"
 		return

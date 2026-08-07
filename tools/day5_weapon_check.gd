@@ -328,11 +328,13 @@ func _check_orbit_hit() -> void:
 	if container == null:
 		_fail("orbit / enemies_container 缺失")
 		return
-	# 摆敌人到第 0 刃的正右方轨道上（radius = orbit_radius 110）
+	# 摆敌人到第 0 刃的正右方判定环上（F-18 08-07：orbit_radius 110→40 贴体；
+	# F-08 必中圆 44 覆盖贴身区 → 摆 radius+8=48px：必中圆外（>44）、刃环内（≤52），
+	# 单测「刃接触伤害」语义；贴身必中由 day18_feedback §3 覆盖）
 	var radius: float = float(orbit.get("weapon").orbit_data.get("orbit_radius", 110.0))
 	var enemy: Node = (load(ENEMY_SCENE) as PackedScene).instantiate()
 	container.add_child(enemy)
-	enemy.global_position = _player.global_position + Vector2(radius, 0.0)
+	enemy.global_position = _player.global_position + Vector2(radius + 8.0, 0.0)
 	# 把第 0 刃角度归 0（正右），手动推进一帧 → 命中
 	var angles: Array = orbit.get("_angles")
 	angles[0] = 0.0

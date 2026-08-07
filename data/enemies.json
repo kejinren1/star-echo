@@ -11,7 +11,8 @@
         "speed": 320,
         "drop": 1,
         "behavior": "chase",
-        "exp_value": 3
+        "exp_value": 3,
+        "coin_value": 2
       },
       {
         "id": "charger",
@@ -23,7 +24,8 @@
         "speed": 400,
         "drop": 1,
         "behavior": "charge",
-        "exp_value": 4
+        "exp_value": 4,
+        "coin_value": 2
       },
       {
         "id": "fly",
@@ -35,7 +37,8 @@
         "speed": 350,
         "drop": 1,
         "behavior": "zigzag",
-        "exp_value": 3
+        "exp_value": 3,
+        "coin_value": 2
       },
       {
         "id": "bruiser",
@@ -47,7 +50,8 @@
         "speed": 250,
         "drop": 3,
         "behavior": "chase",
-        "exp_value": 6
+        "exp_value": 6,
+        "coin_value": 4
       },
       {
         "id": "spitter",
@@ -59,7 +63,8 @@
         "speed": 180,
         "drop": 1,
         "behavior": "ranged",
-        "exp_value": 4
+        "exp_value": 4,
+        "coin_value": 3
       },
       {
         "id": "healer",
@@ -71,7 +76,8 @@
         "speed": 300,
         "drop": 2,
         "behavior": "heal",
-        "exp_value": 4
+        "exp_value": 4,
+        "coin_value": 3
       },
       {
         "id": "spawner",
@@ -83,7 +89,8 @@
         "speed": 120,
         "drop": 1,
         "behavior": "spawn",
-        "exp_value": 4
+        "exp_value": 4,
+        "coin_value": 3
       },
       {
         "id": "horned_charger",
@@ -95,7 +102,8 @@
         "speed": 425,
         "drop": 1,
         "behavior": "charge",
-        "exp_value": 5
+        "exp_value": 5,
+        "coin_value": 3
       },
       {
         "id": "pursuer",
@@ -107,7 +115,8 @@
         "speed": 150,
         "drop": 3,
         "behavior": "chase",
-        "exp_value": 5
+        "exp_value": 5,
+        "coin_value": 3
       },
       {
         "id": "slasher",
@@ -119,7 +128,8 @@
         "speed": 275,
         "drop": 5,
         "behavior": "chase",
-        "exp_value": 10
+        "exp_value": 10,
+        "coin_value": 6
       },
       {
         "id": "helmet_alien",
@@ -132,7 +142,8 @@
         "drop": 1,
         "behavior": "chase",
         "armor": 3,
-        "exp_value": 4
+        "exp_value": 4,
+        "coin_value": 3
       },
       {
         "id": "horned_fly",
@@ -144,7 +155,8 @@
         "speed": 350,
         "drop": 1,
         "behavior": "zigzag",
-        "exp_value": 5
+        "exp_value": 5,
+        "coin_value": 3
       },
       {
         "id": "corrupted_tree",
@@ -156,7 +168,8 @@
         "speed": 0,
         "drop": 1,
         "behavior": "stationary",
-        "exp_value": 5
+        "exp_value": 5,
+        "coin_value": 4
       },
       {
         "id": "mad_slasher",
@@ -168,7 +181,8 @@
         "speed": 275,
         "drop": 5,
         "behavior": "chase",
-        "exp_value": 15
+        "exp_value": 15,
+        "coin_value": 8
       },
       {
         "id": "lamprey",
@@ -180,7 +194,8 @@
         "speed": 350,
         "drop": 1,
         "behavior": "chase",
-        "exp_value": 7
+        "exp_value": 7,
+        "coin_value": 5
       }
     ],
     "elite": [
@@ -199,7 +214,8 @@
           "radius": 90.0,
           "interval": 3.0,
           "damage_mult": 1.2
-        }
+        },
+        "coin_value": 20
       },
       {
         "id": "colossus",
@@ -210,7 +226,8 @@
         "speed": 150,
         "drop": 10,
         "behavior": "chase",
-        "exp_value": 40
+        "exp_value": 40,
+        "coin_value": 25
       },
       {
         "id": "rhino",
@@ -221,7 +238,8 @@
         "speed": 250,
         "drop": 10,
         "behavior": "charge",
-        "exp_value": 35
+        "exp_value": 35,
+        "coin_value": 22
       },
       {
         "id": "monk",
@@ -238,7 +256,8 @@
           "threshold": 0.5,
           "heal_percent": 0.15,
           "interval": 4.0
-        }
+        },
+        "coin_value": 20
       },
       {
         "id": "croc",
@@ -249,7 +268,8 @@
         "speed": 300,
         "drop": 10,
         "behavior": "chase",
-        "exp_value": 35
+        "exp_value": 35,
+        "coin_value": 22
       },
       {
         "id": "mom",
@@ -266,7 +286,8 @@
           "minion": "chaser",
           "count": 2,
           "interval": 5.0
-        }
+        },
+        "coin_value": 22
       }
     ],
     "boss": [
@@ -295,7 +316,8 @@
             "speed_multiplier": 1.2
           }
         ],
-        "exp_value": 400
+        "exp_value": 400,
+        "coin_value": 150
       },
       {
         "id": "predator",
@@ -331,7 +353,8 @@
             "speed_multiplier": 1.3
           }
         ],
-        "exp_value": 500
+        "exp_value": 500,
+        "coin_value": 200
       }
     ]
   },

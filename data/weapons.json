@@ -562,7 +562,7 @@
         "knockback": 8,
         "life_steal": 1,
         "blade_count": 1,
-        "orbit_radius": 110,
+        "orbit_radius": 40,
         "orbit_speed": 180,
         "special": "环绕玩家旋转的星刃, 持续对接触敌人造成伤害",
         "star_echo": true,
@@ -574,7 +574,7 @@
             "damage": 7,
             "cooldown": 0.45,
             "blade_count": 1,
-            "orbit_radius": 110,
+            "orbit_radius": 40,
             "orbit_speed": 180,
             "upgrade": "基础形态"
           },
@@ -583,7 +583,7 @@
             "damage": 9,
             "cooldown": 0.45,
             "blade_count": 1,
-            "orbit_radius": 115,
+            "orbit_radius": 44,
             "orbit_speed": 190,
             "upgrade": "伤害 +2"
           },
@@ -592,7 +592,7 @@
             "damage": 11,
             "cooldown": 0.42,
             "blade_count": 2,
-            "orbit_radius": 120,
+            "orbit_radius": 48,
             "orbit_speed": 200,
             "upgrade": "星刃数量 +1"
           },
@@ -601,7 +601,7 @@
             "damage": 14,
             "cooldown": 0.42,
             "blade_count": 2,
-            "orbit_radius": 125,
+            "orbit_radius": 52,
             "orbit_speed": 210,
             "upgrade": "伤害 +3"
           },
@@ -610,7 +610,7 @@
             "damage": 17,
             "cooldown": 0.38,
             "blade_count": 3,
-            "orbit_radius": 132,
+            "orbit_radius": 56,
             "orbit_speed": 220,
             "upgrade": "星刃数量 +1, 转速提升"
           },
@@ -619,7 +619,7 @@
             "damage": 21,
             "cooldown": 0.38,
             "blade_count": 3,
-            "orbit_radius": 138,
+            "orbit_radius": 60,
             "orbit_speed": 235,
             "upgrade": "伤害 +4, 半径扩大"
           },
@@ -628,7 +628,7 @@
             "damage": 26,
             "cooldown": 0.34,
             "blade_count": 4,
-            "orbit_radius": 145,
+            "orbit_radius": 64,
             "orbit_speed": 250,
             "upgrade": "星刃数量 +1"
           },
@@ -637,7 +637,7 @@
             "damage": 32,
             "cooldown": 0.3,
             "blade_count": 4,
-            "orbit_radius": 150,
+            "orbit_radius": 68,
             "orbit_speed": 270,
             "upgrade": "满级: 可进化(需对应核心)"
           }
@@ -662,7 +662,7 @@
         "star_echo": true,
         "evolution_result": true,
         "blade_count": 6,
-        "orbit_radius": 120,
+        "orbit_radius": 68,
         "orbit_speed": 220,
         "icon_index": 35,
         "levels": [

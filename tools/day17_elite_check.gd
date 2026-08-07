@@ -130,9 +130,9 @@ func _advance(sub: int) -> int:
 					continue
 				if str(data.get("name", "")).is_empty() or str(data.get("behavior", "")).is_empty():
 					ok_all = false
-				if int(data.get("exp_value", 0)) <= 0 or int(data.get("drop", 0)) <= 0:
+				if int(data.get("exp_value", 0)) <= 0 or int(data.get("coin_value", 0)) <= 0:
 					ok_all = false
-			_ok(ok_all, "数据: 6 精英 id/name/behavior/exp_value/drop 齐")
+			_ok(ok_all, "数据: 6 精英 id/name/behavior/exp_value/coin_value 齐")
 			# 3 只有 ability 且 type ∈ {aoe, self_heal, spawn} + 数值 > 0
 			var ability_map: Dictionary = {
 				"butcher": "aoe", "monk": "self_heal", "mom": "spawn",
@@ -410,9 +410,9 @@ func _advance(sub: int) -> int:
 			}
 			var e3: Node = _build_enemy(elite_stats)
 			_ok(e3.get("is_elite") == true and e3.get("is_boss") == false, "回归: elite 标记 is_elite=true / is_boss=false")
-			# 精英数据 drop/exp 一致性抽查
+			# 精英数据 coin_value/exp 一致性抽查（08-07 金币产出数据化：coin_value 取代 drop 消费键）
 			var butcher_d: Dictionary = _loader.call("get_enemy", "butcher")
-			_ok(int(butcher_d.get("drop")) == 10 and int(butcher_d.get("exp_value")) == 30, "回归: butcher drop 10 / exp 30")
+			_ok(int(butcher_d.get("coin_value")) == 20 and int(butcher_d.get("exp_value")) == 30, "回归: butcher coin_value 20 / exp 30")
 			e3.queue_free()
 			return 10
 		10:

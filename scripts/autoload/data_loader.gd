@@ -181,7 +181,8 @@ func get_scaled_enemy(enemy_id: String, wave: int) -> Dictionary:
 	var base_damage: float = float(data.get("damage", 1))
 	var damage_growth: float = float(data.get("damage_growth", 0))
 	var base_speed: float = float(data.get("speed", 200))
-	var drop: int = int(data.get("drop", 1))
+	# 金币掉落：优先 coin_value（08-07 反馈修复，数值 2-200 数据化），兜底旧键 drop（历史数据兼容）
+	var drop: int = int(data.get("coin_value", data.get("drop", 1)))
 
 	# 成长公式: base + growth * wave
 	var final_hp := base_hp + hp_growth * wave
