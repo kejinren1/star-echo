@@ -132,6 +132,9 @@ var _charge_dir: Vector2 = Vector2.ZERO
 # 接触伤害冷却（避免每帧对玩家造成伤害）
 var _contact_cd: float = 0.0
 
+## 受击击退（H-01 升级体验反馈 2026-08-07：升级冲击波等外部施加，每帧衰减）
+var _knockback: Vector2 = Vector2.ZERO
+
 # 元素状态机（Day 3 · D3-T2b）：status_type -> {"time_left": float, "dps": float}
 var _status: Dictionary = {}
 
@@ -175,6 +178,26 @@ func _physics_process(delta: float) -> void:
 	if _contact_cd > 0.0:
 		_contact_cd -= delta
 	_try_contact_damage()
+	# 击退结算（行为移动后覆盖 velocity 推离，随帧衰减；零向量时零开销）
+	_process_knockback()
+
+## 击退结算：覆盖 velocity 推离一帧 + 衰减 50%/帧，小于阈值清零
+func _process_knockback() -> void:
+	if _knockback == Vector2.ZERO:
+		return
+	velocity = _knockback
+	move_and_slide()
+	_knockback = _knockback * 0.5
+	if _knockback.length() < 8.0:
+		_knockback = Vector2.ZERO
+
+## 受击击退接口（升级冲击波等外部施加）：dir 为方向（无需归一化）、force 为初速
+func apply_knockback(dir: Vector2, force: float) -> void:
+	if not is_alive or _is_dying:
+		return
+	if dir.length_squared() <= 0.0001 or force <= 0.0:
+		return
+	_knockback = dir.normalized() * force
 
 ## 当敌人贴近玩家时造成伤害（初版：所有行为通用）
 func _try_contact_damage() -> void:

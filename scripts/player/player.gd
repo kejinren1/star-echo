@@ -408,7 +408,50 @@ func _check_level_up() -> void:
 	while exp >= get_xp_to_next_level():
 		exp -= get_xp_to_next_level()
 		level += 1
+		# H-01 升级体验（反馈专员 2026-08-07 用户拍板）：升级光效 + 击退 + 普攻级伤害
+		_trigger_level_impact()
 		level_up.emit(level)
+
+# ========== 升级冲击波（H-01 升级体验反馈 2026-08-07 · 用户拍板） ==========
+## 「升级有光效，会对周围敌人进行击退并造成和普攻差不多的伤害」——
+## 占位特效机制验证（色块/复用动画，不建 GPU 基建）；伤害对齐普攻口径
+## weapon_controller._spawn_projectile（base_damage × damage_multiplier × debug_mult）。
+const LEVEL_IMPACT_RADIUS: float = 140.0      ## 冲击半径（640×360 视口约 1/3 屏宽）
+const LEVEL_IMPACT_KNOCKBACK: float = 500.0   ## 击退初速（px/s，衰减 50%/帧 ≈ 15-20px 推离）
+const LEVEL_IMPACT_DAMAGE_FALLBACK: float = 10.0  ## 无武器兜底（对齐普攻基准）
+
+## 触发升级冲击：光效 + 范围内敌人击退并造成普攻级伤害（容器缺失静默跳过不崩）
+func _trigger_level_impact() -> void:
+	# 光效：复用现成 fx_levelup 6 帧动画（VfxPlayer 占位特效机制）
+	var container: Node = null
+	if GameManager and GameManager.vfx_container:
+		container = GameManager.vfx_container
+	elif get_tree() and get_tree().current_scene:
+		container = get_tree().current_scene
+	if container:
+		VfxPlayer.spawn(container, global_position, "levelup")
+	# 伤害：当前武器 base_damage × 玩家倍率（对齐普攻口径；无武器兜底 10.0）
+	var dmg: float = LEVEL_IMPACT_DAMAGE_FALLBACK * damage_multiplier * debug_mult
+	var wc: Node = get_node_or_null("WeaponController")
+	if wc and "equipped_weapons" in wc:
+		var weapons: Array = wc.equipped_weapons
+		if not weapons.is_empty() and weapons[0] and "base_damage" in weapons[0]:
+			dmg = float(weapons[0].base_damage) * damage_multiplier * debug_mult
+	# 击退 + 伤害：遍历存活敌人容器，半径内伤害 + 背离玩家方向击退
+	if GameManager and GameManager.enemies_container:
+		for enemy in GameManager.enemies_container.get_children():
+			if enemy == null or not is_instance_valid(enemy):
+				continue
+			if not ("is_alive" in enemy and enemy.is_alive):
+				continue
+			if not enemy.has_method("take_damage"):
+				continue
+			var dist := global_position.distance_to(enemy.global_position)
+			if dist > LEVEL_IMPACT_RADIUS:
+				continue
+			enemy.take_damage(dmg)
+			if enemy.has_method("apply_knockback") and dist > 1.0:
+				enemy.apply_knockback(enemy.global_position - global_position, LEVEL_IMPACT_KNOCKBACK)
 
 ## 解析并求值经验曲线表达式；任何异常回退默认曲线并告警，禁止崩溃
 func _eval_xp_curve() -> float:
