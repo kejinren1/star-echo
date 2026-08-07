@@ -46,6 +46,8 @@ var difficulty_delta: int = 0
 ## F-04（用户拍板 2026-08-06 · P0）：调试金手指开关（↑+↓ toggle）
 ## 开启 = 跳关 + 攻击力 ×10 + 受伤 0.1%（约等于无敌），关闭 = 全还原零残留
 var debug_cheat: bool = false
+## Day 18-19 · T4：本局 Boss 击杀数（register_boss_killed 登记；Day 27 局外养成胜利局数消费源）
+var boss_killed: int = 0
 
 # D14-15-T3：路线模式状态（route 空 = 旧波次制；非空 = 随机节点地图模式）
 var route: Dictionary = {}                 ## 本局路线（{seed, layers, modifiers, flags}）
@@ -218,6 +220,11 @@ func _enter_node(node_type: String, wave_index: int) -> void:
 			# Day 17 · D17-T4：精英节点进入提示横幅（不暂停，与选层/商店同范式）
 			if node_type == "elite":
 				_show_elite_banner()
+			# Day 18-19 · T4：Boss 节点进入提示横幅 + flags 登记（route 空旧制零影响）
+			if node_type == "boss":
+				_show_boss_banner()
+				route["flags"] = route.get("flags", {})
+				route["flags"]["boss_encountered"] = true
 			_start_next_wave(wave_index)
 		"shop":
 			current_state = GameState.SHOP
@@ -252,6 +259,37 @@ func _show_elite_banner() -> void:
 	tween.tween_property(label, "modulate:a", 0.0, 1.5)
 	tween.tween_property(banner, "global_position:y", banner.global_position.y - 30.0, 1.5)
 	tween.chain().tween_callback(banner.queue_free)
+
+## Day 18-19 · T4：Boss 节点进入横幅「⚠ 最终 Boss」（仿 _show_elite_banner 范式；
+## 容器缺失静默跳过不崩）
+func _show_boss_banner() -> void:
+	var container: Node = vfx_container if vfx_container else null
+	if container == null:
+		container = get_tree().current_scene
+	if container == null:
+		return
+	var banner := Node2D.new()
+	banner.name = "BossBanner"
+	var label := Label.new()
+	label.text = "⚠ 最终 Boss"
+	label.add_theme_font_size_override("font_size", 26)
+	label.add_theme_color_override("font_color", Color(0.95, 0.35, 0.35))
+	banner.add_child(label)
+	container.add_child(banner)
+	banner.global_position = Vector2(320.0, 90.0)
+	var tween := banner.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "modulate:a", 0.0, 1.5)
+	tween.tween_property(banner, "global_position:y", banner.global_position.y - 30.0, 1.5)
+	tween.chain().tween_callback(banner.queue_free)
+
+## Day 18-19 · T4：Boss 击杀登记（enemy.gd die() 调用；boss_killed 计数 + route flags 标记；
+## route 空（旧波次制）仅计数零影响；boss_defeated 由 Day 27 end_game(victory) 统一消费）
+func register_boss_killed() -> void:
+	boss_killed += 1
+	if not route.is_empty():
+		route["flags"] = route.get("flags", {})
+		route["flags"]["boss_defeated"] = true
 
 # ========== 调试金手指（F-04 · 用户拍板 2026-08-06） ==========
 ## ↑+↓ 同按 → toggle：跳关 + 攻击 ×10 + 受伤 0.1%。机器可验证（探针白盒直调）。
@@ -530,6 +568,7 @@ func reset() -> void:
 	current_wave = 0
 	is_boss_wave = false
 	difficulty_delta = 0
+	boss_killed = 0
 	route = {}
 	current_layer = 0
 	current_node = {}

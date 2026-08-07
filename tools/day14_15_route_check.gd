@@ -26,7 +26,9 @@ const SEED_A: int = 1
 const SEED_B: int = 2
 
 ## 端到端固定路线：L0=[battle w1, shop, event] · L1=[battle w2] · L2=[boss w10]
-const FIXED_ROUTE: Dictionary = {
+## D18-19 同步：const → var —— Godot 4 const Dictionary 只读，GameManager._enter_node(boss)
+## 现会写 route.flags（boss_encountered 登记 T4），const 只读赋值将报 Invalid assignment
+var FIXED_ROUTE: Dictionary = {
 	"seed": 999,
 	"layers": [
 		[
