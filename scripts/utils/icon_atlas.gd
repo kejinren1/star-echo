@@ -16,6 +16,11 @@ const SHEET_CONFIG: Dictionary = {
 		"frame_count": 22,                       ## D20-T5: 20 → 22（20 被动 + 2 遗物）
 		"frame_size": Vector2i(32, 32),
 	},
+	"skills": {
+		"path": "res://assets/sprites/skills/skills.png",
+		"frame_count": 4,                        ## D20-T7（T-D）：4 技能图标（fireball/deploy_turret/blade_burst/holy_shield）
+		"frame_size": Vector2i(32, 32),
+	},
 }
 
 ## 缓存已加载的纹理，避免重复加载

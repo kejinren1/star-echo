@@ -160,6 +160,35 @@ func _connect_skill_controller() -> void:
 	if controller.get("_cd_total") != null:
 		total = float(controller.get("_cd_total"))
 	_on_skill_cooldown_changed(0.0, total)
+	# D20-T8（T-D · P0 硬性输入）：技能图标接线（同延迟帧环境，controller 已就绪）
+	_apply_skill_icon(controller)
+
+## D20-T8（T-D）：技能图标 —— 按 SkillController.skill_data.id 映射 skills.png 帧索引，
+## 无图/空 id/节点缺失 → 静默降级（保持现有样式零回归）；未知 id → push_warning 登记不崩
+const SKILL_ICON_MAP: Dictionary = {
+	"se_skill_fireball": 0,
+	"se_skill_deploy_turret": 1,
+	"se_skill_blade_burst": 2,
+	"se_skill_holy_shield": 3,
+}
+func _apply_skill_icon(controller: Node) -> void:
+	if controller == null or skill_slot == null:
+		return
+	var sd: Variant = controller.get("skill_data")
+	var skill_id: String = ""
+	if sd is Dictionary and not (sd as Dictionary).is_empty():
+		skill_id = str((sd as Dictionary).get("id", ""))
+	if skill_id.is_empty():
+		return
+	if not ResourceLoader.exists("res://assets/sprites/skills/skills.png"):
+		return  # 图集缺失：降级保留现有样式
+	var idx: int = int(SKILL_ICON_MAP.get(skill_id, -1))
+	if idx < 0:
+		push_warning("[HUD] 未知技能 id（无图标映射，保留原样式）: %s" % skill_id)
+		return
+	var frame: AtlasTexture = IconAtlas.get_icon("skills", idx)
+	if frame != null:
+		skill_slot.texture = frame
 
 ## 冷却显示：left <= 0 就绪满亮度；否则显示剩余秒数并压暗
 func _on_skill_cooldown_changed(left: float, _total: float) -> void:

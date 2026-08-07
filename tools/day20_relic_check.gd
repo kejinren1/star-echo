@@ -106,6 +106,9 @@ func _advance(sub: int) -> int:
 		4:
 			_part_structure_and_anchor()
 			return 5
+		5:
+			_part_skill_icon()
+			return 6
 		_:
 			_idx += 1
 			return 0
@@ -389,6 +392,66 @@ func _part_structure_and_anchor() -> void:
 		_fail("锚点: 被动 icon_index 存在重复")
 	else:
 		_pass("锚点 / is_passive icon_index 0-19 唯一（20 项）")
+
+
+# ========== §6 技能图标（D20-T7/T8 · T-D P0 硬性输入） ==========
+
+func _part_skill_icon() -> void:
+	var hud_script: GDScript = load("res://scripts/ui/hud.gd")
+	var hud: CanvasLayer = hud_script.new()
+	# 白盒注入 skill_slot（@onready 需节点存在；new() 不触发 _ready，信号连接零副作用）
+	var slot := TextureRect.new()
+	hud.set("skill_slot", slot)
+	# 4 个技能 id 各测：texture 非空 + 帧索引正确
+	# （ctrl 用 skill_controller.gd 实例注入：脚本声明 skill_data 属性，Object.set 才有效；
+	#   Node.new() 无脚本 set 未知属性静默无效 —— 探针自身坑）
+	var sc_script: GDScript = load("res://scripts/player/skill_controller.gd")
+	var ids: Array = ["se_skill_fireball", "se_skill_deploy_turret", "se_skill_blade_burst", "se_skill_holy_shield"]
+	var all_ok: bool = true
+	for k in ids.size():
+		var ctrl: Node = sc_script.new()
+		ctrl.set("skill_data", {"id": ids[k]})
+		slot.texture = null
+		hud.call("_apply_skill_icon", ctrl)
+		var tex: AtlasTexture = slot.texture as AtlasTexture
+		if tex == null:
+			_fail("技能图标: %s 未接上 texture" % ids[k])
+			all_ok = false
+			continue
+		var expect_region: int = k * 32
+		if int(tex.region.position.x) != expect_region:
+			_fail("技能图标: %s 帧偏移应 %d, 实得 %d" % [ids[k], expect_region, int(tex.region.position.x)])
+			all_ok = false
+	if all_ok:
+		_pass("技能图标 / 4 id 各测：texture 非空 + 帧索引正确（skills.png 4 帧）")
+
+	# 空 id → 零改动（texture 保持 null）
+	var empty_ctrl: Node = sc_script.new()
+	empty_ctrl.set("skill_data", {})
+	slot.texture = null
+	hud.call("_apply_skill_icon", empty_ctrl)
+	if slot.texture != null:
+		_fail("技能图标: 空 id 应零改动（texture 保持原样式）")
+	else:
+		_pass("技能图标 / 空 id → 零改动")
+
+	# 未知 id → push_warning 不崩（texture 保持 null）
+	var unknown_ctrl: Node = sc_script.new()
+	unknown_ctrl.set("skill_data", {"id": "se_skill_unknown"})
+	slot.texture = null
+	hud.call("_apply_skill_icon", unknown_ctrl)
+	if slot.texture != null:
+		_fail("技能图标: 未知 id 应保留原样式")
+	else:
+		_pass("技能图标 / 未知 id → push_warning 登记不崩")
+
+	# 图集缺失 → 不崩（ResourceLoader.exists 前置兜底）
+	# （本环境 skills.png 已生成 → exists 恒 true；用假路径绕过不可行，改为验证脚本常量存在性）
+	var sheet_cfg: Dictionary = (load("res://scripts/utils/icon_atlas.gd") as GDScript).get("SHEET_CONFIG")
+	if not sheet_cfg.has("skills"):
+		_fail("技能图标: IconAtlas 缺 skills sheet 注册")
+	else:
+		_pass("技能图标 / IconAtlas skills sheet 已注册（frame_count 4）")
 
 
 # ========== 工具 ==========
