@@ -6,6 +6,8 @@
 ##      is_boss 存活目标（兼容两制：路线 invoker wave10 / 旧制 predator wave20）
 ##   ③ 星刃离人物太远（orbit_radius 110-138）→ 修复：se_star_blade 40→68 紧贴人物环绕，
 ##      se_blade_storm 120→68（进化 6 刃风暴贴体）
+##   §6（2026-08-08 反馈专员 F-21）群星回应：第四关结算 + 升级两次技能 + 本商店无星刃核心
+##      → 激活免费高亮刷新，点击刷新必出星刃核心（本局一次）
 ##
 ## 用法（无头）：
 ##     tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day18_feedback2_check.gd
@@ -27,17 +29,18 @@ var _hud: Node = null
 var _boss_stub: Node = null
 var _shop: Node = null
 var _inv: Node = null
+var _player_mock: Node = null
 var _checked: int = 0
 var _failures: int = 0
 
 func _initialize() -> void:
-	print("=== Day 18 feedback2 check (金币产出/Boss血条/星刃轨道) ===")
+	print("=== Day 18 feedback2 check (金币产出/Boss血条/星刃轨道/群星回应) ===")
 
 func _process(_delta: float) -> bool:
 	if not _ready_mocks:
 		_load_mocks()
 		return false
-	if _sub > 24:
+	if _sub > 30:
 		_report()
 		quit(_failures)
 		return true
@@ -73,6 +76,10 @@ func _load_mocks() -> void:
 	_inv = load("res://scripts/systems/inventory.gd").new()
 	_inv.name = "MockInventory"
 	_gm.set("inventory", _inv)
+	# mock player（§6 群星回应读 player.level；player.gd 脚本实例，不 add_child 不触发 _ready）
+	_player_mock = load("res://scripts/player/player.gd").new()
+	_player_mock.name = "MockPlayer"
+	_gm.set("player", _player_mock)
 	# HUD 实例（独立场景，_ready 的延迟连接与 SkillController 告警为主动预期）
 	_hud = load(HUD_SCENE_PATH).instantiate()
 	root.add_child(_hud)
@@ -124,6 +131,10 @@ func _advance(sub: int) -> int:
 			_part5_shop_open()
 		10:
 			_part5_click_purchase()
+		11:
+			_part6_star_grace_conditions()
+		12:
+			_part6_star_grace_reroll_guarantee()
 	return sub + 1
 
 # ---------- §1 金币数据（23 敌 coin_value 全定义 + 消费键统一） ----------
@@ -279,3 +290,70 @@ func _part5_click_purchase() -> void:
 	var inv_after: int = _inv.get("weapons").size() + _inv.get("items").size()
 	_ok(coins_after < coins_before, "真实点击购买 → 金币扣减（%d → %d）" % [coins_before, coins_after])
 	_ok(inv_after > inv_before, "真实点击购买 → 背包入库（%d → %d）" % [inv_before, inv_after])
+
+# ---------- §6 群星回应（F-21 2026-08-08 用户拍板：第四关星刃核心保底） ----------
+
+## 条件矩阵：第四关(current_wave==4) + 升级两次(player.level>=3) + 本商店无星刃核心 + 未用过
+## → 激活 star_grace_available；任一条件不满足 → 不激活
+func _part6_star_grace_conditions() -> void:
+	var econ: Node = _gm.get("economy")
+	var shop: Node = _shop
+	# 环境复位：economy 清空 + player.level=3 + current_wave=4
+	# 白盒直调 _check_star_grace（不经 shop_opened 信号 → 避免 _on_shop_opened 二次随机刷新引入 flaky）
+	shop.set("star_grace_available", false)
+	shop.set("star_grace_used", false)
+	_player_mock.set("level", 3)
+	_gm.set("current_wave", 4)
+	econ.reset()
+	econ.add_coins(500)
+	# 循环刷新直到商店无星刃核心（force 不参与，纯随机多刷几次至无核心；上限 50 防死循环）
+	var guard: int = 0
+	while shop.call("_has_blade_core") and guard < 50:
+		shop.call("_refresh_shop")
+		guard += 1
+	shop.call("_check_star_grace")
+	_ok(shop.get("star_grace_available"), "条件全满足（wave4+level3+商店无核心+未用过）→ 群星回应激活")
+	_ok(shop.get("star_grace_used") == false, "激活时未消费（star_grace_used == false）")
+	# 已消费后 → 不再激活（关闭重开商店）
+	shop.set("star_grace_used", true)
+	shop.set("star_grace_available", false)
+	shop.call("_check_star_grace")
+	_ok(shop.get("star_grace_available") == false, "已用过 → 不再激活（一次性）")
+	shop.set("star_grace_used", false)
+	# level < 3 → 不激活
+	shop.set("star_grace_available", false)
+	_player_mock.set("level", 2)
+	shop.call("_check_star_grace")
+	_ok(shop.get("star_grace_available") == false, "level==2（未升级两次）→ 不激活")
+	# current_wave != 4 → 不激活
+	shop.set("star_grace_available", false)
+	_player_mock.set("level", 3)
+	_gm.set("current_wave", 3)
+	shop.call("_check_star_grace")
+	_ok(shop.get("star_grace_available") == false, "current_wave==3（非第四关）→ 不激活")
+
+## 免费刷新 + 必出星刃核心：激活后 _on_reroll_pressed → 不扣费 + 商店含 se_blade_core
+func _part6_star_grace_reroll_guarantee() -> void:
+	var econ: Node = _gm.get("economy")
+	var shop: Node = _shop
+	# 复位到激活态：wave4 + level3 + 未用过，商店当前无核心（白盒直调防二次刷新）
+	shop.set("star_grace_available", false)
+	shop.set("star_grace_used", false)
+	_player_mock.set("level", 3)
+	_gm.set("current_wave", 4)
+	econ.reset()
+	econ.add_coins(500)
+	var guard: int = 0
+	while shop.call("_has_blade_core") and guard < 50:
+		shop.call("_refresh_shop")
+		guard += 1
+	shop.call("_check_star_grace")
+	_ok(shop.get("star_grace_available"), "前置：群星回应已激活")
+	# 记录点击前金币 → 触发免费刷新
+	var coins_before: int = int(econ.get("coins"))
+	shop.call("_on_reroll_pressed")
+	var coins_after: int = int(econ.get("coins"))
+	_ok(coins_after == coins_before, "群星回应刷新免费（金币 %d → %d，不扣 10G）" % [coins_before, coins_after])
+	_ok(shop.call("_has_blade_core"), "群星回应刷新后商店必含星刃核心 se_blade_core")
+	_ok(shop.get("star_grace_available") == false, "刷新后 star_grace_available 复位 false")
+	_ok(shop.get("star_grace_used") == true, "刷新后 star_grace_used == true（本局一次）")

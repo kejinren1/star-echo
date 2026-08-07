@@ -37,6 +37,16 @@ const CARD_TEXTURE: Texture2D = preload("res://assets/sprites/ui/panel_card.png"
 
 var shop_items: Array[Resource] = []            ## 当前商店商品
 
+## F-21 群星回应（2026-08-08 用户拍板）：第四关结算时星刃核心保底机制——
+## 星刃核心常在前几波刷出但没钱买 → 第四关（current_wave==4）结算进商店时，
+## 若已升级两次技能（player.level>=3）且本商店无星刃核心，则激活「✨ 群星在回应你」：
+## 刷新按钮高亮 + 一次免费刷新，点击刷新必定出现星刃核心（本局仅一次）
+var star_grace_available: bool = false         ## 本商店是否激活群星回应（免费+必出核心）
+var star_grace_used: bool = false              ## 本局是否已消费群星回应（一次性）
+
+## 群星回应提示 Label（动态创建，挂 BottomBar 前；无则跳过不崩）
+var _grace_label: Label = null
+
 ## D13-T6：武器资源懒构建器（WeaponController 未入树实例，仅调纯函数 build_weapon_from_data）
 var _wc_builder: Node = null
 
@@ -57,32 +67,98 @@ func _ready() -> void:
 func _on_shop_opened() -> void:
 	visible = true
 	_refresh_shop()
+	# F-21 群星回应：第四关结算时检测是否激活免费必出核心刷新（刷新后判断本商店是否缺核心）
+	_check_star_grace()
 
 func _on_shop_closed() -> void:
 	visible = false
+	_clear_star_grace_ui()
 
 func _on_continue_pressed() -> void:
 	shop_exited.emit()
 	GameManager.close_shop()
 
 func _on_reroll_pressed() -> void:
+	# F-21 群星回应：激活时免费刷新且必定出现星刃核心（不扣费、消耗本次机会）
+	if star_grace_available:
+		star_grace_available = false
+		star_grace_used = true
+		_clear_star_grace_ui()
+		_refresh_shop(true)
+		return
 	if GameManager.economy and GameManager.economy.spend_coins(REROLL_COST):
 		_refresh_shop()
 
 # ========== 商品生成（D11-12-T4 真实商品） ==========
 
-## 刷新商店商品：混合池（33 武器 + 20 被动）洗牌随机 4 卡
-func _refresh_shop() -> void:
+## 刷新商店商品：混合池（33 武器 + 20 被动 + 2 遗物）洗牌随机 4 卡
+## F-21：force_blade_core=true（群星回应免费刷新）→ 结果强制含 1 张星刃核心
+## （先正常随机，若结果无核心则把最后一张替换为 se_blade_core，幂等防重）
+func _refresh_shop(force_blade_core: bool = false) -> void:
 	shop_items.clear()
 	var pool: Array = _build_shop_pool()
 	pool.shuffle()
 	var count: int = mini(SHOP_ITEM_COUNT, pool.size())
 	for i in count:
 		shop_items.append(pool[i])
+	if force_blade_core and not _has_blade_core() and not shop_items.is_empty():
+		var core: Resource = _build_item_resource("se_blade_core")
+		if core != null:
+			shop_items[shop_items.size() - 1] = core
 	_render_cards()
 	# 更新金币显示
 	if GameManager.economy:
 		coins_label.text = "%d" % GameManager.economy.coins
+
+## F-21 群星回应：检测是否激活（第四关结算 + 已升级两次技能 + 本商店无星刃核心 + 本局未用过）
+func _check_star_grace() -> void:
+	if star_grace_used or star_grace_available:
+		return
+	# 第四关：current_wave == 4（route 模式 wave_index 4 / 旧制第 4 波，商店打开时值保持）
+	if GameManager == null or int(GameManager.get("current_wave", 0)) != 4:
+		return
+	# 已升级两次技能：player.level >= 3（从 1 起升两次；player 缺失/未绑定 → 不激活）
+	var p: Node = GameManager.get("player") if GameManager else null
+	if p == null or not ("level" in p) or int(p.get("level", 0)) < 3:
+		return
+	# 本商店已刷出星刃核心 → 无需保底
+	if _has_blade_core():
+		return
+	star_grace_available = true
+	_show_star_grace_ui()
+
+## 当前商店 4 卡中是否有星刃核心（item_id == se_blade_core）
+func _has_blade_core() -> bool:
+	for item in shop_items:
+		if item and str(item.get("item_id", "")) == "se_blade_core":
+			return true
+	return false
+
+## F-21 群星回应 UI：刷新按钮金闪高亮 + 提示文案「群星在回应你」
+func _show_star_grace_ui() -> void:
+	if reroll_button:
+		reroll_button.modulate = Color(1.0, 0.85, 0.3)
+		var tw := reroll_button.create_tween()
+		tw.set_loops()
+		tw.tween_property(reroll_button, "modulate", Color(1.0, 0.6, 0.15), 0.5)
+		tw.tween_property(reroll_button, "modulate", Color(1.0, 0.85, 0.3), 0.5)
+	# 提示文案：挂 BottomBar 前（VBox 顺序：TopBar/ItemContainer/BottomBar）
+	var vbox: Node = $ShopPanel/Margin/VBox
+	if vbox and _grace_label == null:
+		_grace_label = Label.new()
+		_grace_label.text = "✨ 群星在回应你 · 免费刷新（必出星刃核心）"
+		_grace_label.add_theme_font_size_override("font_size", 8)
+		_grace_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+		vbox.add_child(_grace_label)
+		vbox.move_child(_grace_label, vbox.get_child_count() - 2)  # BottomBar 前
+
+## F-21 群星回应 UI 清理（关闭商店/刷新消费后复位）
+func _clear_star_grace_ui() -> void:
+	if reroll_button:
+		reroll_button.modulate = Color.WHITE
+	if _grace_label and is_instance_valid(_grace_label):
+		_grace_label.queue_free()
+		_grace_label = null
 
 ## 商品池：武器（排除 evolution_result 结果武器）+ 被动（is_passive==true）+ 遗物（slot=="relic" 且 price>0）
 ## D13-T6（BUG-002 修复）：返回**资源实例数组**（武器 Weapon / 被动 Item），
