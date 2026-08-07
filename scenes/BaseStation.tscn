@@ -1,0 +1,86 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1basestation01"]
+
+[ext_resource type="Script" path="res://scripts/ui/base_station.gd" id="1_base"]
+
+[node name="BaseStation" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_base")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.054902, 0.054902, 0.090196, 1)
+
+[node name="Root" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "方舟基地"
+horizontal_alignment = 1
+
+[node name="PointLabel" type="Label" parent="Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 9
+horizontal_alignment = 1
+
+[node name="ResearchTitle" type="Label" parent="Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "研究强化"
+horizontal_alignment = 1
+
+[node name="ResearchSection" type="VBoxContainer" parent="Root"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CharTitle" type="Label" parent="Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "角色档案"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Root"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CharRow" type="VBoxContainer" parent="Root/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="StoryLabel" type="Label" parent="Root"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="BackButton" type="Button" parent="Root"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 10
+text = "返回角色选择"

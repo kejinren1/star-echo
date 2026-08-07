@@ -47,6 +47,19 @@ static func get_selected_character_id(node: Node) -> String:
 
 func _ready() -> void:
 	_build_cards()
+	_build_base_station_entry()
+
+## D27-T4：方舟基地入口按钮（动态创建加 $Root/，不改 tscn）
+func _build_base_station_entry() -> void:
+	var base_btn := Button.new()
+	base_btn.text = "🏛 方舟基地"
+	base_btn.add_theme_font_size_override("font_size", 10)
+	base_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	base_btn.pressed.connect(_on_base_station_pressed)
+	$Root.add_child(base_btn)
+
+func _on_base_station_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/BaseStation.tscn")
 
 # ========== 卡片构建 ==========
 
