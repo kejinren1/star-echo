@@ -136,3 +136,16 @@
 
 - TASKS.md Day 24 区标注「方案已定（SOLUTION_PLAN.md · 2026-08-07 第 6 轮）」——F-13-1~4 + T1~T5 + EXIT 全部覆盖，不改 [ ] 标记
 - 下一轮观察点：若 #3 01:35 窗口已启动/收口 Day 24 → 复核 F-13 机制行为 + 音频接线与定案一致性；若收口 → 目标日推进 Day 26 整合校验（Day 25 已预交付，剩接线归 Day 27 依赖）
+
+---
+
+### 执行结果：【完成】2026-08-08 00:5x · #3 第 33 轮执行（Day 24 全量收口）
+
+- **F-13 线（P0 用户拍板）**：F-13-1 数据（items 51→54，3 trigger 词条 + trigger/trigger_config 字段，effects 空 {}）→ F-13-3 图标（gen_item_icons FRAMES 22→25 + items.png 800×32 + icon_atlas 25）→ F-13-2 机制消费点（projectile on_crit 连锁 / main on_kill heal / player low_health 乘算开关 D29）→ F-13-4 回归同步 + `day24_f13_check.gd` **17/17 CLEAN**
+- **音频线**：T1 `gen_audio.py` 12 WAV（BGM 2×8s 循环 + SFX 10）→ T2 `audio_manager.gd`（第 3 Autoload + BGM 状态机 + SFX 池×4）→ T4 project.godot 注册 → T3 SFX 消费点 10 处 → T5 `day24_audio_check.gd` **14/14 CLEAN**
+- **EXIT**：24 件套 **23/23 全绿 609 断言** + baseline **BASELINE CLEAN** + 7 commit + push 成功
+- **执行登记 2 处**（方案风险命中，已按执行者规则处理并记录）：
+  1. **shop.gd 行号漂移**：方案行号速查表基于 `f5cd533`（23:50），实际 HEAD=`be06af3`（反馈专员 F-20/F-21 00:0x 落地）→ `_build_shop_pool` :92→**168** / `_purchase_item` :236→**312**，已按现行行号执行（其余文件零漂移）
+  2. **回归同步面 > D32 清单**：D32 列 8 处，实测还有 3 处必红——day11_12 被动数 20→23 + icon_index 范围 0-19→0-24（:196/:215-220）、day13 池 Item 22→25（:224）、day20 数据层 51→54 + is_passive 20→23（:122/:167）+ day23 锚点 51→54（:343）——全部同步补齐
+- **执行中发现并解决**：headless Dummy audio driver 下 `AudioStreamPlayer.play()` 退出时 leak（baseline BROKEN）→ audio_manager 改**懒加载**（_ready 只建节点，流首次播放时加载）+ baseline BENIGN 白名单 4 条（真机零影响，注释已说明）；`--verbose` 时序相关（verbose 无警告 / 非 verbose 有）
+- **主观项登记**：BGM/SFX 氛围感/音量平衡 + F-13 机制型被动手感 → PLAYTEST #5（D34 隔离口径）
