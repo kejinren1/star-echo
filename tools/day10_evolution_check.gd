@@ -348,6 +348,8 @@ func _part_evolution_apply_panel() -> void:
 			break
 	if guarantee_ok:
 		_pass("链路 / 方案A保底：持核心 50 次 3 选 1 抽样全含 evolution（出现率 100%）")
+	# 保底抽样结束后移除核心，恢复原流程状态（否则下方 add 会叠加第 2 颗，_apply_option 只消耗 1 颗）
+	_inv.call("remove_item_id", "se_flame_core")
 
 	# 注入核心 → _apply_option → 武器替换 + 核心消耗
 	_inv.call("add_item_from_data", "se_flame_core")
