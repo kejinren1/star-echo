@@ -775,6 +775,37 @@
       "tags": [
         "relic"
       ]
+    },
+    {
+      "id": "broken_crown",
+      "name": "破碎王冠",
+      "rarity": "legendary",
+      "price": 120,
+      "effects": {
+        "damage_percent": 50,
+        "damage_taken_percent": 30
+      },
+      "tags": [
+        "relic",
+        "damage"
+      ],
+      "slot": "relic",
+      "icon_index": 20
+    },
+    {
+      "id": "mech_engine",
+      "name": "机械引擎",
+      "rarity": "legendary",
+      "price": 120,
+      "effects": {
+        "structure_damage_percent": 100
+      },
+      "tags": [
+        "relic",
+        "engineering"
+      ],
+      "slot": "relic",
+      "icon_index": 21
     }
   ]
 }

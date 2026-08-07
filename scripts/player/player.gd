@@ -31,6 +31,9 @@ signal xp_changed(current: float, need: float)  ## 经验变化（D4-T1：HUD �
 ## F-04（用户拍板 2026-08-06 · P0）：金手指攻击倍率（toggle_debug_cheat 写入；
 ## 默认 1.0 零回归；weapon_controller/skill_controller 聚合消费）
 var debug_mult: float = 1.0
+## D20-T2：遗物装配倍率（percent 键乘算目标；默认 1.0 零回归，新实例即复位）
+var damage_taken_mult: float = 1.0        ## 受伤倍率（take_damage armor 减伤后乘，破碎王冠 +30%）
+var structure_damage_mult: float = 1.0    ## 结构伤害倍率（turret 弹药消费，机械引擎 +100%）
 
 @export_group("经济属性")
 @export var coin_bonus: float = 0.0          ## 金币加成 (0~1)
@@ -66,6 +69,8 @@ const STAT_MAP: Dictionary = {
 	"pickup_range": {"stat": "pickup_range", "mode": "add"},
 	"life_steal_percent": {"stat": "life_steal", "mode": "ratio"},  ## D4-T3：莱恩 passive 5 → 0.05 进通道
 	"crit_damage_percent": {"stat": "crit_damage", "mode": "percent"},  ## D11-12-T3：se_blade_core 20 → ×1.2（2.0→2.4）
+	"damage_taken_percent": {"stat": "damage_taken_mult", "mode": "percent"},      ## D20-T2：破碎王冠 30 → ×1.3（take_damage armor 后乘）
+	"structure_damage_percent": {"stat": "structure_damage_mult", "mode": "percent"},  ## D20-T2：机械引擎 100 → ×2.0（turret 弹药消费，D20-T6 §5）
 }
 
 ## 刻意不进 STAT_MAP 的键（进 bonus_stats 等后续系统消费），附不映射的原因
@@ -288,6 +293,8 @@ func take_damage(amount: float) -> void:
 
 	# 护甲减伤
 	var actual_damage: float = max(amount - armor, 1.0)
+	# D20-T2（破碎王冠）：受伤倍率（armor 平直减伤先减后乘；默认 1.0 零回归）
+	actual_damage *= damage_taken_mult
 	# F-04（金手指）：受伤 0.1%（≈无敌，试玩效率工具；关闭时恒 1 零回归）
 	if GameManager and GameManager.debug_cheat:
 		actual_damage *= 0.001
@@ -396,6 +403,10 @@ func apply_stat_modifier(stat_name: String, value: float, is_multiplicative: boo
 			luck = apply_value(luck, value, is_multiplicative)
 		"life_steal":
 			life_steal = clampf(apply_value(life_steal, value, is_multiplicative), 0.0, 1.0)
+		"damage_taken_mult":  ## D20-T2：受伤倍率（percent 键乘算；remove 走除法还原）
+			damage_taken_mult = apply_value(damage_taken_mult, value, is_multiplicative)
+		"structure_damage_mult":  ## D20-T2：结构伤害倍率（turret 弹药消费）
+			structure_damage_mult = apply_value(structure_damage_mult, value, is_multiplicative)
 		"coin_bonus":
 			coin_bonus = apply_value(coin_bonus, value, is_multiplicative)
 	stats_changed.emit()

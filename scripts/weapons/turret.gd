@@ -107,6 +107,10 @@ func _fire(target: Node2D) -> void:
 	var dmg: float = damage
 	if player and "damage_multiplier" in player:
 		dmg *= float(player.damage_multiplier)
+	# D20-T6 §5：结构伤害倍率消费（se_mech_core/se_mech_engine 装配后弹药伤害放大；
+	# 默认 1.0 零回归，顺带激活 mech_heart/se_mech_core 悬空 structure_damage_percent 词条）
+	if player and "structure_damage_mult" in player:
+		dmg *= float(player.structure_damage_mult)
 	proj.initialize({
 		"speed": 400.0,
 		"damage": dmg,
