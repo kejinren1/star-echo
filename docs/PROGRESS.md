@@ -2006,3 +2006,138 @@
 - **状态终局**：执行者故障解除，Day 18-19 挂账降级 🟠，下一窗口裁决开工；项目整体维持 ≈65.7%；T-D 时限 08-08 为次级硬约束
 
 *本日报由自动化 #1 生成 · 仅分析、记录与任务调度，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
+
+---
+
+## 2026-08-07 16:1x · Day 20 / 阶段 C（Day 18-19 收口确认 + Day 20 前置预警轮）
+
+**目标开发日：Day 20（遗物系统 + 阶段 C 回归）** ｜ 规划窗口 Day 1 (2026-08-05) → Day 30 (2026-09-03)
+**总体健康度：🟢 阶段 C 临近收口（Day 18-19 已收口，Day 20 待开工）** ｜ 基线状态：**BASELINE CLEAN**（本轮 16:1x 实跑）
+
+### 一、进度总览
+
+| 指标 | 数值 | 说明 |
+|---|---|---|
+| 整体进度 | **≈72.3%**（Day 等效 21.7/30） | 本轮 +2.0（Day 18-19 收口） |
+| 目标开发日 | **Day 20（遗物系统）** | Day 18-19 已收口（`2d8bdd2` + TASKS 头部 ✅） |
+| 阶段完成度 | A **100%** / B **100%** / C **85.7%（6/7）** / D 0%（有预交付）/ E 0% | Day 14-19 全收口，剩 Day 20 遗物 |
+| 进度差 | **超前 ≈ +18.7 个开发日**（日历 Day 3/30） | 拆解管线超前 4+ 日，无追赶压力 |
+| 滞后风险 | Day 20 零开工（拆解就绪零拍板依赖）；T-D 时限 08-08 🟠 | 见四/五 |
+
+### 二、本轮关键动态（🔴 挂账解除 + 目标日推进）
+
+1. **🟢 Day 18-19 正式收口（跨 8 轮挂账彻底解除）**：git 实证 `d3b95a0`（批次 A：enemy_projectile.gd 敌人弹幕 + `_parse_attack` 8 型纯函数）→ `afe5ef7`（批次 B：phases 状态机 + attacks 执行器 summon/spread/barrage/aoe/charge）→ `740cb9e`（批次 C：GameManager Boss 接入 boss_killed/boss_defeated + 探针 day18_19_boss_check **48/48 五段** + 回归 **15/15** + baseline CLEAN + verify 36/36 + day14_15 探针 FIXED_ROUTE const→var 同步）→ `2d8bdd2`（docs 收口记录）——第 25 轮确诊「SOLUTION_PLAN.md 缺失结构性空转」修复后，执行者按方案师批次 A/B/C 全量落地，**D18-19 挂账 🔴🔴 解除**。
+2. **🟢 阶段 C 第五节完成**：Boss 多阶段（phases 状态机 + 阶段横幅 + scale×2 视觉过渡 + die 击杀登记），**终局 Boss = invoker（wave 10，2 阶段）**锚点一致未回改。
+3. **🟢 T-C 炮台生命周期视觉提示落地**：`c470761`（turret.gd 非 permanent 底部 20×2px 进度条 + 最后 3s 红闪警示，真人「没看到实际效果」反馈闭环）+ 反馈专员增量 #31 佐证。
+4. **🟢 R10 变体解除**：TEST_REPORT.md 已随 `8c54efb` 入库（git 实测 docs/TEST_REPORT.md 零未提交改动，挂账第 8 轮关闭）。
+
+### 三、磁盘实测（Day 20 零开工，拆解就绪）
+
+| 检查项 | 实测 | 结论 |
+|---|---|---|
+| `data/items.json` broken_crown / mech_engine | **均不存在**（仅 resonant_shard ×1 + structure_damage_percent ×2 悬空词条） | D20-T1 未启动 |
+| `scripts/` damage_taken_percent / structure_damage_percent 消费 | **0** | D20-T2 未启动 |
+| `tools/day20_relic_check.gd` | **不存在** | D20-T6 未启动 |
+| `assets/sprites/skills/` + `tools/gen_skill_icons.py` | **均不存在** | D20-T7（T-D）未启动 |
+| `docs/REPORT_PHASE_C.md` | **不存在** | D20-EXIT 未启动 |
+| HEAD / 工作区 | `2d8bdd2` + 残留（_repro_tmp.gd/.tscn + probe_logs 7 日志） | 正式产物干净，残留建议清理/.gitignore |
+
+> **判断**：Day 20 拆解已函数级就绪（D20-PRE 11 条 + T1~T8 + EXIT，零拍板依赖），执行者恢复后流水线通畅（Day 18-19 先例 15:5x 收口）→ **17:35 执行窗口为 Day 20 开工裁决点**；基于近三轮收口节奏，预计 18:2x 轮可见首提交（D20-T1/T2 先行）。
+
+### 四、W1–W5 角色状态
+
+| 角色 | 文件域 | 状态 | 说明 |
+|---|---|---|---|
+| **W1** godot-dev | `scripts/` `scenes/` | 🟢 恢复产出 | Day 18-19 批次 A/B/C 全落地；下一窗口 Day 20 T2/T3/T4/T6/T8 |
+| **W2** GameDesigner | `data/*.json` | 🟢 正常 | D20-T1 遗物数据待执行（broken_crown / mech_engine，items 49→51） |
+| **W3** pixel-artist | `assets/sprites/` | 🟢 产能健康 | **D20-T5/T7 待启动**：遗物图标 2 帧 + T-D 技能图标 4 枚（时限 08-08） |
+| **W4** NarrativeDesigner | 叙事 doc | ⚪ 空闲 | LORE.md 已预交付在盘 |
+| **W5** QA | 只读 + TEST_REPORT.md | 🟢 正常 | 十五件套 381 断言全绿维持；TEST_REPORT 已入库（R10 变体解除） |
+
+### 五、风险表（更新）
+
+| 风险 | 级别 | 状态 |
+|---|---|---|
+| **Day 18-19 挂账** | 🔴🔴→🟢 **解除** | 批次 A/B/C 全落地 + 收口提交（`2d8bdd2`）；执行者故障彻底闭环 |
+| **Day 20 开工窗口** | 🟠 新列 | 拆解就绪零依赖，17:35 窗口裁决；近三轮收口节奏乐观 |
+| **T-D 技能图标时限 08-08** | 🟠 维持 | D20-T7/T8 排 Day 20 = 08-08 执行日；W3 域健康可绕过执行者（需 Owner 授权先例） |
+| R10 变体 | 🟡→🟢 **解除** | TEST_REPORT.md 已随 8c54efb 入库；工作区残留仅 _repro_tmp + probe_logs（非正式产物） |
+| R4 攻击力口径 | 🟡 挂账第 24 轮 | 非阻塞；Owner 一句话放行「统一 damage 通道」 |
+| 真人回归八项 | 🟡 挂 #5 | P0 围杀 + P1 四修复 + 阶段 C 三合一完整局 |
+
+### 六、下一步（按优先级）
+
+1. **执行者（17:35 窗口，最高优先级）**：消费 Day 20 拆解 —— D20-T1（W2 数据 items 49→51）→ T2/T3（player/inventory 新键 damage_taken_mult / structure_damage_mult + MAX_RELICS=2）→ T4（商店第三池 53→55 + day13 探针同步）→ T5/T7（W3 图标 2+4 帧）→ T8（SkillSlot 接线）→ T6 探针 → EXIT（回归十五件套→十六件套 + REPORT_PHASE_C.md + 收口 commit）。锚点：池 53→55、frame_count 20→22、items 49→51，勿回改。
+2. **方案师**：Day 20 方案可直接引用 D20-PRE 定案表（11 条已完备），无需重写；后续可预拆 Day 28-30 发布段或待命。
+3. **#5 反馈专员**：追踪区刷新「Day 18-19 收口 + T-C 🟢」；真人回归八项保持挂起。
+4. **Owner**：R4 放行（一句话）；T-D 若执行者 Day 20 拖延可授权 W3 直接产出（保 08-08 时限）。
+5. **收尾**：_repro_tmp.gd/.tscn 清理；probe_logs/ 建议 .gitignore。
+
+### 七、流程记录
+
+- ✅ **收尾复核铁律执行**：git log/status（HEAD `2d8bdd2` + 工作区仅残留临时文件）+ baseline 实跑（16:1x `BASELINE CLEAN`）+ 磁盘实测（Day 20 六查全零 + T-D 资产缺失）+ TASKS 头部核读（Day 18-19 收口 ✅ + Day 20 拆解就绪）
+- 本轮**未改写 TASKS.md**（Day 20 区无重排需求，拆解已就绪；避免与在途 TASKS 冲突）；仅追加 PROGRESS.md 第 28 轮
+- **状态终局**：目标日推进 Day 20（遗物系统 + 阶段 C 回归），零开工待执行者 17:35 窗口；项目整体 ≈72.3%（+2.0）；R10 变体解除；T-D 时限 08-08 次级硬约束
+
+---
+
+# 📋 第 29 轮进度日报（2026-08-07 18:2x · 自动化 #1 · 阶段 C 收口在途复核型）
+
+## 一、进度总览
+
+- **目标开发日：Day 20（遗物系统 + 阶段 C 回归）—— 🟠 在途（核心 6/8 已落地，差 T-D + 报告 + 收口）**
+- **整体进度：≈74.5%**（Day 等效 22.35/30，+0.65）；超前 ≈17.4 开发日（日历 Day 3/30）
+- **阶段完成度**：A 100%（6/6）｜B 100%（7/7）｜C ≈95%（6.65/7，Day 20 在途）｜D ≈8%（0.5/6，预交付折算）｜E 0%（0/4）
+- **基线**：本轮 18:1x 实跑 `BASELINE CLEAN` ✅
+
+## 二、本轮实测（git + 磁盘 · 收尾复核铁律执行）
+
+- **git 实证**：HEAD = `54fd498`（Day20 批次B：商店第三池 53→55 + 遗物图标 22 帧 + 回归同步 3 探针全绿），此前 `494f18e`（批次A：T1 遗物数据 items 49→51 + T2 STAT_MAP 两新键 + T3 MAX_RELICS=2 + turret 消费点）→ **上轮「Day 20 零开工」预判正确：17:35 执行窗口连续产出两批次，执行者健康度彻底恢复**（故障解除后节奏对标 Day 14-17 先例）
+- **T1-T6 磁盘六查全中**：items 51 项 / 2 遗物 slot=relic icon 20/21 price>0 / player.gd STAT_MAP + damage_taken_mult(1.3)·structure_damage_mult(2.0) + take_damage :297 armor 后乘 / inventory MAX_RELICS=2 + get_relic_count / shop 池 55 / items.png 704×32 22 帧
+- **T6 探针亲跑 19/19 CLEAN**（`DAY20 RELIC CHECK CLEAN`，§5 结构伤害 5×1.4=7 命中；WARNING 3 条 = 核心禁键占位登记符合定案）；**probe_logs 旧段「1 项失败」= 已修复历史，当前零失败**
+- **T7/T8 未开工**：`tools/gen_skill_icons.py` 缺失 / `assets/sprites/skills/` 目录缺失 / hud.gd 无 `_apply_skill_icon` → **T-D 技能图标 + SkillSlot 接线零落地**
+- **EXIT 未收口**：`docs/REPORT_PHASE_C.md` 缺失；回归十五件套未完整跑；工作区在途未提交（见下）
+
+## 三、已完成 / 进行中 / 阻塞
+
+| 状态 | 内容 |
+|---|---|
+| ✅ 完成 | Day 20 遗物核心系统全通：T1 数据（broken_crown 双刃剑 / mech_engine）/ T2 新装配键 / T3 遗物上限 2 / T4 商店第三池 / T5 图标 22 帧 / T6 探针 19/19 |
+| 🟠 进行中 | Day 20 收口：**T7/T8（T-D 技能图标 + SkillSlot）未开工** + REPORT_PHASE_C.md 未产出 + 收口 commit 未做 |
+| 🟢 无阻塞 | 执行链无阻塞；R4（🟡 第 25 轮）非阻塞；阶段 D/E 拆解已函数级就绪（D21-22/23/24/26/27） |
+
+## 四、角色状态表
+
+| 角色 | 文件域 | 状态 | 本轮要点 |
+|---|---|---|---|
+| **W1** godot-dev | scripts/scenes | 🟢 正常 | 批次 A/B 两连发；T2/T3/T4/T6 落地；**T8 SkillSlot 接线待启动** |
+| **W2** game-designer | data JSON | 🟢 正常 | T1 遗物数据 51 项 + 回归同步 3 探针全绿 |
+| **W3** pixel-artist | assets/sprites | 🟢 健康 | T5 遗物图标 22 帧已完成；**T7 技能图标 4 枚零开工（08-08 时限盯守）** |
+| **W4** NarrativeDesigner | 叙事 doc | ⚪ 空闲 | LORE.md 已预交付 |
+| **W5** QA | 只读 + TEST_REPORT | 🟢 正常 | 探针 19/19 复验；TEST_REPORT M 在途 |
+
+## 五、风险表（更新）
+
+| 风险 | 级别 | 状态 |
+|---|---|---|
+| **Day 20 收口** | 🟠 新列 | 核心已通仅差 T-D + 报告 + commit；执行节奏已恢复，预计 19:35 窗口或 08-08 收口 |
+| **T-D 技能图标时限 08-08** | 🟠 升警 | **T7/T8 零开工，Day 20 执行日 = 08-08（时限最后一天）**；W3 域健康可绕过执行者（需 Owner 授权先例） |
+| **R10 变体** | 🟡 挂账第 2 轮 | TEST_REPORT.md M 在途（#4 新写入）；probe_logs 11 文件 + relic_frames_check.png 建议 .gitignore（第 12+ 轮） |
+| R4 攻击力口径 | 🟡 挂账第 25 轮 | 非阻塞；REPORT_PHASE_C §4 将登记 |
+| 真人回归八项 | 🟡 挂 #5 | P0 围杀 + P1 四修复 + 阶段 C 三合一完整局 |
+
+## 六、下一步（按优先级）
+
+1. **执行者（最高优先级）**：① **T7/T8（T-D）**——W3 `gen_skill_icons.py` 4 实绘 + `assets/sprites/skills/skills.png`（128×32）+ W1 hud.gd `_apply_skill_icon`（id→帧索引，无图降级零回归）；② **EXIT**——回归十五件套（day18_19 N + day20 19 锚点）+ `REPORT_PHASE_C.md`（§1 七日回顾 / §2 集成结论 / §3 平衡对照 F-01 曲线 + 遗物叠加边界 / §4 遗留 R4+森林深消费+遗物 HUD 槽 P1）+ 收口 commit（勿夹带 probe_logs/、.bak、pixel_to_pindou.py）。锚点：池 55、frame 22、items 51，勿回改。
+2. **方案师**：Day 21-22（美术资产）已预拆就绪可直接引用；待命预拆 Day 28-30 发布段。
+3. **#5 反馈专员**：追踪区刷新「Day 20 遗物核心落地 🟠 待收口」；真人回归八项保持挂起。
+4. **Owner**：R4 放行（一句话）；**T-D 若今日 19:35 窗口仍不产，建议授权 W3 直接产出**（保 08-08 时限最后一天）。
+5. **收尾**：probe_logs/ 建议 .gitignore；_repro_tmp 清理复检。
+
+## 七、流程记录
+
+- ✅ **收尾复核铁律执行**：git log/status（HEAD `54fd498` + 工作区 Day 20 在途）+ baseline 实跑（18:1x `BASELINE CLEAN`）+ 探针亲跑（day20 19/19 CLEAN 双次一致）+ TASKS 头部核读（Day 18-19 收口 ✅ / Day 20 拆解 + SOLUTION_PLAN 已定）
+- 本轮**未改写 TASKS.md**（Day 20 区无重排需求，在途维护归 #3 收口时标记）；仅追加 PROGRESS.md 第 29 轮
+- **状态终局**：目标日 Day 20 在途（核心 6/8 + 探针 CLEAN，差 T-D + 报告 + commit）；整体 ≈74.5%（+0.65）；执行者故障彻底闭环后连续产出 2 批次；T-D 时限 08-08 为下一盯守点
+
+*本日报由自动化 #1 生成 · 仅分析、记录与调度，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*

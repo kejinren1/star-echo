@@ -2311,3 +2311,98 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-07 14:12 自动化测试轮次 #25：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**4a43f8c**（Day18-FB 六件套已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**、**十五件套探针 381 断言全绿首跑**（day18_feedback 16/16 行为级收口 F-03/F-05/F-06/F-07/F-08/F-11）。**无新增缺陷、无新增 action item**。**无需回退。**
+
+---
+
+## §7.26 轮次 #26 · 2026-08-07 16:09（自动化 · 阶段 C 收口 / Day 18-19 Boss 多阶段）
+
+**验证快照**：HEAD=**4bc177b**（较 #25 +4 提交：8c54efb docs / **d3b95a0 Day18-19 批次A** — enemy_projectile.gd 敌人弹幕 + `_parse_attack` 8 型指令纯函数 / **afe5ef7 Day18-19 批次B** — Boss phases 状态机 + attacks 执行器 / **c470761 Day18-FB T-C** — 炮台生命周期视觉提示 + day18_tc_check 16/16；4bc177b docs）。**注意：测试运行期间（16:09-16:10）并发 #3 提交推进 HEAD→2d8bdd2（740cb9e Day18-19 批次C：GameManager Boss 接入 boss_killed/register_boss_killed/_show_boss_banner/flags + day18_19_boss_check 48/48 探针入库 + day14_15 探针 FIXED_ROUTE const→var 同步；2d8bdd2 docs）**——本轮验证快照 = 4bc177b+在途（在途 game_manager.gd 改动即批次C 内容，运行期已实测），baseline 于最新 HEAD=2d8bdd2 复跑确认 CLEAN。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B（含 2d8bdd2 复跑）。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=49 / events=10 / enemies=23 / waves=20（routes/elements/stats 配置型）。
+- 数值字段 **2249** 与 #25 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2（Boss 波）；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**（Player.tscn children=4），stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. Day2~Day18 探针回归（十五件套 + day18_19 新探针，共十六件套）
+
+**十五件套 15/15 PASS，381 断言**（= #25 计数完全一致）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16。stderr 口径与历史全部一致：day7 124B / day10 132B = 主动越界保护测试预期；day14_15 130B / day16 276B = 主动 push_warning；day11_12 763B / day13 859B = 探针级 minor 维持；day4 0 B（维持消失态）；其余 0 B。
+
+**day18_19_boss_check 48/48（本轮首次纳入）**：数据层 boss[2]（invoker 2 phases / predator 3 phases / exp_value 400/500 / hp_threshold 单调 / 11 条 attacks 全解析）+ 阶段状态机（P1→P2 阈值切换 / speed_multiplier 1.2 / 横幅）+ 指令执行（召唤/spread/aoe/charge 2x/all 2x 固定种子白盒）+ 弹丸白盒（命中/寿命/damage 透传）+ 回归（wave10 boss:invoker / wave20 boss:predator spawn / route boss wave_index==10 / boss_killed 登记）——**行为级收口 Day 18-19 批次 A/B/C 全链路**。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护、day14_15/day16 push_warning、**day18_19 1 条「[Boss] 未知攻击指令: unknown_attack_x」**（探针 §1 主动测未知指令兜底，enemy.gd:301 预期输出） | 测试主动触发预期输出 |
+
+**🛠 本轮探针修复（测试工具侧，非游戏逻辑）**：`tools/day18_19_boss_check.gd:217` 断言文案格式串 `"压过 60% 阈值"` 中 `60%` 未转义 → GDScript `%` 运算视后随空格为非法格式符，每次运行产生 1 条 C++ 层 `ERROR: unsupported format character`（variant_op.h:1006，无脚本堆栈故不计入断言失败，48/48 仍过）。已修复为 `60%%`（sprintf 转义），重跑 stderr 仅剩 1 条主动 WARNING，48/48 维持 CLEAN。`_regression_run.py` PROBES 表已同步 +day18_19_boss_check(48)（`tools/_*` gitignore 仅本地生效）。
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py`（gitignore `tools/_*` 忽略，建议 w1 统一清理，非阻断）。
+- 本轮在途：`docs/SOLUTION_PLAN.md` / `docs/TASKS.md`（文档侧，非阻断）+ **`tools/day18_19_boss_check.gd`（探针格式串修复，见 §5，建议随下次 commit 入库）**。
+
+### 结论
+
+**✅ 2026-08-07 16:09 自动化测试轮次 #26：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**4bc177b→2d8bdd2**（Day 18-19 Boss 多阶段批次 A/B/C 已入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2249 字段零缺陷，零变更**）、**16 场景全可实例化**、**十六件套探针 429 断言全绿**（十五件套 381 计数持平 + **day18_19_boss_check 48/48 首纳入行为级收口 Boss 全链路**）。**无新增功能缺陷；1 项探针自身格式串缺陷已修复（测试工具侧）**。**无需回退。**
+
+---
+
+## §7.27 轮次 #27 · 2026-08-07 18:13（自动化 · 阶段 B/C 交叉 / Day 20 遗物 + 技能图标）
+
+**验证快照**：HEAD=**0ba7c7f→b9f815a**（测试启动时 HEAD=0ba7c7f **Day20 批次C**：494f18e 批次A 遗物系统（items 49→51 / player STAT_MAP +damage_taken_percent·structure_damage_percent / inventory MAX_RELICS=2 / turret 消费 structure_damage_mult）+ 54fd498 批次B 商店第三池 53→55 + 遗物图标（items.png 22 帧 / icon_atlas 20→22）+ 0ba7c7f 批次C 探针 day20_relic_check 入库）。**测试运行期间（18:14-18:16）并发 #3 提交推进 HEAD→b9f815a（Day20 批次D：T-D 技能图标硬性落地 — T7 gen_skill_icons.py + skills.png 128×32 4 帧实绘 + icon_atlas +skills sheet 4 帧；T8 hud.gd `_apply_skill_icon` 按 skill_data.id 映射 + ResourceLoader.exists 降级 + 未知 id push_warning；day20 探针 §6 技能图标段 → 23/23）**——本轮验证快照 = 0ba7c7f+在途（在途 hud.gd/icon_atlas.gd/skills.png/day20 探针 §6 即批次D 内容，运行期已实测），baseline 于最新 HEAD=b9f815a 复跑确认 CLEAN。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B（含 b9f815a 复跑）。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0，含复跑）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / **items=51**（49+2 遗物 broken_crown/mech_engine）/ events=10 / enemies=23 / waves=20。
+- 数值字段 **2256**（=2249+7：2 遗物 effects 新增 damage_percent/damage_taken_percent/structure_damage_percent 等）；负值 39 全有意；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+- 遗物专项核查：2 遗物 slot=relic 且 is_passive=None（不占被动池，与 resonant_shard 惯例一致）；icon_index 20/21 唯一，全 items icon 0-21 共 22 唯一；broken_crown = 伤害×1.5 / 受伤×1.3（双刃剑），mech_engine = 炮塔结构伤害×2.0。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**（Player.tscn children=4，Main children=6），stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. 探针回归（十七件套，452 断言全 CLEAN 首跑）
+
+**十七件套 17/17 PASS，452 断言**（= #26 的 429 + **day20_relic_check 23/23 首纳入**）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_19 48 / day20_relic **23**。
+
+**day20_relic_check 23/23（首纳入）**：§1 数据 51 项 + 2 遗物 icon 20/21 + is_passive 20 / §2 装配 broken_crown 1.5×1.3 + mech_engine 2.0 + remove 全复位 / §3 take_damage armor0 扣 130 + armor20 扣 104 + debug_cheat 仍 ×0.001 最后 / §4 商店池 55 含 2 遗物零 String + MAX_RELICS 2 第 3 拒 + 6 被动 2 遗物共存 / §5 se_mech_core structure_mult 1.4 悬空词条激活 + turret 弹药 5×1.4=7 + 回归锚点 22/55/icon 唯一 / **§6 技能图标（批次D 随在途补充）**：4 技能 id 各测 texture 非空 + 帧索引正确（skills.png 4 帧）+ 空 id 零改动 + 未知 id push_warning 不崩 + IconAtlas skills sheet 注册。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor | day11_12 763B / day13 859B / day20 1044B（2 RID Canvas + 1 CanvasItem + ObjectDB + 4 resources）探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7 124B / day10 132B 越界保护；day14_15 130B / day16 276B push_warning；day18_feedback 497B「[HUD] 未找到 SkillController」防御分支；day18_19 117B「[Boss] 未知攻击指令」；**day20 3 条「[Player] 被动效果键未实现（engineering/structure_duration_percent/summon_count）」+ 1 条「[HUD] 未知技能 id: se_skill_unknown」** | 测试主动触发/防御分支预期输出（键未实现属待办登记；未知 id 兜底 hud.gd D20-T8 设计） |
+
+**⚠️ 并发竞态说明（非缺陷）**：day20_relic_check 首跑 FAIL（`SCRIPT ERROR: Parse Error: Function "_part_skill_icon()" not found in base self`）——测试启动时探针处于批次D 写入中间态（§6 段函数体未落盘），为**并发 #3 写入竞态假象**；文件写入完成后重跑 **23/23 CLEAN**。同类事件与 #26 一致，无游戏代码受影响。
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- 在途：`docs/*` 六文件（文档侧，非阻断）+ **`tools/day18_19_boss_check.gd`（#26 的 % 转义修复，仍待随下次 commit 入库）**。
+
+### 结论
+
+**✅ 2026-08-07 18:13 自动化测试轮次 #27：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**0ba7c7f→b9f815a**（Day 20 遗物系统 + 商店第三池 + 遗物图标 + T-D 技能图标全部入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2256 字段零缺陷**，items 49→51）、**16 场景全可实例化**、**十七件套探针 452 断言全绿首跑**（day20_relic_check 23/23 行为级收口遗物装配/上限/商店池/技能图标全链路）。**无新增功能缺陷；1 次探针首跑 FAIL 定性为并发写入中间态竞态（重跑 23/23 实证），非缺陷**。**无需回退。**

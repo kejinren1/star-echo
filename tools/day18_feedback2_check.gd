@@ -15,6 +15,7 @@ extends SceneTree
 
 const HUD_SCENE_PATH: String = "res://scenes/HUD.tscn"
 const ENEMY_SCENE_PATH: String = "res://scenes/Enemy.tscn"
+const SHOP_SCENE_PATH: String = "res://scenes/Shop.tscn"
 
 var _sub: int = 0
 var _ready_mocks: bool = false
@@ -24,6 +25,8 @@ var _world: Node2D = null
 var _enemy_container: Node = null
 var _hud: Node = null
 var _boss_stub: Node = null
+var _shop: Node = null
+var _inv: Node = null
 var _checked: int = 0
 var _failures: int = 0
 
@@ -34,7 +37,7 @@ func _process(_delta: float) -> bool:
 	if not _ready_mocks:
 		_load_mocks()
 		return false
-	if _sub > 20:
+	if _sub > 24:
 		_report()
 		quit(_failures)
 		return true
@@ -69,6 +72,9 @@ func _load_mocks() -> void:
 	# HUD 实例（独立场景，_ready 的延迟连接与 SkillController 告警为主动预期）
 	_hud = load(HUD_SCENE_PATH).instantiate()
 	root.add_child(_hud)
+	# Shop 实例（§5 真实点击购买：_ready 已接 shop_opened 信号）
+	_shop = load(SHOP_SCENE_PATH).instantiate()
+	root.add_child(_shop)
 
 # ========== 断言工具 ==========
 
@@ -110,6 +116,10 @@ func _advance(sub: int) -> int:
 			_part4_economy_buy()
 		8:
 			_part4_economy_insufficient()
+		9:
+			_part5_shop_open()
+		10:
+			_part5_click_purchase()
 	return sub + 1
 
 # ---------- §1 金币数据（23 敌 coin_value 全定义 + 消费键统一） ----------
@@ -226,3 +236,41 @@ func _part4_economy_insufficient() -> void:
 	eco.add_coins(10)
 	_ok(not eco.call("spend_coins", 120), "余额不足 → 拒绝购买（不扣费）")
 	_ok(int(eco.get("coins")) == 10, "拒绝后余额不变 10（实际 %d）" % int(eco.get("coins")))
+
+# ---------- §5 商店真实点击购买（08-07 修复：NinePatchRect 默认 mouse_filter=IGNORE
+#              → 点击穿透全屏 BG「点卡片无反应」；显式 STOP 后真实点击可购买） ----------
+
+func _part5_shop_open() -> void:
+	_gm.get("economy").reset()
+	_gm.get("economy").add_coins(500)
+	_gm.emit_signal("shop_opened")
+	var cards: int = _shop.get("shop_items").size()
+	var container: Node = _shop.get("item_container")
+	_ok(cards >= 1 and container.get_child_count() == cards, "商店打开渲染卡片 %d 张" % cards)
+	if container.get_child_count() >= 1:
+		var card: Control = container.get_child(0)
+		_ok(card.mouse_filter == Control.MOUSE_FILTER_STOP, "卡片 mouse_filter == STOP（实际 %d，修复 08-07 点击穿透）" % card.mouse_filter)
+
+func _part5_click_purchase() -> void:
+	var container: Node = _shop.get("item_container")
+	if container.get_child_count() < 1:
+		_fail("无卡片可点")
+		return
+	var card: Control = container.get_child(0)
+	var center: Vector2 = card.get_global_rect().get_center()
+	var ev := InputEventMouseButton.new()
+	ev.button_index = MOUSE_BUTTON_LEFT
+	ev.pressed = true
+	ev.position = center
+	root.push_input(ev)
+	var ev2 := InputEventMouseButton.new()
+	ev2.button_index = MOUSE_BUTTON_LEFT
+	ev2.pressed = false
+	ev2.position = center
+	root.push_input(ev2)
+	var coins_before: int = int(_gm.get("economy").get("coins"))
+	await process_frame  # GUI 事件一帧内处理
+	var coins_after: int = int(_gm.get("economy").get("coins"))
+	var inv_total: int = _gm.get("inventory").get("weapons").size() + _gm.get("inventory").get("items").size()
+	_ok(coins_after < coins_before, "真实点击购买 → 金币扣减（%d → %d）" % [coins_before, coins_after])
+	_ok(inv_total >= 1, "真实点击购买 → 背包入库（总数 %d）" % inv_total)

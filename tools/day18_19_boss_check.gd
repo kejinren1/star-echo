@@ -214,7 +214,7 @@ func _advance(sub: int) -> int:
 			var hp0: float = float(boss2.get("max_health"))   # wave10: 8000
 			var speed0: float = float(boss2.get("move_speed")) # wave10: 200*1.1*0.5 = 110
 			boss2.call("take_damage", hp0 * 0.41)  # 8000-3280 = 4720 ≤ 4800 → 切 P2
-			_ok(int(boss2.get("_current_phase_idx")) == 1, "状态机: 压过 60% 阈值 → phase 1（实得 %d）" % int(boss2.get("_current_phase_idx")))
+			_ok(int(boss2.get("_current_phase_idx")) == 1, "状态机: 压过 60%% 阈值 → phase 1（实得 %d）" % int(boss2.get("_current_phase_idx")))
 			var timers2: Dictionary = boss2.get("_attack_timers")
 			_ok(timers2.size() == 2 and timers2.has("summon_4_enemies_every_2.5s") and timers2.has("6_projectile_spread"),
 				"状态机: P2 指令键更新（summon_4/6_spread）")

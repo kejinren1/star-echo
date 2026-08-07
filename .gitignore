@@ -34,3 +34,6 @@ tools/tpz_extract/
 
 # Archives / distributable bundles (send via release page or cloud, not git)
 *.zip
+
+# Probe scratch logs (day probes output dir, never commit)
+tools/probe_logs/

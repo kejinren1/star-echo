@@ -160,6 +160,9 @@ func _create_card(item: Resource, index: int) -> Control:
 	panel.patch_margin_bottom = CARD_PATCH_MARGIN
 	panel.custom_minimum_size = Vector2(0, CARD_HEIGHT)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# 08-07 修复：NinePatchRect 默认 mouse_filter=IGNORE（TextureRect 系默认值），
+	# 点击会穿透到全屏 BG 导致「点卡片无反应」——显式 STOP 启用 gui_input 购买
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	# 内部 margin
 	var margin := MarginContainer.new()
