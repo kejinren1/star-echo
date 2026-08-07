@@ -14,11 +14,15 @@ var damage: float = 5.0              ## 单发伤害
 var fire_interval: float = 0.5       ## 开火间隔（= cooldown）
 var attack_range: float = 220.0      ## 射程
 var duration_left: float = 15.0      ## 存活剩余（技能 duration）
+var duration_max: float = 15.0       ## T-C：初始存活时长（生命周期进度条比例基准）
 var permanent: bool = false          ## D13-T3：常驻模式（duration <= 0，不消亡）
 
 var player: Node2D = null            ## 施法玩家（读 damage_multiplier）
 
 var _cd: float = 0.0                 ## 开火冷却计时
+var _life_bg: Polygon2D = null       ## T-C：生命周期进度条背景（仅临时炮台）
+var _life_fg: Polygon2D = null       ## T-C：生命周期进度条前景（剩余比例宽度）
+var _warn_timer: float = 0.0         ## T-C：最后 3 秒闪烁计时
 
 # ========== 初始化 ==========
 
@@ -32,6 +36,7 @@ func setup(weapon_data: Dictionary, duration: float, owner_player: Node2D) -> vo
 	permanent = duration <= 0.0
 	if not permanent:
 		duration_left = maxf(duration, 0.1)
+		duration_max = duration_left
 	player = owner_player
 	_draw_placeholder()
 
@@ -45,6 +50,18 @@ func _draw_placeholder() -> void:
 	barrel.polygon = PackedVector2Array([Vector2(0, -4), Vector2(14, -2), Vector2(14, 2), Vector2(0, 4)])
 	barrel.color = Color(0.85, 0.92, 1.0, 1.0)
 	add_child(barrel)
+	# T-C（用户反馈 2026-08-06）：生命周期视觉提示——底部 20×2px 进度条
+	# （临时炮台到点即消失，此前无任何视觉信号 → 真人「没看到实际效果」）
+	# 常驻模式（permanent）永不消亡，不显示进度条
+	if not permanent:
+		_life_bg = Polygon2D.new()
+		_life_bg.polygon = PackedVector2Array([Vector2(-10, 11), Vector2(10, 11), Vector2(10, 13), Vector2(-10, 13)])
+		_life_bg.color = Color(0.08, 0.08, 0.1, 0.65)
+		add_child(_life_bg)
+		_life_fg = Polygon2D.new()
+		_life_fg.polygon = PackedVector2Array([Vector2(-10, 11), Vector2(10, 11), Vector2(10, 13), Vector2(-10, 13)])
+		_life_fg.color = Color(0.35, 0.95, 0.6, 0.95)
+		add_child(_life_fg)
 
 # ========== 行为 ==========
 
@@ -53,6 +70,7 @@ func _process(delta: float) -> void:
 	# D13-T3：常驻模式跳过时长递减与消亡分支（se_turret_array 进化后炮台不消失）
 	if not permanent:
 		duration_left -= delta
+		_update_life_bar(delta)
 		if duration_left <= 0.0:
 			queue_free()
 			return
@@ -99,6 +117,26 @@ func _fire(target: Node2D) -> void:
 	container.add_child(proj)
 	proj.global_position = global_position
 	proj.set_direction(global_position.direction_to(target.global_position))
+
+## T-C（用户反馈 2026-08-06）：更新生命周期进度条——前景宽度 = 剩余比例；
+## 最后 3 秒前景变红 + 闪烁（感知「即将消失」，防突然消失无提示）
+func _update_life_bar(delta: float) -> void:
+	if _life_fg == null:
+		return
+	var ratio: float = clampf(duration_left / duration_max, 0.0, 1.0)
+	var warn: bool = duration_left <= 3.0
+	if warn:
+		_warn_timer += delta
+		var blink_on: bool = int(_warn_timer * 6.0) % 2 == 0
+		_life_fg.color = Color(0.95, 0.3, 0.3, 0.95 if blink_on else 0.35)
+	else:
+		_life_fg.color = Color(0.35, 0.95, 0.6, 0.95)
+	_life_fg.polygon = PackedVector2Array([
+		Vector2(-10, 11),
+		Vector2(-10 + 20.0 * ratio, 11),
+		Vector2(-10 + 20.0 * ratio, 13),
+		Vector2(-10, 13),
+	])
 
 ## 弹丸容器：World/Projectiles 优先，回退 World（复用 WeaponController._find_container 策略）
 func _find_container() -> Node2D:
