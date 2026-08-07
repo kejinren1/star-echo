@@ -12,10 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #30（08-08 00:18）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无需回退
-- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · 2279 字段零缺陷 ｜ 场景 16/16 全可实例化
-- **探针回归**：二十一件套 21/21 · **568 断言全绿**（day23_vfx 18/18 + day10 F-20 保底 21/21 首实证）
-- **在途 action item**：无（#29 H-01 已随 1c9d44b 入库；工作区仅 docs/* 在途交 #2 入库）
+- **最近轮次 #31（08-08 02:16）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无需回退
+- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · 2291 字段零缺陷（items 51→54）｜ 场景 16/16 全可实例化
+- **探针回归**：二十三件套 23/23 · **609 断言全绿**（day24_f13 17/17 + day24_audio 14/14 首纳入；#26 `%` 转义关闭确认）
+- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程（bgm_menu.wav）已入 baseline BENIGN 白名单，真机正常，非缺陷
+- **在途 action item**：无（工作区仅 docs/* 5 文件在途，交 #2 拆解岗入库）
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -2561,3 +2562,56 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-08 00:18 自动化测试轮次 #30：PASS（0 阻断 / 0 功能缺陷，1 探针级 minor 新增已定性，无新增 action item）。** HEAD=**35ff6ac**（Day 23 占位特效 + F-20 进化保底 + H-01 全部入库，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2279 字段零缺陷**）、**16 场景全可实例化**、**二十一件套探针 568 断言全绿且首跑**（day23_vfx 18/18 首纳入收口 Day 23 占位特效机制验证版；day10 21/21 实证 F-20 进化保底方案A）。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.31 轮次 #31 · 2026-08-08 02:16（自动化 · Day 24 音频 + F-13 收口入库）
+
+> 快照：HEAD=**135be10**（较 #30 +8 提交：7d3264a Day24-F13-2 机制消费点 / 454e30f F13-4 回归同步 + **day24_f13_check 17/17** / 5e90064 Day24-T1 **gen_audio.py 12 WAV** / c4552db T2-T4 **audio_manager.gd 第 3 Autoload** + project.godot 注册 / 3128840 T3 SFX 消费点 10 处 / b45d84e T5/EXIT **day24_audio_check 14/14** + 回归同步 / e748d8e **Day24 收口** / 135be10 反馈专员 #40 状态刷新）。**工作区在途仅 docs/* 5 文件**（DAY_ROLE_ASSIGNMENTS / PLAYTEST_CHECKLIST / PROGRESS / SOLUTION_PLAN / TASKS），**无游戏代码改动** → 验证快照 = HEAD 干净。
+
+### 1. 基线
+
+- `python tools/baseline_check.py`：**PASS**（import + runtime `--quit-after 4` 均 exit 0）。`baseline_*_err.log` 实测各 242 B（ObjectDB leaked + 1 resources still in use）——**Day 24 已在 baseline_check.py 将音频退出泄漏纳入 BENIGN 白名单**（含作者注释：headless Dummy audio driver 下 `AudioStreamPlayer.play()` 的 AudioStreamPlaybackWAV 退出时序问题，真机正常），过滤后 0 显著行 → "stderr clean" 判定正确。
+
+### 2. 深度运行（600 帧）
+
+- `--quit-after 600`：EXIT 0，`deep_runtime_err.log` **242 B** = 同源良性音频退出泄漏（verbose 定位：`Leaked instance: AudioStreamPlaybackWAV` + `res://assets/audio/bgm/bgm_menu.wav (AudioStreamWAV)`，1 resources still in use）。运行期无 ERROR、功能正常。
+
+### 3. 数据层（qa_validate.py 固化工具）
+
+- **JSON 9/9 解析 OK**：chars 10 / weapons 36 / **items 51→54**（Day 24 F-13 三机制被动入库）/ events 10 / enemies 23 / waves 20。
+- **数值字段 2291**（= #30 的 2279 + 12：3 新被动 effects）；39 负值全有意（惩罚/诅咒）、0 非豁免零伤害（force_field 按武器 id 豁免）、哨兵 -1×2（waves[9]/[19]）、crit 双口径越界 0。
+- 跨引用 **0 硬悬空**（chars→weapons 10/10；waves 前缀感知 0 悬空，mixed* 令牌放行）→ **DATA LAYER CLEAN**。
+
+### 4. 场景 smoke（16/16）
+
+- 16 场景全 load+instantiate（Player children=4 与历史一致），stderr 242 B 良性音频泄漏，exit 0。临时 `_smoke_tmp.gd/.tscn` 已 Python `os.remove()` 清理无残留。
+
+### 5. 探针回归（二十三件套，609 断言全 CLEAN 首跑）
+
+**二十三件套 23/23 PASS，609 断言**（= #30 的 568 + **day24_f13 17** + **day24_audio 14** 首纳入；28s）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 21 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 **42** / day18_feedback3 27 / day18_19 48 / day20_relic 23 / day21_22 38 / day23_vfx 18 / **day24_f13 17** / **day24_audio 14**。全部首跑 PASS。
+
+- **day24_f13_check 17/17（首纳入，F-13 三机制被动收口）**：on_crit 连锁（projectile `_trigger_on_crit_chain` 80px×0.3）/ on_kill 回血 / low_health 乘算开关（`_update_last_stand`）+ 回归锚点（items.png 800×32=25 帧、icon_atlas 25）。
+- **day24_audio_check 14/14（首纳入，音频体系收口）**：12 WAV 路径与 SFX_MAP/BGM_MAP 磁盘交叉验证一致 + 未知 BGM/SFX 兜底 + 回归抽样（day2/day17 探针 load）。
+- **day18_feedback2 实际 42**（历史记忆 32 系探针扩展前旧值，runner expect 42 匹配，无异常）。
+- **#26 遗留 action item 关闭确认**：day18_19_boss_check.gd:217 `60%%` 转义已随 Day 24 提交入库（本轮 grep 实证），无 `unsupported format character` ERROR。
+
+### 6. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| 良性（新增，全进程） | **退出泄漏 242 B/进程**（ObjectDB leaked + 1 resources still in use = `bgm_menu.wav` AudioStreamPlaybackWAV）——Day 24 音频 Autoload 引入，600 帧/smoke/全部探针进程统一出现；**baseline_check.py BENIGN 白名单已含作者注释定性**（headless Dummy audio driver 时序问题，真机正常） | 已知良性，非缺陷 |
+| minor（新增） | **day24_f13 859B**：2 RID Body2D + Canvas + 13 CanvasItem + DummyTexture + ShapedText + Font + ObjectDB + 9 resources（探针自身未完全 free） | 探针自身，非游戏缺陷 |
+| minor（维持） | day11_12 763B / day13 860B / day18_feedback 497B / day18_feedback2 571B / day18_feedback3 362B / day20 1044B / day21_22 564B / **day23 496B**（380→496 微增：Day 24 锚点同步后探针泄漏结构微变，同类 minor） | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7 124B / day10 132B 越界保护；day14_15 130B / day16 276B push_warning；day18_19 117B「[Boss] 未知攻击指令」；day20 3 条被动键未实现 + 1 条 HUD 未知技能 id；**day24_audio 214B = 2 条「[AudioManager] 未知 BGM 轨/SFX: nope」（兜底测试预期输出，且探针自身无泄漏）** | 测试主动触发/防御分支预期输出 |
+
+### 7. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **观察项（非阻断）**：音频退出泄漏虽已白名单定性良性，但 Day 26 整合校验时建议在**真机（真实音频驱动）**确认 BGM/SFX 播放后退出无告警（headless 下无法完全模拟）。
+- **无新增 action item**；工作区在途仅 docs/* 5 文件（反馈专员 #40 挂账，交 #2 拆解岗统一入库）。
+
+### 结论
+
+**✅ 2026-08-08 02:16 自动化测试轮次 #31：PASS（0 阻断 / 0 功能缺陷，2 探针级 minor 新增已定性，无新增 action item）。** HEAD=**135be10**（Day 24 音频 + F-13 全部入库，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2291 字段零缺陷，items 51→54**）、**16 场景全可实例化**、**二十三件套探针 609 断言全绿且首跑**（day24_f13 17/17 + day24_audio 14/14 首纳入收口 Day 24 音频与 F-13 三机制被动；#26 `%` 转义遗留关闭确认）。唯一全进程新增项为 Day 24 音频 headless 退出泄漏，**已由作者白名单注释定性良性**。**无新增功能缺陷、无需回退。**

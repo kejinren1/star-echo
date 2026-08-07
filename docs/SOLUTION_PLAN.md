@@ -1,151 +1,116 @@
-# 方案计划（2026-08-07 · 第 6 轮）
+# 方案计划（2026-08-08 · 第 7 轮）
 
-## 当前开发日：Day 24（音频接入 + P0·用户拍板 F-13 机制型被动）
+## 当前开发日：Day 26（整合校验 · 阶段 D 收口日 · 纯校验零新功能）
 
-### 0) P0 调度硬性输入检查（读 PLAYTEST_CHECKLIST 追踪区头部）
+### 0) P0 调度硬性输入检查（读 PLAYTEST_CHECKLIST 追踪区头部 · 本轮实测 01:50）
 
-- 🚨 **F-13 机制型被动（用户拍板「尽快落地方案」· 硬性调度指令）**：PLAYTEST 追踪区增量 #36（22:2x · 反馈专员执行 · 真人 8 条回执）——H-03「被动全是基础数值增加，没感觉到被动」→ 缺「质变型/机制型」词条 → 用户拍板「尽快落地方案」→ #2 第 30 轮（22:5x）已拆入 **Day 24 首段（D24-F13-1~4，显式标注 P0）**。**本轮方案必须纳入**。
-- 🚨 **美术资源策略（2026-08-07 21:1x 拍板 · 硬性）**：不再生成美术资源；缺口一律占位纯色图（豁免 ART_STYLE 色号编码）→ **F-13 图标 3 帧按占位色块口径（D22/D23 先例）**；音频不涉图。
-- 其余 P0 四件套（F-01/F-02/F-04/F-15）+ P1 四修复 + 反馈专员六件套 + T-C + T-D + F-19 升级冲击波全部机器侧闭环 → **无其他新机器可验证 P0 需纳入本轮**（#2 第 30 轮已确认同口径）。
+- ✅ **增量 #41（01:5x · #5 标记岗）**：TEST_REPORT #30 = Day 23 占位特效 + F-20 进化保底 + H-01 升级冲击波正式覆盖（二十一件套 568 断言）；**Day 24 已收口（`e748d8e` @ 00:43 = TASKS Day24 区 47 处 [x]）**，实现链 7 提交齐全（gen_audio 12 WAV / audio_manager 第 3 Autoload / SFX 10 消费点 / day24_audio 14/14 / F-13 三机制 / day24_f13 17/17）。F-13 / T-D / F-20 / F-21 行全部 🟢 已落地 · 待真人回归（主观项）。
+- 🚨 **美术资源策略（2026-08-07 21:1x 拍板 · 硬性）**：不再生成美术资源；缺口一律占位纯色图；**D26 整合校验主观项（视觉/听觉观感）全部交 #5，不阻塞出口**。
+- **P0 检查结论：无新机器可验证 P0 需纳入本轮**（P0 四件套 + P1 四修复 + 反馈专员六件套 + T-C/T-D/F-13/F-19/F-20/F-21 全部闭环或已落地，剩余动作 = 真人回归主观项）。本轮为阶段 D 收口校验，无功能开发。
 
-### 目标日客观状态（本轮实测 23:50）
+### 目标日客观状态（本轮实测 01:50）
 
-- git HEAD = `f5cd533`（Day 23 占位特效收口：22 件套 **508 断言** + baseline CLEAN）；工作区在途仅 6 docs（30DAY_PLAN / DAY_ROLE_ASSIGNMENTS / PLAYTEST_CHECKLIST / PROGRESS / TASKS / TEST_REPORT）**零游戏代码改动** → **#3 23:35 窗口尚未启动 Day 24 实现**（磁盘实测：`assets/audio/bgm/`+`sfx/` 目录在盘零文件 / `scripts/autoload/` 仅 data_loader·game_manager·main 三件、audio_manager.gd 未建 / `tools/day24*` 零文件 / items.json **51 项·20 被动·零 trigger 字段** / F-13 与音频线全 [ ]）。
-- 回归基准：22 件套 **508 断言**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 27 / day18_19 48 / day20 23 / day21_22 38 / day23 18 / = 508 口径含 fb2/fb3）→ **Day 24 落地后 = 24 件套 ≥534 断言**（508 + day24_audio ≥14 + day24_f13 ≥12）。
-- Day 24 拆解状态：#2 第 21 轮（05:1x）音频线 T1~T5 + EXIT 函数级预拆 + #2 第 30 轮（22:5x）F-13 首段 D24-F13-1~4 → **全 [ ] 就绪，无需重拆**；#3 直接执行。
+- git HEAD = `135be10`（反馈专员 #40 docs @ 01:0x）；Day 24 收口提交 `e748d8e` 在链。工作区在途仅 3 docs M（DAY_ROLE_ASSIGNMENTS / PLAYTEST_CHECKLIST / TASKS）**零游戏代码改动**。
+- **D26 区任务状态**：T1~T3 + EXIT 全 [ ]，函数级预拆就绪（#2 第 22 轮 07:1x + 第 31 轮 00:5x 更新），**#3 下一窗口 03:35 可直接执行，无需重拆**。
+- **阶段 D 前序日全部收口**：D21-22 美术 `c091b73` / D23 特效 `f5cd533` / D24 音频+F-13 `e748d8e` / D25 剧情（LORE.md 14075B 在盘预交付，剩接线归 Day 27）→ **探针降级口径不再触发，§1~§4 全量断言**。
+- 回归基准：24 件套 **609 断言**（day24 收口实际值；含 day24_f13 17 + day24_audio 14）→ Day 26 落地后 = **25 件套 ≥629 断言**（+day26_integration ≥20，以探针实际输出为准）。
 
-### 新增设计决策（本轮方案师定案；D1-D9 D18-19 / D10-D15 D20 / D16-D20 D21-22 / D21-D25 D23 均为历史，已收口）
+### 本轮实测锚点（供 #3 免排查 · 2026-08-08 01:50 磁盘实测）
+
+| 项 | 现行位置 | 说明 |
+|---|---|---|
+| enemy.gd SPRITE_MAP | `scripts/enemy/enemy.gd` :76 起 | **23 键**（chaser→predator 实测，含 invoker/predator；FALLBACK :101-104） |
+| enemy.gd is_boss | :56 | Boss 判定字段 |
+| **Boss scale 复位锚点** | **enemy.gd :872** `scale = Vector2(1.0, 1.0)` | D21-22 复位（D17 决策）；day18_19 探针 :194 断言同步 1.0 |
+| vfx_player.gd FX_CONFIG | `scripts/effects/vfx_player.gd` :17-33 | **10 键**（hit/crit/death/levelup/pickup + fireball/turret_deploy/blade_burst/meteor/shield）；set_effect :36-54 判空守卫 :42-43 |
+| 5 新特效 PNG | `assets/sprites/effects/fx_{fireball,turret_deploy,blade_burst,meteor,shield}.png` | 实测全在盘 ✅（+ .import 齐全，effects 目录 .import 共 12 个 = 10 特效 +2） |
+| audio_manager.gd | `scripts/autoload/audio_manager.gd` | BGM_MAP :8 / **SFX_MAP :12（10 键）** / `_poll_bgm` 状态机 :85-89（判空 :86-87）/ play_bgm :108 / play_sfx :134 |
+| project.godot autoload | :19-23 | GameManager :21 / DataLoader :22 / **AudioManager :23** |
+| 12 WAV | `assets/audio/bgm/`（2）+ `assets/audio/sfx/`（10） | 实测全在盘 ✅ |
+| weapons.json | `data/weapons.json` | **⚠️ 分类嵌套结构**：`weapons` = {melee:9, ranged:9, elemental:10, engineering:8} **共 36 把**——**勿写扁平 len()==36 断言**，须分类累加或递归统计 |
+| items.json | `data/items.json` | **54 项**（顶层 `{"items":[...]}`） |
+| events.json | `data/events.json` | **10 事件**（顶层 `{"events":[...]}`） |
+| LORE.md | `docs/LORE.md` | 14075B 在盘 ✅ |
+| REPORT_PHASE_C.md | `docs/REPORT_PHASE_C.md` | 5237B 在盘（阶段报告先例）✅；**REPORT_PHASE_D.md 未建（待产）** |
+| day26_integration_check.gd | `tools/` | **未建（待 T1 新建）** |
+
+### 新增设计决策（本轮方案师定案；D1-D34 为历史各轮决策，已收口）
 
 | # | 决策 | 依据 |
 |---|---|---|
-| **D26（执行序）** | **两线并行：F-13 线（P0 优先）→ 音频线（T1~T5）→ 统一 EXIT**。F-13 内序 = F-13-1（数据）→ F-13-3（图标，与 -1 无依赖可交叉）→ F-13-2（机制消费，依赖数据）→ F-13-4（回归同步 + 探针）；音频线 T1（合成资源）→ T2（AudioManager 本体）→ T3（SFX 消费点）→ T4（Autoload 注册）→ T5（探针）。**两线各自完成后可分别 commit，EXIT 统一收口**（#2 第 30 轮建议口径 + 第 2 轮「收口 commit 显式 add」教训） | F-13 为 P0 硬性输入优先；两线文件域零重叠（F-13: items.json/icon_atlas/3 探针/player/projectile/main vs 音频: audio_manager/12 WAV/project.godot/10 消费点） |
-| **D27** | **on_crit 触发语义 = 每次「暴击命中」触发一次连锁，不额外防重**（线弹一次命中一次；AOE 一次命中 N 敌暴击 → 最多 N 次连锁，接受）。理由：暴击本身低频（crit_chance clamp 0~0.9、多数武器 0.05-0.15），连锁伤害 ×0.3 为边际收益，多目标暴击触发 2-3 次连锁强度可接受；探针只验单次行为级不验次数上限 | #2 拆解字面语义「暴击命中时对目标周围 80px 敌人造成该次暴击伤害 ×30%」；防过度设计（D23 教训：接入点越小回归面越小） |
-| **D28** | **on_crit AOE 实现 = F-19 升级冲击波容器遍历范式**（`GameManager.enemies_container.get_children()` + is_alive 守卫 + has_method("take_damage") + 距离判断，**禁物理查询**）：半径 80px、连锁伤害 = 该次暴击 final_damage × 0.3、连锁命中 is_crit=false（不再二次暴击）。新私有方法 `_trigger_on_crit_chain(target_pos: Vector2, crit_damage: float)`，`GameManager.inventory.has_item_id("overload_capacitor")` 短路（inventory 权威访问 = `GameManager.inventory`，game_manager.gd :65） | F-19 先例 player.gd:441-454 实测；D24-F13-2 拆解「F-19 容器遍历范式」 |
-| **D29** | **low_health 用乘算开/关 + 逆运算回滚**（TASKS 口径）：`_last_stand_active: bool` 状态 + `_update_last_stand()` 统一入口（take_damage 尾部 + heal 后调用）；开 = `apply_stat_modifier("damage", 1.5, true)` + `("attack_speed", 1.2, true)`；关 = `("damage", 1.0/1.5, true)` + `("attack_speed", 1.0/1.2, true)`；**状态变化才切换一次防每帧重复应用**。⚠️ 边缘风险标注：开启期间若发生其它乘算 buff 变更（遗物装配/升级），关闭逆运算可能引入 ±小偏差——低血状态通常数秒即回血解除，期间装配/升级概率极低，可接受；探针只验单开/关闭环 | #2 第 30 轮拆解原文；apply_stat_modifier 乘算通道实测（player.gd :480-499 支持 damage/attack_speed 乘算） |
-| **D30** | **crit 音收敛 2 处防双发**：① projectile.gd `_do_explosion` VFX 分派后统一播 `play_sfx("crit")`（爆炸音，陨石/火球/普爆共用）② enemy.gd :507（敌受暴击 crit VFX 旁，含 Boss AOE 路径 :729 按实现收敛取一或两处）——SFX 池 ×4 轮询天然防叠 | TASKS 拆解「三处按实现收敛，重复播放池轮询天然防叠」；**enemy.gd crit 现行行号 :507/:729（非拆解旧值 :393/:410，D23 后已漂移）** |
-| **D31** | **AudioManager 判空/缺失双护栏**：`get_node_or_null("/root/GameManager")` 判空（纯单测场景跳过）；12 WAV `load()` 失败 push_warning + 跳过零崩溃（D23 set_effect :42 判空守卫同范式） | #2 第 21 轮拆解；headless Dummy audio driver 实测零崩溃 |
-| **D32** | **回归同步面实测 = 6 文件 8 处（比拆解「4 处」多，全部列出防漏）**：① `scripts/utils/icon_atlas.gd` items frame_count 22→25 ② `tools/gen_item_icons.py` FRAMES 22→25 + 3 个 ic_ 函数 + 宽 704→800 ③ `day11_12_passive_check.gd` **4 处**（:351 池 55→58 / :370 被动 Item 数 22→25 / :479 frame_count 22→25 / :501 帧遍历 22→25 + :17 头注释同步）④ `day13_build_check.gd` :200 池 55→58（:198/:218 注释同步）⑤ `day16_event_check.gd` :414 池 55→58（:408 注释）⑥ `day20_relic_check.gd` :254/:373 池 55→58（:252/:365 注释）——**漏改必红**（D20 教训） | 本轮全量 grep 实测；TASKS D24-F13-4 只列 4 处（day11_12 计 1 处），实测 day11_12 内部 4 处独立断言 |
-| **D33** | **两探针独立职责不混杂**：`day24_f13_check.gd`（≥12 断言四段：数据/on_crit/on_kill+low_health/回归抽样）+ `day24_audio_check.gd`（≥14 断言五段：资源/配置/状态机/播放/回归）——各自 CLEAN 后统一 EXIT | #2 拆解「独立探针防职责混杂」 |
-| **D34** | **W5 主观隔离**：音频氛围感/音量平衡（程序合成占位，归 Day 26 人工）、机制型被动手感/强度体感 → PLAYTEST #5，不阻塞出口；F-13 词条数量级（3 个为最小质变验证集） | 主观验收隔离铁律；#2 拆解 W5 口径 |
+| **D35（探针降级已解除）** | **前序日 D21-22/23/24 全部收口 → §1~§4 资产断言全量正常执行，不触发「push_warning + 跳过」降级**；但保留「顺延项存在则验、缺失登记不判失败」原则（D26-T2 抽查项 / D26-T3 顺延项汇总） | #2 第 31 轮（00:5x）明确「降级口径不再触发」；TASKS D26 区 :2091 |
+| **D36（weapons 统计口径）** | **weapons.json 断言须按分类嵌套累加**：`weapons: {melee:9, ranged:9, elemental:10, engineering:8} 合计 36`——禁止 `len(weapons_json["weapons"]) == 36`（会得 4，dict 键数）；GDScript 侧 `for cat in data["weapons"]: total += data["weapons"][cat].size()` | 本轮实测 weapons.json 顶层是 4 分类 dict；TASKS D26-T3 交叉引用「weapons.json 36 把」 |
+| **D37（探针纯只读）** | **day26_integration_check.gd 为纯只读校验**：ResourceLoader.exists / FileAccess 读 WAV 头 / JSON 解析 / 白盒调用只读方法——**零资产写入、零数据修改、零场景实例化副作用**（探针自身崩溃/挂起 = 自身缺陷，不得阻塞 EXIT，参照 D7 探针降级口径） | Day 26 纯校验日定位；探针自身缺陷先例（D19 格式串 / D21 fb3 死循环） |
+| **D38（执行序）** | **T1（探针五段）→ T2（接线抽查）→ T3（收口清单核对）→ EXIT（回归 + REPORT_PHASE_D + commit）**——探针日无跨任务依赖交叉，文件域均 `tools/` + docs，**可单 commit 收口**；REPORT_PHASE_D 由 #3 产出（W5 域，仿 A/B/C 先例） | #2 第 22 轮拆解；D26-T1/T2/T3/EXIT 全 [ ] 就绪 |
+| **D39（行号漂移防护）** | 探针内部**锚定语义而非行号**：Boss scale 断言用 `enemy.is_boss and scale == Vector2(1,1)`（白盒实例化敌方后读属性，勿依赖 :872 行号）；AudioManager 状态机白盒用 `get_node_or_null` 判空后调 `_poll_bgm()` 读 current_bgm；VfxPlayer 消费点用 `get_children()` 记录 spawn 计数 | Day 24 收口后各文件行号已再漂移（D23→D24 期间 shop/enemy 行号实测 +N 处）；探针语义断言防回归脆弱 |
+| **D40（W5 主观移交）** | 主观项（精灵风格/动画流畅度/Boss 辨识度/VFX 观感/BGM-SFX 氛围/音量平衡/整合整体观感）**全量移交 #5 → PLAYTEST_CHECKLIST**，REPORT_PHASE_D 列出清单，**不阻塞阶段 D 收口出口** | 主观验收隔离铁律；TASKS D26-EXIT「主观项汇总 → PLAYTEST」 |
+| **D41（commit 护栏）** | EXIT commit **勿夹带** `docs/pindou/`、`scripts/ui/*.bak`、`tools/pixel_to_pindou.py`、`docs/LOOP_HEALTH.md`；先 `git status` 检视再 `git add` 白名单 | TASKS D26-EXIT 既有护栏；Program Files 下 git 写 refs 间歇失败先例（勿 push -u，正常 commit 即可） |
 
-### 任务拆解（执行序：F-13-1 → F-13-3 → F-13-2 → F-13-4 → T1 → T2 → T3 → T4 → T5 → EXIT；两线可交叉并行）
+### 任务1：D26-T1 新建 `tools/day26_integration_check.gd`（阶段 D 整合探针 ≥20 断言五段）
 
-#### 任务1：D24-F13-1【W2】机制型被动数据落地（items.json 20→23 被动 / 51→54 项）
+- 文件：`tools/day26_integration_check.gd`（新建，W1 域）
+- 改动（按 TASKS 拆解 §1~§5，锚点用上文实测表）：
+  - **§1 美术**：SPRITE_MAP 23 键全部 `ResourceLoader.exists(path)`（slime/skeleton/elite/invoker/predator 及其余 18 键）+ Boss 实例化白盒断言 `scale == Vector2(1,1)`（invoker/predator 各 1）+ 4 角色 walk/attack/skill strip 存在（`assets/sprites/characters/` 下 ailin/nowa/ryan/siia）+ factions 5 + backgrounds 4 + 头像 3 + `.import` 齐全（Image 读像素需 `ProjectSettings.globalize_path()`——已踩坑先例）
+  - **§2 特效**：`vfx_player.gd` FX_CONFIG 键数 == 10（或白盒读 const 断言 10 键含 5 新特效）+ 5 新特效 PNG `ResourceLoader.exists` + hit 消费点激活（projectile 普通命中 spawn "hit"——白盒实例化弹丸触发或静态断言 `"hit"` 在 spawn 调用点）+ source_id 识别接线（se_star_fall → fx_meteor 映射存在）
+  - **§3 音频**：12 WAV exists + WAV 头合法（FileAccess 二进制读 RIFF/WAVE + 22050Hz 16bit mono 声道/位深字段）+ project.godot `[autoload]` 含 AudioManager（正则读文本）+ BGM 状态机 5 态（白盒直调 `_poll_bgm()` 依 GameManager.current_state 断言 bgm 名——判空防单测场景崩溃）+ SFX_MAP 10 键
+  - **§4 剧情**：`docs/LORE.md` exists + size > 0 + events.json 10 事件 + 角色剧情解锁文案数据存在（events.json 字段核验）——**解锁逻辑接线 = Day 27 依赖，缺失不判失败**
+  - **§5 回归全套**：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 21（F-20 保底后实际）/ day11_12 25 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 27 / day18_19 48 / day20 23 / day21_22 38 / day23 18 / day24_f13 17 / day24_audio 14（**24 件套 609 断言**）
+- 探针范式：`extends SceneTree` + `_advance` 分派全部 sub（勿漏段跳 part）+ 白盒直构造 + 固定 seed；**纯只读**（D37）
+- 风险：**中**——断言行号/结构依赖当前实现（D39 已防）；weapons 嵌套结构统计（D36）；探针自身缺陷不阻塞 EXIT（D37 兜底）
+- 验证：`Godot --headless -s tools/day26_integration_check.gd`（或项目既有探针运行方式）；目标 ≥20 断言全绿
 
-- 文件：`data/items.json`（+3 被动，结构仿现有项）
-- 改动：新增 3 项（`is_passive:true` / `slot:"passive"` / icon_index 22/23/24 唯一）+ **新字段 `trigger` + `trigger_config`**（不入 effects 白名单；effects 保留空 `{}`）：① `overload_capacitor` 过载电容（epic/60/`{"type":"on_crit","radius":80,"ratio":0.3}`/tags["crit"]/category attack）② `executioner_mark` 处决印记（rare/40/`{"type":"on_kill","heal":1}`/tags["life_steal"]/category defense）③ `last_stand` 背水一战（rare/45/`{"type":"low_health","threshold":0.3,"attack_mult":1.5,"speed_mult":1.2}`/tags["damage"]/category stat）
-- 风险：**低**（纯数据新增；effects 空对象零 STAT 消费，player.apply_item_bonuses 白名单口径零波及——D11-12 定案）
-- 验证：Python 读 items.json → 54 项 / 23 被动 / 3 新词条 trigger.type ∈ {on_crit,on_kill,low_health} / icon_index 22/23/24 唯一 / effects 全 `{}`
+### 任务2：D26-T2 接线完整性抽查（白盒，存在则验缺失登记）
 
-#### 任务2：D24-F13-3【W3】图标 3 帧（占位色块，items.png 704→800×32 25 帧）
-
-- 文件：`tools/gen_item_icons.py`（FRAMES 22→25 :24 + 3 个 ic_ 函数）+ `assets/sprites/items/items.png`
-- 改动：新增 `ic_overload_capacitor`（青蓝闪电 #4FC3F7）/ `ic_executioner_mark`（暗红镰刃 #B71C1C）/ `ic_last_stand`（橙黄心火 #FFB300），复用既有 Canvas 原语（rect/ellipse/disc 等）+ 透明键（左上角 (0,0) 透明）+ **豁免 ART_STYLE 色号编码**（占位图口径）；`godot --headless --import` 补 .import
-- 风险：**低**（纯新增资源 + FRAMES 常量改；D20-T5 704→800 先例）；⚠️ `icon_atlas.gd`（scripts/utils/）items frame_count 同步 22→25（D32 ①）
-- 验证：items.png 800×32 exists + 帧 22/23/24 中心非空 + (0,0) 透明 + .import 在盘
-
-#### 任务3：D24-F13-2【W1】机制消费点 3 处接入（on_crit / on_kill / low_health）
-
-- 文件：`scripts/weapons/projectile.gd` + `scripts/autoload/main.gd` + `scripts/player/player.gd`
+- 文件：并入 `tools/day26_integration_check.gd` §2 或独立段（W1 域，同探针）
 - 改动：
-  1. **on_crit（overload_capacitor）**：projectile.gd 新私有方法 `_trigger_on_crit_chain(target_pos, crit_damage)`（`if not (GameManager and GameManager.inventory and GameManager.inventory.has_item_id("overload_capacitor")): return` → 遍历 `GameManager.enemies_container.get_children()` + is_alive + has_method("take_damage") + `distance_to(target_pos) <= 80.0` → `enemy.take_damage(crit_damage * 0.3, false)`，**禁物理查询**，容器缺失静默）。调用点 2 处：① 线弹 `_on_body_entered`（:77 `_roll_crit` → :79 `body.take_damage` 后、:81 `_hit_count += 1` 前）`if _is_crit_hit(): _trigger_on_crit_chain(body.global_position, final_damage)` ② AOE `_do_explosion` 循环内（:123 `_roll_crit` → :125 `enemy.take_damage` 后）`if _is_crit_hit(): _trigger_on_crit_chain(enemy.global_position, final_damage)`——**D27 语义：不额外防重**
-  2. **on_kill（executioner_mark）**：main.gd `_on_enemy_died`（:167-172）：`if GameManager and GameManager.inventory and GameManager.inventory.has_item_id("executioner_mark") and player: player.heal(1.0)`（插在 :172 death VFX 之后）
-  3. **low_health（last_stand）**：player.gd 新字段 `_last_stand_active: bool = false` + 新方法 `_update_last_stand()`（**D29 乘算开/关 + 逆运算回滚**；should = `is_alive and health > 0.0 and health <= max_health * 0.3 and GameManager and GameManager.inventory and GameManager.inventory.has_item_id("last_stand")`；状态变化才切换）；调用点 2 处：`take_damage` 尾部（:369 `_invulnerable_timer` 后、:371 `if health <= 0.0` 前）+ `heal`（:377 `health_changed.emit` 后）
-- 风险：**中**——projectile.gd 是多探针回归锚点（day13/day18_feedback/day18_19/day23 命中链），on_crit 纯追加（新方法 + 2 处判定），不改伤害主链；⚠️ `_is_crit_hit()` 必须在 `_roll_crit` 之后调用（依赖 _last_crit 状态）；enemy.gd 侧**不改**（on_crit 走 projectile 侧，TASKS 拆解口径）
-- 验证：白盒 3 触发点行为级——暴击命中 → 目标周围 80px 内敌掉血（记录 take_damage 调用 + 伤害 ≈ crit×0.3）+ 80px 外不掉；击杀 → heal +1 记录；health 降至 ≤30% → damage_multiplier ×1.5 生效 + 回血 >30% 恢复原值（单开/关闭环）；未持有对应遗物 → 零触发零报错
+  - **AudioManager 状态机**：白盒 `current_state` 依次 MENU/BATTLE/SHOP/ROUTE_SELECT/GAME_OVER → BGM 名断言（menu/battle/battle/battle/stop）；GameManager 未加载判空零报错（:86-87 已有判空，探针调用前 `get_node_or_null` 双保险）
+  - **VfxPlayer 四消费点**：hit 普通命中 / crit 暴击 / death 死亡 / levelup 升级——白盒触发 → 特效 spawn 记录非空（前序日已收口则断言；未收口 push_warning 登记）
+  - **GameManager.hud 赋值**（F-11 伤害数字依赖）：`GameManager.hud` 非空 + `has_method("show_damage_number")`
+  - **SPRITE_MAP 命中**：`_apply_character_sprite("siia")` → walk_texture 非 fighter 兜底（T-E 机器侧关闭断言）
+- 测试点：上述抽查项缺失一律 push_warning + 登记到探针输出尾部「顺延项清单」，**不判失败**（阻塞判定归 #1）
+- 风险：**低**——纯只读白盒；风险 = 状态机轮询依赖 GameManager 状态枚举值（5 态），若实现用字符串态则断言需匹配（先读 audio_manager.gd :8-24 BGM_MAP/SFX_MAP 再定断言）
+- 验证：并入 day26_integration_check 运行输出
 
-#### 任务4：D24-F13-4【W1】回归同步 + 新建 `tools/day24_f13_check.gd`
+### 任务3：D26-T3 阶段 D 收口清单核对（只读核验，不写数据）
 
-- 文件：6 个既有文件（**D32 全清单，勿漏**）+ 新建 `tools/day24_f13_check.gd`
-- 改动：回归同步 8 处（见 D32）；新建探针 ≥12 断言四段：§1 数据层（54 项 / 23 被动 / 3 trigger 字段 + type 校验 / icon_index 22/23/24 唯一 / effects 空）/ §2 on_crit 白盒（mock 玩家+武器弹丸 → 暴击命中 → 连锁伤害记录 / 非暴击零触发）/ §3 on_kill heal + low_health 开关（击杀 → heal / 低血 ×1.5 生效 / 回血恢复）/ §4 回归抽样（商店池 58 + icon_atlas 25 + items.png 800×32）
-- 风险：**低**（tools/ 域纯新增 + 断言数字同步）；⚠️ 探针 mock 敌人走 inner class（is_in_group("enemies") + take_damage 记录），on_crit 需 GameManager.enemies_container 注入 mock 容器（F-19/day23 先例）
-- 验证：`godot --headless -s tools/day24_f13_check.gd` CLEAN
+- 文件：只读 `docs/TASKS.md` + `data/*.json` + `assets/`（W2 域，禁写）
+- 改动：
+  - 对照 TASKS.md 各日回执：D21-22-T1~T5 / D23-T1~T5 / D24-T1~T5 / D25 条目 [x] 状态核验（未收口 → 登记缺失清单）
+  - 数据/资产交叉引用核验：events.json 10 事件 id 与 LORE.md 主题对应 / items.json **54** 项 / weapons.json **36 把（嵌套分类累加，D36）** / 12 WAV 命名与 AudioManager SFX_MAP 键一致（bgm_menu/bgm_battle vs SFX 10 键）
+  - 顺延项登记汇总：F 系列 P1（F-03/F-05/F-06/F-07/F-11 若顺延——实测均已由反馈专员落地，应无顺延）/ 遗物 HUD 槽 / 空间音 / 音量 UI / mech_heart 入池 / 剧情解锁接线（Day 27）→ 输出到探针尾部清单供 W5 写入 REPORT_PHASE_D 与 PLAYTEST
+- 风险：**低**——只读核对；风险 = TASKS 并发写入（#2/#5 同窗口可能改 TASKS.md），核验以 git HEAD 已提交版本为准（工作区在途 docs 不纳入）
+- 验证：并入探针尾部清单段，人工/机器复核输出
 
-#### 任务5：D24-T1【W3】新建 `tools/gen_audio.py` 程序化合成 12 WAV
+### 任务4：D26-EXIT 阶段 D 收口
 
-- 文件：新建 `tools/gen_audio.py` + `assets/audio/bgm/` 2 + `assets/audio/sfx/` 10
-- 改动：纯 Python 标准库（wave/math/struct/random，禁第三方依赖）；`_tone(freq,dur,vol,attack,decay)`（正弦+包络）/ `_noise(dur,vol,lowpass)`（噪声+一阶低通）/ `_write_wav(path,samples)`（22050Hz 16bit mono）；**BGM 2 轨**：bgm_menu（C 大调琶音 8-12s 循环点对齐）/ bgm_battle（快节奏低音脉冲 + 主音 8-12s）；**SFX 10 类**：hit/crit/death/levelup/coin/shop/skill/heal/event/boss（0.1-1.5s，按 TASKS 拆解描述合成）；归一化峰值 ≤0.8；幂等（已存在覆盖）
-- 风险：**低**（纯资源 + 工具脚本；D21-22/D23 gen 脚本先例）；⚠️ .import 需 `godot --headless --import` 补（T2 预加载依赖）
-- 验证：脚本运行零报错 + 12 文件 exists + size>0 + WAV 头合法（RIFF/WAVE + 22050 + 16bit + mono）
+- 文件：docs（REPORT_PHASE_D.md 新建）+ git commit
+- 改动：
+  1. `python tools/baseline_check.py` → `BASELINE CLEAN`
+  2. `day26_integration_check` CLEAN（五段全绿或顺延项已登记）+ 回归全套 24 件套 609 断言（day2~day24_audio 全清单见 §5）+ verify 36/36
+  3. 产出 `docs/REPORT_PHASE_D.md`（仿 A/B/C 先例：四域交付清单 = 美术 34 张/特效 10 键/音频 12 WAV/剧情 LORE+events；探针断言数；回归结论；主观项移交清单；顺延项登记）
+  4. 主观项汇总 → `docs/PLAYTEST_CHECKLIST.md`（#5 收口：精灵风格/动画流畅度/Boss 辨识度/VFX 观感/BGM-SFX 氛围/音量平衡/整合整体观感）——**不阻塞出口**
+  5. git commit 收口（勿夹带 docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md；D41）
+- 风险：**中**——回归全套 24 件套任一红则阻塞（若探针或回归因行号漂移误红，先按 D39 语义断言修正探针自身，勿改游戏逻辑）；baseline BENIGN 白名单（headless Dummy 音频驱动）已由 D24 收口建立，真机零影响
+- 验证：EXIT 全 [x] + git log 收口提交 + 目标日推进 **Day 27（局外养成：方舟基地 + 研究系统 + 角色培养 + 剧情解锁接线承接 D25/D26）**——Day 27 已函数级预拆（#2 第 23 轮），#2 下轮可确认
 
-#### 任务6：D24-T2【W1】新建 `scripts/autoload/audio_manager.gd`（AudioManager 本体）
+### 风险总表（本轮）
 
-- 文件：新建 `scripts/autoload/audio_manager.gd`
-- 改动：`extends Node`（Autoload 名直调，class_name 不必须）；预加载 12 WAV（缺文件 push_warning + 跳过零崩溃 **D31**）；节点 `_bgm_player: AudioStreamPlayer`（loop_mode LOOP_FORWARD + finished→play 兜底）+ `_sfx_pool: Array[AudioStreamPlayer]` ×4（`_sfx_idx` 轮询）；接口 `play_bgm(name)`（同轨不重播）/ `play_sfx(name)`（池轮询返回是否播放）/ `set_bgm_volume(db)` / `set_sfx_volume(db)`（@export 默认 -3.0/-1.0）；`_process` 轮询 `GameManager.current_state`（`get_node_or_null("/root/GameManager")` 判空）→ MENU 播 bgm_menu / BATTLE·SHOP·ROUTE_SELECT 播 bgm_battle（已在播不重播）/ GAME_OVER stop
-- 风险：**低**（全新系统零回归；Autoload 无场景零场景改动）；⚠️ headless Dummy audio driver play() 零崩溃（#2 第 21 轮实测锚点）
-- 验证：白盒 play_bgm("menu") → playing + stream 名对；重复 → 不重播；play_sfx 连发 ×6 池轮询零崩溃；current_state 5 态切换 → BGM 正确（menu/battle/battle/battle/stop）
-
-#### 任务7：D24-T3【W1】SFX 消费点接线（10 处，一行调用）
-
-- 文件：main.gd / projectile.gd / enemy.gd / player.gd / economy.gd / shop.gd / skill_controller.gd / game_manager.gd（实际路径已 grep 确认）
-- 改动（**现行行号见行号速查表，勿用 TASKS 旧值**）：① 敌人死亡 main.gd `_on_enemy_died` :172 旁 → `"death"` ② 普通命中 projectile.gd `_on_body_entered` :86（hit VFX 旁）→ `"hit"` ③ 爆炸/暴击 projectile.gd `_do_explosion` VFX 分派 :140 后 → `"crit"` + enemy.gd :507（敌受暴击，含 Boss AOE :729 按实现收敛）→ `"crit"`（**D30 收敛 2 处**）④ 受击 player.gd take_damage :367 `_play_hit_flash` 旁 → `"hit"` ⑤ 升级 player.gd `_check_level_up` :413 `level_up.emit` 后 → `"levelup"` ⑥ 金币 economy.gd `add_coins` :19 → `"coin"` ⑦ 购买 shop.gd `_purchase_item` :236 扣费成功后 → `"shop"` ⑧ 技能 skill_controller.gd `try_cast` :84-86（return true 前）→ `"skill"` ⑨ 事件 game_manager.gd `_start_event` :351 → `"event"` ⑩ Boss 波 game_manager.gd `_start_next_wave` :126 `is_boss_wave = true` 处 → `"boss"`——全部 `AudioManager.play_sfx("...")` 一行，**经 Autoload 名直调**
-- 风险：**中**——8 个文件各追加一行（不动逻辑），多探针回归锚点（day3/day13/day18_19/day23 命中链）；零改动路径（未接线场景）不报错；⚠️ AudioManager 注册（T4）须先于 T3 接线验证，否则消费点调用报错——**执行序强制 T4 在 T3 验证前落盘**（或 T3 接线后立即补 T4 再跑探针）
-- 验证：白盒各消费点触发 → AudioManager `_sfx_pool` 有播放记录（探针注入计数）；回归零漂移
-
-#### 任务8：D24-T4【W1】project.godot Autoload 注册
-
-- 文件：`project.godot` :19-22 `[autoload]` 段
-- 改动：追加 `AudioManager="*res://scripts/autoload/audio_manager.gd"`（顺序：GameManager :21 → DataLoader :22 → AudioManager；读 current_state 依赖 GameManager 在前）；余不动
-- 风险：**低**；⚠️ 一行追加防格式破坏（Godot 4.3 autoload 段语法）
-- 验证：`godot --headless --quit` 零 ERROR + `get_node("/root/AudioManager")` 非空
-
-#### 任务9：D24-T5【W1】新建 `tools/day24_audio_check.gd`（≥14 断言五段）
-
-- 文件：新建 `tools/day24_audio_check.gd`
-- 改动：§1 资源层（12 WAV exists + size>0 + 头合法：RIFF/WAVE 魔数 + fmt + mono + 22050 + 16bit）/ §2 配置层（project.godot [autoload] 含 AudioManager；SFX_MAP 键 ⊇ 10 类清单 + BGM_MAP 2 键）/ §3 状态机层（白盒 current_state MENU/BATTLE/SHOP/ROUTE_SELECT/GAME_OVER → menu/battle/battle/battle/stop）/ §4 播放层（play_bgm + play_sfx 不崩 + playing 标志 + 连发 ×6 池轮询 + 同轨不重播）/ §5 回归（抽样 day2/day17 + **新代码零 AudioStreamPlayer 场景引用**——纯代码 Autoload 防场景未挂节点）；范式：`extends SceneTree` + `_advance` 分发全部 sub + 白盒直构造（D11-12/13 flaky 修复记录）
-- 风险：**低**（tools/ 域纯新增）；⚠️ 白盒构造 AudioManager 时用 `load()` 而非场景实例化；mock GameManager.current_state 逐态切换
-- 验证：`godot --headless -s tools/day24_audio_check.gd` CLEAN
-
-#### 任务10：D24-EXIT【W5】阶段 D 音频 + F-13 收口
-
-- 文件：docs/TASKS.md（收口标注）
-- 改动：`python tools/baseline_check.py` → BASELINE CLEAN；day24_audio_check CLEAN + day24_f13_check CLEAN + 回归全套（22 件套 508 + day24 两探针 = **24 件套 ≥534 断言**）；git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md；显式 add 变更文件防工作区丢失——第 2 轮教训）
-- 风险：**低**；⚠️ 断言数字以实测为准只增不减（F-13 回归同步仅改数字不改断言条数，day11_12 等断言数维持）；主观项登记（BGM/SFX 氛围感 / F-13 手感）→ PLAYTEST #5，不阻塞出口
-
-### 回归影响分析（供 #3 执行时对照）
-
-| 改动文件 | 波及探针 | 影响 |
+| 风险 | 等级 | 说明与缓解 |
 |---|---|---|
-| data/items.json（+3 被动 + trigger 字段） | day11_12 / day13 / day16 / day20（池 55→58 + Item 数 22→25）+ day20（icon_index 唯一域 0-21→0-24） | **中**：3 新被动入池 → 池大小断言全同步（D32 8 处）；effects `{}` 零 STAT 波及 |
-| gen_item_icons.py + items.png（22→25 帧） | day11_12（frame_count :479 + 帧遍历 :501）/ day20（frame_count 锚点） | 中：FRAMES + 3 + icon_atlas frame_count 同步（漏改必红） |
-| projectile.gd（on_crit 2 处 + sfx 2 处） | day13 / day18_feedback / day18_19 / day23 命中链 | **中**：纯追加不改伤害主链；`_is_crit_hit()` 顺序依赖 _last_crit |
-| main.gd（on_kill + sfx death） | day18_feedback / day18_19 死亡链 | 中：register_kill/VFX 逻辑不动，heal 追加 |
-| player.gd（low_health + sfx hit/levelup） | day2 / day4 / day11_12 / day18_feedback3 | 中：_update_last_stand 纯追加；乘算开关单开/关闭环 |
-| enemy.gd（sfx crit） | day17 / day18_19 / day21_22 换皮 | 低：一行追加 |
-| 新建 audio_manager.gd + project.godot | 全量回归（Autoload 新增） | 低：全新系统；Autoload 注册后 headless 零 ERROR 验证 |
-| 新建 tools/day24_audio_check.gd / day24_f13_check.gd | 无（新探针入回归套） | 低 |
-
-### 行号速查表（本轮实测 23:50，供 #3 免排查——TASKS 拆解旧行号已漂移，勿直接用）
-
-- `data/items.json`：51 项 / 20 被动 / 零 trigger 字段（F-13 前置状态）
-- `scripts/autoload/game_manager.gd`：GameState :29-34（MENU :30 / BATTLE :31 / GAME_OVER :34）/ current_state :39 / inventory :65 / BATTLE 进入 :104-107 / `_start_next_wave` :114-129（is_boss_wave=true :126）/ SHOP :149 / ROUTE_SELECT :186 / `_start_event` :351 / GAME_OVER :557
-- `scripts/autoload/main.gd`：player @onready :8 / `_on_enemy_died` :167-172（register_kill :169 / death VFX :172）/ `_on_player_hit` :158
-- `scripts/weapons/projectile.gd`：`_on_body_entered` :74-90（_roll_crit :77 / take_damage :79 / _hit_count :81 / hit VFX :86 / pierce 判定 :90-95）/ `_do_explosion` :111-140（AOE 循环 :121-125 / VFX 分派 se_star_fall→fireball→crit :132-140）/ `_roll_crit` :167-170（_last_crit :168）/ `_is_crit_hit` :173+
-- `scripts/enemy/enemy.gd`：crit VFX :507 / levelup VFX :524 / Boss AOE crit :729 / take_damage(is_crit) :756 / die :774
-- `scripts/player/player.gd`：take_damage :349-372（health 更新 :364 / took_damage.emit :366 / _play_hit_flash :367 / _invulnerable_timer :369 / die 判定 :371）/ heal :375-377 / _check_level_up :407-413（_trigger_level_impact :412 / level_up.emit :413）/ **F-19 敌人遍历范式 :441-454** / apply_stat_modifier :480-499（damage :492-493 / attack_speed :494-495 乘算支持）/ STAT_MAP :56-79 / _last_stand 插入区 :369-371 + :377
-- `scripts/player/skill_controller.gd`：try_cast :68-86（_cd_left :84 / return true :86）
-- `scripts/systems/economy.gd`：add_coins :19
-- `scripts/ui/shop.gd`：_build_shop_pool :92（口径注释 :90「55」→58）/ _purchase_item :236
-- `scripts/systems/inventory.gd`：has_item_id :112 ✅（D10-T2 已在）
-- `project.godot`：[autoload] :19-22（GameManager :21 / DataLoader :22）
-- `scripts/utils/icon_atlas.gd`：items frame_count（D32 ① 需同步 22→25）
-- `tools/gen_item_icons.py`：FRAMES=22 :24 / OUT=items.png :21
-- 回归同步 8 处：day11_12_passive_check.gd :351/:370/:479/:501（+头注释 :17）· day13_build_check.gd :200（:198/:218 注释）· day16_event_check.gd :414（:408 注释）· day20_relic_check.gd :254/:373（:252/:365 注释）
-
-### 执行状态标注
-
-- TASKS.md Day 24 区标注「方案已定（SOLUTION_PLAN.md · 2026-08-07 第 6 轮）」——F-13-1~4 + T1~T5 + EXIT 全部覆盖，不改 [ ] 标记
-- 下一轮观察点：若 #3 01:35 窗口已启动/收口 Day 24 → 复核 F-13 机制行为 + 音频接线与定案一致性；若收口 → 目标日推进 Day 26 整合校验（Day 25 已预交付，剩接线归 Day 27 依赖）
+| 探针断言行号漂移 | 中 | D39 语义断言锚定；若误红先修探针自身勿改游戏逻辑 |
+| weapons.json 扁平统计误判 | 中 | D36 嵌套累加口径（melee9+ranged9+elemental10+engineering8=36） |
+| 回归全套 24 件套误红 | 中 | 前序日已全收口 609 断言基准；误红先复核探针锚点 |
+| TASKS 并发写入（#2/#5 同窗口） | 低 | 核验以 git HEAD 已提交版本为准；方案标注前重读文件 |
+| git 写 refs 间歇失败（Program Files） | 低 | 正常 commit 即可，勿 push -u（历史先例） |
+| 音频 WAV 头解析越界 | 低 | FileAccess.get_buffer 长度守卫（读取前 get_length() 检查） |
 
 ---
 
-### 执行结果：【完成】2026-08-08 00:5x · #3 第 33 轮执行（Day 24 全量收口）
+## 执行结果：✅ 完成（2026-08-08 03:4x · #3 执行者第 33 轮 · 阶段 D 收口日全量执行）
 
-- **F-13 线（P0 用户拍板）**：F-13-1 数据（items 51→54，3 trigger 词条 + trigger/trigger_config 字段，effects 空 {}）→ F-13-3 图标（gen_item_icons FRAMES 22→25 + items.png 800×32 + icon_atlas 25）→ F-13-2 机制消费点（projectile on_crit 连锁 / main on_kill heal / player low_health 乘算开关 D29）→ F-13-4 回归同步 + `day24_f13_check.gd` **17/17 CLEAN**
-- **音频线**：T1 `gen_audio.py` 12 WAV（BGM 2×8s 循环 + SFX 10）→ T2 `audio_manager.gd`（第 3 Autoload + BGM 状态机 + SFX 池×4）→ T4 project.godot 注册 → T3 SFX 消费点 10 处 → T5 `day24_audio_check.gd` **14/14 CLEAN**
-- **EXIT**：24 件套 **23/23 全绿 609 断言** + baseline **BASELINE CLEAN** + 7 commit + push 成功
-- **执行登记 2 处**（方案风险命中，已按执行者规则处理并记录）：
-  1. **shop.gd 行号漂移**：方案行号速查表基于 `f5cd533`（23:50），实际 HEAD=`be06af3`（反馈专员 F-20/F-21 00:0x 落地）→ `_build_shop_pool` :92→**168** / `_purchase_item` :236→**312**，已按现行行号执行（其余文件零漂移）
-  2. **回归同步面 > D32 清单**：D32 列 8 处，实测还有 3 处必红——day11_12 被动数 20→23 + icon_index 范围 0-19→0-24（:196/:215-220）、day13 池 Item 22→25（:224）、day20 数据层 51→54 + is_passive 20→23（:122/:167）+ day23 锚点 51→54（:343）——全部同步补齐
-- **执行中发现并解决**：headless Dummy audio driver 下 `AudioStreamPlayer.play()` 退出时 leak（baseline BROKEN）→ audio_manager 改**懒加载**（_ready 只建节点，流首次播放时加载）+ baseline BENIGN 白名单 4 条（真机零影响，注释已说明）；`--verbose` 时序相关（verbose 无警告 / 非 verbose 有）
-- **主观项登记**：BGM/SFX 氛围感/音量平衡 + F-13 机制型被动手感 → PLAYTEST #5（D34 隔离口径）
+- **T1 探针**：`tools/day26_integration_check.gd` 新建（582 行）——§1 美术（SPRITE_MAP 23 键 46 路径 + FALLBACK 6 + Boss scale 白盒复位 ×1 + 角色 walk 192×32 + factions/backgrounds/头像 + .import）/ §2 特效（FX_CONFIG 10 键 + 5 新特效 PNG + hit 消费点 + source_id）/ §3 音频（12 WAV 头合法 + autoload + BGM 状态机 5 态白盒 + SFX_MAP 10 键）/ §4 剧情（LORE.md + events 10 + 解锁文案载体）/ §5 数据交叉（items 54 / weapons 36 嵌套累加 D36 / WAV-MAP 一致）/ §6 回归（PROBES 23 项 + 期望合计 609 + 5 探针 load + day18_19 scale 锚点）——**34/34 CLEAN**。
+- **T2 接线抽查**：并入探针——AudioManager 5 态白盒 ✓ / VfxPlayer 四消费点键在册 ✓ / SPRITE_MAP 命中链路 ✓ / **F-11 接口偏差登记**（GameManager.hud 实测不存在，实际 = enemy.gd `_spawn_damage_number` 直接 spawn，按语义断言，非缺陷）。
+- **T3 收口清单核对**：items 54 / weapons 36（D36 嵌套累加）/ events 10 / 12 WAV 与 MAP 键一致 / 顺延项清单输出探针尾部（遗物 HUD 槽 / 空间音 / 音量 UI / mech_heart 入池 / 剧情解锁接线 → Day 27）。
+- **EXIT**：baseline **BASELINE CLEAN** + 回归 **23/23 PASS（609 断言）** + verify **36/36** + `docs/REPORT_PHASE_D.md` 产出（§6 主观项移交清单，不阻塞出口）+ TASKS Day 26 区 23 处 [x] + 收口记录追加。**总断言 643**。git commit 收口后 push。
+- 执行登记 2 处：① 回归 PROBES 实为 23 项（「24 件套」= 23 探针 + baseline）——期望合计 609 与方案基准吻合；② T2 GameManager.hud 接口偏差（见上）。
+- **目标日推进：Day 27（局外养成）**——已函数级预拆（#2 第 23 轮），等待方案师第 8 轮落盘。
