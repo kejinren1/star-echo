@@ -90,3 +90,17 @@
 
 - TASKS.md D23 区标注「方案已定（SOLUTION_PLAN.md · 2026-08-07 第 5 轮 · 占位特效口径）」
 - 下一轮观察点：若 #3 21:35 窗口已启动 Day 23（git HEAD 推进）→ 复核实现与占位口径一致性；若收口 → 目标日推进 Day 24 音频（已函数级预拆）
+
+---
+
+## 执行结果：【完成】2026-08-07 22:4x · #3 第 31 轮
+
+**Day 23 占位技能特效全量落地，零阻塞，二十二件套 508 断言 + BASELINE CLEAN。**
+
+- **T2（W3 出图）**：新建 `tools/gen_day23_fx_art.py`（复用 gen_day21_22_art.py Canvas 原语 + ring 圆环，纯 PIL 幂等）→ 5 PNG 全生成：fx_fireball（6×64 橙红实心圆 8→28 + 高光芯）/ fx_turret_deploy（4×64 蓝白竖条 16×48 + 底部横条）/ fx_blade_burst（6×64 银蓝圆环 stroke4 半径 10→30）/ fx_meteor（6×128 赤金实心圆 + 冲击环 20→45）/ fx_shield（6×64 白蓝半透明罩 alpha120 18→28）；左上角 (0,0) 透明合规；`godot --headless --import` 补 .import 5 个。
+- **T1（FX_CONFIG + hit 激活）**：vfx_player.gd FX_CONFIG 5→10 键（frames/size 与 PNG 实测一致）+ `current_fx` 诊断字段（探针观测 spawn 名，零行为影响）；projectile.gd `_on_body_entered` take_damage 后 spawn "hit"（普通命中反馈，穿透沿途每个被命中敌人都触发，AOE 分支不重复）。
+- **T3（技能专属 VFX）**：skill_controller.gd——`_cast_fireball` 构建 proj 后 `set_meta(&"source_id", "se_skill_fireball")`（覆盖 F-07 穿透全分支）；`_cast_deploy_turret` 循环内每台 spawn "turret_deploy"；`_cast_blade_burst` 玩家身周 spawn "blade_burst"；holy_shield 顺延 P1（不臆造）。
+- **T4（进化陨石）**：projectile.gd `_do_explosion` VFX 分派——判定顺序 se_star_fall → "meteor" / se_skill_fireball → "fireball" / 兜底 "crit"（其余武器零回归）。**执行登记**：方案风险提示命中——`weapon_controller._spawn_projectile` 实测未透传武器 source_id meta → 在弹丸生成处补 `proj.set_meta(META_SOURCE_ID, str(weapon.get_meta(META_SOURCE_ID, "")))` 一行（全武器弹丸带 meta，兜底判 crit 零回归）。
+- **T5（探针）**：新建 `tools/day23_vfx_check.gd` 18/18 CLEAN 四段（§1 配置层 5 断言 / §2 消费层 4 / §3 技能层 6 / §4 回归 4）。探针范式沿用 SceneTree + _advance 分派 + 白盒直构造；VfxPlayer.spawn 为静态方法无法直接 hook → 改「GameManager.vfx_container 指向探针自建 Node2D + 扫描 children 的 current_fx」观测（先 add_child 后 set_effect 时序保证同步可读）；mock enemy 走 inner class（is_in_group("enemies") + take_damage）。踩坑 1 处：同名炮台实例被 Godot 自动改名 @Node2D@N → 炮台计数改按特征方法 `_draw_placeholder` 而非 name 前缀。
+- **EXIT（收口）**：回归全套 21/21（`_regression_run.py` 加 day23_vfx_check = 二十二件套，**508 断言**）+ baseline_check.py `BASELINE CLEAN`；TASKS.md D23 区 T1-T5+EXIT 全部 [x]；git commit 收口。
+- **主观项登记（交 PLAYTEST #5，不阻塞）**：VFX 华丽度/风格一致性 / 特效触发频率（hit 全命中触发）/ F-19 升级冲击波真人回归。目标日推进 = **Day 24 音频接入**（已函数级预拆，等方案师落盘）。

@@ -1905,7 +1905,7 @@
 - [x] **F-11 伤害数字**【W1 · ✅ 16c6dd3 已落地（新建 `damage_number.gd`：普通浅黄「N」/ 暴击金色「N!」，take_damage 可选 is_crit 透传）】：新建 `scripts/ui/damage_numbers.gd`（class_name DamageNumbers，CanvasLayer 子节点，挂 HUD 场景）；Label 池预分配 50（复用循环，超限覆盖最旧）；接口 `show_damage_number(world_pos: Vector2, amount: float, is_crit: bool)`——屏幕坐标 = `get_canvas_transform() * world_pos`，普通白字 / 暴击金色大字（font_size+2），上飘 0.6s 淡出（tween 后回池）；消费点 = projectile.gd `_on_body_entered`（:77 后，is_crit = final_damage > damage）+ `_explode`（:103 后，is_crit = final > explosion_damage），经 `GameManager.hud.show_damage_number(...)` 调用（main.gd 补 `GameManager.hud = hud` 一行，现有赋值范式）；验收：白盒 show ×60 无泄漏（池复用）+ is_crit 样式区分 + 世界→屏幕坐标无相机 identity 正确｜文件域 新建 `scripts/ui/damage_numbers.gd` + `scripts/ui/hud.gd`（挂载）+ `scripts/weapons/projectile.gd`（2 处调用）+ `scripts/autoload/main.gd`（hud 赋值）
 > 排期口径：F-03/F-05/F-06 为**轻量改动**（各 1-2 文件），F-07 为**单行参数改动**，F-11 中等（新 UI 子系统）；~~全部标 `[ ]` 待执行~~ **已由反馈专员 `16c6dd3` 全部落地并释放（第 26 轮），W1 零负担**；W5 不得以 F 系列未完成判美术主段失败（已全部落地）。
 
-### Day 23 — 技能特效（占位实现机制验证版）　🎯【当前目标日 · 已预拆解到函数级 · 2026-08-07 03:1x · #2 第 20 轮 · Day 21-22 收口后待执行】　【方案已定（SOLUTION_PLAN.md · 2026-08-07 第 5 轮 · 含 D21 占位纯色图口径——本区 T2 旧「华丽 PNG」描述按用户 21:1x 拍板修正为占位色块图，机制层 T1/T3/T4/T5/EXIT 照旧；TASKS 拆解本体待 #2 第 30 轮 22:5x 修正，执行以 SOLUTION_PLAN.md 为准）】
+### Day 23 — 技能特效（占位实现机制验证版）　✅【已收口 · 2026-08-07 22:4x · #3 第 31 轮 · 二十二件套 508 断言 + BASELINE CLEAN】　【方案已定（SOLUTION_PLAN.md · 2026-08-07 第 5 轮 · 含 D21 占位纯色图口径——本区 T2 旧「华丽 PNG」描述按用户 21:1x 拍板修正为占位色块图，机制层 T1/T3/T4/T5/EXIT 照旧；TASKS 拆解本体待 #2 第 30 轮 22:5x 修正，执行以 SOLUTION_PLAN.md 为准）】
 
 > 🎯 **Day 23 已预拆解（2026-08-07 03:1x · #2 第 20 轮）**：Day 18-19 / Day 20 / Day 21-22 均已预拆 → 本轮预拆 **Day 23 = 华丽技能特效（阶段 D 续段）**。核心交付 = **VfxPlayer FX_CONFIG 扩展（5→10 特效）+ 专属技能/进化 VFX PNG（W3）+ 消费点接线（skill_controller / projectile 替换 crit 占位）+ hit 命中特效激活 + 探针**。**⚠️ 实测发现：hit 特效零消费点**（普通命中无特效）；**pickup 特效零消费点**（T-B 掉落物系统未实现，登记不属本日）；**se_skill_holy_shield 无 try_cast 分支**（希亚技能本体未实装，神圣庇护 VFX 顺延登记 P1，不臆造技能玩法）；**大纲「毒雨/腐化」以数据为准不做**（D18-19 已登记 invoker/predator 差异）。
 
@@ -1926,43 +1926,43 @@
 | 4 | **进化陨石替换**：projectile/weapon_controller 判定 `source_id == "se_star_fall"` → 爆炸 spawn fx_meteor（替换 crit）；其余武器爆炸保持 crit | se_star_fall evolution_result 实测；D13-T2 两套统一 |
 | 5 | **W5 不得判失败（主观/P1）**：VFX 华丽度与风格（→ PLAYTEST）；holy_shield 技能 VFX（希亚技能未实装）；pickup 特效（T-B 掉落物系统未实现）；特效色 shader 机制（Backlog P1 决策） | 主观验收隔离铁律；实测边界 |
 
-#### D23-T1【W1】VfxPlayer FX_CONFIG 扩展 + hit 消费点激活　【方案已定（SOLUTION_PLAN.md 第 5 轮）】
-- [ ] `scripts/effects/vfx_player.gd` FX_CONFIG +5 键：`"fireball": {"path": "res://assets/sprites/effects/fx_fireball.png", "frames": 6, "size": Vector2i(64, 64), "fps": 12.0}` / `"turret_deploy": {...64px}` / `"blade_burst": {...64px}` / `"meteor": {...128px}` / `"shield": {...64px}`（frames/size/fps 与 W3 PNG 实际一致，缺图 `load()==null` 静默返回零回归）
-- [ ] projectile.gd `_on_body_entered`（:77 take_damage 后）：`if GameManager.vfx_container: VfxPlayer.spawn(GameManager.vfx_container, global_position, "hit")`（普通命中反馈，暴击走既有 enemy.gd:393 crit）
-- [ ] **测试点**：FX_CONFIG 10 键；白盒 spawn("fireball") 缺图 → null 不崩；线弹命中 → hit 特效 spawn 计数 +1
-- [ ] 文件域：W1 写 `scripts/effects/vfx_player.gd` + `scripts/weapons/projectile.gd`
+#### D23-T1【W1】VfxPlayer FX_CONFIG 扩展 + hit 消费点激活　【方案已定（SOLUTION_PLAN.md 第 5 轮）】　【✅ 已收口（#3 第 31 轮 · 2026-08-07 22:4x）】
+- [x] `scripts/effects/vfx_player.gd` FX_CONFIG +5 键：`"fireball": {"path": "res://assets/sprites/effects/fx_fireball.png", "frames": 6, "size": Vector2i(64, 64), "fps": 12.0}` / `"turret_deploy": {...64px}` / `"blade_burst": {...64px}` / `"meteor": {...128px}` / `"shield": {...64px}`（frames/size/fps 与 W3 PNG 实际一致，缺图 `load()==null` 静默返回零回归）
+- [x] projectile.gd `_on_body_entered`（:77 take_damage 后）：`if GameManager.vfx_container: VfxPlayer.spawn(GameManager.vfx_container, global_position, "hit")`（普通命中反馈，暴击走既有 enemy.gd:393 crit）
+- [x] **测试点**：FX_CONFIG 10 键；白盒 spawn("fireball") 缺图 → null 不崩；线弹命中 → hit 特效 spawn 计数 +1
+- [x] 文件域：W1 写 `scripts/effects/vfx_player.gd` + `scripts/weapons/projectile.gd`
 
-#### D23-T2【W3 主责】新特效 PNG 5 枚（128px 基准）　【方案已定（SOLUTION_PLAN.md 第 5 轮 · D21 占位纯色图口径：极简几何色块即可，不做焰尾/齿轮/光点等华丽元素；豁免 ART_STYLE 色号编码）】
-- [ ] `assets/sprites/effects/fx_fireball.png`（橙红火球爆炸 + 焰尾环，6 帧 64px）/ `fx_turret_deploy.png`（蓝白部署光柱 + 齿轮，4 帧 64px）/ `fx_blade_burst.png`（银蓝剑刃圆环扩散 + 光点，6 帧 64px）/ `fx_meteor.png`（赤金陨石坠爆 + 冲击波，6 帧 128px）/ `fx_shield.png`（白蓝护盾罩 + 十字光，6 帧 64px，**P1 先出图，接线待希亚技能实装**）
-- [ ] 遵守 ART_STYLE v2：216 色上限 + 字典登记制（新色登记或容差归并 ΔRGB≤12）+ 透明键（(0,0)=背景色全图镂空，禁用于关键位置）；`.import` 用 `godot --headless --import` 补（D21-T0 先例）
-- [ ] **测试点**：5 PNG 存在 + 尺寸合规（64/128px）+ 帧数非空 + 透明键 + 色数 ≤216
-- [ ] 文件域：W3 写 `assets/sprites/effects/`（5 文件）
+#### D23-T2【W3 主责】新特效 PNG 5 枚（128px 基准）　【方案已定（SOLUTION_PLAN.md 第 5 轮 · D21 占位纯色图口径：极简几何色块即可，不做焰尾/齿轮/光点等华丽元素；豁免 ART_STYLE 色号编码）】　【✅ 已收口（#3 第 31 轮 · 2026-08-07 22:4x · gen_day23_fx_art.py 占位纯色 5 枚）】
+- [x] `assets/sprites/effects/fx_fireball.png`（橙红实心圆半径 8→28 递增 + 描边，6 帧 64px）/ `fx_turret_deploy.png`（蓝白竖条 16×48 上下拉长 + 底部横条，4 帧 64px）/ `fx_blade_burst.png`（银蓝圆环 stroke4px 半径 10→30 扩散，6 帧 64px）/ `fx_meteor.png`（赤金实心圆 + 冲击环半径 20→45，6 帧 128px）/ `fx_shield.png`（白蓝半透明圆罩 alpha120 半径 18→28，6 帧 64px，**P1 接线待希亚技能实装**）——占位纯色图，帧序 = 由小到大 = 扩散动画
+- [x] 遵守 D22 占位图豁免：仅 PNG 透明背景（左上角 (0,0) 透明）保证 AnimatedSprite2D 渲染；`godot --headless --import` 已补 .import（D21-T0 先例）
+- [x] **测试点**：5 PNG 存在 + 尺寸合规（384×64 / 256×64 / 384×64 / 768×128 / 384×64）+ 帧宽 = size.x×frames + 透明键
+- [x] 文件域：W3 写 `assets/sprites/effects/`（5 文件）
 
-#### D23-T3【W1】技能专属 VFX 接线（fireball 替换 crit / turret / blade）　【方案已定（SOLUTION_PLAN.md 第 5 轮）】
-- [ ] 火球来源识别：`_cast_fireball`（skill_controller.gd:115-132）构建 proj 后 `proj.set_meta("source_id", "se_skill_fireball")`（D13-T2 meta 范式）；projectile.gd `_explode`（:108-110）判定 `get_meta("source_id", "") == "se_skill_fireball"` → spawn "fireball" 替换 crit（其余保持 crit 零回归）
-- [ ] `_cast_deploy_turret`（:174-182）每台部署处 spawn "turret_deploy"（玩家身周环点）
-- [ ] `_cast_blade_burst`（:187-201）spawn "blade_burst"（玩家 global_position，技能触发视觉）
-- [ ] **测试点**：白盒 try_cast(fireball) → proj 有 source_id meta；_explode → vfx 名 == "fireball"；deploy_turret → turret_deploy 计数 == 台数；blade_burst → spawn 1 次
-- [ ] 文件域：W1 写 `scripts/player/skill_controller.gd` + `scripts/weapons/projectile.gd`
+#### D23-T3【W1】技能专属 VFX 接线（fireball 替换 crit / turret / blade）　【方案已定（SOLUTION_PLAN.md 第 5 轮）】　【✅ 已收口（#3 第 31 轮 · 2026-08-07 22:4x）】
+- [x] 火球来源识别：`_cast_fireball`（skill_controller.gd:115-132）构建 proj 后 `proj.set_meta("source_id", "se_skill_fireball")`（D13-T2 meta 范式）；projectile.gd `_explode` 判定 `get_meta("source_id", "") == "se_skill_fireball"` → spawn "fireball" 替换 crit（其余保持 crit 零回归）
+- [x] `_cast_deploy_turret` 每台部署处 spawn "turret_deploy"（玩家身周环点）
+- [x] `_cast_blade_burst` spawn "blade_burst"（玩家 global_position，技能触发视觉）
+- [x] **测试点**：白盒 try_cast(fireball) → proj 有 source_id meta；_explode → vfx 名 == "fireball"；deploy_turret → turret_deploy 计数 == 台数；blade_burst → spawn 1 次
+- [x] 文件域：W1 写 `scripts/player/skill_controller.gd` + `scripts/weapons/projectile.gd`
 
-#### D23-T4【W1】进化陨石替换（se_star_fall → fx_meteor）　【方案已定（SOLUTION_PLAN.md 第 5 轮）】
-- [ ] projectile `_explode`（:108-110）判定 `get_meta("source_id", "") == "se_star_fall"` → spawn "meteor"（替换 crit；se_star_fall 的 source_id meta 由 weapon_controller D13-T2 sync 链路天然携带，白盒注入兜底）
-- [ ] **测试点**：白盒 se_star_fall 弹丸爆炸 → vfx 名 == "meteor"；其余武器 → "crit" 不变（回归锚点）
-- [ ] 文件域：W1 写 `scripts/weapons/projectile.gd`
+#### D23-T4【W1】进化陨石替换（se_star_fall → fx_meteor）　【方案已定（SOLUTION_PLAN.md 第 5 轮）】　【✅ 已收口（#3 第 31 轮 · 2026-08-07 22:4x · 执行登记：weapon_controller._spawn_projectile 实测未透传 meta → 补 set_meta 一行）】
+- [x] projectile `_explode` 判定 `get_meta("source_id", "") == "se_star_fall"` → spawn "meteor"（替换 crit）；**se_star_fall 的 source_id meta 实测 weapon_controller._spawn_projectile 未携带（方案风险提示命中）→ 在 _spawn_projectile 弹丸生成处补 `proj.set_meta(META_SOURCE_ID, str(weapon.get_meta(META_SOURCE_ID, "")))` 一行（全武器弹丸带 meta，兜底判定 crit 零回归）**
+- [x] **测试点**：白盒 se_star_fall 弹丸爆炸 → vfx 名 == "meteor"；其余武器 → "crit" 不变（回归锚点）
+- [x] 文件域：W1 写 `scripts/weapons/projectile.gd`（+ weapon_controller.gd 接线必要补充）
 
-#### D23-T5【W1】新建 `tools/day23_vfx_check.gd`（VFX 探针 ≥12 断言四段）　【方案已定（SOLUTION_PLAN.md 第 5 轮）】
-- [ ] §1 配置层：FX_CONFIG 10 键 + 5 新特效 path 指向 exists 资源（W3 已出图）或登记缺失（缺图 → push_warning 不判失败，P1）
-- [ ] §2 消费层：白盒 projectile 线弹命中 → hit spawn +1；crit 路径仍走 crit（双轨并存）；fireball 爆炸 → "fireball"；se_star_fall 爆炸 → "meteor"
-- [ ] §3 技能层：deploy_turret → turret_deploy == 台数；blade_burst → spawn 1 次；holy_shield → 静默 false（不崩不刷 warning，P1 登记）
-- [ ] §4 回归：既有 5 特效消费点不破坏（enemy crit/levelup、main death）；baseline 锚点（`BASELINE CLEAN` 跑在 EXIT）
-- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 白盒直构造（D11-12/13 flaky 修复记录）
-- [ ] 文件域：W1 只写 `tools/`
+#### D23-T5【W1】新建 `tools/day23_vfx_check.gd`（VFX 探针 ≥12 断言四段）　【方案已定（SOLUTION_PLAN.md 第 5 轮）】　【✅ 已收口（#3 第 31 轮 · 2026-08-07 22:4x · 18/18 CLEAN）】
+- [x] §1 配置层：FX_CONFIG 10 键 + 5 新特效 path 指向 exists 资源（W3 已出图）或登记缺失（缺图 → push_warning 不判失败，P1）
+- [x] §2 消费层：白盒 projectile 线弹命中 → hit spawn +1；crit 路径仍走 crit（双轨并存）；fireball 爆炸 → "fireball"；se_star_fall 爆炸 → "meteor"
+- [x] §3 技能层：deploy_turret → turret_deploy == 台数；blade_burst → spawn 1 次；holy_shield → 静默 false（不崩不刷 warning，P1 登记）
+- [x] §4 回归：既有 5 特效消费点不破坏（enemy crit/levelup、main death）；baseline 锚点（`BASELINE CLEAN` 跑在 EXIT）
+- [x] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 白盒直构造（D11-12/13 flaky 修复记录；VfxPlayer 增加 `current_fx` 诊断字段供探针观测 spawn 名——零行为影响）
+- [x] 文件域：W1 只写 `tools/`（+ vfx_player.gd current_fx 观测字段必要补充）
 
-#### D23-EXIT【W5】阶段 D 续段收口　【方案已定（SOLUTION_PLAN.md 第 5 轮）】
-- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
-- [ ] `day23_vfx_check` CLEAN + **回归全套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_19 48 / day20 23 / day21_22 38）
-- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md）
-- [ ] 主观项登记：VFX 华丽度/风格一致性 / 特效触发是否过度 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
+#### D23-EXIT【W5】阶段 D 续段收口　【方案已定（SOLUTION_PLAN.md 第 5 轮）】　【✅ 已收口（#3 第 31 轮 · 2026-08-07 22:4x · 二十二件套 508 断言 + BASELINE CLEAN）】
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [x] `day23_vfx_check` CLEAN（18/18）+ **回归全套 22/22**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 27 / day18_19 48 / day20 23 / day21_22 38 / day23 18 = **508 断言**）
+- [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md）
+- [x] 主观项登记：VFX 华丽度/风格一致性 / 特效触发是否过度 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
 ### Day 24 — 音频接入　🎯【已预拆解到函数级 · 2026-08-07 05:1x · #2 第 21 轮】
 

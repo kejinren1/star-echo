@@ -131,6 +131,9 @@ func _cast_fireball() -> void:
 	container.add_child(proj)
 	proj.global_position = player.global_position
 	proj.set_direction(aim_dir)
+	# Day 23-T3：火球来源标记（D13-T2 meta 范式）——projectile._explode 据此
+	# spawn 专属 "fireball" VFX 替换通用 crit；含 F-07 穿透全分支都覆盖
+	proj.set_meta(&"source_id", "se_skill_fireball")
 
 ## 燃烧 dps 唯一口径（D3-T7b）：dot / dot_scaling 只从 elements.json 读，
 ## 禁止在技能数据里另写一份 —— 艾琳 passive elemental_damage:8 → dps = 3 + 8*0.2 = 4.6
@@ -180,6 +183,9 @@ func _cast_deploy_turret() -> bool:
 		# 摆位：玩家为心、半径 40px 圆周均布（不挂 Player 子节点，炮台不随玩家移动）
 		var angle: float = TAU * float(i) / float(count)
 		turret.global_position = player.global_position + Vector2.from_angle(angle) * 40.0
+		# Day 23-T3：每台部署处光柱 VFX（占位特效机制验证）
+		if GameManager.vfx_container:
+			VfxPlayer.spawn(GameManager.vfx_container, turret.global_position, "turret_deploy")
 	return true
 
 ## 莱恩「星刃爆发」（D3-T5）：攻速 buff + 环绕刃数字段埋点
@@ -198,6 +204,10 @@ func _cast_blade_burst() -> void:
 	if orbit_count > 0 and player:
 		# Day 5 环绕武器机制消费此键（D3-T5 埋点，届时自动生效）
 		player.bonus_stats["orbit_blade_count"] = float(player.bonus_stats.get("orbit_blade_count", 0.0)) + orbit_count
+
+	# Day 23-T3：玩家身周银蓝圆环扩散 VFX（占位特效机制验证）
+	if player and GameManager.vfx_container:
+		VfxPlayer.spawn(GameManager.vfx_container, player.global_position, "blade_burst")
 
 	_restore_blade_burst(duration, atk_mult, orbit_count)
 

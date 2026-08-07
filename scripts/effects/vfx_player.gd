@@ -10,6 +10,7 @@ extends Node2D
 # ========== 内部状态 ==========
 
 var _anim: AnimatedSprite2D
+var current_fx: String = ""      ## Day 23：最近一次 set_effect 的特效名（探针观测用，零行为影响）
 
 # ========== 特效配置 ==========
 ## 特效名称 → 精灵配置
@@ -19,6 +20,12 @@ const FX_CONFIG: Dictionary = {
 	"death":    {"path": "res://assets/sprites/effects/fx_death.png",    "frames": 4, "size": Vector2i(32, 32), "fps": 10.0},
 	"levelup":  {"path": "res://assets/sprites/effects/fx_levelup.png",  "frames": 6, "size": Vector2i(32, 32), "fps": 10.0},
 	"pickup":   {"path": "res://assets/sprites/effects/fx_pickup.png",   "frames": 4, "size": Vector2i(16, 16), "fps": 10.0},
+	# Day 23（占位特效 · 用户 2026-08-07 拍板）：机制验证用，纯色占位图豁免色号编码
+	"fireball":     {"path": "res://assets/sprites/effects/fx_fireball.png",      "frames": 6, "size": Vector2i(64, 64),   "fps": 12.0},
+	"turret_deploy":{"path": "res://assets/sprites/effects/fx_turret_deploy.png", "frames": 4, "size": Vector2i(64, 64),   "fps": 10.0},
+	"blade_burst":  {"path": "res://assets/sprites/effects/fx_blade_burst.png",   "frames": 6, "size": Vector2i(64, 64),   "fps": 12.0},
+	"meteor":       {"path": "res://assets/sprites/effects/fx_meteor.png",        "frames": 6, "size": Vector2i(128, 128), "fps": 12.0},
+	"shield":       {"path": "res://assets/sprites/effects/fx_shield.png",        "frames": 6, "size": Vector2i(64, 64),   "fps": 10.0},
 }
 
 # ========== 生命周期 ==========
@@ -37,6 +44,7 @@ func set_effect(fx_name: String) -> void:
 	if not FX_CONFIG.has(fx_name):
 		push_warning("[VfxPlayer] 未知特效类型: %s" % fx_name)
 		return
+	current_fx = fx_name
 	var cfg: Dictionary = FX_CONFIG[fx_name]
 	var tex := load(cfg["path"]) as Texture2D
 	if not tex:

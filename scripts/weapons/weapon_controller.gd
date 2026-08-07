@@ -328,6 +328,10 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 	_projectile_container.add_child(proj)
 	proj.global_position = owner_node.global_position
 	proj.set_direction(aim_dir)
+	# Day 23-T4：弹丸携带武器来源标记（D13-T2 meta 范式）——projectile._explode
+	# 按 source_id 分派专属 VFX（se_star_fall 进化陨石 → "meteor"）；其余武器 meta
+	# 虽带上但判定兜底 crit，零回归
+	proj.set_meta(META_SOURCE_ID, str(weapon.get_meta(META_SOURCE_ID, "")))
 
 # ========== 环绕武器（D5-T4） ==========
 

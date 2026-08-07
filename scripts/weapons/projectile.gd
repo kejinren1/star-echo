@@ -79,6 +79,11 @@ func _on_body_entered(body: Node) -> void:
 		body.take_damage(final_damage, _is_crit_hit())
 		_apply_life_steal(final_damage)
 		_hit_count += 1
+		# Day 23-T1：普通命中 VFX（线弹 + 穿透沿途每个被命中敌人都触发；
+		# 与 F-11 伤害数字同帧叠加，VfxPlayer 挂 vfx_container(Node2D) 天然盖于
+		# HUD CanvasLayer 之下无冲突；暴击仍走 _do_explosion crit 双轨并存）
+		if GameManager.vfx_container:
+			VfxPlayer.spawn(GameManager.vfx_container, global_position, "hit")
 		# F-07（用户拍板 2026-08-06）：穿透弹沿途每个敌人即时爆炸（含元素附着）——
 		# 而非仅最后一次命中才爆。拆分 _do_explosion（无防重复标记）：穿透中段裸爆，
 		# 最后一次命中走 _explode（防与 lifetime 到点双爆）
@@ -122,9 +127,17 @@ func _do_explosion() -> void:
 			if not status_type.is_empty() and enemy.has_method("apply_status"):
 				enemy.apply_status(status_type, status_duration, status_dps)
 
-	# 专属爆炸 VFX 属 Day 23，本日复用现成 crit 特效
+	# Day 23-T3/T4：专属爆炸 VFX —— 按 source_id 分派（D13-T2 meta 范式；
+	# weapon_controller._spawn_projectile 已统一打 meta，技能弹丸由 skill_controller 打）。
+	# 判定顺序：se_star_fall（进化陨石）→ se_skill_fireball（炽星火球）→ 兜底 crit（其余 52 武器零回归）
 	if GameManager.vfx_container:
-		VfxPlayer.spawn(GameManager.vfx_container, global_position, "crit")
+		var fx_name: String = "crit"
+		match str(get_meta(&"source_id", "")):
+			"se_star_fall":
+				fx_name = "meteor"
+			"se_skill_fireball":
+				fx_name = "fireball"
+		VfxPlayer.spawn(GameManager.vfx_container, global_position, fx_name)
 
 # ========== 吸血结算（Day 4 · D4-T3） ==========
 
