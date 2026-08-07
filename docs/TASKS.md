@@ -23,6 +23,7 @@
 > ③ **BUG-003 收口**（mixed/mixed_with_curse→regular 池、elite:mixed→elite 池，wave 15/17/19 全量生成零 null，swarm ×2 语义保持）
 > ④ **difficulty_delta 消费**（战斗节点入口 → 敌人 ±10%/档）+ 精英节点横幅提示
 > ⑤ **探针 `day17_elite_check.gd` 39/39 CLEAN** + 回归十二件套全绿（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41）+ baseline **BASELINE CLEAN** + verify 36/36。**day13 探针 flaky 修复**（商店购买段白盒直构造，去随机洗牌依赖 ≈14% 全武器概率）。提交见本轮收口 commit。
+> ✅ **Day 18-19 已收口（2026-08-07 15:5x · #3 第 26 轮执行）**：阶段 C 第四节完成 —— **Boss 多阶段** ① **`enemy_projectile.gd` 新建**（纯 Node2D 距离判定禁物理查询 + 挂 Boss 节点自身防 get_alive_count 容器污染（D1）+ 命中玩家掉血即毁 + lifetime 销毁）② **`_parse_attack` 8 型指令纯函数解析**（summon/spread/barrage/aoe/charge/mult，未知指令 push_warning 不崩）③ **phases 状态机**（initialize 透传 + `_reset_boss_phase(0)` + scale×2 视觉过渡 D7 + take_damage 存活命中阈值切换 D6 + `_check_phase_transition` 单调递减阈值 + 阶段横幅 + die 击杀登记）④ **attacks 执行器**（`_process_boss_attacks` 计时循环 + `_boss_summon` regular/elite 池 + `_boss_spread` 环形弹幕 + `_boss_barrage` 8 向×3 波 0.25s D4 + `_boss_aoe` 120px D5 + charge 置位命中倍率 D2 + all_attacks_2x 阶段修饰符 D3）⑤ **GameManager Boss 接入**（`boss_killed`/`register_boss_killed` + `_show_boss_banner` + route.flags boss_encountered/boss_defeated，reset 清零）⑥ **探针 `day18_19_boss_check.gd` 48/48 CLEAN**（数据/状态机/指令/弹丸/回归五段）+ 回归十五件套全绿（**day14_15 探针同步 1 处**：FIXED_ROUTE const→var，Godot4 const Dictionary 只读 + T4 写 route.flags 冲突）+ baseline **BASELINE CLEAN** + verify 36/36，提交见收口 commit。主观项登记归 #5（Boss 难度/阶段表现力/辨识度/弹幕手感）。**D18-19 挂账 🔴🔴 解除**。
 > 🎯 **Day 18-19 已预拆解（2026-08-06 21:1x · #2 第 17 轮）**：Day 16 已收口（`ee7603b`/`748d2b7`）→ 目标日 = **Day 17（精英战斗，已就绪）**，本轮预拆 **Day 18-19 = Boss 多阶段（phases 状态机 + attacks 指令映射）**（见 Day 18-19 区）——W1 `enemy.gd` Boss 阶段状态机（take_damage 阈值切换 + speed_multiplier + 阶段横幅）+ **attacks 字符串指令解析器**（summon/spread/aoe/charge/barrage/all_attacks_2x 全量实测映射）+ **新建 `scripts/enemy/enemy_projectile.gd`**（敌人弹幕独立弹丸，命中玩家，禁物理查询；player projectile.gd 零改动防回归）+ GameManager Boss 接入（boss 节点横幅 + `boss_killed`/`boss_defeated` 登记）+ 探针 `tools/day18_19_boss_check.gd`；W2 ◐核验 Boss phases 数据完整性（只读，数据已完备零改动）；W5 回归十二件套。**大纲「腐化巨树藤蔓/毒雨」vs 数据 invoker/predator phases 差异 → 以数据为准（登记，不臆造新指令）；「森林区域解锁」深消费归 Day 27**。
 > 🎯 **Day 20 已预拆解（2026-08-06 23:1x · #2 第 18 轮）**：Day 17（`2abba3c`）+ Day 17-P0（`6e84751`/`1bc0255`）已收口 → **目标日 = Day 18-19（Boss 多阶段，第 17 轮已预拆，直接执行）**，本轮预拆 **Day 20 = 遗物系统（阶段 C 收口）**（见 Day 20 区）——W2 `items.json` +2 遗物（**破碎王冠** `{damage_percent:50, damage_taken_percent:30}` / **机械引擎** `{structure_damage_percent:100}`，**⚠️ 大纲「机械核心」与 se_mech_core 进化核心重名 → 改名「机械引擎」**）+ W1 两个新装配键（**damage_taken_percent 受伤倍率**：take_damage armor 后乘 / **structure_damage_percent 结构伤害**：turret.gd 补消费点，**顺带激活 se_mech_core/mech_heart 悬空词条**）+ 遗物**直装不占被动槽**（D16 resonant_shard 先例，MAX_RELICS=2）+ 商店第三池（53→55）+ 图标 22 帧（W3）；W5 探针 `day20_relic_check.gd` + **回归同步 2 处**（day13 池 53→55 / day11_12 frame_count 20→22）+ `REPORT_PHASE_C.md`。**W5 不得判失败**：遗物 HUD 槽（P1）/ 遗物 VFX（Day 23）/ mech_heart 入池（登记可选 P1）。
 > 🔵 **Day 20 追加 T-D 排期（2026-08-07 01:1x · #2 第 19 轮 · P0 调度硬性输入）**：PLAYTEST 追踪区 00:30 增量 #22 提醒「**T-D 技能图标 + SkillSlot 美化** 用户 08-06 拍板「两个工作日内」（= 08-07/08-08），TASKS 尚零排期 → 请 #2 尽快排期」——**本轮拆入 Day 20（08-08 执行日，时限内）**：`D20-T7`【W3】4 技能图标（fireball/deploy_turret/blade_burst/holy_shield → `assets/sprites/skills/skills.png` 图集 + `gen_skill_icons.py`）+ `D20-T8`【W1】SkillSlot 美化接线（hud.gd `skill_slot.texture` 按 `skill_controller.skill_data.id` 映射，节点已有 :16-17，无图降级现有样式零回归）。**依据**：Day 18-19（08-07）已定稿在途不可打乱；Day 20 为 08-08 且在时限内；技能图标属 W3 图标域（与 D20-T5 同域）。追踪区「建议 Boss/遗物后安排」与「两个工作日内」冲突时取硬性时限（P0 指令优先）。
@@ -1609,55 +1610,55 @@
 | 9 | **回归零破坏**：waves.json wave 10/20 零改动；route 末层 boss wave 20 保持（day14_15 探针断言）；player projectile 零改动；旧波次制 wave 10 invoker 照常生成（phases 自动生效）；Boss 波击杀或超时均推进（现状保持） | 回归锚点保护；渐进式收口先例 |
 
 #### D18-19-T1【W1】`enemy.gd` Boss phases 状态机（阶段切换）
-- [ ] 📋方案已定 状态：`var phases: Array = []` / `var _current_phase_idx: int = 0` / `var _attack_timers: Dictionary = {}` / `var _attack_mult: float = 1.0` / `var _boss_charge: bool = false` / `var _base_speed: float = 120.0` / `var _rng := RandomNumberGenerator.new()`（探针可注 `_rng.seed`；禁 Array.shuffle/pick_random 全局 RNG）
-- [ ] `initialize(stats)`：`if stats.has("phases"): phases = stats["phases"]`；`_base_speed = move_speed`；phases 非空且 is_boss → `_reset_boss_phase(0)`（`_attack_timers` 按当前 phase attacks 初始化 0.0）
-- [ ] `take_damage()` 尾部（die 之前）：`if is_boss and not phases.is_empty(): _check_phase_transition()`
-- [ ] `_check_phase_transition()`：从 `_current_phase_idx + 1` 起遍历后续 phase，找第一个 `health / max_health <= hp_threshold_percent / 100.0` → `_reset_boss_phase(i)`（切阶段：重置计时器 + `move_speed = _base_speed * float(phase.speed_multiplier)` + 横幅「⚠ Boss 进入第 N 阶段」1.5s 淡出）；无更低位阈值 → 保持
-- [ ] `_reset_boss_phase(idx)`：`_current_phase_idx = idx`；遍历该 phase `attacks` → `_parse_attack(cmd)`（T2）缓存 + 计时器归零；`all_attacks_2x` 修饰符 → `_attack_mult *= 2.0`（阶段激活时）
-- [ ] **测试点**：白盒构造 stats（category=boss + phases 两段）→ 初始 phase 0；`take_damage` 压过 60% 阈值 → phase 1（attacks 更新 / move_speed ×1.2 / 横幅节点出现并自动销毁）；phase 全过 → 不再切；非 boss → 零新行为（回归零破坏）
-- [ ] 文件域：W1 只写 `scripts/`
+- [x] 📋方案已定（SOLUTION_PLAN.md）· ✅批次B已落地（`afe5ef7`） 状态：`var phases: Array = []` / `var _current_phase_idx: int = 0` / `var _attack_timers: Dictionary = {}` / `var _attack_mult: float = 1.0` / `var _boss_charge: bool = false` / `var _base_speed: float = 120.0` / `var _rng := RandomNumberGenerator.new()`（探针可注 `_rng.seed`；禁 Array.shuffle/pick_random 全局 RNG）
+- [x] `initialize(stats)`：`if stats.has("phases"): phases = stats["phases"]`；`_base_speed = move_speed`；phases 非空且 is_boss → `_reset_boss_phase(0)`（`_attack_timers` 按当前 phase attacks 初始化 0.0）
+- [x] `take_damage()` 尾部（die 之前）：`if is_boss and not phases.is_empty(): _check_phase_transition()`
+- [x] `_check_phase_transition()`：从 `_current_phase_idx + 1` 起遍历后续 phase，找第一个 `health / max_health <= hp_threshold_percent / 100.0` → `_reset_boss_phase(i)`（切阶段：重置计时器 + `move_speed = _base_speed * float(phase.speed_multiplier)` + 横幅「⚠ Boss 进入第 N 阶段」1.5s 淡出）；无更低位阈值 → 保持
+- [x] `_reset_boss_phase(idx)`：`_current_phase_idx = idx`；遍历该 phase `attacks` → `_parse_attack(cmd)`（T2）缓存 + 计时器归零；`all_attacks_2x` 修饰符 → `_attack_mult *= 2.0`（阶段激活时）
+- [x] **测试点**：白盒构造 stats（category=boss + phases 两段）→ 初始 phase 0；`take_damage` 压过 60% 阈值 → phase 1（attacks 更新 / move_speed ×1.2 / 横幅节点出现并自动销毁）；phase 全过 → 不再切；非 boss → 零新行为（回归零破坏）
+- [x] 文件域：W1 只写 `scripts/`
 
 #### D18-19-T2【W1】attacks 指令解析 + 行为执行器
-- [ ] 📋方案已定 `_parse_attack(cmd: String) -> Dictionary`：前缀解析（正则/拆分）——`summon_N_enemies_every_Xs` → {kind:"summon", count:N, interval:X, elite:false}；`summon_N_elite` → {kind:"summon", count:N, interval:0(一次性), elite:true}；`N_projectile_spread` → {kind:"spread", count:N, interval:4.0}；`projectile_barrage` → {kind:"barrage", interval:4.0}；`aoe_every_Xs` → {kind:"aoe", interval:X}；`charge_attack`/`charge_attack_2x` → {kind:"charge", mult:1/2}；`all_attacks_2x` → {kind:"mult", mult:2.0}；未知指令 → push_warning 登记不崩
-- [ ] `_process_boss_attacks(delta)`（`_update_behavior` 加 `Behavior` 分支：is_boss 且 phases 非空 → 优先执行，随后 `_move_chase(delta)` 追玩家）：每 attack 独立计时器；`interval <= 0`（一次性）→ 激活时执行一次后移除；`interval > 0` → 倒计时到点执行 + 重置
-- [ ] 执行器（全距容器遍历，禁物理查询）：
+- [x] 📋方案已定（SOLUTION_PLAN.md）· ✅批次B已落地（`afe5ef7`） `_parse_attack(cmd: String) -> Dictionary`：前缀解析（正则/拆分）——`summon_N_enemies_every_Xs` → {kind:"summon", count:N, interval:X, elite:false}；`summon_N_elite` → {kind:"summon", count:N, interval:0(一次性), elite:true}；`N_projectile_spread` → {kind:"spread", count:N, interval:4.0}；`projectile_barrage` → {kind:"barrage", interval:4.0}；`aoe_every_Xs` → {kind:"aoe", interval:X}；`charge_attack`/`charge_attack_2x` → {kind:"charge", mult:1/2}；`all_attacks_2x` → {kind:"mult", mult:2.0}；未知指令 → push_warning 登记不崩
+- [x] `_process_boss_attacks(delta)`（`_update_behavior` 加 `Behavior` 分支：is_boss 且 phases 非空 → 优先执行，随后 `_move_chase(delta)` 追玩家）：每 attack 独立计时器；`interval <= 0`（一次性）→ 激活时执行一次后移除；`interval > 0` → 倒计时到点执行 + 重置
+- [x] 执行器（全距容器遍历，禁物理查询）：
   - `_boss_summon(count, elite)`：×count 循环 preload Enemy.tscn instantiate + `DataLoader.get_scaled_enemy(池随机 id, wave_number)` + `initialize(stats)` + `set_target(GameManager.player)` + `GameManager.enemy_spawner.enemies_container.add_child`（容器缺失静默跳过）
   - `_boss_spread(count)`：N 向均布弹幕——基准角 = 朝向玩家，`angle = base + TAU * i / count`，实例化 enemy_projectile.gd（T3）+ `initialize({speed:220, damage:damage*_attack_mult, lifetime:2.0})` + 容器 add_child
   - `_boss_barrage()`：密集多向弹幕——定案 **8 向 × 3 波间隔 0.25s**（注释：barrage 无参数，取 spread 6 上限 +1 档的密集版；单发伤害同 spread 口径）
   - `_boss_aoe(radius)`：玩家距离 ≤ radius（**定案默认 120px**，注释：数据无 radius 字段，取 AOE 常规半径；VfxPlayer crit 特效）→ `player.take_damage(damage * _attack_mult)`
   - `_boss_charge()`：`_boss_charge = true` → 距玩家 > 300 缓步接近（0.3×speed）、≤300 蓄力冲锋（×2.5 speed，复用 `_move_charge` :291-307 逻辑）；冲锋命中伤害 × `_attack_mult`
-- [ ] **测试点**：白盒固定 delta 推进 → summon 容器 +count（id ∈ 池）；spread 容器 +count 个 enemy_projectile；aoe → 玩家掉血（damage×mult）；charge_attack_2x 置位 → 冲锋伤害 ×2；all_attacks_2x → `_attack_mult == 2.0`；未知指令 → push_warning 不崩
-- [ ] 文件域：W1 只写 `scripts/`
+- [x] **测试点**：白盒固定 delta 推进 → summon 容器 +count（id ∈ 池）；spread 容器 +count 个 enemy_projectile；aoe → 玩家掉血（damage×mult）；charge_attack_2x 置位 → 冲锋伤害 ×2；all_attacks_2x → `_attack_mult == 2.0`；未知指令 → push_warning 不崩
+- [x] 文件域：W1 只写 `scripts/`
 
 #### D18-19-T3【W1】新建 `scripts/enemy/enemy_projectile.gd`（Boss 弹幕弹丸）
-- [ ] 📋方案已定 extends Node2D（纯代码，无场景文件）：Sprite2D 运行时绘制弹体（仿 projectile.gd `_make_bullet_texture` :141-155，`bullet_color`/`bullet_radius` 参数化）；**无物理碰撞节点**
-- [ ] 属性：`speed: float = 220.0` / `damage: float = 10.0` / `lifetime: float = 2.0` / `direction: Vector2` / `bullet_color: Color`（默认暗紫 `Color(0.75, 0.3, 0.9)` 区分玩家弹）/ `bullet_radius: float = 4.0`
-- [ ] `_physics_process(delta)`：`global_position += direction * speed * delta`；`_lifetime_timer += delta` 超时 → queue_free；玩家距离 ≤ `bullet_radius + 12.0` 且 `player.has_method("take_damage")` → `player.take_damage(damage)` + VfxPlayer hit 特效 + queue_free（命中即毁，无穿透）
-- [ ] `initialize(props: Dictionary)`（对齐 projectile.gd 范式：speed/damage/lifetime/bullet_color/bullet_radius）+ `set_direction(dir)`（normalized + rotation）
-- [ ] **测试点**：白盒 → 摆位玩家 → 推进 → 玩家掉血 + 弹丸销毁；lifetime 耗尽销毁；玩家无效/无容器 → 不崩；`damage` 透传正确
-- [ ] 文件域：W1 只写 `scripts/`
+- [x] 📋方案已定（SOLUTION_PLAN.md）· ✅批次A已落地（`d3b95a0`） extends Node2D（纯代码，无场景文件）：Sprite2D 运行时绘制弹体（仿 projectile.gd `_make_bullet_texture` :141-155，`bullet_color`/`bullet_radius` 参数化）；**无物理碰撞节点**
+- [x] 属性：`speed: float = 220.0` / `damage: float = 10.0` / `lifetime: float = 2.0` / `direction: Vector2` / `bullet_color: Color`（默认暗紫 `Color(0.75, 0.3, 0.9)` 区分玩家弹）/ `bullet_radius: float = 4.0`
+- [x] `_physics_process(delta)`：`global_position += direction * speed * delta`；`_lifetime_timer += delta` 超时 → queue_free；玩家距离 ≤ `bullet_radius + 12.0` 且 `player.has_method("take_damage")` → `player.take_damage(damage)` + VfxPlayer hit 特效 + queue_free（命中即毁，无穿透）
+- [x] `initialize(props: Dictionary)`（对齐 projectile.gd 范式：speed/damage/lifetime/bullet_color/bullet_radius）+ `set_direction(dir)`（normalized + rotation）
+- [x] **测试点**：白盒 → 摆位玩家 → 推进 → 玩家掉血 + 弹丸销毁；lifetime 耗尽销毁；玩家无效/无容器 → 不崩；`damage` 透传正确
+- [x] 文件域：W1 只写 `scripts/`
 
 #### D18-19-T4【W1】GameManager Boss 接入 + 胜利标记
-- [ ] 📋方案已定 GameManager 属性：`var boss_killed: int = 0`（`reset()` 清零）
-- [ ] `_enter_node()` 的 "boss" 分支：Boss 节点横幅「⚠ 最终 Boss」（1.5s 淡出，复用 D17-T4 横幅范式，容器缺失静默跳过）+ `route.flags["boss_encountered"] = true`；随后照常 `_start_next_wave(wave_index)`
-- [ ] `register_boss_killed()`：`boss_killed += 1` + `route.flags["boss_defeated"] = true`（route 空/旧模式 → 仅计数）；enemy.gd `die()` 里 `if is_boss: GameManager.register_boss_killed()`（GameManager 无效时静默跳过）
-- [ ] **测试点**：白盒 enemy die（is_boss）→ `boss_killed == 1` + flags 登记；boss 节点进入 → 横幅节点出现 + flags；reset() → 清零
-- [ ] 文件域：W1 只写 `scripts/`
+- [x] ✅**批次C已落地（2026-08-07 15:5x · #3 第 26 轮执行）** GameManager 属性：`var boss_killed: int = 0`（`reset()` 清零）
+- [x] `_enter_node()` 的 "boss" 分支：Boss 节点横幅「⚠ 最终 Boss」（1.5s 淡出，复用 D17-T4 横幅范式，容器缺失静默跳过）+ `route.flags["boss_encountered"] = true`；随后照常 `_start_next_wave(wave_index)`
+- [x] `register_boss_killed()`：`boss_killed += 1` + `route.flags["boss_defeated"] = true`（route 空/旧模式 → 仅计数）；enemy.gd `die()` 里 `if is_boss: GameManager.register_boss_killed()`（GameManager 无效时静默跳过）
+- [x] **测试点**：白盒 enemy die（is_boss）→ `boss_killed == 1` + flags 登记；boss 节点进入 → 横幅节点出现 + flags；reset() → 清零
+- [x] 文件域：W1 只写 `scripts/`
 
 #### D18-19-T5【W1】新建 `tools/day18_19_boss_check.gd`（Boss 系统探针 ≥20 断言五段）
-- [ ] 📋方案已定 §1 数据层：boss[2]（invoker 2 phases / predator 3 phases / hp / damage / exp_value 齐）；phases `hp_threshold_percent` 单调递减（100→60 / 100→66→33）；attacks 数组非空且全部可被 `_parse_attack` 解析（未知指令 = 0）
-- [ ] §2 阶段状态机（白盒 stats + 固定 delta）：初始 phase 0；`take_damage` 压过阈值 → 阶段切换（attacks 更新 / move_speed ×speed_multiplier / 横幅出现）；全阶段走完不再切；非 boss 零新行为
-- [ ] §3 指令执行（白盒直构造 + `_rng.seed` 固定）：`summon_2_enemies_every_5s` → 容器 +2（id ∈ regular 池）；`summon_1_elite` → +1（id ∈ elite 池且 is_elite）；`3_projectile_spread` → 容器 +3 enemy_projectile；`aoe_every_8s` → 玩家掉血（damage×mult）；`all_attacks_2x` → `_attack_mult == 2.0`
-- [ ] §4 弹丸：enemy_projectile 白盒 → 命中玩家掉血 + 销毁；lifetime 耗尽销毁；damage 透传
-- [ ] §5 回归：wave 10 `boss:invoker` / wave 20 `boss:predator` 白盒 spawn → `is_boss` + category=boss + phases 透传非空；route 末层 boss wave_index=**10**（`999a1bd` Fix-2 后口径，勿写 20）；boss 波击杀 → `boss_killed` 登记；+day17 探针回归（若收口）
-- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 固定 seed + 白盒直构造（D11-12/13/14-15 flaky 修复记录）
-- [ ] 文件域：W1 只写 `tools/`
+- [x] 📋方案已定（SOLUTION_PLAN.md）· 🔶批次C待创建（方案 §四·任务2 五段设计） §1 数据层：boss[2]（invoker 2 phases / predator 3 phases / hp / damage / exp_value 齐）；phases `hp_threshold_percent` 单调递减（100→60 / 100→66→33）；attacks 数组非空且全部可被 `_parse_attack` 解析（未知指令 = 0）
+- [x] §2 阶段状态机（白盒 stats + 固定 delta）：初始 phase 0；`take_damage` 压过阈值 → 阶段切换（attacks 更新 / move_speed ×speed_multiplier / 横幅出现）；全阶段走完不再切；非 boss 零新行为
+- [x] §3 指令执行（白盒直构造 + `_rng.seed` 固定）：`summon_2_enemies_every_5s` → 容器 +2（id ∈ regular 池）；`summon_1_elite` → +1（id ∈ elite 池且 is_elite）；`3_projectile_spread` → 容器 +3 enemy_projectile；`aoe_every_8s` → 玩家掉血（damage×mult）；`all_attacks_2x` → `_attack_mult == 2.0`
+- [x] §4 弹丸：enemy_projectile 白盒 → 命中玩家掉血 + 销毁；lifetime 耗尽销毁；damage 透传
+- [x] §5 回归：wave 10 `boss:invoker` / wave 20 `boss:predator` 白盒 spawn → `is_boss` + category=boss + phases 透传非空；route 末层 boss wave_index=**10**（`999a1bd` Fix-2 后口径，勿写 20）；boss 波击杀 → `boss_killed` 登记；+day17 探针回归（若收口）
+- [x] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 固定 seed + 白盒直构造（D11-12/13/14-15 flaky 修复记录）
+- [x] 文件域：W1 只写 `tools/`
 
 #### D18-19-EXIT【W5】阶段 C 第四节收口
-- [ ] 📋方案已定 `python tools/baseline_check.py` → `BASELINE CLEAN`
-- [ ] `day18_19_boss_check` CLEAN + **回归十二件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41）+ day17（若已收口）+ `gen_weapons_day7.py verify` 36/36
-- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
-- [ ] 主观项登记：Boss 战难度曲线 / 阶段切换表现力 / Boss 视觉辨识度 / 弹幕躲避手感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
+- [x] ✅**批次C已收口（2026-08-07 15:5x · #3 第 26 轮执行）** `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [x] `day18_19_boss_check` CLEAN + **回归十二件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41）+ day17（若已收口）+ `gen_weapons_day7.py verify` 36/36
+- [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交）
+- [x] 主观项登记：Boss 战难度曲线 / 阶段切换表现力 / Boss 视觉辨识度 / 弹幕躲避手感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
 
 ### Day 20 — 遗物系统 + 阶段 C 回归　🎯【已预拆解到函数级 · 2026-08-06 23:1x · #2 第 18 轮】
 
