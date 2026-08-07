@@ -116,10 +116,32 @@ func _setup_character() -> void:
 	if player and player.has_method("apply_character"):
 		player.apply_character(data)
 
+	# D27-T3（D42/D43）：局外研究永久增益注入——必须 apply_character 之后
+	# （其会 bonus_stats.clear()；本注入直调 apply_stat_modifier 不经 bonus_stats 故无清空险）、
+	# _setup_skill 之前；research 全 0 → get_meta_bonus 返回空字典零注入零回归
+	if player and player.has_method("apply_stat_modifier"):
+		_apply_meta_bonus(player)
+
 	# 技能数据装载：须在 apply_character 之后（技能可能读 bonus_stats），起始武器之前
 	_setup_skill(data)
 
 	_equip_starting_weapon(str(data.get("starting_weapon", "")))
+
+## D27-T3：局外研究永久增益装配（damage/max_health 乘算 + luck 加算；三项支持面
+## player.apply_stat_modifier :507-545 已实证——damage→damage_multiplier / max_health 乘算 /
+## luck 加算；max_health 乘算后 health=min(health,max_health) 满血态无半血截断 D43）
+func _apply_meta_bonus(player_node: Node) -> void:
+	if player_node == null or not is_instance_valid(player_node):
+		return
+	var bonus: Dictionary = GameManager.get_meta_bonus()
+	if bonus.is_empty():
+		return
+	if float(bonus.get("attack_mult", 1.0)) > 1.0:
+		player_node.apply_stat_modifier("damage", float(bonus["attack_mult"]), true)
+	if float(bonus.get("hp_mult", 1.0)) > 1.0:
+		player_node.apply_stat_modifier("max_health", float(bonus["hp_mult"]), true)
+	if float(bonus.get("luck_add", 0.0)) > 0.0:
+		player_node.apply_stat_modifier("luck", float(bonus["luck_add"]), false)
 
 ## 把角色 skill 数据注入 SkillController（节点缺失只告警，不阻断开局）
 func _setup_skill(char_data: Dictionary) -> void:

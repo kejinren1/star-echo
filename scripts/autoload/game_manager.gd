@@ -49,6 +49,14 @@ var debug_cheat: bool = false
 ## Day 18-19 · T4：本局 Boss 击杀数（register_boss_killed 登记；Day 27 局外养成胜利局数消费源）
 var boss_killed: int = 0
 
+# ========== 局外养成（Day 27 · D27-T1） ==========
+## 局外元进度（跨局持久化；reset() 不重置——局外数据跨局）
+## 结构：{"wins": int, "research_points": int, "research": {"attack": int, "hp": int, "luck": int},
+##        "chars": {id: {"xp": int}}}
+var meta_progress: Dictionary = {}
+## D44：存档路径可覆写（探针注入独立临时档防污染真实存档；默认 user://save_meta.json）
+var meta_save_path: String = "user://save_meta.json"
+
 # D14-15-T3：路线模式状态（route 空 = 旧波次制；非空 = 随机节点地图模式）
 var route: Dictionary = {}                 ## 本局路线（{seed, layers, modifiers, flags}）
 var route_enabled: bool = true             ## 路线模式开关（默认开启；注入 false = 完全旧行为）
@@ -83,11 +91,17 @@ var _current_event: Dictionary = {}       ## 当前事件（_start_event 随机�
 # ========== 状态流转方法 ==========
 
 func _ready() -> void:
+	# D27-T1：首行加载局外存档（缺失/损坏容错默认零值不崩）
+	load_meta()
 	# 事件随机源：默认随机化（探针可在调用前覆盖 seed 固定序列）
 	_event_rng.randomize()
 
 ## 开始新游戏（D14-15：route_enabled → 生成路线；route 空 → 旧波次制回归零破坏）
 func start_game() -> void:
+	# D27-T1 · D45：出场记录（current_character_id 判空——探针白盒直调时未走
+	# main._setup_character，不判空会写 chars[""]）
+	if current_character_id != "":
+		add_char_xp(current_character_id)
 	current_wave = 0
 	# 从 DataLoader 加载总波次数
 	max_waves = DataLoader.get_max_waves()
@@ -559,6 +573,14 @@ func _build_event_item(item_id: String) -> Resource:
 func end_game(victory: bool) -> void:
 	current_state = GameState.GAME_OVER
 	state_changed.emit(current_state)
+	# D27-T1：胜利结算（wins+1 / 研究点+1 / 当前角色 xp+1 + 存档）——须在
+	# game_over.emit 前完成（防信号消费方读脏状态）；失败局不结算（出场已在 start_game 记）
+	if victory:
+		meta_progress["wins"] = int(meta_progress.get("wins", 0)) + 1
+		meta_progress["research_points"] = int(meta_progress.get("research_points", 0)) + 1
+		if current_character_id != "":
+			add_char_xp(current_character_id)
+		save_meta()
 	# D4-T7（BUG-001-F1）：死亡/胜利后暂停，防敌人继续攻击连锁异常
 	get_tree().paused = true
 	_spawn_game_over_panel(victory)
@@ -624,3 +646,104 @@ func _spawn_game_over_panel(victory: bool) -> void:
 func _add_to_ui_layer(panel: Node) -> void:
 	var target: Node = get_tree().current_scene if get_tree().current_scene else get_tree().root
 	target.add_child(panel)
+
+# ========== 局外养成接口（Day 27 · D27-T1） ==========
+
+## 默认零值元进度（load_meta 兜底与 reset 复用）
+func _default_meta() -> Dictionary:
+	return {
+		"wins": 0,
+		"research_points": 0,
+		"research": {"attack": 0, "hp": 0, "luck": 0},
+		"chars": {},
+	}
+
+## 加载局外存档：缺文件/打开失败/非 Dictionary → 默认零值 + push_warning 容错不崩；
+## 成功 → 逐键 int() 收敛（Godot 4.3 JSON 全数字 float 的已知特性，DataLoader 先例）
+func load_meta() -> void:
+	meta_progress = _default_meta()
+	if not FileAccess.file_exists(meta_save_path):
+		return
+	var f := FileAccess.open(meta_save_path, FileAccess.READ)
+	if f == null:
+		push_warning("[GameManager] 存档打开失败(%s)，使用默认元进度" % meta_save_path)
+		return
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	if not (parsed is Dictionary):
+		push_warning("[GameManager] 存档解析失败(%s)，使用默认元进度" % meta_save_path)
+		return
+	var data: Dictionary = parsed as Dictionary
+	meta_progress["wins"] = int(data.get("wins", 0))
+	meta_progress["research_points"] = int(data.get("research_points", 0))
+	var research: Dictionary = data.get("research", {})
+	meta_progress["research"] = {
+		"attack": int(research.get("attack", 0)),
+		"hp": int(research.get("hp", 0)),
+		"luck": int(research.get("luck", 0)),
+	}
+	var chars: Dictionary = data.get("chars", {})
+	var clean_chars: Dictionary = {}
+	for cid in chars.keys():
+		var cdata: Variant = chars[cid]
+		var xp: int = int(cdata.get("xp", 0)) if cdata is Dictionary else 0
+		clean_chars[str(cid)] = {"xp": xp}
+	meta_progress["chars"] = clean_chars
+
+## 保存局外存档（每次结算/研究升级后调用）
+func save_meta() -> void:
+	var f := FileAccess.open(meta_save_path, FileAccess.WRITE)
+	if f == null:
+		push_warning("[GameManager] 存档写入失败(%s)" % meta_save_path)
+		return
+	f.store_string(JSON.stringify(meta_progress, "  "))
+
+## 局外永久增益换算：attack ×(1+0.05/级) / max_health ×(1+0.10/级) / luck +0.05/级
+## research 全 0 → 返回空字典（调用方零注入零回归）
+func get_meta_bonus() -> Dictionary:
+	var research: Dictionary = meta_progress.get("research", {})
+	var atk: int = int(research.get("attack", 0))
+	var hp: int = int(research.get("hp", 0))
+	var lck: int = int(research.get("luck", 0))
+	if atk <= 0 and hp <= 0 and lck <= 0:
+		return {}
+	return {
+		"attack_mult": 1.0 + 0.05 * float(atk),
+		"hp_mult": 1.0 + 0.10 * float(hp),
+		"luck_add": 0.05 * float(lck),
+	}
+
+## 研究升级（消耗 1 点）：成功 true；键非法/已满级/点数不足 → false 不扣点
+func upgrade_research(key: String) -> bool:
+	if key != "attack" and key != "hp" and key != "luck":
+		return false
+	var research: Dictionary = meta_progress.get("research", {})
+	if int(research.get(key, 0)) > 0:
+		return false
+	var points: int = int(meta_progress.get("research_points", 0))
+	if points <= 0:
+		return false
+	research[key] = 1
+	meta_progress["research"] = research
+	meta_progress["research_points"] = points - 1
+	save_meta()
+	return true
+
+## 增加研究点（胜利结算调用）
+func add_research_point(amount: int = 1) -> void:
+	meta_progress["research_points"] = int(meta_progress.get("research_points", 0)) + maxi(amount, 0)
+
+## 角色 XP 累计（出场/胜场各 +1；id 空判空跳过）
+func add_char_xp(id: String, amount: int = 1) -> void:
+	if id.is_empty():
+		return
+	var chars: Dictionary = meta_progress.get("chars", {})
+	var cdata: Dictionary = chars.get(id, {})
+	chars[id] = {"xp": int(cdata.get("xp", 0)) + maxi(amount, 0)}
+	meta_progress["chars"] = chars
+
+func get_char_xp(id: String) -> int:
+	return int(meta_progress.get("chars", {}).get(id, {}).get("xp", 0))
+
+## 角色等级 = xp/3 向下取整（仅驱动剧情解锁 + 展示，无属性收益）
+func get_char_level(id: String) -> int:
+	return int(get_char_xp(id) / 3)
