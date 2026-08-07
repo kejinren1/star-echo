@@ -17,6 +17,9 @@ script = ExtResource("1_main")
 
 [node name="Ground" parent="World" instance=ExtResource("2_ground")]
 
+[node name="MainCamera" type="Camera2D" parent="World"]
+position = Vector2(320, 180)
+
 [node name="Player" parent="World" instance=ExtResource("3_player")]
 position = Vector2(320, 180)
 

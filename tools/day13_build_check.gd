@@ -351,8 +351,9 @@ func _part_crit() -> void:
 		_pass("暴击 / _roll_crit crit=0 → 原值（零回归）")
 
 	# 端到端命中：mock enemy（动态脚本记录 take_damage 实收）
+	# is_crit 可选参：同步 F-11 接口（enemy.gd take_damage(amount, is_crit=false)）
 	var enemy_script := GDScript.new()
-	enemy_script.source_code = "extends Node2D\nvar received: float = 0.0\nvar is_alive: bool = true\nfunc take_damage(a: float) -> void:\n\treceived += a\n"
+	enemy_script.source_code = "extends Node2D\nvar received: float = 0.0\nvar is_alive: bool = true\nfunc take_damage(a: float, is_crit: bool = false) -> void:\n\treceived += a\n"
 	var err: Error = enemy_script.reload()
 	if err != OK:
 		_fail("暴击: mock enemy 脚本编译失败 err=%d" % err)

@@ -37,6 +37,7 @@ var direction: Vector2 = Vector2.ZERO
 var _hit_count: int = 0
 var _lifetime_timer: float = 0.0
 var _exploded: bool = false                   ## 防重复爆炸（命中 / 寿命耗尽两条路径都会触发）
+var _last_crit: bool = false                  ## F-11：最近一次 _roll_crit 是否暴击（伤害数字样式用）
 
 # ========== 生命周期 ==========
 
@@ -74,12 +75,19 @@ func _on_body_entered(body: Node) -> void:
 	# 命中敌人则造成伤害（D13-T1：暴击结算）
 	if body.is_in_group("enemies") and body.has_method("take_damage"):
 		var final_damage: float = _roll_crit(damage)
-		body.take_damage(final_damage)
+		# F-11（用户拍板 2026-08-06）：伤害数字子系统——命中时透传暴击态（enemy 侧展示）
+		body.take_damage(final_damage, _is_crit_hit())
 		_apply_life_steal(final_damage)
 		_hit_count += 1
+		# F-07（用户拍板 2026-08-06）：穿透弹沿途每个敌人即时爆炸（含元素附着）——
+		# 而非仅最后一次命中才爆。拆分 _do_explosion（无防重复标记）：穿透中段裸爆，
+		# 最后一次命中走 _explode（防与 lifetime 到点双爆）
 		if _hit_count > pierce:
 			_explode()
 			queue_free()
+			return
+		if explosion_radius > 0.0:
+			_do_explosion()
 
 # ========== 爆炸 AOE 与元素附着（Day 3 · D3-T2） ==========
 
@@ -90,6 +98,14 @@ func _explode() -> void:
 	if _exploded or explosion_radius <= 0.0:
 		return
 	_exploded = true
+	_do_explosion()
+
+## F-07（用户拍板 2026-08-06）：裸爆炸执行体（无防重复标记）
+## 穿透弹命中沿途每个敌人时调用（一次命中 = 一次爆炸）；_explode 包装保留防重复
+## （lifetime 到点路径 + 最后一次命中路径同帧双触发时只结算一次）
+func _do_explosion() -> void:
+	if explosion_radius <= 0.0:
+		return
 
 	if GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
 		for enemy in GameManager.enemy_spawner.enemies_container.get_children():
@@ -100,7 +116,8 @@ func _explode() -> void:
 			if explosion_damage > 0.0 and enemy.has_method("take_damage"):
 				# D13-T1：AOE 与线弹同口径暴击（暴击伤害同样走吸血）
 				var final_damage: float = _roll_crit(explosion_damage)
-				enemy.take_damage(final_damage)
+				# F-11：AOE 暴击态透传（enemy 侧展示伤害数字）
+				enemy.take_damage(final_damage, _is_crit_hit())
 				_apply_life_steal(final_damage)
 			if not status_type.is_empty() and enemy.has_method("apply_status"):
 				enemy.apply_status(status_type, status_duration, status_dps)
@@ -133,10 +150,16 @@ func _apply_life_steal(damage_dealt: float) -> void:
 ## 按暴击率 roll 一次最终伤害：`randf() < crit_chance` → base × crit_mult；否则 base
 ## crit_chance <= 0 时恒不暴击（既有武器零回归）；crit_mult < 1.0 视为 1.0（无加成）
 ## 独立公开方法：无头测试可白盒直调，不依赖物理碰撞帧
+## F-11：同步记录 _last_crit（伤害数字暴击样式读取，禁调用方二次 roll 导致显示与结算不一致）
 func _roll_crit(base: float) -> float:
-	if crit_chance > 0.0 and randf() < crit_chance:
+	_last_crit = crit_chance > 0.0 and randf() < crit_chance
+	if _last_crit:
 		return base * maxf(crit_mult, 1.0)
 	return base
+
+## F-11：最近一次 _roll_crit 是否暴击（线弹/AOE 命中后透传给 enemy.take_damage 展示样式）
+func _is_crit_hit() -> bool:
+	return _last_crit
 
 # ========== 工具 ==========
 

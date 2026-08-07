@@ -117,7 +117,8 @@ func _cast_fireball() -> void:
 		"speed": 280.0,
 		"damage": dmg,
 		"lifetime": 1.4,
-		"pierce": 0,
+		# F-07（用户拍板 2026-08-06）：火球改为可穿透怪物（pierce 0→3，可穿过 3 个敌人）
+		"pierce": 3,
 		"explosion_radius": radius,
 		"explosion_damage": dmg,
 		"status_type": str(skill_data.get("element_type", "fire")),

@@ -46,6 +46,11 @@ layout_mode = 2
 text = "波次 0/20"
 theme_override_font_sizes/font_size = 8
 
+[node name="EnemyCountLabel" type="Label" parent="MarginContainer/VBoxContainer/TopBar/CenterSection"]
+layout_mode = 2
+text = "剩余 0"
+theme_override_font_sizes/font_size = 8
+
 [node name="RightSection" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3

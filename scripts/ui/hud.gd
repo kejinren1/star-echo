@@ -9,6 +9,8 @@ extends CanvasLayer
 @onready var xp_bar: TextureProgressBar = $MarginContainer/VBoxContainer/StatsBar/XpBar
 @onready var health_label: Label = $MarginContainer/VBoxContainer/StatsBar/HealthLabel
 @onready var wave_label: Label = $MarginContainer/VBoxContainer/TopBar/CenterSection/WaveLabel
+## F-06（用户拍板 2026-08-06）：剩余怪物数量 Label（倒计时 timer_label 已有）
+@onready var enemy_count_label: Label = $MarginContainer/VBoxContainer/TopBar/CenterSection/EnemyCountLabel
 @onready var timer_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/TimerLabel
 @onready var coins_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/CoinsLabel
 
@@ -83,6 +85,30 @@ func _on_wave_started(wave_number: int) -> void:
 
 func _on_state_changed(new_state) -> void:
 	visible = (new_state == GameManager.GameState.BATTLE)
+
+## F-06（用户拍板 2026-08-06）：剩余怪计数 —— 0.25s 低频轮询 enemies_container 存活敌数
+## （杀敌/精英产卵/清残敌都会即时反映；不用 total-kill 差值，天然免疫产卵与生成批次偏差）
+var _enemy_count_timer: float = 0.0
+
+func _process(delta: float) -> void:
+	_enemy_count_timer -= delta
+	if _enemy_count_timer > 0.0:
+		return
+	_enemy_count_timer = 0.25
+	_refresh_enemy_count()
+
+func _refresh_enemy_count() -> void:
+	var alive: int = 0
+	var container: Node = GameManager.enemies_container if GameManager.enemies_container else null
+	if container == null and GameManager.enemy_spawner:
+		container = GameManager.enemy_spawner.get("enemies_container")
+	if container == null:
+		enemy_count_label.text = "剩余 0"
+		return
+	for enemy in container.get_children():
+		if is_instance_valid(enemy) and enemy.get("is_alive") != false:
+			alive += 1
+	enemy_count_label.text = "剩余 %d" % alive
 
 func _on_timer_tick(time: float) -> void:
 	timer_label.text = "%d" % ceil(time)

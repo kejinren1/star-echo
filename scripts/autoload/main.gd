@@ -14,6 +14,8 @@ extends Node2D
 @onready var inventory: Node = $Inventory
 @onready var hud: Node = $HUD
 @onready var shop: Node = $Shop
+## F-03（用户拍板 2026-08-06）：固定相机（320,180 视口中心，不跟随）——受伤时 offset 抖动
+@onready var camera: Camera2D = $World/MainCamera
 
 # ========== 常量 ==========
 
@@ -28,16 +30,28 @@ const FALLBACK_CHARACTER_ID: String = "well_rounded"
 var current_character_id: String = ""    ## 本局英雄 id
 ## F-04（金手指）：↑+↓ 同按边缘触发检测（上一帧状态防按住连发）
 var _debug_keys_prev: bool = false
+## F-03（用户拍板 2026-08-06）：相机震动状态（took_damage 触发；随时间衰减归位）
+var _shake_time: float = 0.0
+const _SHAKE_DURATION: float = 0.15
+const _SHAKE_MAGNITUDE: float = 4.0
 
 # ========== 生命周期 ==========
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	# F-04（用户拍板 2026-08-06 · P0）：↑+↓ 同按 → 金手指 toggle
 	# （跳关 + 攻击×10 + 受伤0.1%；边缘触发，按住不连发）
 	var both: bool = Input.is_action_pressed("move_up") and Input.is_action_pressed("move_down")
 	if both and not _debug_keys_prev:
 		GameManager.toggle_debug_cheat()
 	_debug_keys_prev = both
+	# F-03（用户拍板 2026-08-06）：相机震动衰减（每帧随机偏移 × 剩余强度）
+	if _shake_time > 0.0:
+		_shake_time -= delta
+		if camera and is_instance_valid(camera):
+			var t: float = maxf(_shake_time / _SHAKE_DURATION, 0.0)
+			camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _SHAKE_MAGNITUDE * t
+			if _shake_time <= 0.0:
+				camera.offset = Vector2.ZERO
 
 func _ready() -> void:
 	# 装载本局英雄（须在子系统绑定前完成，保证属性/武器在开局即生效）
@@ -56,6 +70,10 @@ func _ready() -> void:
 	# D4-T1：升级 → 暂停 + 弹强化面板（GameManager 侧消费）
 	if player and player.has_signal("level_up") and not player.level_up.is_connected(GameManager._on_player_level_up):
 		player.level_up.connect(GameManager._on_player_level_up)
+
+	# F-03（用户拍板 2026-08-06）：玩家受伤 → 相机震动（红闪在 player._play_hit_flash 已有）
+	if player and player.has_signal("took_damage") and not player.took_damage.is_connected(_on_player_hit):
+		player.took_damage.connect(_on_player_hit)
 
 	# D11-12-T3：被动装配链路 —— inventory 道具增减 → player.apply_item_bonuses（买了必生效 / 移除回退）
 	# 接线放 Main（GameManager 是 autoload，其 _ready 早于 Main 场景子节点就绪）
@@ -135,6 +153,10 @@ func _equip_starting_weapon(weapon_id: String) -> void:
 		controller.sync_inventory_weapons()
 
 # ========== 信号处理 ==========
+
+## F-03（用户拍板 2026-08-06）：玩家受伤 → 触发相机震动（0.15s 随机抖动后归位）
+func _on_player_hit(_amount: float) -> void:
+	_shake_time = _SHAKE_DURATION
 
 ## 敌人生成时连接死亡信号
 func _on_enemy_spawned(enemy: Node) -> void:

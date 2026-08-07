@@ -133,6 +133,10 @@ func _start_next_wave(wave_number: int = -1) -> void:
 func on_wave_cleared() -> void:
 	# D4-T8（BUG-001-F2）：先清残敌、后发奖，避免商店期间残敌继续攻击玩家
 	_clear_remaining_enemies()
+	# F-05（用户拍板 2026-08-06）：每通一关回复最大生命 50%——清残敌后、发信号前
+	# （路线模式 battle/elite 与旧制每波统一生效；event/shop 节点不经过本入口天然豁免；
+	# 防 P1-1 商店弹出前玩家已带伤进场）
+	_apply_wave_heal()
 	wave_cleared.emit(current_wave)
 	if not route.is_empty():
 		_on_node_completed()
@@ -151,6 +155,15 @@ func _clear_remaining_enemies() -> void:
 	for enemy in enemy_spawner.enemies_container.get_children():
 		if is_instance_valid(enemy):
 			enemy.queue_free()
+
+## F-05（用户拍板 2026-08-06）：通关回血 50% 最大生命
+## 独立方法便于探针白盒直调；玩家未绑定/已死时静默跳过不崩
+func _apply_wave_heal() -> void:
+	if player == null or not is_instance_valid(player):
+		return
+	if not player.has_method("heal") or not ("max_health" in player):
+		return
+	player.heal(float(player.max_health) * 0.5)
 
 ## 关闭商店（P1 Fix-1：战后商店 → 路线选择；shop节点商店 → 节点完成推进；旧模式 → 下一波）
 func close_shop() -> void:

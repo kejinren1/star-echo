@@ -14,6 +14,10 @@ class_name OrbitWeapon
 const BLADE_SIZE: Vector2 = Vector2(8, 12)
 ## 刃接触判定半径（像素）
 const HIT_RADIUS: float = 12.0
+## F-08（用户拍板 2026-08-06）：玩家贴身必中半径（像素）——环绕刃视觉在 orbit_radius 外
+## 旋转，贴身敌人若只靠刀刃圆环判定将「看得见打不着」；追加以玩家为中心的必中圆
+## （覆盖玩家碰撞体 24×28 + 余量），贴身怪任意刃经过即命中 → 贴近必中
+const PLAYER_HIT_RADIUS: float = 44.0
 
 # ========== 状态 ==========
 
@@ -88,6 +92,7 @@ func _sync_blades() -> void:
 # ========== 命中 ==========
 
 ## 单刃接触判定：容器遍历（禁物理查询），命中后套玩家倍率并进入该刃冷却
+## F-08（用户拍板 2026-08-06）：判定 = 刃位置命中 **或** 玩家贴身圆命中——贴身怪必中
 func _check_hit(i: int) -> void:
 	if _hit_cd[i] > 0.0:
 		return
@@ -97,7 +102,11 @@ func _check_hit(i: int) -> void:
 	for enemy in GameManager.enemy_spawner.enemies_container.get_children():
 		if not is_instance_valid(enemy) or not enemy.is_alive:
 			continue
-		if blade_pos.distance_to(enemy.global_position) <= HIT_RADIUS:
+		var on_blade: bool = blade_pos.distance_to(enemy.global_position) <= HIT_RADIUS
+		var on_player_core: bool = false
+		if is_instance_valid(player) and player.get("is_alive") != false:
+			on_player_core = player.global_position.distance_to(enemy.global_position) <= PLAYER_HIT_RADIUS
+		if on_blade or on_player_core:
 			var dmg: float = weapon.get_damage()
 			if player and "damage_multiplier" in player:
 				dmg *= player.damage_multiplier

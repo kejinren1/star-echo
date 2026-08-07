@@ -8,6 +8,10 @@ extends CharacterBody2D
 signal died(enemy: Node)
 signal health_changed(current_hp: float, max_hp: float)
 
+## F-11（用户拍板 2026-08-06）：伤害数字飘字脚本。preload 而非依赖 class_name——
+## 无头 --script 模式（探针）不注册全局类名（main.gd:20 同策略），静态方法经脚本引用调用
+const DamageNumberScript: GDScript = preload("res://scripts/effects/damage_number.gd")
+
 # ========== 行为枚举 ==========
 
 enum Behavior {
@@ -460,7 +464,9 @@ func is_target_valid() -> bool:
 # ========== 受伤与死亡 ==========
 
 ## 受到伤害 (考虑护甲减伤)
-func take_damage(amount: float) -> void:
+## F-11（用户拍板 2026-08-06）：新增可选 is_crit 参数——默认 false 零回归（DoT/接触/旧调用
+## 不传即普通伤害数字）；projectile 线弹/AOE 透传真实暴击态 → 金色大字号「N!」
+func take_damage(amount: float, is_crit: bool = false) -> void:
 	if not is_alive:
 		return
 	# 护甲减伤: reduction = min(armor / (armor + 20), 0.75)
@@ -469,6 +475,7 @@ func take_damage(amount: float) -> void:
 	health -= actual_damage
 	health_changed.emit(health, max_health)
 	_play_hit_flash()
+	_spawn_damage_number(actual_damage, is_crit)
 	if health <= 0.0:
 		die()
 
@@ -514,6 +521,16 @@ func _spawn_exp_popup(amount: int) -> void:
 	tween.tween_property(label, "global_position:y", label.global_position.y - 26.0, 0.6)
 	tween.tween_property(label, "modulate:a", 0.0, 0.6)
 	tween.chain().tween_callback(label.queue_free)
+
+## F-11（用户拍板 2026-08-06）：受击伤害数字飘字（普通浅黄 / 暴击金色大字号「N!」）
+## 容器解析复用 _spawn_exp_popup 范式：vfx_container → current_scene → 无容器跳过不崩
+func _spawn_damage_number(amount: float, is_crit: bool) -> void:
+	var container: Node = GameManager.vfx_container if GameManager.vfx_container else null
+	if container == null:
+		container = get_tree().current_scene
+	if container == null:
+		return
+	DamageNumberScript.spawn(container, global_position, amount, is_crit)
 
 # ========== 初始化接口 ==========
 
