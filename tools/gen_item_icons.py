@@ -21,7 +21,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "assets", "sprites", "ui", "items.png")
 
 SIZE = 32
-FRAMES = 22
+FRAMES = 25
 
 # ---- 色板 ----
 OUTLINE = (26, 30, 42, 255)      # 深蓝黑 1px 描边
@@ -467,6 +467,57 @@ def ic_mech_engine():
     return i
 
 
+# ================= D24-F13-3 机制型被动 3 帧（帧序 = icon_index 22/23/24） =================
+## 占位纯色图口径（2026-08-07 用户拍板：机制验证即可，豁免 ART_STYLE 色号编码）
+
+def ic_overload_capacitor():
+    """过载电容：青蓝电容体 + 两极 + 闪电（trigger·on_crit 暴击连锁，overload_capacitor）。"""
+    i = Icon()
+    # 电容体（圆角矩形近似：矩形 + 上下收边）
+    i.rect_o(8, 10, 16, 13, (79, 195, 247, 255))   # 青蓝 #4FC3F7
+    i.rect(9, 11, 14, 11, (140, 220, 250, 255))
+    i.rect_o(11, 6, 10, 5, (60, 150, 200, 255))    # 顶部电极
+    i.rect(12, 7, 8, 3, (120, 200, 240, 255))
+    i.rect(9, 23, 14, 3, (60, 150, 200, 255))      # 底部电极
+    # 闪电（金色）
+    i.tri([(20, 11), (14, 18), (18, 18)], GOLD)    # 闪电上
+    i.tri([(20, 18), (13, 23), (17, 20)], GOLD)
+    i.set(12, 12, WHITE)                           # 高光
+    return i
+
+
+def ic_executioner_mark():
+    """处决印记：暗红镰刃 + 柄（trigger·on_kill 击杀回血，executioner_mark）。"""
+    i = Icon()
+    # 镰刃（暗红弯月 #B71C1C）：外弧 + 内弧差集
+    i.disc(18, 12, 10, (183, 28, 28, 255))         # 暗红大圆（外弧源）
+    i.disc(18, 12, 10, None)
+    i.disc(23, 17, 8, None)                        # 挖去右下角形成刃口
+    i.rect(8, 12, 10, 10, (183, 28, 28, 255))      # 补刃根
+    # 刃口高光
+    i.line(10, 13, 16, 19, (230, 90, 90, 255), 1)
+    # 手柄（棕色斜柄）
+    i.rect_o(5, 18, 8, 4, BROWN)
+    i.rect(6, 19, 6, 2, BROWN_D)
+    i.set(12, 9, (230, 90, 90, 255))               # 刃尖高光
+    return i
+
+
+def ic_last_stand():
+    """背水一战：橙黄心火 + 火焰（trigger·low_health 低血爆发，last_stand）。"""
+    i = Icon()
+    # 火焰心形（橙黄 #FFB300）：两圆 + 三角近似心形
+    i.disc(12, 14, 6, (255, 179, 0, 255))          # 左瓣
+    i.disc(20, 14, 6, (255, 179, 0, 255))          # 右瓣
+    i.tri([(16, 24), (8, 14), (24, 14)], (255, 179, 0, 255))  # 心尖
+    i.tri([(16, 6), (11, 12), (21, 12)], (255, 200, 60, 255)) # 心顶焰
+    i.tri([(16, 4), (13, 9), (19, 9)], (255, 220, 120, 255))  # 焰心
+    i.set(11, 12, (255, 230, 150, 255))            # 高光
+    i.set(19, 11, (255, 230, 150, 255))
+    i.set(16, 16, (200, 130, 0, 255))              # 心谷阴影
+    return i
+
+
 # ================= 帧表 =================
 
 def build():
@@ -493,6 +544,9 @@ def build():
         19: ic_blade_core,
         20: ic_broken_crown,   ## D20-T5：破碎王冠（遗物）
         21: ic_mech_engine,    ## D20-T5：机械引擎（遗物）
+        22: ic_overload_capacitor,  ## D24-F13-3：过载电容（on_crit）
+        23: ic_executioner_mark,    ## D24-F13-3：处决印记（on_kill）
+        24: ic_last_stand,          ## D24-F13-3：背水一战（low_health）
     }
     sheet = Image.new("RGBA", (SIZE * FRAMES, SIZE), (0, 0, 0, 0))
     for idx in range(FRAMES):

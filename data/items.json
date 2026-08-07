@@ -806,6 +806,63 @@
       ],
       "slot": "relic",
       "icon_index": 21
+    },
+    {
+      "id": "overload_capacitor",
+      "name": "过载电容",
+      "rarity": "epic",
+      "price": 60,
+      "effects": {},
+      "tags": [
+        "crit"
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "attack",
+      "icon_index": 22,
+      "trigger": {
+        "type": "on_crit",
+        "radius": 80,
+        "ratio": 0.3
+      }
+    },
+    {
+      "id": "executioner_mark",
+      "name": "处决印记",
+      "rarity": "rare",
+      "price": 40,
+      "effects": {},
+      "tags": [
+        "life_steal"
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "defense",
+      "icon_index": 23,
+      "trigger": {
+        "type": "on_kill",
+        "heal": 1
+      }
+    },
+    {
+      "id": "last_stand",
+      "name": "背水一战",
+      "rarity": "rare",
+      "price": 45,
+      "effects": {},
+      "tags": [
+        "damage"
+      ],
+      "is_passive": true,
+      "slot": "passive",
+      "category": "stat",
+      "icon_index": 24,
+      "trigger": {
+        "type": "low_health",
+        "threshold": 0.3,
+        "attack_mult": 1.5,
+        "speed_mult": 1.2
+      }
     }
   ]
 }
