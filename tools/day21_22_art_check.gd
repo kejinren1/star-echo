@@ -68,6 +68,12 @@ func _load_mocks() -> void:
 		_report()
 		quit(_failures)
 		return
+	# mock vfx_container：真实游戏由 Main 场景装配（_resolve_fx_container 短路用）；
+	# 缺省 null 会让 Boss initialize → _show_boss_phase_banner 走到 get_tree() 分支，
+	# 在未入树节点上触发 C++ 层 "Parameter data.tree is null" ERROR 噪音（node.h:446）
+	var gm: Node = root.get_node_or_null("GameManager")
+	if gm != null and not gm.get("vfx_container"):
+		gm.set("vfx_container", Node2D.new())
 	# mock player（player.gd：_apply_character_sprite + 动画三防白盒）
 	# 子节点必须先于 add_child 挂好：SkillController._ready 需 player 已就位，
 	# player._ready 需 SkillController 已存在才能连接 skill_cast 信号
@@ -144,7 +150,8 @@ func _png_frame_nonempty(res_path: String, frame_count: int, frame_size: Vector2
 		return false
 	for i in frame_count:
 		var empty: bool = true
-		for y in range(i * frame_size.y, (i + 1) * frame_size.y):
+		# 横排图：y 固定 [0, 帧高)，x 按帧号分段 [i*fw, (i+1)*fw)
+		for y in range(frame_size.y):
 			for x in range(i * frame_size.x, (i + 1) * frame_size.x):
 				if img.get_pixel(x, y).a > 0.0:
 					empty = false

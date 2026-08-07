@@ -2452,3 +2452,52 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-07 20:13 自动化测试轮次 #28：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持无新增）。** HEAD=**2d99053**（Day 18-FB2 反馈修复批次 + 商店点击穿透修复 + 阶段 C 收口全部入库）：工程可导入、可运行、数据完整且边界健康（**9 表 2279 字段零缺陷**，23 敌新增 coin_value 金币数据化）、**16 场景全可实例化**、**十八件套探针 484 断言全绿首跑**（day18_feedback2_check 32/32 行为级收口金币掉落/Boss 血条/星刃贴体/GUI 真实点击购买全链路，补充商店 GUI 点击测试盲区）。**无新增功能缺陷、无 action item**。**无需回退。**
+
+---
+
+## §7.29 轮次 #29 · 2026-08-07 22:22（自动化 · Day 21-22 美术资产正式覆盖 + H-01 升级体验在途）
+
+**验证快照**：HEAD=**c091b73**（Day21-22 阶段D首段：34 张美术资产 + SPRITE_MAP 换皮 + D16 hit_radius 解耦 + D17 scale 复位 + D19 动画三防 + day21_22 探针 38/38）。工作区**在途 = H-01 升级体验（反馈专员 2026-08-07 21:5x 用户拍板）**：`scripts/enemy/enemy.gd`（+23：受击击退 `_knockback`/`apply_knockback`/`_process_knockback`，衰减 50%/帧阈值 8 清零）/ `scripts/player/player.gd`（+43：`_trigger_level_impact` 升级冲击波——复用 fx_levelup 光效 + 半径 140px 内普攻级伤害 `base_damage×damage_multiplier×debug_mult` + 背离击退 500）+ 新探针 `tools/day18_feedback3_check.gd`（未跟踪）+ docs/* 四文件。**验证快照 = HEAD + 在途**（本轮不 commit，仅测与报告）。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=51 / events=10 / enemies=23 / waves=20。
+- 数值字段 **2279** 与 #28 持平（数据层零变更）；负值 39 全有意；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（chars→weapons 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**，stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. 探针回归（二十件套，549 断言全 CLEAN）
+
+**二十件套 20/20 PASS，549 断言**（= #28 的 484 + **day18_feedback3 27/27 + day21_22 38/38 首纳入**）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 **27** / day18_19 48 / day20_relic 23 / day21_22 **38**。
+
+**day18_feedback3_check 27/27（首纳入，在途 H-01 行为级收口）**：§1 击退白盒（归一化初速 500 / 方向背离 / 死亡·零向量·零力免疫 / 推进位移 + 衰减 50%→250→清零）；§2 升级冲击（gain_exp 满阈值 → level 2 + 半径 140px 内掉 8 血 = 初始枪 base 8.0 普攻口径 / 半径外不伤 / 击退方向背离 / fx_levelup 光效入容器）；§3 倍率 ×2.0 → 16、自定义武器 base 12 ×2.0 = 24、无武器兜底 10 ×2.0 = 20；§4 连升多级每级光效 + 死亡敌跳过 + 空容器不崩 + 终态 level ≥ 8。
+
+**day21_22_art_check 38/38（首纳入回归套件，#35 请求兑现）**：§1 敌人 10 sheet 尺寸 + SPRITE_MAP 全路径存在；§2 Boss scale 复位 ×1 + hit_radius 56 + frame 128；§3 角色 walk/idle 帧非空 + siia 换皮 + 动画三防接线；§4 阵营 5/背景 4/头像 3 + 透明键抽查；§5 .import 齐全 + 回归锚点（se_irene/butcher aoe/charger 28 接触/wave2 数据）。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| **探针缺陷（已修）** | **day18_feedback3 死循环**：退出条件 `_sub > 16` 但 match 仅实现 0-12 → `_sub=13` 恒不满足 → `_process` 永不 quit → 首跑 300s TIMEOUT。修 `_sub > 12` 后 27/27 CLEAN（首跑 1 次 TIMEOUT 后重跑实证） | 探针自身逻辑缺陷，非游戏缺陷 |
+| **探针缺陷（已修）** | **day21_22 两处 ERROR**：① `_png_frame_nonempty` 遍历 y 范围按帧号 i 偏移（对 192×32 横排图 p_y=32/64/.../160 越界 ×16 条）→ 修 y 固定 [0,帧高)、x 按帧号分段；② §2 Boss `initialize`（未入树）→ `_show_boss_phase_banner` → `_resolve_fx_container` → `get_tree()` 触发 C++ 层 `Parameter "data.tree" is null`（node.h:446）→ 补 mock `GameManager.vfx_container` 短路（真实游戏 Main 装配恒存在，非游戏缺陷）。修后 38/38 CLEAN | 探针自身缺陷 + 探针环境缺 mock，非游戏缺陷 |
+| minor | day11_12 763B / day13 859B / day20 1044B / day18_feedback2 362B / **day18_feedback3 362B（新增：1 RID CanvasItem + ObjectDB + 1 resources）** / **day21_22 564B（新增：3 RID CanvasItem + 1 ShapedTextData + 1 Font + ObjectDB + 1 resources）** 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7 124B / day10 132B 越界保护；day14_15 130B / day16 276B push_warning；day18_feedback 497B「[HUD] 未找到 SkillController」防御分支；day18_19 117B「[Boss] 未知攻击指令」；day20 3 条「[Player] 被动效果键未实现」+ 1 条「[HUD] 未知技能 id」 | 测试主动触发/防御分支预期输出 |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **在途（新增）**：H-01 升级体验 `scripts/enemy/enemy.gd` + `scripts/player/player.gd` + 新探针 `tools/day18_feedback3_check.gd`（未跟踪）+ docs/* 四文件——**建议尽快 commit 入库**；探针两处修复（fb3 死循环 / a22 越界+get_tree mock）与 `_regression_run.py` expect 同步（day18_feedback3 23→27）同批提交。
+
+### 结论
+
+**✅ 2026-08-07 22:22 自动化测试轮次 #29：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持，2 项探针自身缺陷本轮修复）。** HEAD=**c091b73** + 在途 H-01（升级冲击波：光效+击退+普攻级伤害）：工程可导入、可运行、数据完整且边界健康（**9 表 2279 字段零缺陷**）、**16 场景全可实例化**、**二十件套探针 549 断言全绿**（day18_feedback3 27/27 首纳入行为级收口 H-01 升级体验；day21_22 38/38 正式覆盖 Day 21-22 美术资产，#35 请求兑现）。**探针维护 2 项**：day18_feedback3 死循环（`_sub>16`→`_sub>12`）、day21_22 帧遍历越界 + vfx_container mock 缺失——均工具侧，不改游戏逻辑，修复后重跑 20/20 CLEAN。**无新增功能缺陷；1 项 action item：在途 H-01 建议 commit 入库**。**无需回退。**

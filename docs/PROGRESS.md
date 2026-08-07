@@ -2204,3 +2204,67 @@
 - **状态终局**：阶段 C 全收口（A/B/C 三阶段 100%）；目标日 = Day 21-22（阶段 D 首段）拆解就绪待 21:35 窗口执行；真人整合局反馈流高速闭环（2 小时 6 提交含 4 项用户反馈修复）；T-D 时限解除；整体 ≈76.7%
 
 *本日报由自动化 #1 生成 · 仅分析、记录与调度，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
+
+---
+
+# 📋 第 31 轮进度日报（2026-08-07 22:08 · 自动化 #1 · 阶段 D 推进 + H-01 反馈在途型）
+
+## 一、进度总览
+
+- **目标开发日：Day 23（技能特效 · 占位实现机制验证版，阶段 D 续段）—— 🟠 方案已定零开工（21:35 窗口被 H-01 升级反馈挤占）**
+- **整体进度：≈80.7%**（Day 等效 24.2/30，+1.2）；超前 ≈21.2 开发日（日历 Day 3/30）
+- **阶段完成度**：A 100%（6/6）｜B 100%（7/7）｜C 100%（7/7）｜**D ≈33.3%（2/6，Day 21-22 全量收口）**｜E 0%（0/4）
+- **基线**：本轮 22:10 实跑 `BASELINE CLEAN` ✅（**含 H-01 在途代码共同验证**，import + runtime 双 PASS）
+
+## 二、本轮实测（git + 磁盘 · 收尾复核铁律执行）
+
+- **git 实证**：HEAD = `c091b73`（**Day 21-22 美术资产收口 @20:27**：`gen_day21_22_art.py` 幂等出图 34 张 + SPRITE_MAP 23 条换皮 + D16 hit_radius 解耦 + D17 Boss scale 复位双点 + D19 动画三防 + day21_22 探针 38/38 + 回归十九件套 490 断言）——**阶段 D 首段正式完成，上轮 🟠「零开工」解除**
+- **🔴 本轮最大动态 = H-01 升级体验反馈在途实现（用户 08-07 拍板新需求）**：工作区未提交 = `scripts/enemy/enemy.gd`（+23 行：`_knockback`/`apply_knockback`/`_process_knockback` 受击击退，每帧衰减 50% 阈值 8px 清零）+ `scripts/player/player.gd`（+43 行：`_trigger_level_impact` 升级冲击波——复用 fx_levelup 光效 + 半径 140px 击退 force 500 + **普攻级伤害**（weapon base_damage × damage_multiplier × debug_mult，无武器兜底 10.0））+ `tools/day18_feedback3_check.gd`（?? 新建探针）+ **`probe_fb3_out.log` 已在盘（探针已实跑）** → 21:35 窗口被用户反馈挤占（**合理挤占**，用户拍板新需求优先于主线）
+- **Day 23 磁盘五查零开工（符合预期）**：`vfx_player.gd` FX_CONFIG 仍 5 键（:16-22，hit/crit/death/levelup/pickup）/ `assets/sprites/effects/` 无新特效 PNG（仅旧 5 + tileset）/ 无 `tools/day23_vfx_check.gd` → **Day 23 游戏代码零提交**；但拆解管线已就绪——**SOLUTION_PLAN.md 第 5 轮（在途）已按用户 21:1x 拍板定稿占位口径**（T2 出图改纯色占位图、豁免色号编码，机制层 T1/T3/T4/T5/EXIT 照旧），**TASKS 拆解本体待 #2 第 30 轮（22:5x）修正**（#5 增量 #35 已请）
+- **docs 在途 4 份**（全部 M，零提交）：`30DAY_PLAN.md`（§三 L97/L100 美术策略新口径同步）/ `PLAYTEST_CHECKLIST.md`（**增量 #35 @21:5x**：TEST_REPORT #28 十八件套 484 断言全绿 + Day 21-22 收口确认 + **R-1~R-5 主观项登记（仅审阅不返工）** + T-E 机器侧关闭 + K-3 复审条件满足 + 请 #4 #29 纳入 day21_22）/ `SOLUTION_PLAN.md`（第 5 轮 Day 23 方案）/ `TASKS.md`（#2 第 29 轮记录 + Day 21-22 ✅ + Day 23 🎯）
+- **协作佐证**：PLAYTEST #35 与 #1 磁盘实测双向一致（HEAD `c091b73`、D23 零开工、H-01 在途为 #3 侧动作）；scenes 16 个全在盘（含 VfxPlayer.tscn）
+
+## 三、已完成 / 进行中 / 阻塞
+
+| 状态 | 内容 |
+|---|---|
+| ✅ 完成 | **阶段 D 首段 = Day 21-22 美术资产全量收口**（34 张 + 换皮 + 判定解耦 + scale 复位 + 动画三防 + 探针 38/38）；阶段 A/B/C 100% 维持 |
+| 🟠 进行中 | **H-01 升级冲击波（用户拍板反馈）**：代码 + 探针已落工作区、探针日志在盘，待收口 commit；Day 23（占位特效）方案已定（SOLUTION_PLAN 第 5 轮）零开工，待 TASKS 拆解修正 + 执行窗口 |
+| 🟢 无阻塞 | 执行链健康（Day 21-22 已收口、H-01 在途即证明）；R4（🟡 第 27 轮）非阻塞；D23/24/26/27 拆解/方案全函数级就绪；真人整合局主观项（E-0/K 系列/R-1~R-5 等）挂 #5 |
+
+## 四、角色状态表
+
+| 角色 | 文件域 | 状态 | 本轮要点 |
+|---|---|---|---|
+| **W1** godot-dev | scripts/scenes | 🟢 正常 | Day 21-22 接线收口（SPRITE_MAP/hit_radius/scale/动画三防）；**H-01 升级冲击波实现中（enemy.gd 击退 + player.gd 冲击波在途）**；Day 23 T1/T3/T4 接线待下窗口 |
+| **W2** game-designer | data JSON | 🟢 正常 | Day 23 占位口径下无数据任务；items/enemies 数据已全量（49→51 遗物 + coin_value 23/23） |
+| **W3** pixel-artist | assets/sprites | 🟢 健康 | Day 21-22 34 张收口完成；**D23-T2 占位纯色图 5 枚（fx_fireball/turret_deploy/blade_burst/meteor/shield）待出**——按用户 21:1x 拍板：极简色块即可，豁免色号编码 |
+| **W4** NarrativeDesigner | 叙事 doc | ⚪ 空闲 | LORE.md 已预交付；GIT_COLLAB.md 已落 |
+| **W5** QA | 只读 + TEST_REPORT | 🟢 正常 | 增量 #35 @21:5x 已写（Day 21-22 收口确认 + R-1~R-5 登记）；day18_feedback3 探针已有日志（fb3_out/err） |
+
+## 五、风险表（更新）
+
+| 风险 | 级别 | 状态 |
+|---|---|---|
+| **Day 23 开工** | 🟠 观察 | SOLUTION_PLAN 第 5 轮方案已定（占位口径）零拍板依赖；21:35 窗口被 H-01 反馈合理挤占 → **#2 第 30 轮（22:5x）修正 TASKS 拆解后，23:35 执行窗口为开工裁决点**（零产出则重排 T1→T5，W1/W3 域健康） |
+| **H-01 反馈 3 在途** | 🟡 新列 | enemy.gd/player.gd + 探针 + 4 docs 未提交（R10 变体挂账第 4 轮）；建议反馈专员/执行者收口 commit（探针已跑有日志，条件具备），勿夹带 probe_logs/ |
+| R10 变体 | 🟡 挂账第 4 轮 | 4 docs（30DAY_PLAN/PLAYTEST/SOLUTION_PLAN/TASKS）+ H-01 代码 2 文件 + 探针 1 在途；建议 Day 23 收口一并入库 |
+| R4 攻击力口径 | 🟡 挂账第 27 轮 | 非阻塞；已标 [!] 交 Owner 一句话放行 |
+| 真人整合局主观项 | 🟡 挂 #5 | E-0 阶段 C 终审 + K-1~K-4 Boss + P0 围杀体感 + F-16~F-18 + Q-1~Q-6 + **R-1~R-5（新增，仅审阅不返工）** |
+| TEST_REPORT 覆盖缺口 | 🟢 已排 | #28（2d99053 快照）未覆盖 Day 21-22 → #5 已请 #4 #29 纳入 day21_22（38 断言）= 十九件套 490 断言 |
+
+## 六、下一步（按优先级）
+
+1. **反馈专员/执行者（最高优先级）**：**H-01 day18_feedback3 收口**（探针已实跑有日志 → 补 verify + commit，含 2 代码 + 1 探针；docs 4 份随行入库或留待 Day 23 收口统一提交）；随后消费 **SOLUTION_PLAN 第 5 轮 Day 23 方案**（T1 FX_CONFIG 5→10 + hit 消费点激活 → T2 占位纯色图 5 枚（W3，豁免色号编码）→ T3 fireball/turret_deploy/blade_burst 接线 → T4 se_star_fall → meteor → T5 探针 + 回归十九件套→二十件套）
+2. **#2（22:5x 即将）**：修正 TASKS D23 区拆解为占位口径（T2 旧「华丽 PNG」描述 → 极简纯色占位图，豁免 ART_STYLE 色号编码；机制层 T1/T3/T4/T5/EXIT 照旧）——执行以 SOLUTION_PLAN 第 5 轮为准
+3. **#4 测试**：下轮正式纳入 day21_22（38 断言）= 十九件套 490 断言 + day18_feedback3（H-01）
+4. **Owner**：R4 放行（一句话）；确认美术资源策略（21:1x 拍板）全链生效；真人整合局继续（E-0 终审 + R 系列审阅）
+5. **收尾**：probe_logs/ 已 .gitignore ✅；残留 _repro_tmp 复检；GIT_COLLAB.md 入库确认
+
+## 七、流程记录
+
+- ✅ **收尾复核铁律执行**：git log/status（HEAD `c091b73` + 6 文件在途：4 docs + 2 代码 + 1 探针）+ baseline 实跑（**22:10 `BASELINE CLEAN`，含 H-01 在途代码**）+ TASKS 头部核读（Day 21-22 ✅ 收口 / 目标日 Day 23 🎯 / D23 区拆解待 #2 第 30 轮修正）+ 磁盘五查（FX_CONFIG 5 键 / effects 无新 PNG / 无 day23 探针 / probe_fb3 日志在盘 / scenes 16 全在）
+- 本轮**未改写 TASKS.md**（D23 拆解修正归 #2 第 30 轮 22:5x，避免并发冲突）；仅追加 PROGRESS.md 第 31 轮
+- **状态终局**：阶段 D 首段（Day 21-22）全量收口，A/B/C 三阶段 100%；目标日 = Day 23（占位特效）方案已定零开工；H-01 升级反馈在途（合理挤占）；整体 ≈80.7%
+
+*本日报由自动化 #1 生成 · 仅分析、记录与调度，**未触碰** `scripts/` / `scenes/` / `data/` / `assets/`*
