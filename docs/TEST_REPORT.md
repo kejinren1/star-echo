@@ -12,11 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #31（08-08 02:16）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无需回退
-- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · 2291 字段零缺陷（items 51→54）｜ 场景 16/16 全可实例化
-- **探针回归**：二十三件套 23/23 · **609 断言全绿**（day24_f13 17/17 + day24_audio 14/14 首纳入；#26 `%` 转义关闭确认）
-- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程（bgm_menu.wav）已入 baseline BENIGN 白名单，真机正常，非缺陷
-- **在途 action item**：无（工作区仅 docs/* 5 文件在途，交 #2 拆解岗入库）
+- **最近轮次 #32（08-08 04:16）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无需回退
+- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · 2291 字段零缺陷（items 54）｜ 场景 16/16 全可实例化 ｜ 600帧深探 0 B（优于上轮 242B）
+- **探针回归**：二十四件套 24/24 · **643 断言全绿**（+day26_integration 34/34 首纳入，阶段D整合验收收口；runner 23 项 609 + day26 单独 34）
+- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单，真机正常，非缺陷
+- **在途 action item**：① day26 探针(34)并入 `_regression_run.py` PROBES（runner 现 23 项，建议 #3 执行岗补，下轮 24 件套 643 一键跑通）；② docs/* 5 文件在途交 #2 入库
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -2615,3 +2615,54 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-08 02:16 自动化测试轮次 #31：PASS（0 阻断 / 0 功能缺陷，2 探针级 minor 新增已定性，无新增 action item）。** HEAD=**135be10**（Day 24 音频 + F-13 全部入库，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2291 字段零缺陷，items 51→54**）、**16 场景全可实例化**、**二十三件套探针 609 断言全绿且首跑**（day24_f13 17/17 + day24_audio 14/14 首纳入收口 Day 24 音频与 F-13 三机制被动；#26 `%` 转义遗留关闭确认）。唯一全进程新增项为 Day 24 音频 headless 退出泄漏，**已由作者白名单注释定性良性**。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.32 轮次 #32 · 2026-08-08 04:16（自动化 · Day 26 阶段D整合校验收口）
+
+> 快照：HEAD=**6b7c942**（较 #31 +1 大提交：**Day26 阶段D收口**——`day26_integration_check.gd` 探针 **34/34** + 回归 23/23（609 断言）+ baseline CLEAN + **REPORT_PHASE_D.md** + TASKS/SOLUTION_PLAN 标记 + 目标日推进 **Day 27 局外养成**）。**工作区在途仅 docs/* 5 文件**（LOOP_HEALTH / PLAYTEST_CHECKLIST / PROGRESS / SOLUTION_PLAN / TASKS），**无游戏代码改动** → 验证快照 = HEAD 干净。
+
+### 1. 基线
+
+- `python tools/baseline_check.py`：**PASS**（import + runtime `--quit-after 4` 均 exit 0）。`baseline_*_err.log` 实测 **242 B**（ObjectDB leaked + 1 resources still in use）——Day 24 BENIGN 白名单条目（headless Dummy audio driver 时序，真机正常），过滤后 0 显著行 → "stderr clean" 判定正确。
+
+### 2. 深度运行（600 帧）
+
+- `--quit-after 600`：EXIT 0，`deep_runtime_err.log` **0 B**（**上轮 #31 为 242 B 良性泄漏 → 本轮 0 B**，Day 26 收口后退出更干净，无回归）。运行期无 ERROR、功能正常。
+
+### 3. 数据层（qa_validate.py 固化工具）
+
+- **JSON 9/9 解析 OK**：chars 10 / weapons 36 / **items 54**（与 #31 持平）/ events 10 / enemies 23 / waves 20。
+- **数值字段 2291**（与 #31 持平零变更）；39 负值全有意（惩罚/诅咒）、0 非豁免零伤害（force_field 按武器 id 豁免）、哨兵 -1×2（waves[9]/[19]）、crit 双口径越界 0。
+- 跨引用 **0 硬悬空**（chars→weapons 10/10；waves 前缀感知 0 悬空，mixed* 令牌放行）→ **DATA LAYER CLEAN**。
+
+### 4. 场景 smoke（16/16）
+
+- 16 场景全 load+instantiate（Player children=4 与历史一致），stderr 242 B 良性音频泄漏，exit 0。临时 `_smoke_tmp.gd/.tscn` 已 Python `os.remove()` 清理无残留。
+
+### 5. 探针回归（二十四件套，643 断言全 CLEAN 首跑）
+
+**二十四件套 24/24 PASS，643 断言**（= #31 的 609 + **day26_integration 34** 首纳入；runner 23 探针 26s + day26 单独跑）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 21 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 42 / day18_feedback3 27 / day18_19 48 / day20_relic 23 / day21_22 38 / day23_vfx 18 / day24_f13 17 / day24_audio 14 / **day26_integration 34**。全部首跑 PASS。
+
+- **day26_integration_check 34/34（首纳入，阶段D整合验收六段）**：§1 美术资产（SPRITE_MAP 23 键 + FALLBACK 3 键路径 exists + Boss scale 白盒复位 D17 双点）→ §2 特效（FX_CONFIG 10 键 + 5 新特效 PNG/.import + hit 消费点 + source_id 接线）→ §3 音频（12 WAV 头合法 + 命名与 MAP 键一致）→ §4 F-11 伤害数字语义链路 → §5 回归（期望合计 609 + 5 关键探针 load）→ 顺延项偏差登记（F-11 接口偏差 / vfx_container 单测无容器等，均不判失败）。
+- **Day 26 里程碑：阶段D（Day21-26 美术+特效+音频+遗物+Boss 多阶段+进化保底）全链整合验收通过**；REPORT_PHASE_D.md 落盘；目标日推进 Day 27 局外养成（阶段 E 首段）。
+
+### 6. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| 良性（维持，全进程） | **退出泄漏 242 B/进程**（ObjectDB leaked + 1 resources = `bgm_menu.wav` AudioStreamPlaybackWAV）——Day 24 音频 Autoload，BENIGN 白名单定性（headless Dummy 音频时序，真机正常）；**600 帧深探本轮 0 B** | 已知良性，非缺陷 |
+| minor（新增） | **day26 402B**：2× `node.h:446 Parameter "data.tree" is null`（探针 130-137 行未入树 boss 实例 `initialize()` → enemy.gd:806 `get_tree().current_scene` 分支——#29 已记录方法学：未入树节点调 get_tree 必打 C++ ERROR，`if get_tree()` 防不住；探针自身 defer 登记「单测场景无容器」不判失败）+ 242B 音频泄漏 | 探针自身，非游戏缺陷 |
+| minor（维持） | day11_12 763B / day13 860B / day18_feedback 497B / day18_feedback2 571B / day18_feedback3 362B / day20 1044B / day21_22 564B / day23 496B / **day24_f13 859B** | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7 124B / day10 132B 越界保护；day14_15 130B / day16 276B push_warning；day18_19 117B「[Boss] 未知攻击指令」；day20 3 条被动键未实现 + 1 条 HUD 未知技能 id；day24_audio 214B 未知 BGM/SFX 兜底 | 测试主动触发/防御分支预期输出 |
+
+### 7. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **观察项（非阻断，维持）**：音频退出泄漏已白名单定性良性，Day 27 局外养成（阶段 E）涉及存档 IO 时建议真机确认。
+- **在途 action item：无新增**（day26 探针未入 `_regression_run.py` PROBES 表——runner 仍 23 项 609 断言，day26 34 项为单独运行；**建议 #3 执行岗将 day26_integration_check(34) 并入 runner PROBES**，使下轮回归口径 = 24 件套 643 一键跑通）；工作区在途仅 docs/* 5 文件（交 #2 拆解岗统一入库）。
+
+### 结论
+
+**✅ 2026-08-08 04:16 自动化测试轮次 #32：PASS（0 阻断 / 0 功能缺陷，1 探针级 minor 新增已定性，1 项 runner 配置 action item）。** HEAD=**6b7c942**（Day 26 阶段D整合校验收口，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2291 字段零缺陷，items 54**）、**16 场景全可实例化**、**二十四件套探针 643 断言全绿且首跑**（day26_integration 34/34 首纳入收口阶段D 整合验收；600 帧深探 0 B 优于上轮）。唯一新增项为 day26 探针 2× `node.h:446` 未入树 mock 环境 ERROR（探针级 minor 已定性，非游戏缺陷）。**无新增功能缺陷、无需回退。**

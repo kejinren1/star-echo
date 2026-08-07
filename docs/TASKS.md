@@ -31,6 +31,9 @@
 > 🎯 **Day 21-22 已预拆解（2026-08-07 01:1x · #2 第 19 轮）**：Day 18-19（已预拆）+ Day 20（已预拆）→ 预拆 **Day 21-22 = 美术资产落地（阶段 D 首段）**（见 Day 21-22 区）——W3 主责：**敌人/Boss 精灵换皮**（SPRITE_MAP 映射已就绪 enemy.gd:66-99，杂兵 slime 系/骷髅系 48px + 精英 64px + Boss 专属 128px，**⚠️ 换上 128px 真 Boss 精灵后 D18-19 scale×2 过渡须复位 ×1**）+ **角色 walk 真多帧 + 希亚 walk 新建（T-E 承接）+ 攻击/技能 strip**（Player.gd 仅 idle/walk 接入 :212-215）+ 遗留 6 英雄头像 + 阵营/背景概念图；W1 接线（SPRITE_MAP 更新 / attack/skill 动画 + skill_controller 触发 / F 系列 P1 排期段）+ 探针；W5 回归。**修正过时条目**：D2-T3 `.import` 已本地解决（characters 全部 .import 在盘 08-05）；C 段「武器图标 4 把」子项过时（weapons.png 33 帧实绘已由 D7-T3/D8-T2 覆盖）。
 > 📌 **第 20 轮（2026-08-07 03:1x · #2 任务拆解）**：**P0 检查** = 追踪区增量 #23（02:30）P0/P1 机器侧全闭环（#19 十四件套 365 断言，HEAD=`140b655`），无新机器可验证 P0 需拆；剩余动作 = 真人回归（P0 围杀 + P1 四修复 + 阶段 C 三合一完整局）。**目标日 = Day 18-19（Boss 多阶段）**——git HEAD 无 D18-19 实现提交（enemy.gd phases / enemy_projectile.gd / day18_19_boss_check.gd / boss_killed 零出现），**#3 尚未启动**；D18-19-PRE/T1~T5/EXIT 已函数级就绪，**直接执行勿再等**。本轮核心产出：① **F 系列 P1 排期段函数级细化**（实测 5 项消费点：F-03 只剩相机震动 / F-05 回血点定案 / F-06 只剩剩余怪 / F-07 改 pierce 3 / F-11 新建伤害数字子系统，见 Day 21-22 区 F 系列段）② **Day 23 华丽技能特效预拆**（VfxPlayer 5 特效实测 + 消费点 + 新特效 PNG + 探针，见 Day 23 区）。
 > ✅ **Day 24 已收口（2026-08-08 00:5x · #3 第 33 轮执行）**：阶段 D 音频 + P0·用户拍板 F-13 机制型被动全量完成 —— **F-13 线（P0 硬性输入）**：① **D24-F13-1 数据** items.json 51→54（+overload_capacitor 过载电容 on_crit/executioner_mark 处决印记 on_kill/last_stand 背水一战 low_health 3 机制型被动，新字段 `trigger` + `trigger_config` 不入 effects 白名单）② **D24-F13-3 图标** gen_item_icons.py FRAMES 22→25（青蓝闪电/暗红镰刃/橙黄心火占位色块，豁免色号编码）+ items.png 704→800×32 + icon_atlas 22→25 ③ **D24-F13-2 机制消费点 3 处**：projectile `_trigger_on_crit_chain`（on_crit 暴击→80px 连锁 ×0.3，F-19 容器遍历范式禁物理查询）/ main `_on_enemy_died` heal 1.0（on_kill）/ player `_update_last_stand` 乘算开/关 + 逆运算回滚（low_health ≤30% ×1.5/×1.2，D29）④ **D24-F13-4 回归同步 + 探针** day24_f13_check **17/17 CLEAN** —— **音频线**：⑤ **D24-T1** gen_audio.py 程序化合成 **12 WAV**（BGM 2×8s 循环 + SFX 10 类，22050Hz 16bit mono 峰值≤0.8）⑥ **D24-T2/T4** `scripts/autoload/audio_manager.gd` 第 3 Autoload（BGM 状态机 5 态 + SFX 池×4 + D31 双护栏 + **懒加载防 headless Dummy 驱动 leak**）+ project.godot 注册 ⑦ **D24-T3 SFX 消费点 10 处**（death/hit×2/crit×3/levelup/coin/shop×2/skill/event/boss，D30 收敛）⑧ **D24-T5** day24_audio_check **14/14 CLEAN** —— **EXIT**：**24 件套 23/23 全绿 609 断言**（+day24_f13 17 +day24_audio 14）+ baseline **BASELINE CLEAN**（BENIGN 增加 headless Dummy 音频驱动 leak 白名单，真机零影响）+ commit 5 个（`22c62ae`/`7d3264a`/`454e30f`/`5e90064`/`c4552db`/`3128840`/`b45d84e`）+ push。**执行登记 2 处**：① shop.gd 行号因反馈专员 F-21 漂移（`_build_shop_pool` :92→:168 / `_purchase_item` :236→:312，已按现行行号执行）② 回归同步面实测比方案 D32「8 处」多 **3 处**（day11_12 被动数 20→23 + icon_index 范围 0-19→0-24 / day13 池 Item 22→25 / day20 数据 51→54 + is_passive 23 / day23 锚点 54——D32 清单不全，已全部实测补齐）。**主观项登记**：BGM/SFX 氛围感/音量平衡 + F-13 机制型被动手感 → PLAYTEST #5。下一目标日 = **Day 26 整合校验**（D25 已预交付剩接线归 Day 27；#2 第 32 轮按 #5 第 33 轮建议推进）。
+> ✅ **Day 27 已收口（2026-08-08 05:5x · #3 第 34 轮执行）**：阶段 E 首段完成 —— 局外养成全链路（D48 执行序 T2→T1→T3→T4→T5→T6→EXIT 分批 commit×4）① **D27-T2 数据先行** characters.json 10 英雄补 `story`（SE 四英雄从 LORE.md §2 提炼 / 6 基础英雄 description 扩写标注来源）+ `story_unlock_level`（SE 四英雄=2，其余=1，`97b2a53`）② **D27-T1 存档核心** GameManager `meta_progress` + `load_meta`（缺档/损坏 JSON 容错零值 + Godot4.3 JSON float→int 收敛）/`save_meta`/`get_meta_bonus`（攻击 ×1.05·生命 ×1.10·幸运 +0.05 每级）/`upgrade_research`/`add_research_point`/`add_char_xp`/`get_char_xp`/`get_char_level`（xp/3）+ **start_game 出场记录（D45 判空）+ end_game(victory) 统一结算（wins+1/研究点+1/角色 xp+1 + save_meta，失败局不结算）** + **D44 可覆写 meta_save_path** ③ **D27-T3 增益注入** main.gd `_apply_meta_bonus`（apply_character 后 _setup_skill 前，D42 直调 apply_stat_modifier 不经 bonus_stats；全 0 空字典零注入）④ **D27-T4/T5 基地场景** BaseStation.tscn+base_station.gd（研究区 3 项 + 角色区 **DataLoader 全量 10 英雄 D46** + 剧情按钮 D47 纯函数判定 + 返回）+ CharacterSelect 入口按钮；**unlock_node 零改动**、**boss_defeated 由 end_game(victory) 统一消费** ⑤ **D27-T6 探针** day27_meta_check **35/35 CLEAN 五段**（D44 独立临时档 + 测试后删除）⑥ **EXIT**：回归 **25/25 全绿 678 断言**（609 + day26 34 锚点同步 23→25/609→678 + day27 35，D49 口径）+ baseline **BASELINE CLEAN** + **day26_integration 锚点同步**（回归脚本扩容触发，改探针锚点不改游戏逻辑）。**执行登记 2 处**：① 探针驱动坑——`extends SceneTree` 探针无 `_advance()` 无参虚方法（空转），须 `_process` 驱动带参 `_advance(sub: int) -> int`（day24_f13 范式）+ Autoload 首帧 `root.get_node_or_null` 获取（_init 时机太早）；② day26 §6 回归锚点 23/609 → 25/678（回归脚本 +day26/+day27 扩容）。**主观项登记**：基地 UI 观感 / 研究成长体感 / 剧情解锁趣味 → PLAYTEST #5。下一目标日 = **Day 28（全量测试 + 性能，#4 域无需拆解）**。
+> 📌 **第 34 轮（2026-08-08 05:5x · #3 执行者）**：见上方 Day 27 收口行——本行占位（执行轮记录由收口行承载）。
+> 📌 **第 33 轮（2026-08-08 04:4x · #2 任务拆解）**：**P0 检查** = 追踪区增量 #42（03:5x · #5 标记岗：Day 26 阶段D收口确认轮）——TEST_REPORT #31（02:16）= Day 24 正式覆盖轮（**二十三件套 609 断言全绿首跑**，day24_f13 17/17 + day24_audio 14/14 首纳入）+ **Day 26 收口实测**（HEAD=`6b7c942`：day26_integration_check **34/34 六段** + 回归 **23/23（609 断言）** + baseline CLEAN + REPORT_PHASE_D.md 7266B 落盘）→ **阶段 D 全五日机器闭环（D21-22 美术 / D23 特效 / D24 音频+F-13 / D25 剧情预交付 / D26 整合校验）**；🔴P0 无新增 / 🟠 无新增用户拍板 / 顺延项 6 条中仅「剧情解锁接线」归本日（已并入 D27-T5，其余 F-11 接口偏差·vfx_container·遗物 HUD 槽·空间音·mech_heart 与局外养成无关不纳入）→ **无新机器可验证 P0 需拆**；美术资源策略（21:1x 拍板）继续遵守（本日零美术生成任务，W3 仅 ◐ 占位主题 P1 可延）。**目标日推进（本轮最重要动态）：Day 26 已收口 → 目标日 = Day 27（局外养成，阶段 E 首段）**——D27 区第 23 轮已函数级预拆（D27-T1~T6 + EXIT 全 [ ] 就绪）+ SOLUTION_PLAN.md **第 8 轮已落盘**（03:0x 方案师窗口：D42 增益注入直调 apply_stat_modifier / D44 存档路径可覆写 var / D45 start_game 出场判空 / D46 基地角色区 = DataLoader 全量 10 英雄 / D47 剧情解锁判定纯函数化）+ DAY_ROLE_ASSIGNMENTS Day 27 切分细化就绪 = **三锚齐备，#3 下一窗口（05:35）直接执行，勿重复拆解**；**回归基准 = 25 件套 ≥659 断言**（+day27_meta ≥16，day26 34 待 #4 #32 正式纳入）；Day 25 剩余接线 = 本日 D27-T5 承接；Day 28 = #4 域无需 #2 拆解。**本轮动作 = 头部状态块 + Day 26 标题 ✅ 收口 + Day 27 标题 🎯 当前目标日 + Day 27 区第 33 轮确认块——无新拆解**。
 > 📌 **第 32 轮（2026-08-08 02:4x · #2 任务拆解）**：**P0 检查** = 追踪区增量 #41（01:5x · #5 标记岗：TEST_REPORT #30 = Day 23 正式覆盖 568 断言 + Day 24 收口确认）+ 增量 #40（01:4x · 反馈专员：🔴P0 无 / 🟠 无新增用户拍板 / 🟡 仅 H-05 家族主观审阅域）——F-21 群星回应（`d2d8ece`）/ F-20 进化保底（`b92d571`）/ **F-13 机制型被动（Day 24 收口 `e748d8e`）均「已落地 · 待真人回归」主观项**（交 #5，无机器可验证部分需拆）→ **无新机器可验证 P0 需拆**；美术资源策略（21:1x 拍板）继续遵守（占位纯色图口径，Day 26 只验存在性不返工）。**目标日 = Day 26（整合校验，阶段 D 收口日）· #3 执行在途（本轮最重要动态）**——磁盘实测：git HEAD 仍 `135be10`（反馈专员 #40），但工作区 `?? tools/day26_integration_check.gd`（**582 行探针已建**，§1 美术/§2 特效/§3 音频/§4 剧情/§5 数据交叉/§6 回归 + 顺延项清单 `_part_deferred_list` + `_report` 输出结构完整）+ `docs/SOLUTION_PLAN.md` **第 7 轮已落盘**（Day 26 方案：纯校验零新功能 + 探针纯只读 D37 + 落地后 25 件套 ≥629 断言预期）→ **#3 第 34 轮（01:35 窗口）已开工、探针接近完成、尚未 commit**；D26 区（T1~T3/EXIT 全 [ ]）+ 方案第 7 轮 = 有效执行输入（探针日规则 0 豁免），**#3 按现行方案继续执行，勿重复拆解**。**本轮动作 = 仅头部状态块**（目标日确认在途 + 探针/方案落盘实测）——**无新拆解**（Day 27 已函数级预拆、Day 28 = #4 域无需 #2）。
 > 📌 **第 31 轮（2026-08-08 00:5x · #2 任务拆解）**：**P0 检查** = 追踪区增量 #39（00:3x · 反馈专员执行 · F-21 群星回应落地 `d2d8ece`）+ 增量 #38（F-20 进化保底落地 `b92d571`）——均为「已落地 · 待真人回归」**主观项**（交 #5，无机器可验证部分）；**F-13（P0 · 用户拍板「尽快落地方案」）已在 Day 24 首段拆解且全部落地**（`22c62ae` 数据 / `7d3264a` 消费点 / `454e30f` 回归+探针）→ **无新机器可验证 P0 需拆**；美术资源策略（21:1x 拍板）继续遵守（占位纯色图口径）。**目标日推进（本轮最重要动态）：Day 24 已收口**——git HEAD=`e748d8e`（00:43 · #3 第 33 轮执行）：F-13 线（items 51→54 三机制被动 trigger 词条 + 图标 3 帧 22→25 + on_crit/on_kill/low_health 三消费点 + day24_f13_check **17/17**）+ 音频线（gen_audio.py 12 WAV + audio_manager.gd 第 3 Autoload + SFX 消费点 10 处 + day24_audio_check **14/14**）+ EXIT（**24 件套 609 断言全绿 + baseline CLEAN + commit×7 含 push**）→ **目标日 = Day 26（整合校验，阶段 D 收口日）**——D26 区（PRE 9 条 + T1~T3 + EXIT）第 22 轮已函数级预拆、全 [ ] 就绪，**前序日 D21-22/23/24 已全部收口 → 探针全量断言，降级口径不再触发**；#3 下一窗口 01:35 直接执行，无需重复拆解（探针日 = TASKS 函数级拆解即有效方案，规则 0 豁免）；Day 25 已预交付（剩接线 = Day 27 依赖）、Day 27 已预拆、Day 28 = #4 域无需 #2 拆解。**本轮动作 = 头部状态块 + Day 26 标题 🎯 当前目标日 + D26 区回归数字同步**（day11_12 25 / day14_15 54 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 27 / day18_19 48 / day20 23 / day21_22 38 / day23 18 / day24_f13 17 / day24_audio 14；day10 F-20 方案A 保底后实际 21）——**无新拆解**。
 > 📌 **第 30 轮（2026-08-07 22:5x · #2 任务拆解）**：**P0 调度硬性输入** = 追踪区增量 #36（22:2x · 反馈专员执行 · 真人 8 条回执）——**F-13 用户拍板「尽快落地方案」→ 请 #2 优先拆解（机制型被动词条，设计域）** → **本轮已拆入 Day 24 首段（显式标注「P0 · 用户拍板」，D24-F13-1~4 函数级就绪，D24-F13-1 数据 / -2 机制消费点 3 处 / -3 图标占位 3 帧 / -4 回归同步+探针）**，音频主链 T1~T5 常规排期顺延其后；其余增量（H-02/H-04 真人验收通过 / T-B 暂缓 / F-09 维持 / F-19 已落地待真人回归）**无新机器可验证 P0 需拆**；**F-19 升级冲击波（`1c9d44b`）= 触发类 AOE 先例**（半径 140px 敌人遍历 + 普攻级伤害），为 F-13 on_crit 提供落地范式。**目标日推进（本轮最重要动态）：Day 23 已收口**——git HEAD=`f5cd533`（22:4x · #3 第 31 轮）：`gen_day23_fx_art.py` 占位纯色 5 枚（fireball/turret_deploy/blade_burst/meteor/shield，**按用户 21:1x 美术策略修正为占位色块图，豁免色号编码**）+ FX_CONFIG 5→10 键 + **hit 命中消费点激活** + `current_fx` 观测字段 + 技能专属 VFX 接线（fireball set_meta / turret_deploy / blade_burst）+ 进化陨石 meteor 替换（weapon_controller 补 set_meta 一行）+ 探针 `day23_vfx_check` **18/18 四段** + 回归二十二件套 508 断言 + baseline CLEAN → **目标日 = Day 24（音频接入 + F-13，阶段 D 收尾前段）**——D24 音频线第 21 轮已函数级预拆（T1~T5 + EXIT 全 [ ]），**#3 下一窗口 23:35 直接执行，无需重复拆解**（F-13 首段为本轮新增）；D26/27 已预拆、Day 25 已预交付（剩余接线 = Day 27 依赖）、Day 28 = #4 域无需 #2 拆解。**本轮动作 = 头部状态块 + Day 24 标题 🎯 当前目标日 + F-13 P0 首段拆解 + D24-EXIT 回归数字同步 + DAY_ROLE_ASSIGNMENTS Day 24 细化段追加 F-13 角色切分**（Day 23 区 #35 请求的「拆解修正」已由 #3 执行时同步完成——T2 占位口径 + 全 [x] 收口，无需再动）。
@@ -2080,7 +2083,7 @@
 - [ ] **剩余**：角色剧情**解锁条件**接线（依赖 Day 27 局外养成的角色培养系统）
 > 📌 **#2 第 22 轮实测（2026-08-07 07:1x）**：scripts/ + scenes/ 全域零剧情解锁接线（grep lore/unlock/剧情/story 仅 `game_manager.gd:433 unlock_node` = **事件改线策略**，非角色剧情解锁）→ **剩余接线登记 Day 27 依赖**（角色培养系统域，Day 26 只校验剧情载体存在性 LORE.md/events.json/解锁文案数据，不实现解锁逻辑）；W5 不得以「剧情解锁不可玩」判 Day 25/26 失败。
 
-### Day 26 — 整合校验　🎯【当前目标日 · 已预拆解到函数级 · 2026-08-07 07:1x · #2 第 22 轮 · ✅ 前序日 D21-22/23/24 已收口（c091b73/f5cd533/e748d8e）· 2026-08-08 00:5x #2 第 31 轮确认 · ✅ 方案已定（SOLUTION_PLAN.md 第 7 轮）· 02:4x #2 第 32 轮确认：#3 在途执行（探针 582 行已建 + 方案已落盘）】
+### Day 26 — 整合校验　✅【已收口 · 2026-08-08 03:4x #3 第 33 轮执行 · 阶段 D 收口：探针 34/34 + 回归 23/23（609 断言）+ baseline CLEAN + REPORT_PHASE_D.md · 04:4x #2 第 33 轮确认】　🎯【已预拆解到函数级 · 2026-08-07 07:1x · #2 第 22 轮 · ✅ 方案已定（SOLUTION_PLAN.md 第 7 轮）】
 
 > 🎯 **Day 26 已预拆解（2026-08-07 07:1x · #2 第 22 轮）**：Day 18-19/20/21-22/23/24 均已函数级预拆、Day 25 已预交付 → 预拆 **Day 26 = 阶段 D 整合校验日（纯校验非功能开发）**。核心交付 = **`tools/day26_integration_check.gd` 阶段 D 资产齐备性探针（美术/特效/音频/剧情四域）+ 接线完整性抽查 + 全局回归 + `docs/REPORT_PHASE_D.md`（阶段报告，仿 A/B/C 先例）**。**主观项（视觉/听觉/手感）全部交 #5 → PLAYTEST_CHECKLIST，不阻塞出口**。**Day 25 剩余（角色剧情解锁接线）登记 Day 27 依赖**（实测 scripts/scenes 零接线点，非本日职责）。前序日顺延项（F 系列 P1 / 遗物 HUD 槽 / 空间音 / 音量 UI / mech_heart 入池）= **存在则验、缺失登记不判失败**。
 > ✅ **第 31 轮更新（2026-08-08 00:5x）**：前序日 **D21-22/23/24 已全部收口**（`c091b73`/`f5cd533`/`e748d8e`）→ §1~§4 资产断言**全量正常执行，降级口径不再触发**（保留「顺延项存在则验、缺失登记不判失败」原则）；回归锚点已同步为 Day 24 收口实际数字（见 §5 / EXIT）；D26-T3 交叉引用 items.json 已 51→54（含 F-13 三机制被动）。
@@ -2142,9 +2145,12 @@
 
 ## 阶段 E · 长期养成 + 测试·发布（Day 27–30）
 
-### Day 27 — 局外养成（方舟基地 + 研究系统 + 角色培养 + 剧情解锁接线）　🎯【已预拆解到函数级 · 2026-08-07 09:1x · #2 第 23 轮】
+### Day 27 — 局外养成（方舟基地 + 研究系统 + 角色培养 + 剧情解锁接线）　✅【已收口 · 2026-08-08 05:5x · #3 第 34 轮执行：局外养成全链路落地（见头部收口行）· 目标日推进 Day 28】
+
+> ✅ **Day 27 已收口确认（2026-08-08 05:5x · #3 执行者）**：D27-T1~T6 + EXIT 全 [x]（35 处标记）——存档/研究/培养/基地/剧情解锁五件套机器闭环；回归 25/25（678 断言）+ baseline CLEAN；git 收口提交见头部行；下一目标日 = **Day 28（全量测试 + 性能，#4 域无需拆解）**。
 
 > 🎯 **Day 27 已预拆解（2026-08-07 09:1x · #2 第 23 轮）**：Day 26（整合校验，已预拆）收口后 → 阶段 E 首段 = **局外养成**。核心交付 = **局外存档（`user://save_meta.json`）+ 研究系统（永久增益 3 项：攻击+5% / 生命+10% / 幸运+5%）+ 角色培养（XP/等级 + 剧情解锁）+ 方舟基地场景 + 剧情解锁接线（承接 D25/D26 登记依赖）+ boss_defeated 深消费（承接 D18-19-T4 登记）**。**实测 = 存档/基地/研究/培养全域零实现（全新系统，零回归风险）**；characters.json 10 英雄 `unlock_condition="默认解锁"` 数据在、零消费方。
+> 📌 **第 33 轮更新（2026-08-08 04:4x · #2 确认）**：**Day 26 已收口**（git HEAD=`6b7c942` · 03:4x #3 第 33 轮执行：day26_integration_check 34/34 六段 + 回归 23/23 609 断言 + baseline CLEAN + REPORT_PHASE_D.md 7266B）→ **阶段 D 全五日机器闭环，本日 = 阶段 E 首段 = 当前目标日**。执行输入**三锚齐备**：① TASKS 函数级拆解 D27-T1~T6 + EXIT 全 [ ] 就绪 ② SOLUTION_PLAN.md **第 8 轮已落盘**（D42 增益注入直调 apply_stat_modifier 非 bonus_stats / D44 存档路径可覆写 var 防探针污染 / D45 start_game 出场判空 / D46 基地角色区 = DataLoader 全量 10 英雄 / D47 剧情解锁判定纯函数化）③ DAY_ROLE_ASSIGNMENTS Day 27 切分细化就绪（W1 ● 存档+研究+基地+剧情 / W2 ◐ characters.json 只增字段 / W3 ◐ 占位主题 P1 可延 / W4 ◐ LORE.md 提炼核验只读 / W5 ● 回归）→ **#3 下一窗口（05:35）直接执行，勿重复拆解**。**回归基准 = 25 件套 ≥659 断言**（23 探针 609 + day27_meta ≥16 + day26 34 待 #4 #32 正式纳入）——D27-EXIT 回归清单待收口时按实测回填 day25/day26 实际断言数。**P0 检查** = 追踪区增量 #42：🔴P0 无新增 / 🟠 无新增用户拍板 / 顺延项 6 条中仅「剧情解锁接线」归本日（已并入 D27-T5，其余 F-11 接口偏差·vfx_container·遗物 HUD 槽·空间音·mech_heart 与局外养成无关不纳入）→ **无新机器可验证 P0 需拆**；美术资源策略（21:1x）继续遵守（本日零美术生成任务，W3 占位主题不强制）。
 
 > 🔍 **Day 27 实测基线（#2 第 23 轮新核，供 #3 免排查）**
 > - **存档零实现**：scripts/ 全域零 `user://` / save/load 函数（grep 空）→ 全新实现，无迁移负担
@@ -2168,54 +2174,54 @@
 | 8 | **技能升级 / 潜能突破 = 登记 P1 不臆造**（characters.json 无技能等级/潜能字段，无数据支撑）——W5 不得判失败 | 防臆造铁律；D21-22 holy_shield 同类先例（数据先行） |
 | 9 | **回归零破坏**：存档写 user:// 运行时文件（非仓库）；characters.json 只增字段；base_station.gd 独立场景零侵入（入口 CharacterSelect 加按钮） | 回归锚点保护；渐进式收口先例 |
 
-#### D27-T1【W1】GameManager 局外存档系统
-- [ ] 状态：`var meta_progress: Dictionary = {}`（结构：`{"wins": int, "research_points": int, "research": {"attack": int, "hp": int, "luck": int}, "chars": {id: {"xp": int}}}`——零值即默认态）
-- [ ] `load_meta()`：`_ready()` 首行调用；`FileAccess.open("user://save_meta.json", READ)` → 空/缺文件/JSON 解析失败 → 默认零值字典（容错不崩）；成功 → `meta_progress = JSON.parse_string(...)` 逐键 `get()` 兜底（防旧档缺键）
-- [ ] `save_meta()`：`FileAccess.open("user://save_meta.json", WRITE)` + `store_string(JSON.stringify(meta_progress, "  "))`——**每次结算后调用**
-- [ ] 结算钩子：`start_game()` 处记当前角色出场（`chars[id].xp += 1`）；`end_game(victory)` 处 victory → `wins+1` + `research_points+1` + 当前角色 `xp+1`，尾部 `save_meta()`（失败/胜利均不重复结算）
-- [ ] 接口：`get_meta_bonus() -> Dictionary`（`{attack_mult, hp_mult, luck_add}` 按 research 档位换算）/ `add_research_point()` / `add_char_xp(id)` / `get_char_xp(id) -> int` / `get_char_level(id) -> int`（`xp/3`）
-- [ ] 文件域：W1 只写 `scripts/autoload/game_manager.gd`
+#### D27-T1【W1】GameManager 局外存档系统　· 方案已定（SOLUTION_PLAN.md 第 8 轮）
+- [x] 状态：`var meta_progress: Dictionary = {}`（结构：`{"wins": int, "research_points": int, "research": {"attack": int, "hp": int, "luck": int}, "chars": {id: {"xp": int}}}`——零值即默认态）
+- [x] `load_meta()`：`_ready()` 首行调用；`FileAccess.open("user://save_meta.json", READ)` → 空/缺文件/JSON 解析失败 → 默认零值字典（容错不崩）；成功 → `meta_progress = JSON.parse_string(...)` 逐键 `get()` 兜底（防旧档缺键）
+- [x] `save_meta()`：`FileAccess.open("user://save_meta.json", WRITE)` + `store_string(JSON.stringify(meta_progress, "  "))`——**每次结算后调用**
+- [x] 结算钩子：`start_game()` 处记当前角色出场（`chars[id].xp += 1`）；`end_game(victory)` 处 victory → `wins+1` + `research_points+1` + 当前角色 `xp+1`，尾部 `save_meta()`（失败/胜利均不重复结算）
+- [x] 接口：`get_meta_bonus() -> Dictionary`（`{attack_mult, hp_mult, luck_add}` 按 research 档位换算）/ `add_research_point()` / `add_char_xp(id)` / `get_char_xp(id) -> int` / `get_char_level(id) -> int`（`xp/3`）
+- [x] 文件域：W1 只写 `scripts/autoload/game_manager.gd`
 
-#### D27-T2【W2】characters.json 补角色培养数据（10 英雄）
-- [ ] 每英雄补 `story: String`（**从 docs/LORE.md 对应角色条目提炼 1-2 句小传，不新写剧情**——LORE.md 无对应角色时用既有 description 扩写一句，标注来源）+ `story_unlock_level: int`（默认 1；SE 三英雄 + siia 可设 2，防臆造：解锁门槛数值简单化）
-- [ ] `unlock_condition` 字段**保持**（「默认解锁」现状零改动，本日不做角色解锁卡点——解锁 = 剧情查看门槛，非选人门槛）
-- [ ] 探针同步：day2_hero_check 若含 character 键全量比对 → 核对只增字段零波及（预计零改动）
-- [ ] 文件域：W2 只写 `data/characters.json`
+#### D27-T2【W2】characters.json 补角色培养数据（10 英雄）　· 方案已定（SOLUTION_PLAN.md 第 8 轮）
+- [x] 每英雄补 `story: String`（**从 docs/LORE.md 对应角色条目提炼 1-2 句小传，不新写剧情**——LORE.md 无对应角色时用既有 description 扩写一句，标注来源）+ `story_unlock_level: int`（默认 1；SE 三英雄 + siia 可设 2，防臆造：解锁门槛数值简单化）
+- [x] `unlock_condition` 字段**保持**（「默认解锁」现状零改动，本日不做角色解锁卡点——解锁 = 剧情查看门槛，非选人门槛）
+- [x] 探针同步：day2_hero_check 若含 character 键全量比对 → 核对只增字段零波及（预计零改动）
+- [x] 文件域：W2 只写 `data/characters.json`
 
-#### D27-T3【W1】永久增益装配链
-- [ ] main.gd 进局（`_equip_starting_weapon` 附近）读取 `GameManager.get_meta_bonus()` → 非零注入 player `bonus_stats`（`attack` 乘算 `*(1+0.05×research.attack)` / `max_health` 乘算 `*(1+0.10×research.hp)` / `luck` 加算 `+0.05×research.luck`——luck 键口径先核 STAT_MAP/apply_stat_modifier 支持面，不支持则走 `bonus_stats` 兜底字典）
-- [ ] **research 全 0 → 零注入**（get_meta_bonus 返回空字典 → 跳过，零回归）
-- [ ] 测试点：白盒 meta_progress 设 research.attack=1/hp=1/luck=1 → 进局 bonus_stats 断言 ×1.05/×1.10/+0.05
-- [ ] 文件域：W1 只写 `scripts/autoload/main.gd`（+必要时 `scripts/player/player.gd`）
+#### D27-T3【W1】永久增益装配链　· 方案已定（SOLUTION_PLAN.md 第 8 轮 · D42 修正为直调 apply_stat_modifier）
+- [x] main.gd 进局（`_equip_starting_weapon` 附近）读取 `GameManager.get_meta_bonus()` → 非零注入 player `bonus_stats`（`attack` 乘算 `*(1+0.05×research.attack)` / `max_health` 乘算 `*(1+0.10×research.hp)` / `luck` 加算 `+0.05×research.luck`——luck 键口径先核 STAT_MAP/apply_stat_modifier 支持面，不支持则走 `bonus_stats` 兜底字典）
+- [x] **research 全 0 → 零注入**（get_meta_bonus 返回空字典 → 跳过，零回归）
+- [x] 测试点：白盒 meta_progress 设 research.attack=1/hp=1/luck=1 → 进局 bonus_stats 断言 ×1.05/×1.10/+0.05
+- [x] 文件域：W1 只写 `scripts/autoload/main.gd`（+必要时 `scripts/player/player.gd`）
 
-#### D27-T4【W1 主责 + W3 协作】方舟基地场景
-- [ ] 新建 `scenes/BaseStation.tscn` + `scripts/ui/base_station.gd`：顶部标题「方舟基地」+ 研究区（3 项：攻击强化/生命强化/幸运强化——每项显示「已升级/未升级」+ 研究点余量 + 升级按钮（`research_points>0` 且未升级才可点，点击 → GameManager 消耗 1 点 + 置位 + save_meta））+ 角色区（10 英雄卡片：名/等级/XP 进度/剧情按钮——按 `get_char_level(id) >= story_unlock_level` 启用，点击弹 story 文本）+ 返回按钮 → CharacterSelect
-- [ ] 入口：`character_select.gd` 加「方舟基地」按钮 → `change_scene_to_file("res://scenes/BaseStation.tscn")`
-- [ ] W3 协作（◐轻，P1 可延不阻塞）：基地 UI 占位主题（复用现有 NinePatchRect/主题色，不强制新美术）
-- [ ] 文件域：W1 写 `scenes/BaseStation.tscn` + `scripts/ui/base_station.gd` + `scripts/character_select.gd`；W3 可选写 `assets/sprites/ui/`（P1）
+#### D27-T4【W1 主责 + W3 协作】方舟基地场景　· 方案已定（SOLUTION_PLAN.md 第 8 轮 · 基地角色区 = DataLoader 全量 10 英雄 D46）
+- [x] 新建 `scenes/BaseStation.tscn` + `scripts/ui/base_station.gd`：顶部标题「方舟基地」+ 研究区（3 项：攻击强化/生命强化/幸运强化——每项显示「已升级/未升级」+ 研究点余量 + 升级按钮（`research_points>0` 且未升级才可点，点击 → GameManager 消耗 1 点 + 置位 + save_meta））+ 角色区（10 英雄卡片：名/等级/XP 进度/剧情按钮——按 `get_char_level(id) >= story_unlock_level` 启用，点击弹 story 文本）+ 返回按钮 → CharacterSelect
+- [x] 入口：`character_select.gd` 加「方舟基地」按钮 → `change_scene_to_file("res://scenes/BaseStation.tscn")`
+- [x] W3 协作（◐轻，P1 可延不阻塞）：基地 UI 占位主题（复用现有 NinePatchRect/主题色，不强制新美术）
+- [x] 文件域：W1 写 `scenes/BaseStation.tscn` + `scripts/ui/base_station.gd` + `scripts/character_select.gd`；W3 可选写 `assets/sprites/ui/`（P1）
 
-#### D27-T5【W1】剧情解锁接线（承接 D25/D26 依赖 + D18-19 boss_defeated 消费）
-- [ ] base_station.gd 角色卡片：`GameManager.get_char_level(id) >= story_unlock_level` → 剧情按钮可点 → 弹 `story` 文本（LevelUpPanel 弹窗范式）；不足 → 按钮禁用 + 「Lv.N 解锁」提示
-- [ ] **boss_defeated 深消费**：`end_game(victory)` 统一结算（D27-T1 已含）——D18-19 的 `boss_killed`/`route.flags["boss_defeated"]` 登记不再单独消费（局外只认胜利结局，登记说明写死线确认块）
-- [ ] `game_manager.gd:433-478` `unlock_node` **零改动**（事件改线策略保持，勿与剧情解锁混淆）
-- [ ] 测试点：白盒 char xp=6 → level=2 → story_unlock_level=2 解锁可读；xp=2 → 锁定
-- [ ] 文件域：W1 只写 `scripts/ui/base_station.gd`
+#### D27-T5【W1】剧情解锁接线（承接 D25/D26 依赖 + D18-19 boss_defeated 消费）　· 方案已定（SOLUTION_PLAN.md 第 8 轮 · 判定纯函数化 D47）
+- [x] base_station.gd 角色卡片：`GameManager.get_char_level(id) >= story_unlock_level` → 剧情按钮可点 → 弹 `story` 文本（LevelUpPanel 弹窗范式）；不足 → 按钮禁用 + 「Lv.N 解锁」提示
+- [x] **boss_defeated 深消费**：`end_game(victory)` 统一结算（D27-T1 已含）——D18-19 的 `boss_killed`/`route.flags["boss_defeated"]` 登记不再单独消费（局外只认胜利结局，登记说明写死线确认块）
+- [x] `game_manager.gd:433-478` `unlock_node` **零改动**（事件改线策略保持，勿与剧情解锁混淆）
+- [x] 测试点：白盒 char xp=6 → level=2 → story_unlock_level=2 解锁可读；xp=2 → 锁定
+- [x] 文件域：W1 只写 `scripts/ui/base_station.gd`
 
-#### D27-T6【W1】新建 `tools/day27_meta_check.gd`（≥16 断言五段）
-- [ ] §1 **存档读写**：白盒构造 meta_progress → save_meta → 重载 load_meta 断言一致；损坏 JSON 字符串 → load_meta 默认零值不崩
-- [ ] §2 **研究升级与增益**：白盒胜利结算 +1 点 → 升级 attack → `get_meta_bonus` 断言 attack_mult==1.05 / hp_mult==1.10 / luck_add==0.05；研究点不足拒绝升级
-- [ ] §3 **角色 XP 结算**：白盒 start_game 记出场 + end_game(victory) 记胜场 → chars[id].xp 累计断言；等级换算 xp/3
-- [ ] §4 **剧情解锁门槛**：story_unlock_level 阈值 → base_station 解锁判定白盒断言（xp=6/lv=2 解锁，xp=2 锁定）
-- [ ] §5 **回归抽样**：day2/day3 锚点 + baseline（characters.json 只增字段零波及验证）
-- [ ] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 白盒直构造 + 固定 seed（D11-12/13 flaky 修复记录）；**user:// 探针用独立临时档名防污染真实存档**
-- [ ] 文件域：W1 只写 `tools/`
+#### D27-T6【W1】新建 `tools/day27_meta_check.gd`（≥16 断言五段）　· 方案已定（SOLUTION_PLAN.md 第 8 轮 · 存档隔离 D44）
+- [x] §1 **存档读写**：白盒构造 meta_progress → save_meta → 重载 load_meta 断言一致；损坏 JSON 字符串 → load_meta 默认零值不崩
+- [x] §2 **研究升级与增益**：白盒胜利结算 +1 点 → 升级 attack → `get_meta_bonus` 断言 attack_mult==1.05 / hp_mult==1.10 / luck_add==0.05；研究点不足拒绝升级
+- [x] §3 **角色 XP 结算**：白盒 start_game 记出场 + end_game(victory) 记胜场 → chars[id].xp 累计断言；等级换算 xp/3
+- [x] §4 **剧情解锁门槛**：story_unlock_level 阈值 → base_station 解锁判定白盒断言（xp=6/lv=2 解锁，xp=2 锁定）
+- [x] §5 **回归抽样**：day2/day3 锚点 + baseline（characters.json 只增字段零波及验证）
+- [x] 探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 白盒直构造 + 固定 seed（D11-12/13 flaky 修复记录）；**user:// 探针用独立临时档名防污染真实存档**
+- [x] 文件域：W1 只写 `tools/`
 
-#### D27-EXIT【W5】阶段 E 首段收口
-- [ ] `python tools/baseline_check.py` → `BASELINE CLEAN`
-- [ ] `day27_meta_check` CLEAN（五段）+ **回归全套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20（F-20 后 21）/ day11_12 25 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 27 / day18_19 48 / day20 23 / day21_22 38 / day23 18 / day24_f13 17 / day24_audio 14 / day25 N / day26 N）
-- [ ] 产出登记：`docs/PLAYTEST_CHECKLIST.md` 追加主观项（基地 UI 观感 / 研究成长体感 / 剧情解锁趣味——#5 收口不阻塞）
-- [ ] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交；**user:// 存档为运行时文件不入库**）
-- [ ] 收口后目标日推进 **Day 28（全量自动化测试 + 性能）**——#4 域，无需 #2 拆解（30DAY_PLAN D28 已明示）
+#### D27-EXIT【W5】阶段 E 首段收口　· 方案已定（SOLUTION_PLAN.md 第 8 轮 · 回归口径修正 D49）
+- [x] `python tools/baseline_check.py` → `BASELINE CLEAN`
+- [x] `day27_meta_check` CLEAN（五段）+ **回归全套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20（F-20 后 21）/ day11_12 25 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 27 / day18_19 48 / day20 23 / day21_22 38 / day23 18 / day24_f13 17 / day24_audio 14 / day25 N / day26 N）
+- [x] 产出登记：`docs/PLAYTEST_CHECKLIST.md` 追加主观项（基地 UI 观感 / 研究成长体感 / 剧情解锁趣味——#5 收口不阻塞）
+- [x] git commit 收口（**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md —— 各自动化/第三方自主提交；**user:// 存档为运行时文件不入库**）
+- [x] 收口后目标日推进 **Day 28（全量自动化测试 + 性能）**——#4 域，无需 #2 拆解（30DAY_PLAN D28 已明示）
 
 ### Day 28 — 全量测试 + 性能
 - [ ] 自动化测试 + 性能（帧率/内存/同屏敌人数）
