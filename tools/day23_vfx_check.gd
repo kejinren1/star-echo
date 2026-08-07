@@ -11,7 +11,7 @@
 ##   §3 技能层：deploy_turret → turret_deploy == 台数；blade_burst → spawn 1 次；
 ##      holy_shield → try_cast false 不崩（VFX 顺延 P1）
 ##   §4 回归：既有 5 特效消费点不破坏（enemy crit/levelup、main death 源码锚点）
-##      + baseline 数据锚点（items.json 51 / waves.json wave2）
+##      + baseline 数据锚点（items.json 54 / waves.json wave2）
 ##
 ## 观测机制：GameManager.vfx_container 指向探针自建容器（普通 Node2D）；
 ## VfxPlayer.spawn 把特效节点 add 进来后同步调用 set_effect（先 add_child 后
@@ -340,10 +340,10 @@ func _part_regression() -> void:
 		_pass("回归 / VfxPlayer.spawn 静态接口 intact")
 	# baseline 数据锚点
 	var items: Array = _loader.call("get_all_item_ids")
-	if items.size() != 51:
-		_fail("回归: items.json 应 51 项, 实得 %d" % items.size())
+	if items.size() != 54:
+		_fail("回归: items.json 应 54 项（D24-F13 +3 机制型）, 实得 %d" % items.size())
 	else:
-		_pass("回归 / items.json 51 项 intact")
+		_pass("回归 / items.json 54 项 intact")
 	var wave: Dictionary = _loader.call("get_wave", 2)
 	if wave.is_empty():
 		_fail("回归: waves.json wave2 数据 intact 缺失")

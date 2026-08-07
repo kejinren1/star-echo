@@ -4,9 +4,9 @@
 ##     tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day20_relic_check.gd
 ##
 ## 校验内容（对应 docs/SOLUTION_PLAN.md 第 3 轮任务 6 五段）：
-##   §1 数据层：items.json 51 项；2 遗物 slot=="relic" + icon_index 20/21 唯一 + price>0；
+##   §1 数据层：items.json 54 项；2 遗物 slot=="relic" + icon_index 20/21 唯一 + price>0；
 ##      effects 键 ⊆ {damage_percent, damage_taken_percent, structure_damage_percent}；
-##      resonant_shard 保持无 slot；is_passive 仍 20 项
+##      resonant_shard 保持无 slot；is_passive 现 23 项（D24-F13 +3 机制型）
 ##   §2 新键装配（白盒直构造 + apply_item_bonuses，禁手动双装配——信号环境 item_added→装配已接）：
 ##      broken_crown → damage ×1.5 + taken_mult 1.3；mech_engine → structure_mult 2.0；
 ##      remove 回退 → 全复位（percent 除法还原）
@@ -119,10 +119,10 @@ func _advance(sub: int) -> int:
 
 func _part_data() -> void:
 	var items: Array = _loader.call("get_all_item_ids")
-	if items.size() != 51:
-		_fail("数据: items.json 应 51 项, 实得 %d" % items.size())
+	if items.size() != 54:
+		_fail("数据: items.json 应 54 项, 实得 %d" % items.size())
 	else:
-		_pass("数据 / items.json 51 项（49 + 2 遗物）")
+		_pass("数据 / items.json 54 项（49 + 2 遗物 + 3 机制型被动）")
 
 	# 2 遗物：slot=="relic" + icon_index 20/21 唯一 + price>0 + effects 键白名单
 	var relic_found: Dictionary = {}
@@ -157,16 +157,16 @@ func _part_data() -> void:
 	else:
 		_pass("数据 / resonant_shard 保持无 slot（事件专属不入商店）")
 
-	# is_passive 仍 20 项（遗物不设 is_passive，day11_12 被动断言零波及）
+	# is_passive 现 23 项（D24-F13：20 + 3 机制型被动；遗物不设 is_passive）
 	var passives: int = 0
 	for iid in items:
 		var it: Dictionary = _loader.call("get_item", iid)
 		if not it.is_empty() and it.get("is_passive", false):
 			passives += 1
-	if passives != 20:
-		_fail("数据: is_passive 应 20 项, 实得 %d" % passives)
+	if passives != 23:
+		_fail("数据: is_passive 应 23 项, 实得 %d" % passives)
 	else:
-		_pass("数据 / is_passive 仍 20 项（遗物不入被动池）")
+		_pass("数据 / is_passive 现 23 项（20 + 3 机制型 F-13）")
 
 
 # ========== §2 新键装配 ==========

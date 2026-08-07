@@ -220,11 +220,11 @@ func _part_real_shop() -> void:
 		_fail("商店: 池武器应 33, 实得 %d" % weapon_count)
 	else:
 		_pass("商店 / 池武器 33（36 - 3 evolution_result）")
-	# D20-T4 同步：遗物（broken_crown/mech_engine）同为 Item 资源入池 → item_count = 20 被动 + 2 遗物 = 22
-	if item_count != 22:
-		_fail("商店: 池 Item 应 22（20 被动 + 2 遗物）, 实得 %d" % item_count)
+	# D24-F13 同步：机制型 3 被动同为 Item 入池 → item_count = 23 被动 + 2 遗物 = 25
+	if item_count != 25:
+		_fail("商店: 池 Item 应 25（23 被动 + 2 遗物）, 实得 %d" % item_count)
 	else:
-		_pass("商店 / 池 Item 22（被动 20 + 遗物 2）")
+		_pass("商店 / 池 Item 25（被动 23 + 遗物 2）")
 
 	# _refresh_shop 完整路径：4 卡非 null + 渲染不崩（注入的 mock item_container/coins_label）
 	_economy.add_coins(500)

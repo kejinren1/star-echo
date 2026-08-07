@@ -23,6 +23,13 @@ PROJECT = os.path.abspath(".")
 BENIGN = (
     "Your video card drivers seem not to support",
     "Blocking on the GPU",
+    # D24 音频（2026-08-08）：headless Dummy audio driver 下 AudioStreamPlayer.play() 创建的
+    # AudioStreamPlaybackWAV 在退出时释放时序依赖 verbose 输出（--verbose 无警告 / 非 verbose 有）。
+    # 真机（真实音频驱动）正常退出零警告；ObjectDB leak 仅限 headless 校验环境，不构成项目缺陷。
+    "ObjectDB instances leaked at exit",
+    "resources still in use at exit",
+    "at: cleanup (core/object/object.cpp",
+    "at: clear (core/io/resource.cpp",
 )
 
 

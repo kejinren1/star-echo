@@ -39,21 +39,8 @@ var _sfx_streams: Dictionary = {}
 
 
 func _ready() -> void:
-	# 加载 12 WAV（load() 失败返回 null → push_warning + 跳过，零崩溃）
-	for key in BGM_MAP:
-		var s: AudioStream = load(BGM_MAP[key])
-		if s == null:
-			push_warning("[AudioManager] BGM 加载失败: %s (%s)" % [key, BGM_MAP[key]])
-			continue
-		_bgm_streams[key] = s
-	for key in SFX_MAP:
-		var s: AudioStream = load(SFX_MAP[key])
-		if s == null:
-			push_warning("[AudioManager] SFX 加载失败: %s (%s)" % [key, SFX_MAP[key]])
-			continue
-		_sfx_streams[key] = s
-
-	# BGM 播放器（loop_mode LOOP_FORWARD + finished→play 兜底双保险）
+	# 懒加载设计：_ready 只建播放器节点，流在首次 play 时按需加载——
+	# headless `--quit`（0 帧立即退出，baseline import 阶段）零音频活动，防 Dummy AudioServer leak
 	_bgm_player = AudioStreamPlayer.new()
 	_bgm_player.volume_db = bgm_volume_db
 	add_child(_bgm_player)
@@ -65,6 +52,33 @@ func _ready() -> void:
 		p.volume_db = sfx_volume_db
 		add_child(p)
 		_sfx_pool.append(p)
+
+
+## 按需加载流（缓存；load 失败 push_warning + 返回 null，零崩溃 D31）
+func _ensure_stream(cache: Dictionary, path: String, key: String) -> AudioStream:
+	if cache.has(key):
+		return cache[key]
+	var s: AudioStream = load(path)
+	if s == null:
+		push_warning("[AudioManager] 资源加载失败: %s (%s)" % [key, path])
+		return null
+	cache[key] = s
+	return s
+
+
+func _exit_tree() -> void:
+	# 退出时立即释放播放器与资源引用（queue_free 延迟到帧末，--quit 无下一帧会 leak）
+	if _bgm_player != null:
+		_bgm_player.stop()
+		_bgm_player.free()
+		_bgm_player = null
+	for p in _sfx_pool:
+		if p != null:
+			p.stop()
+			p.free()
+	_sfx_pool.clear()
+	_bgm_streams.clear()
+	_sfx_streams.clear()
 
 
 func _process(_delta: float) -> void:
@@ -92,12 +106,15 @@ func _play_bgm_if_needed(track: String) -> void:
 
 ## 播放 BGM（同轨不重播；未知轨 push_warning 零崩溃）
 func play_bgm(track: String) -> void:
-	if not _bgm_streams.has(track):
+	if not BGM_MAP.has(track):
 		push_warning("[AudioManager] 未知 BGM 轨: %s" % track)
 		return
 	if _current_bgm == track and _bgm_player.playing:
 		return
-	_bgm_player.stream = _bgm_streams[track]
+	var stream: AudioStream = _ensure_stream(_bgm_streams, BGM_MAP[track], track)
+	if stream == null:
+		return
+	_bgm_player.stream = stream
 	_bgm_player.play()
 	_current_bgm = track
 
@@ -115,12 +132,15 @@ func _stop_bgm() -> void:
 
 ## 播放 SFX（池轮询；返回是否实际播放）
 func play_sfx(sfx_name: String) -> bool:
-	if not _sfx_streams.has(sfx_name):
+	if not SFX_MAP.has(sfx_name):
 		push_warning("[AudioManager] 未知 SFX: %s" % sfx_name)
+		return false
+	var stream: AudioStream = _ensure_stream(_sfx_streams, SFX_MAP[sfx_name], sfx_name)
+	if stream == null:
 		return false
 	var p: AudioStreamPlayer = _sfx_pool[_sfx_idx]
 	_sfx_idx = (_sfx_idx + 1) % SFX_POOL_SIZE
-	p.stream = _sfx_streams[sfx_name]
+	p.stream = stream
 	p.play()
 	return true
 
