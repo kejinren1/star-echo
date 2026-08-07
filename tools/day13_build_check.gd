@@ -195,12 +195,12 @@ func _advance(sub: int) -> int:
 # ========== Part 1: 真实商店路径（BUG-002 修复验证） ==========
 
 func _part_real_shop() -> void:
-	# _build_shop_pool 应返回 55 个资源实例（33 Weapon + 20 被动 Item + 2 遗物 Item），零 String
+	# _build_shop_pool 应返回 58 个资源实例（33 Weapon + 23 被动 Item + 2 遗物 Item），零 String
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 55:
-		_fail("商店: 混合池应 55, 实得 %d" % pool.size())
+	if pool.size() != 58:
+		_fail("商店: 混合池应 58, 实得 %d" % pool.size())
 	else:
-		_pass("商店 / 混合池 55（资源实例）")
+		_pass("商店 / 混合池 58（资源实例）")
 	var weapon_count: int = 0
 	var item_count: int = 0
 	var bad_type: bool = false
@@ -215,7 +215,7 @@ func _part_real_shop() -> void:
 	if bad_type:
 		_fail("商店: 池含非资源条目（String 泄漏 = BUG-002 未修复）")
 	else:
-		_pass("商店 / 池内 55 项全为资源实例（零类型 ERROR）")
+		_pass("商店 / 池内 58 项全为资源实例（零类型 ERROR）")
 	if weapon_count != 33:
 		_fail("商店: 池武器应 33, 实得 %d" % weapon_count)
 	else:

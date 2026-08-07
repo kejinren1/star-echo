@@ -405,13 +405,13 @@ func _advance(sub: int) -> int:
 			return 11
 		# ---------- §5 回归锚点 ----------
 		12:
-			# 商店池 55（33 武器 − 3 结果 + 20 被动 + 2 遗物）；resonant_shard 不入池
+			# 商店池 58（33 武器 − 3 结果 + 23 被动 + 2 遗物）；resonant_shard 不入池
 			var shop_script: GDScript = load("res://scripts/ui/shop.gd")
 			var shop: Node = shop_script.new()
 			shop.set("item_container", VBoxContainer.new())
 			shop.set("coins_label", Label.new())
 			var pool: Array = shop.call("_build_shop_pool")
-			_ok(pool.size() == 55, "回归: 商店池 55（实得 %d）" % pool.size())
+			_ok(pool.size() == 58, "回归: 商店池 58（实得 %d）" % pool.size())
 			var has_shard: bool = false
 			for item in pool:
 				if item and str(item.get("item_id")) == "resonant_shard":

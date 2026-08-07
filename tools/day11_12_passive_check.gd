@@ -4,7 +4,7 @@
 ##     tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day11_12_passive_check.gd
 ##
 ## 校验内容（对应 docs/TASKS.md D11-12-T7 / D11-12-EXIT 五段）：
-##   1. 数据层：items.json 20 项 is_passive/slot/category/icon_index 唯一；17 常规项 effects 键 ⊂ 白名单；
+##   1. 数据层：items.json 23 项 is_passive/slot/category/icon_index 唯一；20 常规项 effects 键 ⊂ 白名单；
 ##              3 核心 id 命中；其余 28 项 is_passive 缺省
 ##   2. 槽位层：inventory.MAX_ITEMS == 6；第 7 个 add_item false；is_item_slots_full 正确
 ##   3. 装配层：add_item_from_data("coffee") → attack_speed 1.0→1.08；
@@ -14,7 +14,7 @@
 ##   4. 商店层：_refresh_shop 产出 4 卡非 null（混合池：武器 33 + 被动 20 排除 3 结果武器）；
 ##              购买被动触发 item_added → 玩家属性变；槽满 → 失败且 coins 不变；
 ##              购买武器 → equipped_weapons 增 1
-##   5. 图标层：items.png 704×32 + 22 帧中心非空 + 透明键合规；icon_atlas items frame_count == 22（D20-T5 遗物帧）
+##   5. 图标层：items.png 800×32 + 25 帧中心非空 + 透明键合规；icon_atlas items frame_count == 25（D24-F13-3 机制型被动 3 帧）
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -193,29 +193,29 @@ func _part_data() -> void:
 			icons.append(int(it.get("icon_index", -1)))
 			if str(it.get("slot", "")) != "passive":
 				_fail("数据: %s slot 应为 passive" % iid)
-	if passives.size() != 20:
-		_fail("数据: 被动数应 20, 实得 %d" % passives.size())
+	if passives.size() != 23:
+		_fail("数据: 被动数应 23, 实得 %d" % passives.size())
 	else:
-		_pass("数据 / 20 被动 is_passive=true")
-	# icon_index 0-19 唯一性 + 范围（GDScript 无 set()/any() 内置，用 Dictionary 模拟 + 显式循环）
+		_pass("数据 / 23 被动 is_passive=true")
+	# icon_index 0-24 唯一性 + 范围（GDScript 无 set()/any() 内置，用 Dictionary 模拟 + 显式循环）
 	var seen_idx: Dictionary = {}
 	for v in icons:
 		seen_idx[v] = true
 	var oob: bool = false
 	for i in icons:
-		if i < 0 or i > 19:
+		if i < 0 or i > 24:
 			oob = true
 			break
-	if icons.size() != 20 or seen_idx.size() != 20 or oob:
-		_fail("数据: icon_index 0-19 唯一性破坏, icons=%s" % str(icons))
+	if icons.size() != 23 or seen_idx.size() != 23 or oob:
+		_fail("数据: icon_index 0-24 唯一性破坏, icons=%s" % str(icons))
 	else:
-		_pass("数据 / icon_index 0-19 唯一")
+		_pass("数据 / icon_index 0-24 唯一")
 	for cat in ["attack", "defense", "stat", "special"]:
 		if cats.get(cat, 0) < 4:
 			_fail("数据: category %s 数量 < 4（实得 %d）" % [cat, cats.get(cat, 0)])
 	_pass("数据 / 四类各 ≥4（attack=%d defense=%d stat=%d special=%d）" % [cats.get("attack", 0), cats.get("defense", 0), cats.get("stat", 0), cats.get("special", 0)])
 
-	# 17 常规项 effects 键 ⊂ 白名单（3 核心豁免）
+	# 20 常规项 effects 键 ⊂ 白名单（3 核心豁免；D24-F13 机制型 3 词条 effects 空 {} 天然豁免）
 	var bad_keys: Array = []
 	for iid in passives:
 		if iid in PASSIVE_CORE_IDS:
@@ -225,7 +225,7 @@ func _part_data() -> void:
 			if key not in WHITELIST_KEYS:
 				bad_keys.append("%s.%s" % [iid, key])
 	if bad_keys.is_empty():
-		_pass("数据 / 17 常规项 effects 键 ⊂ 白名单")
+		_pass("数据 / 20 常规项 effects 键 ⊂ 白名单")
 	else:
 		_fail("数据: 含禁键 %s" % bad_keys)
 
@@ -348,11 +348,11 @@ func _part_shop() -> void:
 	# D13-T6 同步：_build_shop_pool 现返回**资源实例**（BUG-002 修复，原 String id 被
 	# Array[Resource] 类型拒绝 → 4 ERROR + 0 卡）；元素按 weapon_type 字段区分武器/被动
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 55:
-		_fail("商店: 混合池应 33 武器 + 20 被动 + 2 遗物 = 55, 实得 %d" % pool.size())
+	if pool.size() != 58:
+		_fail("商店: 混合池应 33 武器 + 23 被动 + 2 遗物 = 58, 实得 %d" % pool.size())
 	else:
-		_pass("商店 / 混合池 55（武器 33 排除 3 结果武器 + 被动 20 + 遗物 2）")
-	# 池元素全为资源实例：33 Weapon + 22 Item（零类型 ERROR 断言替代原 id 抽查；D20-T4 遗物同为 Item 入池）
+		_pass("商店 / 混合池 58（武器 33 排除 3 结果武器 + 被动 23 + 遗物 2）")
+	# 池元素全为资源实例：33 Weapon + 25 Item（零类型 ERROR 断言替代原 id 抽查；D20-T4 遗物同为 Item 入池）
 	var weapon_pool: Array = []
 	var passive_pool: Array = []
 	for res in pool:
@@ -367,10 +367,10 @@ func _part_shop() -> void:
 		_fail("商店: 池武器数应 33, 实得 %d" % weapon_pool.size())
 	else:
 		_pass("商店 / 池含 33 把 Weapon 资源实例")
-	if passive_pool.size() != 22:
-		_fail("商店: 池 Item 数应 22（20 被动 + 2 遗物）, 实得 %d" % passive_pool.size())
+	if passive_pool.size() != 25:
+		_fail("商店: 池 Item 数应 25（23 被动 + 2 遗物）, 实得 %d" % passive_pool.size())
 	else:
-		_pass("商店 / 池含 22 个 Item 资源实例（被动 20 + 遗物 2）")
+		_pass("商店 / 池含 25 个 Item 资源实例（被动 23 + 遗物 2）")
 
 	# 模拟 _refresh_shop 路径：随机取 4 → build Weapon + Item
 	# 手动写：复制 _refresh_shop 核心逻辑（不依赖 _render_cards 节点）
@@ -473,15 +473,15 @@ func _part_shop() -> void:
 # ========== Part 5: 图标层 ==========
 
 func _part_icons() -> void:
-	# icon_atlas items frame_count == 22（D20-T5: +2 遗物帧）
+	# icon_atlas items frame_count == 25（D24-F13-3: +3 机制型被动帧）
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc != 22:
-		_fail("图标: icon_atlas items frame_count 应 22, 实得 %d" % fc)
+	if fc != 25:
+		_fail("图标: icon_atlas items frame_count 应 25, 实得 %d" % fc)
 	else:
-		_pass("图标 / icon_atlas items frame_count == 22")
+		_pass("图标 / icon_atlas items frame_count == 25")
 
-	# items.png 尺寸 + 22 帧中心非空 + 透明键
+	# items.png 尺寸 + 25 帧中心非空 + 透明键
 	if not FileAccess.file_exists(ITEMS_PNG_PATH):
 		_fail("图标: items.png 不存在")
 		return
@@ -490,15 +490,15 @@ func _part_icons() -> void:
 	if img == null:
 		_fail("图标: items.png 加载失败")
 		return
-	if img.get_width() != 704 or img.get_height() != 32:
-		_fail("图标: items.png 尺寸应 704×32, 实得 %dx%d" % [img.get_width(), img.get_height()])
+	if img.get_width() != 800 or img.get_height() != 32:
+		_fail("图标: items.png 尺寸应 800×32, 实得 %dx%d" % [img.get_width(), img.get_height()])
 	else:
-		_pass("图标 / items.png 尺寸 704×32")
+		_pass("图标 / items.png 尺寸 800×32")
 	# 透明键 (0,0)
 	if img.get_pixel(0, 0).a > 0.0:
 		_fail("图标: 透明键 (0,0) 应全透明")
-	# 22 帧中心非空
-	for idx in 22:
+	# 25 帧中心非空
+	for idx in 25:
 		var x0: int = idx * 32
 		var has: bool = false
 		for dx in range(8, 24):
@@ -511,7 +511,7 @@ func _part_icons() -> void:
 		if not has:
 			_fail("图标: 帧 %d 中心全透明（应实绘）" % idx)
 	if _failures == 0:
-		_pass("图标 / 22 帧中心非空 + 透明键 (0,0) 全透明")
+		_pass("图标 / 25 帧中心非空 + 透明键 (0,0) 全透明")
 
 
 # ========== 断言 ==========

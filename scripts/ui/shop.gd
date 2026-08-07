@@ -163,8 +163,9 @@ func _clear_star_grace_ui() -> void:
 ## 商品池：武器（排除 evolution_result 结果武器）+ 被动（is_passive==true）+ 遗物（slot=="relic" 且 price>0）
 ## D13-T6（BUG-002 修复）：返回**资源实例数组**（武器 Weapon / 被动 Item），
 ## 修复原实现把 String id 直接 push 进 `shop_items: Array[Resource]` 的类型冲突
-## （每进商店 4 条恒定 ERROR + 0 卡）；口径 = 36 武器 − 3 结果武器 + 20 被动 + 2 遗物 = 55
+## （每进商店 4 条恒定 ERROR + 0 卡）；口径 = 36 武器 − 3 结果武器 + 23 被动 + 2 遗物 = 58
 ## D20-T4：遗物第三池（resonant_shard price=0 天然排除 = 事件专属保持；2 遗物 price>0 入池）
+## D24-F13-1：3 机制型被动入池（overload_capacitor/executioner_mark/last_stand，is_passive 全入）
 func _build_shop_pool() -> Array:
 	var pool: Array = []
 	# 武器池：36 把 - 3 把结果武器 = 33 把（build_weapon_from_data 构建 Weapon 资源）

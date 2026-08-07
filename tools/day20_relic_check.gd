@@ -11,18 +11,18 @@
 ##      broken_crown → damage ×1.5 + taken_mult 1.3；mech_engine → structure_mult 2.0；
 ##      remove 回退 → 全复位（percent 除法还原）
 ##   §3 take_damage 乘算：armor=0 扣 130；armor=20 扣 104；debug_cheat 开 → 仍 ×0.001 最后兜底
-##   §4 商店/上限：池 55（33+20+2）+ 含 2 遗物 + 零 String；add broken_crown ×2 成功 →
+##   §4 商店/上限：池 58（33+23+2）+ 含 2 遗物 + 零 String；add broken_crown ×2 成功 →
 ##      第 3 次拒（inventory_full("relic")）；6 被动 + 2 遗物共存（MAX_ITEMS 语义不变）
 ##   §5 结构伤害消费 + 回归锚点：白盒 turret 弹药伤害 ×structure_damage_mult（se_mech_core 装配
-##      → structure_mult 1.4 顺带激活悬空词条）；icon_atlas items 22 / 商店池 55 / icon_index 0-19 唯一
+##      → structure_mult 1.4 顺带激活悬空词条）；icon_atlas items 25 / 商店池 58 / icon_index 0-24 唯一
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
 
 const EPSILON: float = 0.001
 const RELIC_IDS: Array = ["broken_crown", "mech_engine"]
-## §5 回归锚点：17 常规被动 icon_index 唯一范围 0-19（3 核心 17/18/19 + 14 常规）
-const PASSIVE_ICON_MAX: int = 19
+## §5 回归锚点：20 常规被动 icon_index 唯一范围 0-24（3 核心 17/18/19 + 17 常规 + 3 机制型 22/23/24）
+const PASSIVE_ICON_MAX: int = 24
 
 var _idx: int = 0
 var _sub: int = 0
@@ -249,12 +249,12 @@ func _part_take_damage() -> void:
 # ========== §4 商店/上限 ==========
 
 func _part_shop_cap() -> void:
-	# 商店池 55（33 武器 + 20 被动 + 2 遗物）+ 含 2 遗物 + 零 String
+	# 商店池 58（33 武器 + 23 被动 + 2 遗物）+ 含 2 遗物 + 零 String
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 55:
-		_fail("商店: 池应 55, 实得 %d" % pool.size())
+	if pool.size() != 58:
+		_fail("商店: 池应 58, 实得 %d" % pool.size())
 	else:
-		_pass("商店 / 混合池 55（33 武器 + 20 被动 + 2 遗物）")
+		_pass("商店 / 混合池 58（33 武器 + 23 被动 + 2 遗物）")
 	var has_crown: bool = false
 	var has_engine: bool = false
 	var bad_type: bool = false
@@ -362,18 +362,18 @@ func _part_structure_and_anchor() -> void:
 		else:
 			_pass("结构 / turret 弹药伤害 ×structure_damage_mult（5×1.4=7）")
 
-	# 回归锚点：icon_atlas items 22 / 商店池 55 / is_passive icon_index 0-19 唯一
+	# 回归锚点：icon_atlas items 25 / 商店池 58 / is_passive icon_index 0-24 唯一
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc != 22:
-		_fail("锚点: icon_atlas items frame_count 应 22, 实得 %d" % fc)
+	if fc != 25:
+		_fail("锚点: icon_atlas items frame_count 应 25, 实得 %d" % fc)
 	else:
-		_pass("锚点 / icon_atlas items 22 帧")
+		_pass("锚点 / icon_atlas items 25 帧")
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 55:
-		_fail("锚点: 商店池应 55, 实得 %d" % pool.size())
+	if pool.size() != 58:
+		_fail("锚点: 商店池应 58, 实得 %d" % pool.size())
 	else:
-		_pass("锚点 / 商店池 55")
+		_pass("锚点 / 商店池 58")
 	var seen: Dictionary = {}
 	var dup: bool = false
 	for iid in _loader.call("get_all_item_ids"):
@@ -386,12 +386,12 @@ func _part_structure_and_anchor() -> void:
 		if seen.has(idx):
 			dup = true
 		seen[idx] = true
-	if seen.size() != 20:
-		_fail("锚点: 被动 icon_index 应 20 项, 实得 %d" % seen.size())
+	if seen.size() != 23:
+		_fail("锚点: 被动 icon_index 应 23 项, 实得 %d" % seen.size())
 	elif dup:
 		_fail("锚点: 被动 icon_index 存在重复")
 	else:
-		_pass("锚点 / is_passive icon_index 0-19 唯一（20 项）")
+		_pass("锚点 / is_passive icon_index 0-24 唯一（23 项）")
 
 
 # ========== §6 技能图标（D20-T7/T8 · T-D P0 硬性输入） ==========
