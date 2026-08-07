@@ -10,6 +10,16 @@
 
 ---
 
+## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
+
+- **最近轮次 #30（08-08 00:18）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无需回退
+- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · 2279 字段零缺陷 ｜ 场景 16/16 全可实例化
+- **探针回归**：二十一件套 21/21 · **568 断言全绿**（day23_vfx 18/18 + day10 F-20 保底 21/21 首实证）
+- **在途 action item**：无（#29 H-01 已随 1c9d44b 入库；工作区仅 docs/* 在途交 #2 入库）
+- **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
+
+---
+
 ## 〇、执行摘要（TL;DR）
 
 **baseline：✅ PASS —— 两次执行均输出 `BASELINE CLEAN`。无 import 错误、无运行时错误、无 JSON 解析失败。当前工程可提交。**
@@ -2501,3 +2511,53 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-07 22:22 自动化测试轮次 #29：PASS（0 阻断 / 0 功能缺陷，探针级 minor 维持，2 项探针自身缺陷本轮修复）。** HEAD=**c091b73** + 在途 H-01（升级冲击波：光效+击退+普攻级伤害）：工程可导入、可运行、数据完整且边界健康（**9 表 2279 字段零缺陷**）、**16 场景全可实例化**、**二十件套探针 549 断言全绿**（day18_feedback3 27/27 首纳入行为级收口 H-01 升级体验；day21_22 38/38 正式覆盖 Day 21-22 美术资产，#35 请求兑现）。**探针维护 2 项**：day18_feedback3 死循环（`_sub>16`→`_sub>12`）、day21_22 帧遍历越界 + vfx_container mock 缺失——均工具侧，不改游戏逻辑，修复后重跑 20/20 CLEAN。**无新增功能缺陷；1 项 action item：在途 H-01 建议 commit 入库**。**无需回退。**
+
+---
+
+## §7.30 轮次 #30 · 2026-08-08 00:18（自动化 · Day 23 占位特效收口 + F-20 进化保底入库）
+
+**验证快照**：HEAD=**35ff6ac**（较 #29 c091b73 +6 提交：`1c9d44b` **Day18-FB3 H-01 升级冲击波入库**（升级光效+击退+普攻级伤害，day18_feedback3 探针 27/27 随批入库，#29 在途 action item 关闭）/ `99325f8` docs 反馈专员 #36 / `5f6844c` checkpoint + day21_22 探针修正（横向帧扫描 bug + mock vfx_container）/ `f5cd533` **Day23 技能特效（占位机制验证版）**：FX_CONFIG 5→10 键 + hit 消费点 + 三技能 VFX 接线 + 进化陨石替换 + day23_vfx 探针 18/18 / `10aa1ac` checkpoint / `b92d571` **F-20 进化选项保底（方案A）**：满级+持核心 3 选 1 必含进化（挤属性位），day10 探针 +保底断言 21/21 / `35ff6ac` docs 反馈专员 #38）。**工作区在途仅 docs/* 六文件，无游戏代码改动** → 验证快照 = HEAD（干净）。
+
+### 1. 工程可导入 / 运行
+
+- baseline（import + runtime 4 帧）：**CLEAN**，exit 0，stderr 0 B。
+- 600 帧深探：**CLEAN**（tools/deep_runtime_err.log = 0 B，exit 0）。
+
+### 2. 数据层 data/*.json（qa_validate.py 固化口径）
+
+- JSON **9/9** 解析 OK：characters=10 / weapons=36 / items=51 / events=10 / enemies=23 / waves=20。
+- 数值字段 **2279** 与 #29 持平（数据层零变更）；负值 39 全有意（惩罚/诅咒）；非 force_field 零伤害 **0**；哨兵 `total_enemies=-1` ×2；crit 双口径越界 0。
+- 跨引用：DATA LAYER CLEAN（ID 唯一性 chars/weapons/items/events/enemies；chars→weapons starting_weapon 10/10；waves 78 tokens 前缀感知 0 悬空）。
+
+### 3. 场景 smoke（正常模式，Main 置后方法学）
+
+- **16/16 全实例化**，stderr 0 B，exit 0。
+- 临时 `_smoke_tmp.gd/.tscn` 已按惯例 Python `os.remove()` 清理，无残留。
+
+### 4. 探针回归（二十一件套，568 断言全 CLEAN 首跑）
+
+**二十一件套 21/21 PASS，568 断言**（= #29 的 549 + day10 20→**21**（F-20 保底断言）+ **day23_vfx 18/18 首纳入**）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 **21** / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 32 / day18_feedback3 27 / day18_19 48 / day20_relic 23 / day21_22 38 / day23_vfx **18**。全部首跑 PASS（27s）。
+
+**day23_vfx_check 18/18（首纳入回归套件，Day 23 占位特效机制验证版收口）**：§1 FX_CONFIG 10 键（5 存量 + 5 占位）签名/帧数/颜色数据完整；§2 hit 消费点激活（fireball/turret_deploy/blade_burst 三技能 set_meta 接线 → VfxPlayer 消费）；§3 技能专属 VFX 渲染路径（AnimatedSprite2D 图集复用 + 色块占位）；§4 进化陨石 meteor 替换 + 未知特效/未知技能 id 兜底（push_warning 主动触发）+ 回归锚点。
+
+**day10_evolution_check 21/21（F-20 保底断言随 b92d571 入库，本轮实证）**：方案A 行为级收口——满级+持核心时 3 选 1 **必含进化选项**（独立收集+保底入选，挤掉属性位）；无进化可做时保持原随机逻辑；50 次抽样 100% 出现进化。
+
+### 5. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| minor（新增） | **day23_vfx 380B**：2 条主动 push_warning（`[VfxPlayer] 未知特效类型` / `[SkillController] 未知技能 id`——兜底测试预期输出）+ ObjectDB leaked（探针退出未完全 free） | 主动预期 + 探针自身，非游戏缺陷 |
+| minor（维持） | day11_12 763B / day13 859B / day18_feedback 497B / day18_feedback2 362B / day18_feedback3 362B / day20 1044B / day21_22 564B 探针退出未完全 free | 探针自身，非游戏缺陷，维持 |
+| 主动预期 | day7 124B / day10 132B 越界保护；day14_15 130B / day16 276B push_warning；day18_19 117B「[Boss] 未知攻击指令」；day20 3 条「[Player] 被动效果键未实现」+ 1 条「[HUD] 未知技能 id」 | 测试主动触发/防御分支预期输出 |
+| 消失态 | day4 0 B（历史 242B minor 已消失，维持） | — |
+
+### 6. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **#29 action item 关闭**：在途 H-01 已随 `1c9d44b` 入库（含 day18_feedback3 探针 + 死循环修复 + `_regression_run.py` expect 同步），验证快照回归干净。
+- **无新增 action item**；工作区在途仅 docs/* 六文件（反馈专员 #38 等挂账，交 #2 拆解岗统一入库）。
+
+### 结论
+
+**✅ 2026-08-08 00:18 自动化测试轮次 #30：PASS（0 阻断 / 0 功能缺陷，1 探针级 minor 新增已定性，无新增 action item）。** HEAD=**35ff6ac**（Day 23 占位特效 + F-20 进化保底 + H-01 全部入库，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2279 字段零缺陷**）、**16 场景全可实例化**、**二十一件套探针 568 断言全绿且首跑**（day23_vfx 18/18 首纳入收口 Day 23 占位特效机制验证版；day10 21/21 实证 F-20 进化保底方案A）。**无新增功能缺陷、无需回退。**
