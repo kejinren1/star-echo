@@ -125,6 +125,8 @@ func _start_next_wave(wave_number: int = -1) -> void:
 			if enemy_id.begins_with("boss:"):
 				is_boss_wave = true
 				break
+	if is_boss_wave:
+		AudioManager.play_sfx("boss")   # D24-T3-⑩：Boss 波 SFX（is_boss_wave 置位处）
 	current_state = GameState.BATTLE
 	state_changed.emit(current_state)
 	wave_started.emit(current_wave)
@@ -351,6 +353,7 @@ func _on_node_completed() -> void:
 func _start_event() -> void:
 	if _event_panel != null and is_instance_valid(_event_panel):
 		return  # 面板已在显示，防重复实例化
+	AudioManager.play_sfx("event")   # D24-T3-⑨：事件节点 SFX
 	var events: Array = DataLoader.get_events()
 	if events.is_empty():
 		push_warning("[GameManager] 事件数据为空，事件节点按已完成处理")

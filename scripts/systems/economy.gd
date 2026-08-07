@@ -22,6 +22,7 @@ func add_coins(amount: int) -> void:
 	coins += amount
 	coins_changed.emit(coins)
 	coins_gained.emit(amount)
+	AudioManager.play_sfx("coin")   # D24-T3-⑥：金币 SFX
 
 ## 消费金币，返回是否成功
 func spend_coins(amount: int) -> bool:

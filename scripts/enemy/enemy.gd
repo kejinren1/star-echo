@@ -505,6 +505,7 @@ func _elite_aoe(delta: float) -> void:
 			var fx_container: Node = _resolve_fx_container()
 			if fx_container:
 				VfxPlayer.spawn(fx_container, target.global_position, "crit")
+			AudioManager.play_sfx("crit")   # D24-T3-③：精英 AOE 命中 SFX（D30 收敛点 2/2）
 	_ability_timer = float(ability.get("interval", 1.0))
 
 ## 自愈（monk）：血量 < max_health × threshold 时周期恢复 heal_percent% 最大生命
@@ -727,6 +728,7 @@ func _boss_aoe() -> void:
 		var fx_container: Node = _resolve_fx_container()
 		if fx_container:
 			VfxPlayer.spawn(fx_container, target.global_position, "crit")
+		AudioManager.play_sfx("crit")   # D24-T3-③：Boss AOE 命中 SFX（D30 收敛点 2/2）
 
 ## 实例化敌人弹丸并挂到自身（决策 D1：防 Enemies 容器 alive-count 污染；随父销毁）
 func _spawn_enemy_projectile(dir: Vector2) -> void:

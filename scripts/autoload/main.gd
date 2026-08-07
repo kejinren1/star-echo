@@ -170,6 +170,7 @@ func _on_enemy_died(enemy: Node) -> void:
 	# 播放死亡特效
 	if vfx_container and enemy is Node2D:
 		VfxPlayer.spawn(vfx_container, enemy.global_position, "death")
+	AudioManager.play_sfx("death")   # D24-T3-①：敌人死亡 SFX
 	# D24-F13-2（F-13 on_kill · executioner_mark 处决印记）：击杀 → 回血 1（插在 death VFX 之后）
 	if GameManager and GameManager.inventory and GameManager.inventory.has_item_id("executioner_mark") and player:
 		player.heal(1.0)

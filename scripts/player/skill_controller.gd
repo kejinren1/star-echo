@@ -83,6 +83,7 @@ func try_cast() -> bool:
 			return false
 	_cd_left = _cd_total
 	skill_cast.emit(skill_id)
+	AudioManager.play_sfx("skill")   # D24-T3-⑧：技能施放 SFX（return true 前）
 	return true
 
 # ========== 技能实现 ==========

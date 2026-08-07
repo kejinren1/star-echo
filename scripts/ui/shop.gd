@@ -346,6 +346,7 @@ func _purchase_item(index: int) -> void:
 			shop_items.remove_at(index)
 			_render_cards()
 			purchase_made.emit(item)
+			AudioManager.play_sfx("shop")   # D24-T3-⑦：购买成功 SFX（武器）
 		return
 
 	# 被动购买：入库（item_added → 玩家装配生效）→ 扣费
@@ -354,5 +355,6 @@ func _purchase_item(index: int) -> void:
 			shop_items.remove_at(index)
 			_render_cards()
 			purchase_made.emit(item)
+			AudioManager.play_sfx("shop")   # D24-T3-⑦：购买成功 SFX（被动）
 	else:
 		push_warning("[Shop] 被动槽已满，购买失败")

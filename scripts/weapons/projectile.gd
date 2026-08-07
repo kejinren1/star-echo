@@ -87,6 +87,7 @@ func _on_body_entered(body: Node) -> void:
 		# HUD CanvasLayer 之下无冲突；暴击仍走 _do_explosion crit 双轨并存）
 		if GameManager.vfx_container:
 			VfxPlayer.spawn(GameManager.vfx_container, global_position, "hit")
+		AudioManager.play_sfx("hit")   # D24-T3-②：普通命中 SFX
 		# F-07（用户拍板 2026-08-06）：穿透弹沿途每个敌人即时爆炸（含元素附着）——
 		# 而非仅最后一次命中才爆。拆分 _do_explosion（无防重复标记）：穿透中段裸爆，
 		# 最后一次命中走 _explode（防与 lifetime 到点双爆）
@@ -144,6 +145,7 @@ func _do_explosion() -> void:
 			"se_skill_fireball":
 				fx_name = "fireball"
 		VfxPlayer.spawn(GameManager.vfx_container, global_position, fx_name)
+	AudioManager.play_sfx("crit")   # D24-T3-③：爆炸/暴击 SFX（陨石/火球/普爆共用，D30 收敛点 1/2）
 
 # ========== 吸血结算（Day 4 · D4-T3） ==========
 

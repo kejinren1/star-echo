@@ -366,6 +366,7 @@ func take_damage(amount: float) -> void:
 	health_changed.emit(health, max_health)
 	took_damage.emit(actual_damage)
 	_play_hit_flash()
+	AudioManager.play_sfx("hit")   # D24-T3-④：受击 SFX
 	# 短无敌帧，避免被群体敌人每帧叠伤
 	_invulnerable_timer = 0.4
 	# D24-F13-2（F-13 low_health · last_stand 背水一战）：受击后统一刷新低血状态（乘算开/关 + 逆运算回滚）
@@ -436,6 +437,7 @@ func _check_level_up() -> void:
 		# H-01 升级体验（反馈专员 2026-08-07 用户拍板）：升级光效 + 击退 + 普攻级伤害
 		_trigger_level_impact()
 		level_up.emit(level)
+		AudioManager.play_sfx("levelup")   # D24-T3-⑤：升级 SFX
 
 # ========== 升级冲击波（H-01 升级体验反馈 2026-08-07 · 用户拍板） ==========
 ## 「升级有光效，会对周围敌人进行击退并造成和普攻差不多的伤害」——
