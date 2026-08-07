@@ -13,7 +13,7 @@ const SHEET_CONFIG: Dictionary = {
 	},
 	"items": {
 		"path": "res://assets/sprites/ui/items.png",
-		"frame_count": 20,                       ## D11-12-T6: 4 → 20（20 被动 + 0 帧空余）
+		"frame_count": 22,                       ## D20-T5: 20 → 22（20 被动 + 2 遗物）
 		"frame_size": Vector2i(32, 32),
 	},
 }

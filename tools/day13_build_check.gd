@@ -195,12 +195,12 @@ func _advance(sub: int) -> int:
 # ========== Part 1: 真实商店路径（BUG-002 修复验证） ==========
 
 func _part_real_shop() -> void:
-	# _build_shop_pool 应返回 53 个资源实例（33 Weapon + 20 Item），零 String
+	# _build_shop_pool 应返回 55 个资源实例（33 Weapon + 20 被动 Item + 2 遗物 Item），零 String
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 53:
-		_fail("商店: 混合池应 53, 实得 %d" % pool.size())
+	if pool.size() != 55:
+		_fail("商店: 混合池应 55, 实得 %d" % pool.size())
 	else:
-		_pass("商店 / 混合池 53（资源实例）")
+		_pass("商店 / 混合池 55（资源实例）")
 	var weapon_count: int = 0
 	var item_count: int = 0
 	var bad_type: bool = false
@@ -215,15 +215,16 @@ func _part_real_shop() -> void:
 	if bad_type:
 		_fail("商店: 池含非资源条目（String 泄漏 = BUG-002 未修复）")
 	else:
-		_pass("商店 / 池内 53 项全为资源实例（零类型 ERROR）")
+		_pass("商店 / 池内 55 项全为资源实例（零类型 ERROR）")
 	if weapon_count != 33:
 		_fail("商店: 池武器应 33, 实得 %d" % weapon_count)
 	else:
 		_pass("商店 / 池武器 33（36 - 3 evolution_result）")
-	if item_count != 20:
-		_fail("商店: 池被动应 20, 实得 %d" % item_count)
+	# D20-T4 同步：遗物（broken_crown/mech_engine）同为 Item 资源入池 → item_count = 20 被动 + 2 遗物 = 22
+	if item_count != 22:
+		_fail("商店: 池 Item 应 22（20 被动 + 2 遗物）, 实得 %d" % item_count)
 	else:
-		_pass("商店 / 池被动 20")
+		_pass("商店 / 池 Item 22（被动 20 + 遗物 2）")
 
 	# _refresh_shop 完整路径：4 卡非 null + 渲染不崩（注入的 mock item_container/coins_label）
 	_economy.add_coins(500)
@@ -281,7 +282,7 @@ func _part_attr_10() -> void:
 	else:
 		_fail("属性: 缺消费字段 %s" % str(missing))
 
-	# STAT_MAP 15 键全覆盖（player.gd 常量；通过脚本常量间接读取）
+	# STAT_MAP 17 键全覆盖（player.gd 常量；通过脚本常量间接读取；D20-T2 +2 遗物键）
 	var stat_map: Dictionary = _player.get("STAT_MAP")
 	if stat_map.is_empty():
 		# const 不可经 get() 读取 → 退化断言：装配层已验 3 键（§5 coffee→attack_speed /
@@ -289,10 +290,10 @@ func _part_attr_10() -> void:
 		_pass("属性 / STAT_MAP 装配链路 3 键已在 §5/§3 实证（damage/crit/attack_speed/life_steal）")
 	else:
 		var keys: Array = stat_map.keys()
-		if keys.size() != 15:
-			_fail("属性: STAT_MAP 应 15 键, 实得 %d" % keys.size())
+		if keys.size() != 17:
+			_fail("属性: STAT_MAP 应 17 键, 实得 %d" % keys.size())
 		else:
-			_pass("属性 / STAT_MAP 15 键（角色被动/惩罚/被动道具装配全通道）")
+			_pass("属性 / STAT_MAP 17 键（角色被动/惩罚/被动道具/遗物装配全通道）")
 
 	# stats.json formulas 关键公式存在（crit_check / armor_reduction / attack_speed / dodge）
 	var json_text: String = FileAccess.get_file_as_string("res://data/stats.json")

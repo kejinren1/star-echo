@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Day 11-12 被动图标集生成工具：items.png 4 帧 → 20 帧（640×32，每帧 32×32）。
+D20-T5 扩展：→ 22 帧（704×32，+破碎王冠 broken_crown / 机械引擎 mech_engine 两遗物帧）。
 
-对应 docs/TASKS.md D11-12-T6【W3 / W1 协作】：
+对应 docs/TASKS.md D11-12-T6【W3 / W1 协作】+ D20-T5：
   · 20 帧实绘（帧序与 D11-12-PRE 的 icon_index 分配一致，见 gen_passives_day11.py PASSIVES）
   · 含 3 进化核心特征图标：se_flame_core 烈焰红 / se_mech_core 机械蓝灰 / se_blade_core 星刃青紫
+  · D20-T5 追加帧 20/21：破碎王冠（金冠+裂痕）/ 机械引擎（银蓝齿轮）
   · 像素风对齐 ART_STYLE v2（32px 图标基准）：1px 描边 + 高饱和分类色
   · 透明键协议：背景全透明，左上角 (0,0) 保持透明键，图标关键位置不用透明色
 
@@ -19,7 +21,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "assets", "sprites", "ui", "items.png")
 
 SIZE = 32
-FRAMES = 20
+FRAMES = 22
 
 # ---- 色板 ----
 OUTLINE = (26, 30, 42, 255)      # 深蓝黑 1px 描边
@@ -423,6 +425,48 @@ def ic_blade_core():
     return i
 
 
+# ================= D20-T5 遗物 2 帧（帧序 = icon_index 20/21） =================
+
+def ic_broken_crown():
+    """破碎王冠：金色王冠 + 裂痕（relic·伤害/受伤，broken_crown）。"""
+    i = Icon()
+    # 王冠主体（三尖冠）：底沿 + 三个冠尖
+    i.rect_o(6, 15, 20, 8, GOLD)            # 冠沿
+    i.rect(7, 16, 18, 6, (250, 225, 130, 255))
+    i.tri([(9, 15), (11, 6), (14, 14)], GOLD)      # 左尖
+    i.tri([(16, 14), (16, 4), (20, 14)], GOLD)     # 中尖
+    i.tri([(21, 15), (24, 6), (26, 15)], GOLD)     # 右尖
+    i.rect(8, 23, 16, 1, GOLD_D)            # 冠底阴影
+    # 宝石 + 裂痕（破损感）
+    i.rect(15, 17, 2, 2, RED)               # 中宝石
+    i.line(12, 12, 10, 15, GOLD_D, 1)       # 左裂
+    i.line(20, 13, 23, 15, GOLD_D, 1)       # 右裂
+    i.line(22, 15, 20, 19, RED_D, 1)        # 右裂延伸
+    i.set(10, 10, WHITE)                    # 高光
+    return i
+
+
+def ic_mech_engine():
+    """机械引擎：银蓝齿轮 + 中轴（relic·结构伤害，mech_engine）。"""
+    i = Icon()
+    i.disc(16, 16, 8, STEEL)                # 齿轮体
+    i.disc(16, 16, 8, None)
+    for (dx, dy) in [(0, -1), (1, 0), (0, 1), (-1, 0), (1, -1), (1, 1), (-1, 1), (-1, -1)]:
+        i.rect_o(15 + dx * 5, 15 + dy * 5, 3, 3, STEEL)  # 齿
+    i.disc(16, 16, 5, DARK)                 # 内孔
+    i.disc(16, 16, 5, None)
+    i.disc(16, 16, 3, CYAN)                 # 蓝芯
+    i.disc(16, 16, 1, WHITE)                # 轴心高光
+    # 引擎特征：顶部蒸汽 + 侧排气管
+    i.rect(14, 2, 4, 3, STEEL_D)            # 顶部烟囱
+    i.set(15, 1, WHITE)                     # 蒸汽
+    i.set(17, 1, WHITE)
+    i.rect_o(24, 18, 4, 6, STEEL)           # 右侧排气
+    i.rect(25, 19, 2, 4, STEEL_D)
+    i.set(13, 13, WHITE)                    # 齿高光
+    return i
+
+
 # ================= 帧表 =================
 
 def build():
@@ -447,6 +491,8 @@ def build():
         17: ic_flame_core,
         18: ic_mech_core,
         19: ic_blade_core,
+        20: ic_broken_crown,   ## D20-T5：破碎王冠（遗物）
+        21: ic_mech_engine,    ## D20-T5：机械引擎（遗物）
     }
     sheet = Image.new("RGBA", (SIZE * FRAMES, SIZE), (0, 0, 0, 0))
     for idx in range(FRAMES):
