@@ -1,150 +1,147 @@
-# 方案计划（2026-08-07 · 方案师自动化轮 · 第 2 轮）
+# 方案计划（2026-08-07 · 第 3 轮 · 17:5x）
 
-> 角色：方案师（Solution Architect）· 只定方案，不写代码 / 不改 .gd/.tscn/.tres/.json / 不 git commit / 不跑探针。
-> 本轮目标日：**Day 18-19（Boss 多阶段）** · 状态 = **批次 A ✅ / 批次 B ✅ 已提交 · 批次 C（收口批）执行中**。
-> 执行者入口：`docs/TASKS.md` Day 18-19 区（T1~T5 + EXIT）+ 本方案。
+## 当前开发日：Day 20 —— 遗物系统 + 阶段 C 收口 + T-D 技能图标（P0 调度硬性输入）
 
----
-
-## 〇、P0 调度硬性输入检查（步骤 0 产出）
-
-- **追踪区最新增量 #30（2026-08-07 16:0x · #5 标记岗）**：TEST_REPORT #25（14:12）= **Day18-FB 六件套正式覆盖**（15 件套 381 断言全绿，day18_feedback 16/16）；git HEAD 已推进 `d3b95a0` = #3 恢复后首个实现提交（批次 A）——「自动化疑似故障」判定解除实证；D18-19 挂账 🔴🔴 → 🟡（批次 A ✅ / 批次 B·C 待执行）。
-- **本方案师磁盘复核（15:5x）**：HEAD 已再推进 **`afe5ef7` = 批次 B 已提交**（enemy.gd Boss phases 状态机 + attacks 执行器 + 阶段横幅 + scale×2 + die 登记；day17 回归 39/39 + 20/20 自证）。
-- **P0 结论**：F-01/F-02/F-04/F-15（用户拍板四件套）+ P1 四修复 + 六件套（F-03/05/06/07/08/11）**机器侧全闭环**，无新机器可验证 P0 需拆 → 剩余动作 = 真人回归（主观项，交 #5）。**本轮无新增 P0 任务，批次 C 收口即完成 D18-19 挂账清偿。**
+> 执行者（#3）按本方案实现；本方案只定案，不写代码。
 
 ---
 
-## 一、目标日任务清单（docs/TASKS.md Day 18-19 区 · 批次状态）
+## §0 P0 调度硬性输入（本轮检查结论）
 
-| 任务 | 内容 | 状态（方案师实测） | 本方案章节 |
+- **追踪区增量 #32（17:5x）**：D18-19 Boss 多阶段**全收口**（HEAD `2d8bdd2`，实现提交 `d3b95a0`/`afe5ef7`/`740cb9e` + T-C `c470761`；十六件套 429 断言全绿首跑；day18_19_boss_check 48/48 首纳入）→ 阶段 C 前四节（路线/事件/精英/Boss）机器全闭环 → **目标日 = Day 20（遗物）**，#3 下一窗口 19:35 可直接执行。
+- P0 四件套（F-01/F-02/F-04/F-15）+ P1 四修复 + T-C 炮台提示 = **全部闭环**，**无新增机器可验证 P0 需拆**。剩余动作 = 真人「超级整合局」（主观项交 #5，不阻塞）。
+- **🔴 T-D 技能图标（用户 08-06 拍板「两个工作日内」）**：08-08 = 时限最后一天，已排入本日 D20-T7/T8。**若本日（08-07）未能启动，D20-T7/T8 最迟 08-08 必须落地，勿顺延**——这是硬性时限，优先级高于普通任务。
+
+## §1 实测核验（D18-19 收口后重测，替代预拆旧行号）
+
+| 位置 | 预拆行号 | 实测行号 | 状态 |
 |---|---|---|---|
-| D18-19-T1 | enemy.gd Boss phases 状态机 | ✅ **批次 B 已提交（`afe5ef7`）**：`_check_phase_transition` :542 / `_reset_boss_phase` :550 / 双守卫 :739-740 / scale×2 :837 附近 | —（核验见 §四·0） |
-| D18-19-T2 | attacks 指令解析 + 行为执行器 | ✅ **批次 B 已提交（`afe5ef7`）**：`_parse_attack` :298 / `_process_boss_attacks` :598 / 执行器 :674-706 | —（核验见 §四·0） |
-| D18-19-T3 | 新建 `enemy_projectile.gd` | ✅ **批次 A 已提交（`d3b95a0`）**：90 行，`class_name EnemyProjectile` + `initialize(props)` :56 + `set_direction` :69 + `enemy_projectiles` group | —（核验见 §四·0） |
-| D18-19-T4 | GameManager Boss 接入 + 胜利标记 | 🔶 **进行中**：enemy.gd die() 调 `register_boss_killed` 已提交（:749-751）；**game_manager.gd 改动在工作区未提交**（+39 行） | §四·任务1 |
-| D18-19-T5 | 新建 `tools/day18_19_boss_check.gd`（≥20 断言五段） | ❌ **未创建**（tools/ 无此文件） | §四·任务2 |
-| D18-19-EXIT | baseline + 回归 + verify + commit | ❌ 未执行 | §四·任务3 |
+| player.gd STAT_MAP | :53-69 | :53 | ✅ 一致 |
+| player.gd take_damage | :281-300 | :281（actual_damage :290 / debug_cheat :292-293） | ✅ 一致 |
+| inventory.gd MAX_ITEMS | — | :21 | ✅ |
+| inventory.gd add_item_from_data | :75-92 | :75（末尾走 add_item :57-63） | ✅ 一致 |
+| shop.gd _build_shop_pool | :91-110 | :91（武器循环 :94 / 被动循环 :102 / return :109） | ✅ 一致 |
+| icon_atlas.gd items frame_count | :16 | :16（=20） | ✅ 一致 |
+| turret.gd 伤害链 | :89-94 | **:108-109** | ⚠️ 漂移（T-C `c470761` 进度条致后移，改前读 :100-120） |
+| hud.gd skill_slot | :16-17 | **:18** | ⚠️ 漂移 1-2 行 |
+| skill_controller.gd skill_data | — | :22 声明 / :49 setup 装载 / :72 `get("id","")` | ✅ T8 消费路径可行 |
+| items.json | 49 项 | 49 项 / 零 slot=="relic" / is_passive 20 / broken_crown 不存在 / mech_heart 悬空（price 105 不入任何池） | ✅ 一致 |
 
-> **批次 C 剩余工作 = T4 收尾核验 + T5 探针五段 + EXIT 收口。** 批次 A/B 均已单批 commit，符合 #1 重排「任一批次完成即 commit」裁决。
-
----
-
-## 二、实测基线（方案师本轮磁盘核实 · 供执行者免排查）
-
-- **git HEAD = `afe5ef7`**（批次 B）→ `d3b95a0`（批次 A）→ `8c54efb`（docs：方案师首轮 SOLUTION_PLAN.md 落盘）→ `4a43f8c`（docs）→ `16c6dd3`（反馈专员六件套）。
-- **工作区**：`M scripts/autoload/game_manager.gd`（+39 行，批次 C T4 在途）+ `M docs/PLAYTEST_CHECKLIST.md`（#5 增量 #30）。**⚠️ game_manager.gd 未提交改动 = T4 成果，禁止丢弃**（详见风险表）。
-- **enemy.gd 现行行号**（TASKS 旧行号已过时，勿照抄旧值）：
-  - `is_boss` :56 / `_attack_mult` :146 / `_boss_charge` :147 / `_boss_charge_mult` :148 / 接触伤害倍率消费 :181-182
-  - `_parse_attack(cmd)` :298 / `_update_behavior` Boss 分支 :347-349 / `_check_phase_transition` :542 / `_reset_boss_phase` :550（含 _attack_mult / _boss_charge 置位 :562-570）/ `_process_boss_attacks` :598 / 弹幕执行器 :674-706 / `take_damage` 相位检查 :739-740 / `die()` :743 + `register_boss_killed` 调用 :749-751 / is_boss 标记 :831 / `_reset_boss_phase(0)` + scale×2 :837-838
-- **enemy_projectile.gd**（90 行）：`class_name EnemyProjectile` / `_ready` 加 `enemy_projectiles` group / `initialize(props)` :56（speed/damage/lifetime/bullet_color/bullet_radius 逐键可选）/ `set_direction(dir)` :69。
-- **game_manager.gd 工作区改动内容（方案师已逐行核对，与 TASKS T4 定案一致）**：
-  1. 属性区 :49-50：`var boss_killed: int = 0`（注释指向 Day 27 消费源）
-  2. `_enter_node` "boss" 分支 :223-227：`_show_boss_banner()` + `route.flags["boss_encountered"] = true` → 照常 `_start_next_wave`
-  3. 新增 `_show_boss_banner()` :263-283（仿 `_show_elite_banner` 范式：Node2D+Label「⚠ 最终 Boss」+ 1.5s 淡出上浮；容器缺失静默）
-  4. 新增 `register_boss_killed()` :285-291：`boss_killed += 1` + route 非空时 `flags["boss_defeated"] = true`
-  5. `reset()` :569：`boss_killed = 0`
-- **回归清单（当前为 15 件套）**：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41 / day17 39 / day17_p0 20 / **day18_feedback 16**（反馈专员六件套，TEST_REPORT #25 起正式纳入）。
-- **探针范式先例**：`tools/day17_elite_check.gd`（extends SceneTree + `_advance` 分派 + `_load_mocks` 白盒 stub：`ENEMY_SCENE_PATH` load + `initialize(stats)` + 玩家 stub）。
+**🔴 回归同步点补齐（预拆遗漏 2 处，漏改必红）：**
+1. `day13_build_check.gd` :200 `pool.size() != 53` → **55**（预拆已列）
+2. `day11_12_passive_check.gd` :351 `pool.size() != 53`（33+20 拆分断言）→ **55**；:366 武器 33 / :370 被动 20 **零改动**（预拆遗漏 :351）
+3. `day11_12_passive_check.gd` :476-482 `frame_count == 20` → **22**（预拆已列）
+4. `day16_event_check.gd` :414 `_ok(pool.size() == 53)` → **55**；:426 passives == 20 **零改动**（**预拆遗漏，新增**）
 
 ---
 
-## 三、方案师关键设计决策（批次 C · 承上轮 D1-D9）
+### 任务1：D20-T1【W2】items.json +2 遗物条目（数据）
+- 文件：`data/items.json`（追加 2 项，总 49→51）
+- 改动：
+  - `broken_crown` 破碎王冠：`{id, name, rarity:"legendary", price:120, effects:{damage_percent:50, damage_taken_percent:30}, tags:["relic","damage"], slot:"relic", icon_index:20}`
+  - `mech_engine` 机械引擎：`{id, name, rarity:"legendary", price:120, effects:{structure_damage_percent:100}, tags:["relic","engineering"], slot:"relic", icon_index:21}`
+  - **不设 is_passive**（不入被动池，day11_12 20 被动断言零波及）；effects 3 键 ⊂ 白名单（damage_percent 已有 / damage_taken_percent + structure_damage_percent 为 D20-T2 新注册）
+- 风险：**低**（纯数据追加；3 核心 effects 豁免先例，新键注册后白名单校验自动通过；无 slot 既有项零波及）
+- 验证：JSON 可解析 + 51 项 + 2 项 slot=="relic" + icon_index 20/21 唯一 + price>0（day20 探针 §1）
 
-| # | 决策 | 依据 |
+### 任务2：D20-T2【W1】player.gd 新装配键（damage_taken_mult / structure_damage_mult）
+- 文件：`scripts/player/player.gd` STAT_MAP :53-69 / take_damage :290-293
+- 改动：
+  1. STAT_MAP 注册 2 键：`"damage_taken_percent": {"stat": "damage_taken_mult", "mode": "percent"}` + `"structure_damage_percent": {"stat": "structure_damage_mult", "mode": "percent"}`
+  2. 新属性 `var damage_taken_mult: float = 1.0` / `var structure_damage_mult: float = 1.0`（`reset()` 复位 1.0）
+  3. take_damage **:290 与 :292 之间**插入 `actual_damage *= damage_taken_mult`（armor 平直减伤**先减后乘**；debug_cheat ×0.001 保持 :293 最后兜底，金手指语义不变）
+- 风险：**中**（插入点必须严格在 :290 后 / :292 前，防金手指兜底顺序变化；装配链路 percent 乘算已由 apply_item_bonuses :133-159 规则覆盖，**零新装配代码**，不得手写装配逻辑防双装配）
+- 验证：day20 探针 §2/§3 —— broken_crown 装配 → damage ×1.5 + damage_taken_mult == 1.3；take_damage(100) armor=0 → 扣 130；armor=20 → 扣 104（`max(80,1)×1.3`）；debug_cheat 开 → 仍 ×0.001 最后
+
+### 任务3：D20-T3【W1】inventory 遗物上限（MAX_RELICS=2 直装不占被动槽）
+- 文件：`scripts/systems/inventory.gd` :21 附近 / add_item_from_data :75-92
+- 改动：
+  1. `const MAX_RELICS: int = 2` + `func get_relic_count() -> int`（遍历 items 统计 `slot == "relic"`）
+  2. `add_item_from_data` :78 取得 data 后判 `var is_relic := str(data.get("slot","")) == "relic"`：
+     - **relic 分支（关键）**：`get_relic_count() >= MAX_RELICS → inventory_full.emit("relic") + return false`；否则构造 Item 资源（复用 :82-91 装载代码）→ `items.append(item)` + `item_added.emit(item)` + `return true` —— **必须跳过 `add_item` 的 MAX_ITEMS 检查（:58）**，否则 6 被动满时 items.size()=6 ≥ 6 → 遗物被误拒（**违反「6 被动 + 2 遗物共存」定案**）
+     - 非 relic → 走原路径 `add_item(item)`（:92 不变，MAX_ITEMS 语义零波及）
+- 风险：**中**（⚠️ `add_item` :58 是全量 items 数组检查，relic 分支若不短路则遗物永远进不了满槽被动玩家的背包——**预拆「其余走原路径」措辞有歧义，本方案定案 = relic 直装路径**；`add_item` 本身零改动防其他消费方波及）
+- 验证：day20 探针 §4 —— 白盒 add broken_crown ×2 → 成功 2 + 计数 2；第 3 次 → false + inventory_full("relic")；6 被动满 + 2 遗物共存 → 被动再 add 仍拒（MAX_ITEMS 语义不变）
+
+### 任务4：D20-T4【W1】商店第三池（遗物）
+- 文件：`scripts/ui/shop.gd` _build_shop_pool :91-109（第三循环追加在 :108 后）+ `tools/day13_build_check.gd` :200 + `tools/day11_12_passive_check.gd` :351 + `tools/day16_event_check.gd` :414
+- 改动：
+  1. :108 后追加第三循环：`idata.get("slot") == "relic" and int(idata.get("price",0)) > 0` → `_build_item_resource(iid)` 入池；:88-90 注释「口径不变 = 53」同步改 55
+  2. **回归同步 3 处**（§1 表）：day13 :200 / day11_12 :351 / day16_event :414 → 55；day11_12 :366/:370 与 day16 :426 零改动
+- 风险：**低**（D13-T6 资源实例范式复用；resonant_shard price 0 天然排除 = 事件专属保持；4 卡含遗物 ≈3.6% 不保底防过度设计；同步点已在 §1 列出防漏）
+- 验证：白盒 `_build_shop_pool().size() == 55` + 全资源实例 + 含 broken_crown/mech_engine + 零 String（day20 探针 §4 + 三探针回归全绿）
+
+### 任务5：D20-T5【W3+W1】遗物图标 2 帧 + 图集扩容
+- 文件：`tools/gen_item_icons.py`（+2 实绘函数）/ `assets/sprites/ui/items.png` 640×32→704×32 / `scripts/utils/icon_atlas.gd` :16 frame_count 20→22 / `tools/day11_12_passive_check.gd` :476-482
+- 改动：broken_crown 金色王冠（icon 20）/ mech_engine 银蓝齿轮（icon 21）；PIL 像素原语 + bounds check（描边越界 IndexError 坑）；透明键协议（左上角(0,0)=背景色全图镂空，禁用于关键位置）
+- 风险：**低**（PIL 原语先例成熟；⚠️ 生成后放大 4 倍目视整体效果再 commit——图标生成先例铁律）
+- 验证：items.png 704×32 + 帧 20/21 中心非空 + 透明键合规；icon_atlas get_frame_count("items")==22（day20 探针 §5 回归锚点 + day11_12 :480 同步 22 后全绿）
+
+### 任务6：D20-T6【W1】新建 `tools/day20_relic_check.gd`（≥18 断言五段）
+- 文件：`tools/day20_relic_check.gd`（新建）
+- 改动（探针范式沿用：`extends SceneTree` + `_advance` 分派全部 sub + 固定 seed + **白盒直构造**——D11-12/13 flaky 修复记录）：
+  - §1 数据层：51 项；2 遗物 slot=="relic" + icon_index 20/21 唯一 + price>0 + effects 键 ∈ {damage_percent, damage_taken_percent, structure_damage_percent}；resonant_shard 保持无 slot；is_passive 仍 20 项
+  - §2 新键装配（白盒直构造 + apply_item_bonuses，**禁手动双装配**——信号环境 item_added→apply_item_bonuses 已接）：broken_crown → damage ×1.5 + taken_mult 1.3；mech_engine → structure_mult 2.0；remove 回退 → 全复位
+  - §3 take_damage 乘算：armor=0 扣 130；armor=20 扣 104；debug_cheat 开 → 仍 ×0.001 最后兜底
+  - §4 商店/上限：池 55（33+20+2）+ 含 2 遗物 + 零 String；add broken_crown ×2 成功 → 第 3 次拒（inventory_full("relic")）；6 被动 + 2 遗物共存
+  - §5 结构伤害消费 + 回归锚点：白盒 turret 弹药伤害 ×structure_damage_mult（se_mech_core 装配 → structure_mult == 1.4 顺带激活悬空词条）；day11_12 frame_count 22 / day13 池 55 / icon_index 0-19 唯一仍成立
+- 风险：**中**（探针自身坑：Array.shuffle/pick_random 走全局 RNG → 白盒直构造或全局 seed(N)，勿用 rng.seed 控 shuffle；信号环境防双装配）
+- 验证：探针自证 CLEAN + 回归十五件套全绿
+
+### 任务7：D20-T7【W3 主责 + W1 协作】技能图标 4 枚 + skills.png 图集（T-D · P0 调度硬性输入）
+- 文件：`tools/gen_skill_icons.py`（新建，仿 gen_weapon_icons.py PIL 原语）/ `assets/sprites/skills/skills.png`（**新建目录**，128×32 = 4 帧，32px 图标基准同 weapons.png）
+- 改动：4 实绘函数 —— `se_skill_fireball`（炽星火球：橙红火球+焰尾，帧 0）/ `se_skill_deploy_turret`（机械矩阵：炮塔+齿轮，帧 1）/ `se_skill_blade_burst`（剑域绽放：剑刃圆环+光点，帧 2）/ `se_skill_holy_shield`（神圣庇护：白蓝护盾+十字光，帧 3）；透明键协议 + 216 色上限 + 锚点色板容差归并（ΔRGB≤12）；`.import` 由 `godot --headless --import` 补（D21-T0 先例）
+- 风险：**低**（新目录零冲突；W1 本任务零改动）
+- 验证：skills.png 128×32 + 4 帧中心非空 + 透明键合规 + 色数合规（静态脚本/探针）
+
+### 任务8：D20-T8【W1】SkillSlot 图标接线 + 美化（T-D · 无图零回归）
+- 文件：`scripts/ui/hud.gd` :18 skill_slot / 新增 `_apply_skill_icon()`
+- 改动：从 `GameManager.player.get_node_or_null("SkillController").skill_data.get("id","")` 取技能 id（skill_controller.gd :22/:72 结构已核验）→ `ResourceLoader.exists("res://assets/sprites/skills/skills.png")` 兜底 → `IconAtlas.get_frame("skills", idx)` → `skill_slot.texture = frame`；映射 `{se_skill_fireball:0, se_skill_deploy_turret:1, se_skill_blade_burst:2, se_skill_holy_shield:3}`；id 空/图缺失/节点缺失 → 静默跳过（保持现有样式零回归）；未知 id → push_warning 登记不崩；`_ready` **延迟一帧调用**（HUD _ready 先于 Main _ready 先例，P1-Fix3）
+- 风险：**低**（无图降级设计；IconAtlas 对未知 sheet 有 push_warning 不崩，但前置 ResourceLoader.exists 更稳）
+- 验证：白盒注入 skill_data（4 个 id 各测）→ skill_slot.texture 非空且帧索引正确；空 id → 零改动；skills.png 缺失 → 不崩
+
+### 任务9：D20-EXIT【W5】阶段 C 收口
+- 文件：`docs/REPORT_PHASE_C.md`（新建）+ git commit
+- 改动：baseline CLEAN + day20 探针 + **回归十六件套**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41 / day17 39 / day17_p0 20 / day18_19 48 / day20 N）+ `gen_weapons_day7.py verify` 36/36 + REPORT_PHASE_C.md（§1 阶段 C 七日回顾 / §2 各系统集成结论 / §3 平衡对照：F-01 移速×0.5 后曲线 + 遗物叠加边界 damage_percent 乘算链 / §4 遗留：R4 攻击力口径、森林区域深消费 Day 27、遗物 HUD 槽 P1、进化选项加权待决策）+ 主观项登记（遗物平衡体感 / Build 质变感知 / 阶段 C 整体流程 → #5）
+- 风险：**中**（回归 3 处同步点漏改必红——§1 表清单执行；commit 勿夹带 docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md——各自动化/第三方自主提交）
+- 验证：十六件套全绿 + baseline CLEAN + verify 36/36
+
+---
+
+## §2 全局风险表
+
+| 风险 | 级 | 缓解 |
 |---|---|---|
-| D10 | **T4 不重写、核验收尾**：game_manager.gd 工作区改动已逐行核对与 TASKS T4 定案完全一致 → 执行者仅核验无遗漏（对照本方案 §四·任务1 清单）后归入收口 commit | 方案师 git diff 实测（+39 行 5 处改动全部命中定案） |
-| D11 | **T5 探针断言口径 = Boss 子节点 + `enemy_projectiles` group**：弹幕断言查 group 成员数而非全局容器（决策 D1 延续，防 alive-count 污染误判）；召唤断言查 `GameManager.enemy_spawner.enemies_container`（或白盒 stub 容器） | enemy_projectile `_ready` 已加 group（实测）；D1 弹丸挂 Boss 节点 |
-| D12 | **T5 玩家 stub 范式**：白盒 Node2D stub（`global_position` + `take_damage(amount)` 记录 last_damage + health 扣减）挂到 GameManager.player；**禁止依赖真实 Main 场景**（探针独立运行，Main 未实例化） | day17_elite_check `_load_mocks` 先例 |
-| D13 | **boss die → `boss_killed` 登记断言走 GameManager autoload 实例**：headless 下 GameManager 是 autoload（`get_node("/root/GameManager")` 恒在）；白盒 enemy 白盒 die 后断言 `boss_killed == 1` + `route.flags["boss_defeated"]`；**断言前须手动置 route 非空**（`_enter_node` 或直接构造 route 字典） | enemy.gd :749-751 双守卫（GameManager 有效 + has_method）实测；GameManager.reset 后 route 为空 → 仅计数不登记 flags |
-| D14 | **收口 commit 必须显式 `git add scripts/autoload/game_manager.gd`**（工作区在途改动）+ 新探针 + docs 同步；勿夹带 docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md（护栏延续） | 工作区现状实测；TASKS EXIT 护栏 |
-| D15 | **批次 C 完成判据（供 #1/#4 复核）**：`day18_19_boss_check` CLEAN（≥20 断言）+ 回归 15 件套全绿 + `baseline_check` → BASELINE CLEAN + `gen_weapons_day7.py verify` 36/36 + 收口 commit 含 game_manager.gd | 重排裁决口径 + TEST_REPORT #25 十五件套基线 |
+| inventory relic 分支短路遗漏 → 满被动玩家遗物误拒 | **高** | 本方案任务3 定案：relic 直装路径跳过 MAX_ITEMS 检查；探针 §4 专测 6 被动 + 2 遗物共存 |
+| 回归同步点漏改（day13 :200 / day11_12 :351 / day16_event :414）→ 三探针红 | **中** | §1 表 4 处同步点清单化；D20-EXIT 十六件套收口强制全跑 |
+| turret.gd 行号漂移（:89-94 → :108-109）→ 改错位置 | 中 | 方案已给现行行号；改前读 :100-120 上下文确认 |
+| take_damage 插入点错位 → 金手指兜底语义变化 | 中 | 插入点定死 :290 与 :292 之间；探针 §3 专测 debug_cheat 仍 ×0.001 最后 |
+| 探针 flaky（shuffle 全局 RNG / 双装配） | 中 | 白盒直构造 + 禁手动 apply_item_bonuses（D11-12/13 修复先例） |
+| T-D 时限顺延（08-08 = 最后一天） | 高 | T7/T8 排 T1-T6 后同日完成；若 #3 未启动，下轮方案师/执行者优先推进 T7/T8 |
+| 遗物 HUD 槽 / VFX / mech_heart 入池 | 低 | W5 不得判失败（P1 顺延 / Day 23 / 登记可选）——明确排除出本日验收 |
+
+## §3 执行顺序建议
+
+T1（数据 49→51）→ T2（装配键）→ T3（上限，含 relic 短路）→ T4（商店 + 3 处回归同步）→ T5（图标）→ T6（探针五段）→ T7/T8（T-D 硬性）→ EXIT（十六件套 + REPORT_PHASE_C + commit）。
+
+**任一批次完成即 commit 勿等全量**（#1 裁决惯例，防工作区丢失）；**T7/T8 优先保障**（08-08 硬性时限，若时间不够优先 T-D 后补遗物余项，但本日排期足，正常并行即可）。
+
+## §4 红线声明
+
+本方案仅产出 SOLUTION_PLAN.md + TASKS.md 标注；不写代码、不改 .gd/.tscn/.tres/.json、不 git commit、不跑探针。
 
 ---
 
-## 四、任务方案
+## 执行结果（#3 执行者 · 2026-08-07 18:0x · 第 27 轮）
 
-### 任务1：D18-19-T4【W1】GameManager Boss 接入核验 + 收尾　风险：中
+**状态：[完成]** —— Day 20 遗物系统 + 阶段 C 收口 + T-D 技能图标全量落地，零阻塞。
 
-- **文件**：`scripts/autoload/game_manager.gd`（工作区在途，未提交）
-- **现状**：5 处改动已落盘且与 TASKS T4 定案一致（§二已逐行核对）。执行者动作 = **核验清单**（非重写）：
-  1. `var boss_killed: int = 0` 存在（:49-50 附近）✅ 已核
-  2. `reset()` 内 `boss_killed = 0` ✅ 已核（:569）
-  3. `_enter_node` "boss" 分支：`_show_boss_banner()` + `route.flags["boss_encountered"] = true`，随后照常 `_start_next_wave` ✅ 已核（:223-227）
-  4. `_show_boss_banner()`（「⚠ 最终 Boss」1.5s 淡出，容器缺失静默）✅ 已核（:263-283）
-  5. `register_boss_killed()`：`boss_killed += 1` + route 非空 → `flags["boss_defeated"] = true` ✅ 已核（:285-291）
-- **无新增改动需求**；若核验发现遗漏（对照上表），仅补遗漏点，不重构。
-- **落地合理性 / 副作用**：纯增量零既有行为改动；`boss_killed`/`flags.boss_defeated` 是 Day 27 局外养成既定消费源（#2 第 23 轮定案：end_game(victory) 统一结算），本日登记不臆造；旧波次制 route 空 → 仅计数零影响。
-- **验证**：探针 §5（任务 2）+ 目测 `git diff scripts/autoload/game_manager.gd` 与上表逐条对照。
-- **风险**：中 —— **最高风险 = 工作区改动丢失**（若执行者误 `git checkout -- .` / `git stash` / reset 硬回退 → T4 全丢且无法从已提交内容恢复）。缓解：**先 `git status` 确认 M 状态 → 改动即成果 → commit 阶段显式 `git add scripts/autoload/game_manager.gd`**（D14）。**替代方案**：无（改动已在盘，只需保留+提交）。
+- **批次 A（`494f18e`）**：T1 items.json 49→51（broken_crown/mech_engine，slot="relic" icon 20/21）；T2 player.gd STAT_MAP +damage_taken_percent/structure_damage_percent + 两属性 + take_damage armor 后乘 + apply_stat_modifier 两分支；T3 inventory MAX_RELICS=2 + get_relic_count + add_item_from_data relic 直装短路；turret.gd _fire 消费 structure_damage_mult。
+- **批次 B（`54fd498`）**：T4 shop.gd 第三池 53→55（resonant_shard price0 天然排除）；T5 items.png 640→704×32 22 帧 + icon_atlas 20→22；回归同步 5 处（方案 §1 表 4 处 + **实测补 1 处**：day13 :223-226 item_count 20→22 —— 遗物同为 Item 资源计入 item_count，方案「零改动」判定不准，探针同步后三件套全绿）。
+- **批次 C（`0ba7c7f`）**：T6 探针 day20_relic_check.gd 23/23 CLEAN（§1-§5 遗物五段 + §6 技能图标段；探针自身坑：take_damage 无敌帧逐用例重置、skill_controller 实例注入方可行）。
+- **批次 D（`b9f815a`）**：T7 gen_skill_icons.py + skills.png 128×32 4 帧（全图 16 色 ≤216）；T8 hud.gd `_apply_skill_icon`（skill_data.id → 4 帧映射，无图降级/未知 id push_warning）。**T-D P0 硬性时限 08-08 前一日完成**。
+- **批次 E（本轮收口 commit）**：**十七件套 452 断言全绿**（day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17 39 / day17_p0 20 / day18_feedback 16 / day18_19 48 / day20 23）+ baseline **BASELINE CLEAN** + verify 36/36 + **REPORT_PHASE_C.md** + TASKS 收口标记。
 
-### 任务2：D18-19-T5【W1】新建 `tools/day18_19_boss_check.gd`（探针五段 ≥20 断言）　风险：中
-
-- **文件**：`tools/day18_19_boss_check.gd`（**新建**；运行：`tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day18_19_boss_check.gd`）
-- **范式**：`extends SceneTree` + `_advance` 分派全部 sub + 固定 seed + 白盒直构造（照抄 day17_elite_check.gd 骨架：`_initialize` / `_process` 分发 / `_load_mocks` / `_report` 退出码=失败项数）。
-- **白盒 stub（`_load_mocks` 段）**：
-  - 敌人：`const ENEMY_SCENE_PATH = "res://scenes/Enemy.tscn"` → `load().instantiate()` → `initialize(stats)`（stats 白盒构造：category="boss" + invoker phases 副本 / predator 3 段副本；**相位阈值数据从 DataLoader.get_scaled_enemy("invoker"/"predator") 读取后原地构造副本，勿改 JSON**）
-  - 玩家：Node2D stub（`global_position = Vector2(100, 100)` + `health` + `take_damage(amount)` 记录 `last_damage` 并 `health -= amount`）→ 挂 `GameManager.player`（`get_node("/root/GameManager")`，autoload 恒在）
-  - 召唤容器：优先 `GameManager.enemy_spawner.enemies_container`；缺失 → 白盒 stub 容器（Node 挂 spawner 上，探针自建）
-- **五段断言（≥20，固定 `_rng.seed` + 固定 delta）**：
-  - **§1 数据层（≥4）**：`boss[2]` 齐（invoker/predator 的 phases 非空 + hp + damage + exp_value）；`hp_threshold_percent` 单调递减（invoker 100→60 / predator 100→66→33）；attacks 数组非空且**全量可被 `_parse_attack` 解析**（遍历 invoker+predator 全部 phase attacks → 解析结果非空字典，未知指令计数 == 0）
-  - **§2 阶段状态机（≥5）**：白盒 invoker stats → 初始 `_current_phase_idx == 0` + `_attack_timers` 键数 == phase0 attacks 数；`take_damage` 压过 60% 阈值 → phase 1（attacks 更新 / `move_speed == _base_speed * 1.2` / 横幅节点出现并 1.5s 内销毁——横幅断言用 `_advance` 步进）；全阶段走完再压 → 不再切；**非 boss 白盒（category 改 "regular"）→ 零新行为（_attack_timers 空 / 无横幅 / die 不调 register）**
-  - **§3 指令执行（≥6，白盒直构造 + `_rng.seed` 固定）**：`summon_2_enemies_every_5s` → 召唤容器 +2（id ∈ regular 池，is_elite == false）；`summon_1_elite` → +1（is_elite == true）；`3_projectile_spread` → Boss 子节点 +3（`get_tree().get_nodes_in_group("enemy_projectiles")` 口径，决策 D11）；`aoe_every_8s` → 玩家 stub `health` 扣减 == `damage * _attack_mult`；`charge_attack_2x` 置位 → 白盒接触伤害路径 ×2（或断言 `_boss_charge == true` + `_boss_charge_mult == 2.0`）；`all_attacks_2x` → `_attack_mult == 2.0`
-  - **§4 弹丸（≥3）**：EnemyProjectile 白盒（`initialize({speed, damage, lifetime})` + `set_direction`）→ 玩家摆位 60px 推进 → 玩家 stub health 扣减 + 弹丸 queue_free；lifetime 耗尽（无玩家命中路径）→ 销毁；damage 透传 == 配置值
-  - **§5 回归（≥4）**：wave 10 `boss:invoker` / wave 20 `boss:predator` 白盒 spawn（get_scaled_enemy + instantiate）→ `is_boss == true` + category == "boss" + phases 非空；**route 末层 boss wave_index == 10**（`999a1bd` Fix-2 后口径，**勿写 20**）；boss die（白盒 `die()`）→ `GameManager.boss_killed == 1` + `route.flags["boss_defeated"] == true`（**断言前置 route 非空**，决策 D13）
-- **落地合理性 / 副作用**：独立新文件零触碰既有探针；回归锚点文档化（wave 10 / group 口径 / player projectile 零改动）。
-- **验证**：headless 单跑 CLEAN → 收口轮跑回归 15 件套。
-- **风险**：中 —— 潜在 flaky 点：① 召唤/弹幕容器断言（决策 D11 group 口径已稳定）；② 横幅断言依赖 tween 推进（用 `_advance` 步进 1.6s 或直接断言节点创建，横幅销毁断言降级为「不阻塞」）；③ `_rng.seed` 固定但 `_attack_timers` 遍历顺序依赖 Dictionary（GDScript 4 保序，安全）。**替代方案**：若横幅销毁断言 flaky → 只断言「创建」不断言「销毁」（横幅为视觉项，非核心）。
-
-### 任务3：D18-19-EXIT【W5】阶段 C 第四节收口　风险：低
-
-- **文件**：无（执行/验证动作）
-- **改动**：
-  1. `python tools/baseline_check.py` → **BASELINE CLEAN**
-  2. `day18_19_boss_check` CLEAN（≥20 断言）
-  3. **回归十五件套**全绿：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 20 / day11_12 22 / day13 36 / day14_15 53 / day16 41 / day17 39 / day17_p0 20 / **day18_feedback 16**（TEST_REPORT #25 起正式纳入，勿漏）
-  4. `gen_weapons_day7.py verify` → 36/36
-  5. **git commit 收口（决策 D14）**：显式 `git add scripts/autoload/game_manager.gd`（工作区在途 T4）+ `tools/day18_19_boss_check.gd` + 相关 docs；**勿夹带** docs/pindou/、scripts/ui/*.bak、tools/pixel_to_pindou.py、docs/LOOP_HEALTH.md
-  6. 主观项登记：Boss 战难度曲线 / 阶段切换表现力 / Boss 视觉辨识度 / 弹幕躲避手感 → PLAYTEST_CHECKLIST.md（#5 收口），不阻塞出口
-- **验证**：三重出口（baseline + 探针 + verify）。
-- **风险**：低 —— 若回归某件套变红：优先查 `is_boss and not phases.is_empty()` 双守卫遗漏（普通敌人误入 Boss 分支）；若 day18_feedback 变红：查 take_damage/die 签名变化波及（批次 B commit 已自证 day17 39/39，day18_feedback 首跑全量在收口轮）。
-
----
-
-## 五、全局风险评估
-
-| 风险 | 等级 | 缓解 |
-|---|---|---|
-| **工作区 game_manager.gd（T4）未提交改动丢失** | 🔴 **高** | 执行者先 `git status` 确认 M → 改动即成果，禁止 checkout -- / stash / reset 丢弃；commit 显式 add（D14） |
-| 批次 C 收口轮首跑全量回归（15 件套） | 中 | 批次 A/B 已单批自证（day17 39/39 + 20/20）；收口轮按 EXIT 清单全量；变红先查双守卫遗漏 |
-| T5 探针首跑 flaky（横幅 tween / 容器口径） | 中 | 白盒 stub + `_rng.seed` + group 口径（D11/D12）；横幅断言降级为「创建不销毁」（替代方案） |
-| 弹丸/召唤容器断言污染误判 | 中（已消解） | 决策 D1（弹丸挂 Boss 节点）+ D11（group 断言口径） |
-| TASKS 旧行号误导执行者 | 低 | §二已给现行行号（enemy.gd :542/:598/:749 等），勿照抄 TASKS 旧值 |
-| Boss 横幅/特效容器缺失 | 低 | 全链路容器缺失静默跳过（既有范式） |
-| 执行者批次 C 再次空转（流程风险） | 🟡 流程 | 批次 A/B 已实证 #3 恢复运行（`d3b95a0`/`afe5ef7` 落地）；本方案已就绪，下窗口直接执行 |
-
----
-
-## 六、红线确认
-
-- ✅ 本方案零代码、零数据、零 git 改动产出（仅 docs/SOLUTION_PLAN.md + docs/TASKS.md 标注）
-- ✅ 未跑任何探针 / headless 验证（验证方式均为「执行者阶段」动作，已逐任务写明）
-- ✅ 大纲「腐化巨树藤蔓/毒雨」差异：以数据为准（invoker/predator），登记不臆造（PRE #8，上轮已登记，本轮无新差异）
-- ✅ 批次 C 完成判据（D15）已明确，供 #1/#4 复核
-
----
-
-## 七、执行结果：完成（2026-08-07 15:5x · #3 第 26 轮执行）
-
-**批次 A（`d3b95a0`）**：`enemy_projectile.gd` 新建（纯 Node2D + 距离判定禁物理 D8 + 挂 Boss 节点 D1）+ `_parse_attack` 8 型指令纯函数。import 零错误 + day17_elite 39/39。
-
-**批次 B（`afe5ef7`）**：phases 状态机（initialize 透传 / `_reset_boss_phase(0)` / take_damage D6 先行 / `_check_phase_transition` / 阶段横幅 / die 击杀登记）+ attacks 执行器（`_process_boss_attacks` / summon / spread / barrage 8 向×3 波 / aoe 120px / charge 命中倍率 D2 / all_attacks_2x D3）+ scale×2 视觉过渡 D7。回归 39/39 + 20/20。
-
-**批次 C（本轮收口）**：GameManager Boss 接入（`boss_killed` / `register_boss_killed` / `_show_boss_banner` / route.flags boss_encountered·boss_defeated / reset 清零）+ 探针 `day18_19_boss_check.gd` **48/48 CLEAN**（§1 数据 / §2 状态机 / §3 指令 / §4 弹丸 / §5 回归）+ 回归十五件套 15/15 全绿 + baseline **BASELINE CLEAN** + verify 36/36。
-
-**探针同步 1 处**：`day14_15_route_check.gd` FIXED_ROUTE `const`→`var`（Godot 4 const Dictionary 只读；T4 `route["flags"]` 写键触发 `Invalid assignment on read-only value`，探针端同步，代码零回退）。
-
-**执行中问题 2 项（已闭环，登记备查）**：
-1. 探针 `preload` enemy_projectile.gd 编译失败（`--script` 编译期 autoload 标识符 `GameManager` 未注册）→ 改运行期 `load()`（enemy.gd 同范式）。
-2. 探针 `Node.get(key, default)` 双参误用（Object.get 单参 vs Dictionary.get 双参）→ 修正 + `_clear_enemy_container` 立即销毁防 queue_free 延迟污染断言。
-
-**主观项（交 #5 登记，不阻塞）**：Boss 战难度曲线 / 阶段切换表现力 / Boss 视觉辨识度 / 弹幕躲避手感。**D18-19 挂账 🔴🔴 解除**。
+- **执行中登记（非阻塞）**：① 方案 §1「day11_12 :370 / day13 :223 零改动」实测必红（遗物 Item 计入被动/Item 池统计），按回归同步惯例补改探针（验证工具非游戏系统）；② T8 需 IconAtlas 注册 skills sheet（方案 T8 文件清单未列 icon_atlas.gd，属接线必要最小补充）。
+- **遗留（归口）**：遗物 HUD 槽 P1（Day 23+）/ 遗物 VFX（Day 23）/ mech_heart 入池登记可选 / 进化选项加权待决策；主观项（遗物平衡体感 / Build 质变 / 阶段 C 流程 / 技能图标辨识度）→ PLAYTEST（#5）。
+- **下一目标日**：Day 21-22 美术资产落地（阶段 D 首段，D18-19 已预拆，等方案师落盘）。
