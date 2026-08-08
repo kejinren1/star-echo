@@ -210,6 +210,13 @@ func _apply_character_sprite(prefix: String) -> void:
 
 # ========== 动画 ==========
 
+## D28：从 sheet 纹理宽 ÷ 帧宽自动推断帧数（消除 idle 4 / walk 6 硬编码，
+## 适配 elin 实装后的 idle 3 帧 / walk 10 帧；fighter 等旧 sheet 128/192÷32 数值不变，零回归）
+func _sheet_frame_count(tex: Texture2D) -> int:
+	if tex == null or frame_size.x <= 0:
+		return 1
+	return maxi(1, tex.get_width() / frame_size.x)
+
 func _setup_animation() -> void:
 	_anim = get_node_or_null("AnimatedSprite2D")
 	if not _anim:
@@ -221,10 +228,10 @@ func _setup_animation() -> void:
 		walk_texture = load("res://assets/sprites/characters/fighter_walk.png")
 	if not idle_texture or not walk_texture:
 		return
-	# 构建 SpriteFrames
+	# 构建 SpriteFrames（帧数由 sheet 宽 ÷ 帧宽自动推断：elin 实装后 idle 3 帧 / walk 10 帧）
 	var sf := SpriteFrameFactory.create_multi([
-		{"texture": idle_texture, "frame_count": 4, "frame_size": frame_size, "fps": idle_fps, "loop": true, "name": "idle"},
-		{"texture": walk_texture, "frame_count": 6, "frame_size": frame_size, "fps": walk_fps, "loop": true, "name": "walk"},
+		{"texture": idle_texture, "frame_count": _sheet_frame_count(idle_texture), "frame_size": frame_size, "fps": idle_fps, "loop": true, "name": "idle"},
+		{"texture": walk_texture, "frame_count": _sheet_frame_count(walk_texture), "frame_size": frame_size, "fps": walk_fps, "loop": true, "name": "walk"},
 	])
 	# D21-22-T3：追加 attack/skill 动画（D19① 守卫：缺帧文件不追加该动画，防 create_multi 吃 null 纹理）
 	if not _sprite_prefix.is_empty():
@@ -236,7 +243,7 @@ func _setup_animation() -> void:
 				sf.add_animation("attack")
 				sf.set_animation_loop("attack", false)
 				sf.set_animation_speed("attack", 12.0)
-				for i in 4:
+				for i in _sheet_frame_count(attack_tex):
 					var atlas := AtlasTexture.new()
 					atlas.atlas = attack_tex
 					atlas.region = Rect2(i * frame_size.x, 0, frame_size.x, frame_size.y)
@@ -247,7 +254,7 @@ func _setup_animation() -> void:
 				sf.add_animation("skill")
 				sf.set_animation_loop("skill", false)
 				sf.set_animation_speed("skill", 10.0)
-				for i in 4:
+				for i in _sheet_frame_count(skill_tex):
 					var atlas := AtlasTexture.new()
 					atlas.atlas = skill_tex
 					atlas.region = Rect2(i * frame_size.x, 0, frame_size.x, frame_size.y)
