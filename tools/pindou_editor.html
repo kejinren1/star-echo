@@ -77,9 +77,35 @@
   </div>
   <div id="side">
     <section>
+      <h2>🎨 素材导入（白底图 → 像素画）</h2>
+      <div id="dropZone" style="border:1px dashed var(--border); padding:10px; text-align:center; color:var(--text2); cursor:pointer; margin-bottom:6px">
+        拖放图片到这里<br>或 <b style="color:var(--accent)">点击选择</b>（png/jpg）
+      </div>
+      <input type="file" id="artFile" accept="image/png,image/jpeg" class="hidden">
+      <div class="row">
+        <label>尺寸</label>
+        <input type="number" id="artW" value="64" min="8" max="128" style="width:48px">×<input type="number" id="artH" value="64" min="8" max="128" style="width:48px">
+        <label>抠底容差</label>
+        <input type="number" id="artTol" value="16" min="0" max="60" style="width:44px">
+      </div>
+      <div class="row">
+        <label>色板</label>
+        <select id="artPal" style="flex:1">
+          <option value="beads" selected>beads 拼豆明亮板（46 色）</option>
+          <option value="dict">当前调色板（字典容差 Δ12）</option>
+          <option value="none">不量化（原色）</option>
+        </select>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btnImport" style="flex:1">⚡ 导入并转化（抠底→降维→量化）</button>
+      </div>
+      <div id="artReport" style="color:var(--text2);font-size:11px;line-height:1.5">导入后在此显示处理结果；画布内可继续用笔/桶/橡皮像素级修正，最后「导出 PNG」进游戏。</div>
+    </section>
+    <section>
       <h2>调色板 <span id="palMeta" style="color:var(--text2);font-size:10px"></span></h2>
       <div class="row">
         <button class="btn" id="btnLoadDict">加载 ART/COLOR_DICT.json</button>
+        <button class="btn" id="btnLoadBeads">载入 beads 明亮板</button>
         <button class="btn" id="btnAddColor">+ 添加色</button>
         <input type="color" id="inpNewColor" value="#ff00ff">
       </div>
@@ -505,6 +531,171 @@ function loadPngAsBeads(file, dataUrl){
   img.src = dataUrl;
 }
 
+/* ============================================================
+ * 素材导入管线（2026-08-08 新增）：白底/浅灰底美术素材 → 像素画帧
+ *   1. floodfill 抠底（背景参考色=四边众数，边缘 BFS 扩散）
+ *   2. 网格降采样（每输出格取非透明像素均值，透明块留空）
+ *   3. 色板量化（beads 明亮板 / 当前调色板 / 不量化）
+ *   4. 生成单帧 → 可继续像素级修正 → 导出 PNG
+ * 与 tools/img2sprite.py 算法对齐（JS 版零依赖）。
+ * ============================================================ */
+const BEADS = [
+  [255,255,255],[240,238,235],[210,208,205],[200,198,196],
+  [255,228,196],[245,205,160],[222,170,120],
+  [230,57,70],[176,24,31],[255,105,120],[255,150,160],
+  [230,60,120],[255,100,180],
+  [255,140,50],[255,180,70],[255,120,90],
+  [255,220,60],[250,235,120],[240,200,40],[220,160,30],
+  [120,190,60],[60,150,50],[170,220,90],[140,150,60],
+  [90,200,160],[40,170,140],[120,220,190],
+  [70,130,240],[30,80,200],[140,180,255],[70,190,230],
+  [25,45,120],
+  [160,90,220],[120,50,180],[200,150,240],[170,160,230],
+  [240,150,200],
+  [140,90,50],[180,130,80],[100,65,35],[210,180,140],
+  [120,20,40],
+  [60,60,60],[120,120,120],[160,160,160],[30,30,30],
+];
+function loadBeadsPalette(){
+  state.palette = {}; state.dictNew = {};
+  for (const rgb of BEADS) addColor(rgb2hex(rgb), '', '', false);
+  log(`已载入 beads 明亮板（${BEADS.length} 色）`);
+  renderPalette();
+}
+$('btnLoadBeads').onclick = loadBeadsPalette;
+
+/* floodfill 抠底：背景参考色=四边众数，从边缘 BFS，与背景色差≤tol → 透明 */
+function floodfillCutout(data, w, h, tol){
+  const px = data.data;
+  // 背景参考色 = 四边采样众数
+  const edge = {};
+  const seed = [];
+  for (let x=0;x<w;x+=3){ seed.push([x,0],[x,h-1]); }
+  for (let y=0;y<h;y+=3){ seed.push([0,y],[w-1,y]); }
+  for (const [x,y] of seed){
+    const i=(y*w+x)*4, k=px[i]+','+px[i+1]+','+px[i+2];
+    edge[k]=(edge[k]||0)+1;
+  }
+  let bg=null, bgn=0;
+  for (const k in edge){ if (edge[k]>bgn){ bgn=edge[k]; bg=k.split(',').map(Number); } }
+  const isBg = (x,y)=>{
+    const i=(y*w+x)*4;
+    return Math.max(Math.abs(px[i]-bg[0]), Math.abs(px[i+1]-bg[1]), Math.abs(px[i+2]-bg[2])) <= tol;
+  };
+  const visited = new Uint8Array(w*h);
+  const stack = [];
+  for (let x=0;x<w;x++){ stack.push([x,0],[x,h-1]); }
+  for (let y=0;y<h;y++){ stack.push([0,y],[w-1,y]); }
+  while (stack.length){
+    const [x,y]=stack.pop();
+    if (x<0||y<0||x>=w||y>=h||visited[y*w+x]) continue;
+    visited[y*w+x]=1;
+    if (!isBg(x,y)) continue;
+    const i=(y*w+x)*4; px[i+3]=0;
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+  return data;
+}
+
+/* 网格降采样：每输出格 = 非透明像素均值；全透明块 = 留空(null) */
+function downsampleGrid(data, w, h, outW, outH){
+  const px = data.data;
+  const grid = newGrid(outW, outH);
+  for (let oy=0; oy<outH; oy++){
+    const y0=Math.floor(oy*h/outH), y1=Math.max(Math.floor((oy+1)*h/outH), y0+1);
+    for (let ox=0; ox<outW; ox++){
+      const x0=Math.floor(ox*w/outW), x1=Math.max(Math.floor((ox+1)*w/outW), x0+1);
+      let rs=0,gs=0,bs=0,n=0;
+      for (let y=y0;y<y1;y++) for (let x=x0;x<x1;x++){
+        const i=(y*w+x)*4;
+        if (px[i+3]<8) continue;
+        rs+=px[i]; gs+=px[i+1]; bs+=px[i+2]; n++;
+      }
+      if (n>0){
+        const col=[Math.round(rs/n),Math.round(gs/n),Math.round(bs/n)];
+        grid[oy][ox] = col;   // 暂存 rgb，量化阶段转色号
+      }
+    }
+  }
+  return grid; // grid[y][x] = [r,g,b] | null
+}
+
+/* 素材导入主流程 */
+function importArtAsset(file, dataUrl, outW, outH, tol, palMode){
+  const img = new Image();
+  img.onload = ()=>{
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const cx = c.getContext('2d');
+    cx.drawImage(img,0,0);
+    let data = cx.getImageData(0,0,c.width,c.height);
+    // 1) 抠底
+    if (tol>0) data = floodfillCutout(data, c.width, c.height, tol);
+    // 2) 降采样
+    const grid = downsampleGrid(data, c.width, c.height, outW, outH);
+    // 3) 量化 + 生成帧
+    let usedColors = 0;
+    const srcPal = [];
+    if (palMode==='beads'){
+      loadBeadsPalette();
+    }
+    for (let y=0;y<outH;y++) for (let x=0;x<outW;x++){
+      const col = grid[y][x]; if (!col) continue;
+      let code = null;
+      if (palMode==='beads'){
+        let best=null, bd=Infinity;
+        for (const b of BEADS){
+          const d=Math.max(Math.abs(col[0]-b[0]),Math.abs(col[1]-b[1]),Math.abs(col[2]-b[2]));
+          if (d<bd){ bd=d; best=b; }
+        }
+        code = findInDict(best, 1);          // beads 已入调色板，精确命中
+        if (!code){ code = addColor(rgb2hex(best)); }
+      } else if (palMode==='dict'){
+        code = findInDict(col, 12);
+        if (!code){ code = addColor(rgb2hex(col)); }
+      } else {
+        code = addColor(rgb2hex(col));
+      }
+      grid[y][x] = code;
+      if (code) usedColors++;
+    }
+    state.frames = [{ name: file.name.replace(/\.(png|jpe?g)$/i,'')||'frame1', grid }];
+    state.cur = 0; state.source = file.name + '（素材导入）';
+    $('artReport').innerHTML =
+      `✅ ${file.name} → ${outW}×${outH} 像素画<br>`+
+      `源图 ${c.width}×${c.height} · 抠底容差 ${tol}<br>`+
+      `色板: ${palMode==='beads'?'beads 明亮板('+BEADS.length+'色)':palMode==='dict'?'当前调色板':'不量化'} · 用色 ${usedColors}<br>`+
+      `<span style="color:var(--text2)">画布内可像素级修正（笔/桶/擦），完成后「导出 PNG」</span>`;
+    log(`素材导入完成: ${file.name} → ${outW}×${outH}（${usedColors} 色）`);
+    renderAll();
+  };
+  img.src = dataUrl;
+}
+
+/* 素材拖放 + 选择 */
+function openArtFile(file){
+  if (!file || !/image\/(png|jpe?g)/.test(file.type)){ log('请选择 PNG/JPG 图片'); return; }
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const w=Math.max(8,+$('artW').value||64), h=Math.max(8,+$('artH').value||64);
+      const tol=Math.max(0,+$('artTol').value||0);
+      const pal=$('artPal').value;
+      importArtAsset(file, r.result, w, h, tol, pal);
+    }catch(e){ log('素材导入失败: '+e.message); console.error(e); }
+  };
+  r.readAsDataURL(file);
+}
+$('btnImport').onclick = ()=>{ const f=$('artFile'); f.click(); };
+$('artFile').onchange = e=>{ const f=e.target.files[0]; if(f){ openArtFile(f); } e.target.value=''; };
+$('dropZone').onclick = ()=>{ $('artFile').click(); };
+$('dropZone').ondragover = e=>{ e.preventDefault(); $('dropZone').style.borderColor='var(--accent)'; };
+$('dropZone').ondragleave = ()=>{ $('dropZone').style.borderColor='var(--border)'; };
+$('dropZone').ondrop = e=>{
+  e.preventDefault(); $('dropZone').style.borderColor='var(--border)';
+  const f=e.dataTransfer.files[0]; if(f){ openArtFile(f); }
+};
+
 /* ---------------- 字典登记（保存/下载） ---------------- */
 $('btnApplyDict').onclick = ()=>{
   // 把当前所有帧像素量化到字典色（含 dictNew，已可被 findInDict 命中——它们已在 palette 中）
@@ -759,6 +950,7 @@ $('btnLoadDict').onclick = ()=>{
   addColor('#f6c90e','警示黄','精英/物品（锚点）',true);
   renderAll();
   log('拼豆图纸编辑器就绪。');
+  log('· 素材导入：拖放白底/浅灰底美术图 → 自动抠底+降维+量化（beads 明亮板）→ 可像素级修正');
   log('· 打开 docs/pindou/*.svg 可加载艾琳旧图纸继续编辑');
   log('· 打开 PNG 自动转拼豆 + 提取新色（容差 ΔRGB≤12）');
   log('· 导出 PNG = 横排 sprite sheet（透明键协议自动处理）');
