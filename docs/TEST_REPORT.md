@@ -12,11 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #33（08-08 06:20）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无需回退
-- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2301 字段零缺陷**（items 54，+10=Day27 英雄 story）｜ 场景 **17/17** 全可实例化（+BaseStation）｜ 600帧深探 242B 良性
-- **探针回归**：二十五件套 25/25 · **678 断言全绿首跑**（+day27_meta 35/35 首纳入，阶段E局外养成收口；day26 34 已并入 runner，#32 action item 关闭）
-- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（#33 恢复出现=时序波动），真机正常，非缺陷
-- **在途 action item**：无新增；仅 docs/* 5 文件在途交 #2 入库｜观察：Day 28 性能段（#4 域）零开工
+- **最近轮次 #34（08-08 08:08）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 action item
+- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2301 字段零缺陷**（items 54）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
+- **探针回归**：二十五件套 25/25 · **678 断言全绿首跑**（计数与 #33 完全一致；本轮纯 docs 轮次 HEAD=3d4f511 Day28 合规等待，无新探针）
+- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常，非缺陷）；day4/day5/day17_elite stderr 0B→242B 为同类波动非回归
+- **在途 action item**：无新增；工作区在途仅 docs/* 4 文件交 #2 入库｜观察：Day 28 性能段（#4 域）零开工
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -2717,3 +2717,51 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-08 06:20 自动化测试轮次 #33：PASS（0 阻断 / 0 功能缺陷，1 探针级 minor 新增已定性，无新增 action item）。** HEAD=**84a75d0**（Day 27 阶段E首段局外养成收口，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2301 字段零缺陷，items 54**）、**17 场景全可实例化**（BaseStation 首纳入）、**二十五件套探针 678 断言全绿且首跑**（day27_meta 35/35 首纳入收口阶段E局外养成；#32 runner action item 关闭）。唯一新增项为 day27 探针主动触发的坏档兜底测试输出（探针级预期 minor，非游戏缺陷）。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.34 轮次 #34 · 2026-08-08 08:08（自动化 · Day 28 执行者合规等待期）
+
+> 快照：HEAD=**3d4f511**（较 #33 +1 提交：**Day28 执行者合规等待**——仅 docs 同步 6 份 + SOLUTION_PLAN 执行结果追加；无游戏代码/数据改动）。**工作区在途仅 docs/* 4 文件**（PLAYTEST_CHECKLIST / PROGRESS / SOLUTION_PLAN / TASKS），**无游戏代码改动** → 验证快照 = HEAD 干净。
+
+### 1. 基线
+
+- `python tools/baseline_check.py`：**PASS**（import + runtime `--quit-after 4` 均 exit 0）。`baseline_*_err.log` 实测 **242 B**（ObjectDB leaked + 1 resources）——Day 24 BENIGN 白名单条目，过滤后 0 显著行 → "stderr clean" 判定正确。
+
+### 2. 深度运行（600 帧）
+
+- `--quit-after 600`：EXIT 0，`deep_runtime_err.log` **242 B**（音频 BENIGN 泄漏，与 #33 相同状态，非回归）。
+
+### 3. 数据层（qa_validate.py 固化工具）
+
+- **JSON 9/9 解析 OK**：chars 10 / weapons 36 / items 54 / events 10 / enemies 23 / waves 20（与 #33 完全持平）。
+- **数值字段 2301**（与 #33 持平零变更）；39 负值全有意（惩罚/诅咒）、0 非豁免零伤害（force_field 按武器 id 豁免）、哨兵 -1×2（waves[9]/[19]）、crit 双口径越界 0。
+- 跨引用 **0 硬悬空**（chars→weapons 10/10；waves 前缀感知 0 悬空，mixed* 令牌放行）→ **DATA LAYER CLEAN**。
+
+### 4. 场景 smoke（17/17）
+
+- **17 场景全 load+instantiate**（Player children=4 与历史一致），stderr 242 B 良性音频泄漏，exit 0。临时 `_smoke_tmp.gd/.tscn` 已 Python `os.remove()` 清理无残留。
+
+### 5. 探针回归（二十五件套，678 断言全 CLEAN 首跑）
+
+**二十五件套 25/25 PASS，678 断言（29s）**（= #33 完全一致；runner PROBES 25 项无变更）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 21 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 42 / day18_feedback3 27 / day18_19 48 / day20_relic 23 / day21_22 38 / day23_vfx 18 / day24_f13 17 / day24_audio 14 / day26_integration 34 / day27_meta 35。**全部首跑 PASS**，各探针断言计数行逐一核对 0 FAIL（day10 21/day20 23/day21_22 38/day27 35 等抽查确认）。
+
+### 6. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| 良性（维持，全进程） | **退出泄漏 242 B/进程**（ObjectDB leaked + 1 resources = `bgm_menu.wav` AudioStreamPlaybackWAV）——Day 24 音频 Autoload，BENIGN 白名单定性；本轮 600 帧/smoke/各探针进程均出现 242 B 叠加 | 已知良性，非缺陷 |
+| 良性（口径波动） | **day4/day5/day17_elite 由 #33 的 0 B → 242 B**（= 音频 BENIGN 泄漏时序波动，非探针自身回归；与 #32 曾 0B→#33 恢复 242B 同类现象） | 已知良性，非缺陷 |
+| minor（维持） | day26 402B（2× `node.h:446` 未入树 mock 环境 + 242B）/ day7 366B（124+242）/ day10 374B（132+242）/ day14_15 372B（130+242）/ day16 518B（276+242）/ day11_12 763B / day13 860B / day18_feedback 497B / day18_feedback2 571B / day18_feedback3 362B / day18_19 359B（117+242）/ day20 1044B / day21_22 564B / day23 496B / day24_f13 859B / day27_meta 496B（坏档兜底主动触发+242B） | 探针自身/主动预期，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护；day14_15/day16 push_warning；day18_19「未知攻击指令」；day20 被动键未实现+HUD 未知技能 id；day24_audio 未知 BGM/SFX 兜底；day27_meta 坏档回退 | 测试主动触发/防御分支预期输出 |
+
+### 7. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **观察项（非阻断，维持）**：音频退出泄漏白名单良性；Day 28 性能段（#4 域）零开工（tools/ 无 perf 脚本）；Day 28 为「全量测试 + 性能」目标日，本轮无新探针/性能脚本入库，后续轮次继续观察。
+- **在途 action item：无新增**；工作区在途仅 docs/* 4 文件（交 #2 拆解岗统一入库）。
+
+### 结论
+
+**✅ 2026-08-08 08:08 自动化测试轮次 #34：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**3d4f511**（Day 28 执行者合规等待，仅 docs 收尾同步，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2301 字段零缺陷，items 54**）、**17 场景全可实例化**、**二十五件套探针 678 断言全绿且首跑**（计数与 #33 完全一致）。本轮为纯 docs 轮次，唯一变化为 day4/day5/day17_elite 探针 stderr 0B→242B 的音频 BENIGN 时序波动（已定性非回归）。**无新增功能缺陷、无需回退。**
