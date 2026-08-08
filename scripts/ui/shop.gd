@@ -160,23 +160,26 @@ func _clear_star_grace_ui() -> void:
 		_grace_label.queue_free()
 		_grace_label = null
 
-## 商品池：武器（排除 evolution_result 结果武器）+ 被动（is_passive==true）+ 遗物（slot=="relic" 且 price>0）
+## 商品池：武器（排除 evolution_result 结果武器 + 初始武器）+ 被动（is_passive==true）+ 遗物（slot=="relic" 且 price>0）+ 服务（effects.shop_weapon_upgrade）
 ## D13-T6（BUG-002 修复）：返回**资源实例数组**（武器 Weapon / 被动 Item），
 ## 修复原实现把 String id 直接 push 进 `shop_items: Array[Resource]` 的类型冲突
-## （每进商店 4 条恒定 ERROR + 0 卡）；口径 = 36 武器 − 3 结果武器 + 23 被动 + 2 遗物 = 58
+## （每进商店 4 条恒定 ERROR + 0 卡）；口径 = 36 武器 − 3 结果武器 − 10 起始武器 + 23 被动 + 2 遗物 + 1 服务 = 49
 ## D20-T4：遗物第三池（resonant_shard price=0 天然排除 = 事件专属保持；2 遗物 price>0 入池）
 ## D24-F13-1：3 机制型被动入池（overload_capacitor/executioner_mark/last_stand，is_passive 全入）
+## F31-1（2026-08-08 用户拍板）：初始武器出商店池（10 把 starting_weapon 跳过）
+## F31-3：铁砧 anvil 服务池入池（effects.shop_weapon_upgrade true = 唯一服务商品）
 func _build_shop_pool() -> Array:
 	var pool: Array = []
-	# 武器池：36 把 - 3 把结果武器 = 33 把（build_weapon_from_data 构建 Weapon 资源）
+	# 武器池：36 把 - 3 把结果武器 - 10 把初始武器 = 23 把（build_weapon_from_data 构建 Weapon 资源）
+	var starting_ids: Array = DataLoader.get_starting_weapon_ids()
 	for wid in DataLoader.get_all_weapon_ids():
 		var wdata: Dictionary = DataLoader.get_weapon(wid)
-		if wdata.is_empty() or wdata.has("evolution_result"):
+		if wdata.is_empty() or wdata.has("evolution_result") or starting_ids.has(wid):
 			continue
 		var w: Resource = _build_weapon_resource(wid)
 		if w != null:
 			pool.append(w)
-	# 被动池：20 项 is_passive（Item 资源，仿 inventory.add_item_from_data 字段装载）
+	# 被动池：23 项 is_passive（Item 资源，仿 inventory.add_item_from_data 字段装载）
 	for iid in DataLoader.get_all_item_ids():
 		var idata: Dictionary = DataLoader.get_item(iid)
 		if idata.is_empty() or not idata.get("is_passive", false):

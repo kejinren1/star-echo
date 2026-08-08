@@ -278,6 +278,17 @@ func get_character(char_id: String) -> Dictionary:
 func get_all_character_ids() -> Array:
 	return _characters.keys()
 
+## F-31（2026-08-08 用户拍板）：所有角色的初始武器 ID（去重）
+## 单一事实源 = characters.json starting_weapon 字段；商店池跳过这些武器
+## （武器升级改走铁砧经济闭环后，初始武器不应在商店可买）
+func get_starting_weapon_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for cid in _characters:
+		var sw: String = str(_characters[cid].get("starting_weapon", ""))
+		if not sw.is_empty() and not ids.has(sw):
+			ids.append(sw)
+	return ids
+
 # ========== 波次接口 ==========
 
 ## 获取波次数据
