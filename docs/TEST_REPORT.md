@@ -12,11 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #36（08-08 12:03）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 1 项 runner 配置 action item
-- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2301 字段零缺陷**（items 54）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：二十五件套 25/25 · **678 断言全绿首跑**（计数与 #33-35 完全一致）+ **day18_feedback4 18/18 首纳入**（F-22/F-23 星刃进化变色/返回选角收口）= **696 断言**｜ HEAD=d73bf67（真人反馈落地轮，数据层零变更）
-- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常，非缺陷）；本轮 smoke/day10/day14_15 0B 无叠加为同类波动非回归
-- **在途 action item（1 项）**：day18_feedback4(18) 未入 `_regression_run.py` PROBES（runner 仍 25 项 678），建议 #3 并入使下轮 26 件套 696 一键跑通｜工作区在途仅 docs/* 3 文件｜观察：Day 28 性能段零开工，PROGRESS 11:43 已落裁决态②交 Owner
+- **最近轮次 #37（08-08 14:02）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 action item
+- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2303 字段零缺陷**（items 54；routes.json +2=F-27 15关双Boss）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
+- **探针回归**：二十八件套 28/28 · **733 断言全绿首跑（33s）**（fb4/fb5/fb6 三探针已并入 runner，含 F-24~F-30 落地实证）｜ HEAD=00dc399（真人反馈 F-24~F-28/F-30 轮，较 #36 +6 提交）
+- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常）；本轮 day16/day18_feedback stderr 微增（+15B/+129B）定性为 F-27 route_generator / F-24~F-28 HUD 防御分支主动 push_warning，非缺陷
+- **在途 action item（0 项）**：#36 runner 并入项已关闭（28 项 733 一键跑通）｜工作区在途仅 docs/* 3 文件零代码｜观察：**Day 28 性能段跨第 6 轮零开工维持**（交 Owner 未决）；F-31 反馈 2 三子项待 #2 第 38 轮拆解
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -2863,3 +2863,53 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-08 12:03 自动化测试轮次 #36：PASS（0 阻断 / 0 功能缺陷，无新增 minor，1 项 runner 配置 action item）。** HEAD=**d73bf67**（真人反馈 F-22/F-23 落地 + day18_feedback4 新探针）：工程可导入、可运行、数据完整且边界健康（**9 表 2301 字段零缺陷，items 54**）、**17 场景全可实例化**、**二十五件套 678 断言 + day18_feedback4 18/18 = 696 断言全绿且首跑**（runner 计数与 #33-#35 完全一致，新探针单独运行实证 F-22/F-23 行为级收口；day2/day4 meta 隔离附带修复零回归）。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.37 轮次 #37 · 2026-08-08 14:02（自动化 · 真人反馈 F-24~F-28/F-30 落地轮）
+
+> 快照：HEAD=**00dc399**（较 #36 +6 提交：d47b8ee Day28 合规等待 docs + **runner 本地并入 day18_feedback4（26 项 696）** / **f2689da F-24~F-28 实质代码**：商店/升级 tooltip + 关卡制 + 路线 5→15 关双 Boss（routes.json boss_layers [9,14] + route_generator 数据驱动 boss 层 int 归一化 + reroute/force 保护 + max_battle 36）+ Boss 通关判定 + **新探针 day18_feedback5 27/27** / 95cc20a #49 docs / **2f77935 F-30**：敌全灭判定须等生成完成（首关 1 怪就通关 + 第 11 层精英点击无反应同根因）+ **新探针 day18_feedback6 10/10** / bb7436f #50 docs / 00dc399 #51 docs）。**工作区在途仅 docs/* 3 文件**（PROGRESS / SOLUTION_PLAN / TASKS），**无游戏代码改动** → 验证快照 = HEAD 干净。
+
+### 1. 基线
+
+- `python tools/baseline_check.py`：**PASS**（import + runtime `--quit-after 4` 均 exit 0）。`baseline_*_err.log` 242 B（ObjectDB leaked + 1 resources）——Day 24 BENIGN 白名单条目，过滤后 0 显著行 → "stderr clean" 判定正确。
+
+### 2. 深度运行（600 帧）
+
+- `--quit-after 600`：EXIT 0，`deep_runtime_err.log` **242 B**（音频 BENIGN 泄漏，维持 #33-#36 状态，非回归）。
+
+### 3. 数据层（qa_validate.py 固化工具）
+
+- **JSON 9/9 解析 OK**：chars 10 / weapons 36 / items 54 / events 10 / enemies 23 / waves 20（与 #36 持平）。
+- **数值字段 2303**（=2301 **+2**：F-27 仅改 data/routes.json，`git diff d73bf67..HEAD -- data/` 实证 5+- 仅该文件，+2 数值字段系 boss_layers/max_battle 配置）；39 负值全有意（惩罚/诅咒）、0 非豁免零伤害（force_field 按武器 id 豁免）、哨兵 -1×2（waves[9]/[19]）、crit 双口径越界 0。
+- 跨引用 **0 硬悬空**（chars→weapons 10/10；waves 前缀感知 0 悬空，mixed* 令牌放行）→ **DATA LAYER CLEAN**。
+
+### 4. 场景 smoke（17/17）
+
+- **17 场景全 load+instantiate**（Main.tscn 置列表末方法学维持），stderr **242 B**（音频 BENIGN，历史常态），exit 0。临时 `_smoke_tmp.gd/.tscn` 已 Python `os.remove()` 清理无残留。
+
+### 5. 探针回归（二十八件套，733 断言全 CLEAN 首跑）
+
+**二十八件套 28/28 PASS，733 断言（33s）**（runner PROBES 较 #36 +3 项：fb4 18 已并入 d47b8ee、**fb5 27 + fb6 10 已随提交并入**——#36 action item 关闭）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 21 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 42 / day18_feedback3 27 / day18_feedback4 18 / **day18_feedback5 27** / **day18_feedback6 10** / day18_19 48 / day20_relic 23 / day21_22 38 / day23_vfx 18 / day24_f13 17 / day24_audio 14 / day26_integration 34 / day27_meta 35。**全部首跑 PASS**。
+
+**🆕 day18_feedback5 27/27 + day18_feedback6 10/10 本轮 runner 驱动首纳入**——F-24~F-28（tooltip/关卡制/15 关双 Boss/Boss 通关判定）与 F-30（敌全灭须等生成完成）行为级收口实证；fb5/fb6 由提交作者自述 27/27、10/10 且回归 28/28 733，本轮复跑确认计数一致零漂移。
+
+### 6. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| 良性（维持，全进程） | **退出泄漏 242 B/进程**（ObjectDB leaked + resources = `bgm_menu.wav` AudioStreamPlaybackWAV）——Day 24 音频 Autoload，BENIGN 白名单定性 | 已知良性，非缺陷 |
+| 良性（口径波动） | day17_p0 0B（上轮 242B）/ day18_19 117B（上轮 359=117+242，本轮无 242 叠加）——音频 BENIGN 时序波动（#32→#36 同类现象）；day2/3/4/6/8/17_elite/fb4 维持 242B；day5 维持 0B | 已知良性，非缺陷 |
+| minor（新增定性 ×2 + 首纳入 ×2） | **day16 533B**（上轮 518）= 新增 1 条「[RouteGenerator] reroute_remaining 层越界或指向 Boss 层: 14」主动 push_warning（F-27 route_generator reroute/force 保护逻辑被探针路线场景触发）+ 276B 历史主动 + 242B；**day18_feedback 626B**（上轮 497）= 新增 1 条「[HUD] inventory 未就绪，槽位刷新信号未连接」主动 push_warning（F-24~F-28 HUD 槽位刷新防御分支，探针无 inventory 触发）+ 历史 SkillController 条 + 泄漏 minor + 242B；**day18_feedback5 621B 首纳入** = 2 主动（HUD inventory + RouteGenerator force_node_type Boss 层不可改写: 9）+ 泄漏 minor（1 RID CanvasItem+ObjectDB+4 resources）+ 242B；**day18_feedback6 362B 首纳入** = 泄漏 minor（1 RID CanvasItem+ObjectDB+3 resources）+ 242B | 防御分支主动预期 / 探针自身泄漏 minor，非游戏缺陷，维持 |
+| 主动预期（维持） | day7/day10 越界保护；day14_15/day16 push_warning；day18_19「未知攻击指令」；day20 被动键未实现+HUD 未知技能 id；day24_audio 未知 BGM/SFX 兜底；day27_meta 坏档回退 | 测试主动触发/防御分支预期输出 |
+
+### 7. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **观察项（非阻断，维持）**：音频退出泄漏白名单良性；**Day 28 性能段（#4 域）跨第 6 轮零开工维持**（PROGRESS 摘要 🔴 标记，11:43 已交 Owner 三选未决）；**F-31 反馈 2 三子项**（初始武器出商店池/升级面板移除武器升级/铁砧 120G 闭环）待 #2 第 38 轮（14:05）拆解——流程约定交 #2+#3，非测试轨范畴。
+- **无在途 action item**（#36 的 runner 并入项已由 d47b8ee 关闭实证：28 项 733 一键跑通）。
+
+### 结论
+
+**✅ 2026-08-08 14:02 自动化测试轮次 #37：PASS（0 阻断 / 0 功能缺陷，minor 新增 2 项定性 + 新探针 2 项首纳入，无新增 action item）。** HEAD=**00dc399**（真人反馈 F-24~F-28/F-30 落地，较 #36 +6 提交）：工程可导入、可运行、数据完整且边界健康（**9 表 2303 字段零缺陷，items 54**；routes.json +2 为 F-27 15 关双 Boss 配置）、**17 场景全可实例化**、**二十八件套 733 断言全绿首跑（33s）**（fb4/fb5/fb6 三探针全部并入 runner 一键驱动，F-24~F-30 行为级收口实证；day16/day18_feedback stderr 微增为 F-27/F-24~F-28 防御分支主动 push_warning，非缺陷）。**无新增功能缺陷、无需回退。**
