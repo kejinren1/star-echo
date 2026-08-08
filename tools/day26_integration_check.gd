@@ -140,7 +140,7 @@ func _part_art() -> void:
 		_pass("美术 / Boss scale 白盒复位 ×1（%s，D17 语义断言）" % "invoker/predator")
 	else:
 		_fail("美术: Boss scale 未复位")
-	# 角色 walk strip（elin 实装真实动画 320×32·10 帧，其余收口占位 192×32·6 帧）+ attack/skill strip
+	# 角色 walk strip（elin 实装拼豆图纸动画 640×64·10 帧，其余收口占位 192×32·6 帧）+ attack/skill strip
 	var char_ok: bool = true
 	var char_detail: String = ""
 	for prefix in CHARACTER_PREFIXES:
@@ -151,11 +151,12 @@ func _part_art() -> void:
 			char_ok = false
 			continue
 		var img := Image.load_from_file(ProjectSettings.globalize_path(walk_p))
-		var expect_w: int = 320 if prefix == "elin" else 192
-		if img.get_width() != expect_w or img.get_height() != 32:
+		var expect_w: int = 640 if prefix == "elin" else 192
+		var expect_h: int = 64 if prefix == "elin" else 32
+		if img.get_width() != expect_w or img.get_height() != expect_h:
 			char_ok = false
 	if char_ok:
-		_pass("美术 / 4 角色 walk（elin 320×32 / 其余 192×32）+ attack/skill strip 全 exists")
+		_pass("美术 / 4 角色 walk（elin 640×64 / 其余 192×32）+ attack/skill strip 全 exists")
 	else:
 		_fail("美术: 角色 walk/attack/skill 缺失或尺寸非预期")
 	# factions / backgrounds / portraits

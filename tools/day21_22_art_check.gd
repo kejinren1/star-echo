@@ -269,19 +269,20 @@ func _part_boss_scale() -> void:
 
 func _part_characters() -> void:
 	# walk/idle 存在 + 尺寸 + 帧非空
-	## D28：elin 已实装真实动画（walk 320×32 = 10 帧 / idle 96×32 = 3 帧），其余角色仍为收口占位（walk 192×32 = 6 帧 / idle 128×32 = 4 帧）
+	## D28：elin 已实装拼豆图纸真实动画（walk 640×64 = 10 帧 / idle 192×64 = 3 帧），
+	## 其余角色仍为收口占位（walk 192×32 = 6 帧 / idle 128×32 = 4 帧）
 	var char_ok: bool = true
 	for hero in HEROES:
 		var w: Vector2i = _png_size("res://assets/sprites/characters/%s_walk.png" % hero)
 		var idle: Vector2i = _png_size("res://assets/sprites/characters/%s_idle.png" % hero)
 		var walk_frames: int = 6
 		if hero == "elin":
-			if w != Vector2i(320, 32):
+			if w != Vector2i(640, 64):
 				char_ok = false
-				print("   %s_walk 尺寸 %s != 320×32" % [hero, w])
-			if idle != Vector2i(96, 32):
+				print("   %s_walk 尺寸 %s != 640×64" % [hero, w])
+			if idle != Vector2i(192, 64):
 				char_ok = false
-				print("   %s_idle 尺寸 %s != 96×32" % [hero, idle])
+				print("   %s_idle 尺寸 %s != 192×64" % [hero, idle])
 			walk_frames = 10
 		else:
 			if w != Vector2i(192, 32):
@@ -290,10 +291,10 @@ func _part_characters() -> void:
 			if idle != Vector2i(128, 32):
 				char_ok = false
 				print("   %s_idle 尺寸 %s != 128×32" % [hero, idle])
-		if not _png_frame_nonempty("res://assets/sprites/characters/%s_walk.png" % hero, walk_frames, Vector2i(32, 32)):
+		if not _png_frame_nonempty("res://assets/sprites/characters/%s_walk.png" % hero, walk_frames, Vector2i(64, 64) if hero == "elin" else Vector2i(32, 32)):
 			char_ok = false
 			print("   %s_walk 存在空帧" % hero)
-	_ok(char_ok, "§3 资产: 4 角色 walk（elin 320×32·10 帧 / 其余 192×32·6 帧 非空）+ idle 全存在")
+	_ok(char_ok, "§3 资产: 4 角色 walk（elin 640×64·10 帧 / 其余 192×32·6 帧 非空）+ idle 全存在")
 	# 白盒 _apply_character_sprite("siia") → walk_texture 非 fighter 兜底
 	_player.call("_apply_character_sprite", "siia")
 	var wt: Texture2D = _player.get("walk_texture")
