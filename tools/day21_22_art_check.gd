@@ -271,6 +271,7 @@ func _part_characters() -> void:
 	# walk/idle 存在 + 尺寸 + 帧非空
 	## D28：elin 已实装拼豆图纸真实动画（walk 640×64 = 10 帧 / idle 192×64 = 3 帧），
 	## 其余角色仍为收口占位（walk 192×32 = 6 帧 / idle 128×32 = 4 帧）
+	## D29：elin 换装 JPG 全动画实装（walk 640×64 = 10 帧 / idle 320×64 = 5 帧）
 	var char_ok: bool = true
 	for hero in HEROES:
 		var w: Vector2i = _png_size("res://assets/sprites/characters/%s_walk.png" % hero)
@@ -280,9 +281,9 @@ func _part_characters() -> void:
 			if w != Vector2i(640, 64):
 				char_ok = false
 				print("   %s_walk 尺寸 %s != 640×64" % [hero, w])
-			if idle != Vector2i(192, 64):
+			if idle != Vector2i(320, 64):
 				char_ok = false
-				print("   %s_idle 尺寸 %s != 192×64" % [hero, idle])
+				print("   %s_idle 尺寸 %s != 320×64" % [hero, idle])
 			walk_frames = 10
 		else:
 			if w != Vector2i(192, 32):

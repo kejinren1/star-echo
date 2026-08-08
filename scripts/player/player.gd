@@ -214,6 +214,8 @@ func _apply_character_sprite(prefix: String) -> void:
 ## 约定：横排 sheet，正方形帧 → 帧尺寸 = (sheet 高, sheet 高)，帧数 = 宽 ÷ 高。
 ## 兼容全部既有资产：fighter 等 32px 帧 sheet（128×32→4、192×32→6）；
 ## elin 拼豆图纸实装后 64px 帧（192×64→idle 3、640×64→walk 10）；attack/skill 32px strip 不变。
+## D29：elin JPG 全动画实装后 idle 320×64→5 / walk 640×64→10 / attack 320×64→5 /
+##      skill 384×64→6 / hit 128×64→2（hit 为 D29 新增动画，受击时播放）。
 ## 返回 {"size": Vector2i, "count": int}
 func _sheet_meta(tex: Texture2D) -> Dictionary:
 	if tex == null or tex.get_height() <= 0:
@@ -244,6 +246,7 @@ func _setup_animation() -> void:
 	if not _sprite_prefix.is_empty():
 		var attack_path: String = "%s%s_attack.png" % [SPRITE_DIR, _sprite_prefix]
 		var skill_path: String = "%s%s_skill.png" % [SPRITE_DIR, _sprite_prefix]
+		var hit_path: String = "%s%s_hit.png" % [SPRITE_DIR, _sprite_prefix]
 		if ResourceLoader.exists(attack_path):
 			var attack_tex: Texture2D = ResourceLoader.load(attack_path)
 			if attack_tex is Texture2D:
@@ -268,6 +271,19 @@ func _setup_animation() -> void:
 					atlas.atlas = skill_tex
 					atlas.region = Rect2(i * s_meta.size.x, 0, s_meta.size.x, s_meta.size.y)
 					sf.add_frame("skill", atlas)
+		# D29：追加 hit 受击动画（elin_hit 2 帧；缺帧文件不追加，静默降级红闪）
+		if ResourceLoader.exists(hit_path):
+			var hit_tex: Texture2D = ResourceLoader.load(hit_path)
+			if hit_tex is Texture2D:
+				var h_meta: Dictionary = _sheet_meta(hit_tex)
+				sf.add_animation("hit")
+				sf.set_animation_loop("hit", false)
+				sf.set_animation_speed("hit", 14.0)
+				for i in h_meta.count:
+					var atlas := AtlasTexture.new()
+					atlas.atlas = hit_tex
+					atlas.region = Rect2(i * h_meta.size.x, 0, h_meta.size.x, h_meta.size.y)
+					sf.add_frame("hit", atlas)
 	_anim.sprite_frames = sf
 	_anim.play("idle")
 	# D19③：attack/skill 播完回 idle（命名方法，_ready 前已连一次即可；此处守卫防重复连接）
@@ -278,7 +294,8 @@ func _update_animation() -> void:
 	if not _anim:
 		return
 	# D21-22-T3（D19②）：攻击/技能动画播放中禁止 move_and_slide 立即切回 idle 打断
-	if _anim.animation in ["attack", "skill"]:
+	# D29：hit 受击动画同规则（2 帧极短，播完 _on_anim_finished 自动回 idle/walk）
+	if _anim.animation in ["attack", "skill", "hit"]:
 		return
 	var moving := velocity.length() > 10.0
 	if moving and not _is_walking:
@@ -305,12 +322,23 @@ func _play_skill_anim(_skill_id: String = "") -> void:
 	_anim.play("skill")
 
 ## D21-22-T3（D19③）：attack/skill 播完 → 回 idle 且复位行走态（下次移动自动 walk）
+## D29：hit 播完同规则（受击 2 帧播完自动回 idle/walk）
 func _on_anim_finished() -> void:
 	if not _anim:
 		return
-	if _anim.animation in ["attack", "skill"]:
+	if _anim.animation in ["attack", "skill", "hit"]:
 		_is_walking = false
 		_anim.play("idle")
+
+## D29：受击动画（elin_hit 2 帧）；无 hit 动画/正在播攻击技能 → 静默降级仅红闪
+func _play_hit_anim() -> void:
+	if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("hit"):
+		return
+	if _anim.animation in ["attack", "skill"]:
+		return
+	if _anim.animation == "hit":
+		_anim.stop()
+	_anim.play("hit")
 
 ## 受击闪烁特效
 func _play_hit_flash() -> void:
@@ -382,6 +410,7 @@ func take_damage(amount: float) -> void:
 	health_changed.emit(health, max_health)
 	took_damage.emit(actual_damage)
 	_play_hit_flash()
+	_play_hit_anim()   # D29：受击动画（无 hit 帧时静默降级仅红闪）
 	AudioManager.play_sfx("hit")   # D24-T3-④：受击 SFX
 	# 短无敌帧，避免被群体敌人每帧叠伤
 	_invulnerable_timer = 0.4

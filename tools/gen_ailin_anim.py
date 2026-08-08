@@ -23,8 +23,8 @@ import os
 from collections import Counter, deque
 from PIL import Image
 
-SRC_DIR = r"D:\Program Files\30DAYS\ART\CHARA\AILIN"
-OUT_DIR = r"D:\Program Files\30DAYS\assets\sprites\characters"
+SRC_DIR = r"D:\30DAYS\ART\CHARA\AILIN"
+OUT_DIR = r"D:\30DAYS\assets\sprites\characters"
 WALK_FILES = ["WALK%d.png" % i for i in range(1, 11)]   # 帧序 = 文件名序
 IDLE_FILES = ["idle%d.png" % i for i in range(1, 4)]
 BOARD = (237, 237, 237)   # 图纸板色（实测）
