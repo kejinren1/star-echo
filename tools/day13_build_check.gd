@@ -313,6 +313,23 @@ func _part_attr_10() -> void:
 
 	# attack_speed 消费点（D13 收口：weapon_controller._process 以 delta × 攻速递减冷却）
 	# 白盒：sword fire 置满冷却 = 1/fire_rate；attack_speed=0.5 → _process(1s) 只减 0.5s
+	# F-32 回归同步（08-09）：自动攻击索敌门控后，射程内需有敌人放行 fire（冷却重置语义保留）
+	var f32_es := GDScript.new()
+	f32_es.source_code = "extends Node\nvar enemies_container: Node = null\n"
+	f32_es.reload()
+	var f32_sp := Node.new()
+	f32_sp.set_script(f32_es)
+	var f32_cont := Node2D.new()
+	root.add_child(f32_cont)
+	f32_sp.enemies_container = f32_cont
+	_gm.set("enemy_spawner", f32_sp)
+	var f32_e := Node2D.new()
+	var f32_es2 := GDScript.new()
+	f32_es2.source_code = "extends Node2D\nvar is_alive: bool = true"
+	f32_es2.reload()
+	f32_e.set_script(f32_es2)
+	f32_e.global_position = Vector2(30.0, 0.0)
+	f32_cont.add_child(f32_e)
 	_player.attack_speed = 0.5
 	var w_asp: Resource = _wc.call("build_weapon_from_data", "sword")
 	_clear_weapons()

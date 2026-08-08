@@ -306,10 +306,11 @@ func _update_animation() -> void:
 		_anim.play("idle")
 
 ## D21-22-T3（D19②/③）：开火 → 播 attack（武器控制器调用；动画缺失静默降级）
+## F-32（08-09 用户反馈）：skill 播放中禁止 attack 抢占 —— 空格技能 6 帧可完整播放
 func _play_attack_anim() -> void:
 	if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("attack"):
 		return
-	if _anim.animation == "attack":
+	if _anim.animation in ["attack", "skill"]:
 		return
 	_anim.play("attack")
 

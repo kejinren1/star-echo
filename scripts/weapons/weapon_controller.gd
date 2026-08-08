@@ -77,6 +77,10 @@ func _process(delta: float) -> void:
 		if weapon.orbit_data and not weapon.orbit_data.is_empty():
 			continue
 		if weapon.can_fire(delta * atk_mult):
+			# F-32（08-09 用户反馈）：射程内无存活敌人不实际开火（冷却已递减、武器保持
+			# ready，敌人进入射程立即响应）——角色不再全程播攻击动画，idle/walk 正常显示
+			if not _has_enemy_in_range(weapon.attack_range):
+				continue
 			_fire_weapon(weapon)
 
 # ========== 武器管理 ==========
@@ -267,6 +271,19 @@ func _find_nearest_enemy() -> Node2D:
 			nearest_dist = dist
 			nearest = enemy
 	return nearest
+
+## F-32（08-09 用户反馈）：射程内是否有存活敌人（自动攻击开火门控）
+## 返回 true 才允许 _fire_weapon；enemy_spawner 缺失时视为无目标（不开火）
+func _has_enemy_in_range(range_val: float) -> bool:
+	if not GameManager.enemy_spawner or not GameManager.enemy_spawner.enemies_container:
+		return false
+	var origin := owner_node.global_position
+	for enemy in GameManager.enemy_spawner.enemies_container.get_children():
+		if not is_instance_valid(enemy) or not enemy.is_alive:
+			continue
+		if origin.distance_to(enemy.global_position) <= range_val:
+			return true
+	return false
 
 ## 计算瞄准方向：以鼠标世界坐标为准（玩家手动索敌）
 ## 鼠标未移动（几乎在玩家身上）时回退到最近敌人方向
