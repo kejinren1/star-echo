@@ -29,13 +29,28 @@
 
 - **最低可用**：idle 4 + walk 6 + attack 4 + skill 4 = 18 帧/角色
 - **推荐完整**：idle 4 + walk 8 + attack 4 + skill 6 = 22 帧/角色
-- 参考：当前 elin 拼豆实装 = idle 3 + walk 10（AI 图源，walk 10 帧偏多但可用）
+- 参考：当前 elin 实装 = idle 5 + walk 10 + attack 5 + skill 6 + hit 2（Day 29 JPG 管线，28 帧白底 JPG → 5 sheet）
 
-## 三、处理流程（两个入口）
+## 三、ART 目录语义（2026-08-09 用户确认 · 拼豆方案已废弃）
+
+```
+ART/
+├── RAW/            ← 素材输入区（唯一入口）：你提供的标准白色/浅色背景 JPG/PNG 放这里
+│   ├── README.md   ← 本文件（交付规范）
+│   └── <角色>/     ← 按角色建子目录，如 elin/
+├── COLOR_DICT.json ← 色字典（工具数据，勿手改）
+└── .gdignore       ← 防止 JPG 被 Godot 扫描（720×960 大图导入会段错误，历史教训）
+```
+
+- ✅ **拼豆图纸方案已废弃**（原 ART/CHARA/AILIN 13 张拼豆图已归档至 `.godot_tmp_backup/ART_CHARA_AILIN_legacy/`，保留可恢复）
+- ✅ 当前素材形态 = **标准白色/浅色背景 JPG/PNG**（img2sprite 管线自动抠底，容差 100）
+- ✅ 任何素材只要放进 `ART/RAW/`，即可被 img2sprite / pindou_editor 消费
+
+## 四、处理流程（两个入口）
 
 ```
 ① 命令行批量：
-   python tools/img2sprite.py --input ART/RAW --output assets/sprites/characters \
+   python tools/img2sprite.py --input ART/RAW/elin --output assets/sprites/characters \
        --size 64 --palette dict(或 beads) --batch
    （默认参数已按用户实测最优：色板=当前调色板字典容差12、抠底容差100）
 
@@ -44,6 +59,8 @@
    → 自动抠底+降维+量化 → 像素级修正 → 导出 PNG sheet 进游戏
 ```
 
-## 四、当前素材清单（新增时更新）
+**实装闭环（保证不再返工）**：素材入 `ART/RAW/` → 管线出 sheet → 替换 `assets/sprites/characters/elin_*.png` → `player.gd` 帧数自动推断（sheet 宽÷帧宽）→ `day29_elin_anim_check` 14/14 探针验证 → commit。整套在 `D:/30DAYS`（已迁移根治 ACL 问题），无需再动旧路径。
 
-- （空——等待用户放入素材）
+## 五、当前素材清单（新增时更新）
+
+- （等待用户放入新素材）
