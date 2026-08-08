@@ -329,10 +329,11 @@ func _part_regression() -> void:
 	shop.set("item_container", VBoxContainer.new())
 	shop.set("coins_label", Label.new())
 	var pool: Array = shop.call("_build_shop_pool")
-	if pool.size() == 58:
-		_pass("回归 / 商店混合池 58（33 武器 + 23 被动 + 2 遗物）")
+	# F31-1/F31-3 同步（2026-08-08 用户拍板）：池 58 → 49（23 武器 + 23 被动 + 2 遗物 + 1 服务 anvil）
+	if pool.size() == 49:
+		_pass("回归 / 商店混合池 49（23 武器 + 23 被动 + 2 遗物 + 1 服务）")
 	else:
-		_fail("回归: 商店池应 58, 实得 %d" % pool.size())
+		_fail("回归: 商店池应 49, 实得 %d" % pool.size())
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
 	if fc == 25:

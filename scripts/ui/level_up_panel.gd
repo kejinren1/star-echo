@@ -45,8 +45,10 @@ func setup() -> void:
 
 # ========== 选项生成 ==========
 
-## 选项池 = 属性池（stats.json.upgrade_options 摊平，现状保留）+ 武器升级池
-## （已装备且未满级的武器各占 1 个「升级『X』」选项，Brotato 范式；D5-T3）
+## 选项池 = 属性池（stats.json.upgrade_options 摊平，现状保留）
+## F31-2（2026-08-08 用户拍板）：武器升级移出升级面板（经济类 → 商店铁砧闭环，
+## 见 shop.gd F31-3）——删除原武器升级池段；weapon_controller 获取 + `var weapons`
+## 保留（进化池 :74 复用）；_apply_option 的 weapon_upgrade 分支保留（铁砧/兼容路径）
 ## + 进化池（D10-T4：满级武器 + 持有对应进化核心 → 「进化『result_name』」选项；
 ## 满级武器天然不满足升级池 `level < max_level` 条件 → 进化/升级选项互斥）
 ## → shuffle → 取前 count 个（天然不重复）
@@ -63,13 +65,6 @@ func _roll_options(count: int) -> Array:
 		weapon_controller = player.get_node_or_null("WeaponController")
 	if weapon_controller:
 		var weapons: Array = weapon_controller.get("equipped_weapons")
-		for weapon in weapons:
-			if weapon and weapon.level < weapon.max_level:
-				pool.append({
-					"label": "升级「%s」" % weapon.weapon_name,
-					"type": "weapon_upgrade",
-					"weapon": weapon,
-				})
 		# D10-T4 进化池：满级 + 有 source_id + JSON evolution 存在 + 背包持核心
 		if GameManager.inventory:
 			for weapon in weapons:

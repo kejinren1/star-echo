@@ -348,11 +348,13 @@ func _part_shop() -> void:
 	# D13-T6 同步：_build_shop_pool 现返回**资源实例**（BUG-002 修复，原 String id 被
 	# Array[Resource] 类型拒绝 → 4 ERROR + 0 卡）；元素按 weapon_type 字段区分武器/被动
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 58:
-		_fail("商店: 混合池应 33 武器 + 23 被动 + 2 遗物 = 58, 实得 %d" % pool.size())
+	# F31-1/F31-3 同步（2026-08-08 用户拍板）：池 58 → 49 = 23 武器 + 23 被动 + 2 遗物 + 1 服务 anvil
+	if pool.size() != 49:
+		_fail("商店: 混合池应 23 武器 + 23 被动 + 2 遗物 + 1 服务 = 49, 实得 %d" % pool.size())
 	else:
-		_pass("商店 / 混合池 58（武器 33 排除 3 结果武器 + 被动 23 + 遗物 2）")
-	# 池元素全为资源实例：33 Weapon + 25 Item（零类型 ERROR 断言替代原 id 抽查；D20-T4 遗物同为 Item 入池）
+		_pass("商店 / 混合池 49（武器 23 排除 3 结果 + 10 起始 + 被动 23 + 遗物 2 + 服务 1）")
+	# 池元素全为资源实例：23 Weapon + 26 Item（零类型 ERROR 断言替代原 id 抽查；
+	# D20-T4 遗物同为 Item 入池；F31-3 anvil 服务同为 Item 入池）
 	var weapon_pool: Array = []
 	var passive_pool: Array = []
 	for res in pool:
@@ -363,14 +365,14 @@ func _part_shop() -> void:
 			weapon_pool.append(res)
 		else:
 			passive_pool.append(res)
-	if weapon_pool.size() != 33:
-		_fail("商店: 池武器数应 33, 实得 %d" % weapon_pool.size())
+	if weapon_pool.size() != 23:
+		_fail("商店: 池武器数应 23, 实得 %d" % weapon_pool.size())
 	else:
-		_pass("商店 / 池含 33 把 Weapon 资源实例")
-	if passive_pool.size() != 25:
-		_fail("商店: 池 Item 数应 25（23 被动 + 2 遗物）, 实得 %d" % passive_pool.size())
+		_pass("商店 / 池含 23 把 Weapon 资源实例")
+	if passive_pool.size() != 26:
+		_fail("商店: 池 Item 数应 26（23 被动 + 2 遗物 + 1 服务）, 实得 %d" % passive_pool.size())
 	else:
-		_pass("商店 / 池含 25 个 Item 资源实例（被动 23 + 遗物 2）")
+		_pass("商店 / 池含 26 个 Item 资源实例（被动 23 + 遗物 2 + 服务 1）")
 
 	# 模拟 _refresh_shop 路径：随机取 4 → build Weapon + Item
 	# 手动写：复制 _refresh_shop 核心逻辑（不依赖 _render_cards 节点）

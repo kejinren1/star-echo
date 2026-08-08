@@ -12,11 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #37（08-08 14:02）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 action item
-- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2303 字段零缺陷**（items 54；routes.json +2=F-27 15关双Boss）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：二十八件套 28/28 · **733 断言全绿首跑（33s）**（fb4/fb5/fb6 三探针已并入 runner，含 F-24~F-30 落地实证）｜ HEAD=00dc399（真人反馈 F-24~F-28/F-30 轮，较 #36 +6 提交）
-- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常）；本轮 day16/day18_feedback stderr 微增（+15B/+129B）定性为 F-27 route_generator / F-24~F-28 HUD 防御分支主动 push_warning，非缺陷
-- **在途 action item（0 项）**：#36 runner 并入项已关闭（28 项 733 一键跑通）｜工作区在途仅 docs/* 3 文件零代码｜观察：**Day 28 性能段跨第 6 轮零开工维持**（交 Owner 未决）；F-31 反馈 2 三子项待 #2 第 38 轮拆解
+- **最近轮次 #38（08-08 16:00）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 action item
+- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2303 字段零缺陷**（items 54；data/ 零变更；COLOR_DICT.json 163/216 抽检 OK）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
+- **探针回归**：二十八件套 28/28 · **733 断言全绿首跑（28s）**，计数与 #37 完全一致（elin 640×64/192×64 断言已随 1d86a19 同步，旧 32px 资产零回归）｜ HEAD=**1d86a19**（艾琳动画修正 v2 + 字典登记制 fe23792，较 #37 +5 提交）
+- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常）；stderr 口径与 #37 逐一一致无新增
+- **在途 action item（0 项）**：工作区在途仅 docs/* 3 文件零代码｜观察：**Day 28 性能段跨第 7 轮零开工维持**（交 Owner 未决）；**F-31 拆解+方案双就绪，16:35 执行窗口为开工裁决点**（下轮关注 HEAD）；艾琳 idle 三帧内容相同待用户补帧
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -2913,3 +2913,54 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-08 14:02 自动化测试轮次 #37：PASS（0 阻断 / 0 功能缺陷，minor 新增 2 项定性 + 新探针 2 项首纳入，无新增 action item）。** HEAD=**00dc399**（真人反馈 F-24~F-28/F-30 落地，较 #36 +6 提交）：工程可导入、可运行、数据完整且边界健康（**9 表 2303 字段零缺陷，items 54**；routes.json +2 为 F-27 15 关双 Boss 配置）、**17 场景全可实例化**、**二十八件套 733 断言全绿首跑（33s）**（fb4/fb5/fb6 三探针全部并入 runner 一键驱动，F-24~F-30 行为级收口实证；day16/day18_feedback stderr 微增为 F-27/F-24~F-28 防御分支主动 push_warning，非缺陷）。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.38 轮次 #38 · 2026-08-08 16:00（自动化 · 艾琳动画实装修正 v2 + 字典登记制落地轮）
+
+> 快照：HEAD=**1d86a19**（较 #37 +5 提交：**788af22 艾琳真实动画实装**（用户提供 ART/CHARA/AILIN 13 帧 → gen_ailin_anim.py 管线 → elin_idle 96×32/elin_walk 320×32，player.gd 帧数自动推断）/ **9f2dbb9 Day28 执行者合规等待**（方案第 13 轮核：Day28=#4 域无 #3 任务，F-31 拆解观察 #2 第 38 轮 14:05 已定案）/ **6c98ad9 PLAYTEST #52**（F-31 拆解确认轮）/ **fe23792 字典登记制度落地**（ART/COLOR_DICT.json 42 色 + tools/color_dict.py 四命令 + gen_color_dict.py + 本地拼豆编辑器 pindou_editor.html，ART_STYLE.md 补字典文件协议）/ **1d86a19 艾琳动画实装修正 v2**（用户纠正图纸理解：源 PNG 为拼豆图纸非角色图 → 管线重写图纸提取 → **elin_walk 640×64（10 帧）/ elin_idle 192×64（3 帧）**，`_sheet_meta` 帧尺寸=sheet 高/帧数=宽÷高独立推断，字典登记 163/216 check PASS，idle 三帧内容相同缺陷登记待用户补帧））。**工作区在途仅 docs/* 3 文件**（PROGRESS / SOLUTION_PLAN / TASKS），**无游戏代码改动** → 验证快照 = HEAD 干净。
+
+### 1. 基线
+
+- `python tools/baseline_check.py`：**PASS**（import + runtime `--quit-after 4` 均 exit 0）。`baseline_*_err.log` 242 B（ObjectDB leaked + 1 resources）——Day 24 BENIGN 白名单条目，过滤后 0 显著行 → "stderr clean" 判定正确。
+
+### 2. 深度运行（600 帧）
+
+- `--quit-after 600`：EXIT 0，`deep_runtime_err.log` **242 B**（音频 BENIGN 泄漏，维持 #33-#38 状态，非回归）。
+
+### 3. 数据层（qa_validate.py 固化工具）
+
+- **JSON 9/9 解析 OK**：chars 10 / weapons 36 / items 54 / events 10 / enemies 23 / waves 20（与 #37 持平）。
+- **数值字段 2303**（与 #37 **持平零变更**——本轮艾琳动画/字典为代码+ART/ 资产改动，`data/` 无 diff）；39 负值全有意（惩罚/诅咒）、0 非豁免零伤害（force_field 按武器 id 豁免）、哨兵 -1×2（waves[9]/[19]）、crit 双口径越界 0。
+- 跨引用 **0 硬悬空**（chars→weapons 10/10；waves 前缀感知 0 悬空，mixed* 令牌放行）→ **DATA LAYER CLEAN**。
+- **🆕 ART/COLOR_DICT.json 抽检**（fe23792 新资产）：解析 OK，**163 entries / 29 anchors**（艾琳图纸登记后字典 42→132/216→163/216 与提交自述一致）。
+
+### 4. 场景 smoke（17/17）
+
+- **17 场景全 load+instantiate**（Main.tscn 置列表末方法学维持），stderr **242 B**（音频 BENIGN，历史常态），exit 0，输出 `SMOKE CLEAN`。临时 `_smoke_tmp.gd/.tscn` 已 Python `os.remove()` 清理无残留。
+
+### 5. 探针回归（二十八件套，733 断言全 CLEAN 首跑）
+
+**二十八件套 28/28 PASS，733 断言（28s）**，计数与 #37 **完全一致**（runner PROBES 无变更）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 21 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 42 / day18_feedback3 27 / day18_feedback4 18 / day18_feedback5 27 / day18_feedback6 10 / day18_19 48 / day20_relic 23 / day21_22 38 / day23_vfx 18 / day24_f13 17 / day24_audio 14 / day26_integration 34 / day27_meta 35。**全部首跑 PASS 零 FAIL**。
+
+**动画资产回归确认**：day21_22 38/38 与 day26 34/34 全绿 = **elin sheet 尺寸断言（640×64 / 192×64）已随 1d86a19 同步**（提交自述 38/38+34/34+35/35 复跑确认，本轮实测计数一致），`_sheet_meta` 帧自动推断对旧 32px 资产零回归。
+
+### 6. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| 良性（维持，全进程） | **退出泄漏 242 B/进程**（ObjectDB leaked + resources = `bgm_menu.wav` AudioStreamPlaybackWAV）——Day 24 音频 Autoload，BENIGN 白名单定性 | 已知良性，非缺陷 |
+| 良性（口径波动） | day17_elite/day17_p0 维持 0B；day2/3/4/5/6/8/fb4 维持 242B——音频 BENIGN 时序波动（#32→#38 同类现象） | 已知良性，非缺陷 |
+| minor（维持，无新增） | day7 366=124+242 / day10 374=132+242 / day14_15 372=130+242 / day16 533=F-27 reroute 保护 push_warning / day18_feedback 626=HUD 防御 push_warning / day18_feedback5 621 / day18_feedback6 362 / day18_19 359=117+242 / day18_feedback2 571 / day18_feedback3 362 / day11_12 763 / day13 860 / day20 1044 / day21_22 564 / day23 496 / day24_f13 859 / day26 402 / day27_meta 496 / day24_audio 456=214+242 —— 全与 #37 口径**逐一一致** | 主动预期/探针自身泄漏 minor，非游戏缺陷，维持 |
+| 主动预期（维持） | day7/day10 越界保护；day14_15/day16 push_warning；day18_19「未知攻击指令」；day20 被动键未实现+HUD 未知技能 id；day24_audio 未知 BGM/SFX 兜底；day27_meta 坏档回退 | 测试主动触发/防御分支预期输出 |
+
+### 7. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `_preview_idle1.png.import` / `_preview_walk1.png.import` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **观察项（非阻断，维持）**：音频退出泄漏白名单良性；**Day 28 性能段（#4 域）跨第 7 轮零开工维持**（PROGRESS 15:38 摘要 🔴 交 Owner 三选未决）；**F-31 反馈 2 三子项**（初始武器出商店池 / 升级面板移除武器升级 / 铁砧 120G 闭环）拆解 + 方案第 14 轮已双就绪 → **16:35 执行窗口为开工裁决点**（强耦合 b+c 同批）——本轮测试运行于 16:00 前 F-31 尚未开工，**下轮 #39 需关注 HEAD 是否推进**；**艾琳 idle 三帧内容相同**（素材缺陷实证，保留 3 帧结构待用户补帧，1d86a19 登记）。
+- **无在途 action item**（runner 28 项 733 一键跑通维持）。
+
+### 结论
+
+**✅ 2026-08-08 16:00 自动化测试轮次 #38：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**1d86a19**（艾琳动画实装修正 v2 + 字典登记制 fe23792，较 #37 +5 提交，均在 ART/ 资产与工具侧，`data/` 零变更）：工程可导入、可运行、数据完整且边界健康（**9 表 2303 字段零缺陷，items 54**；COLOR_DICT.json 163 entries 抽检 OK）、**17 场景全可实例化**、**二十八件套 733 断言全绿首跑（28s）计数与 #37 完全一致**（elin 640×64/192×64 尺寸断言已随 1d86a19 同步，旧 32px 资产零回归）。**无新增功能缺陷、无需回退。**

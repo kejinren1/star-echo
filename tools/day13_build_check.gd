@@ -195,12 +195,12 @@ func _advance(sub: int) -> int:
 # ========== Part 1: 真实商店路径（BUG-002 修复验证） ==========
 
 func _part_real_shop() -> void:
-	# _build_shop_pool 应返回 58 个资源实例（33 Weapon + 23 被动 Item + 2 遗物 Item），零 String
+	# F31-1/F31-3 同步：池 = 23 Weapon（36 - 3 结果 - 10 起始）+ 23 被动 Item + 2 遗物 Item + 1 服务 anvil = 49，零 String
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 58:
-		_fail("商店: 混合池应 58, 实得 %d" % pool.size())
+	if pool.size() != 49:
+		_fail("商店: 混合池应 49, 实得 %d" % pool.size())
 	else:
-		_pass("商店 / 混合池 58（资源实例）")
+		_pass("商店 / 混合池 49（资源实例）")
 	var weapon_count: int = 0
 	var item_count: int = 0
 	var bad_type: bool = false
@@ -215,16 +215,16 @@ func _part_real_shop() -> void:
 	if bad_type:
 		_fail("商店: 池含非资源条目（String 泄漏 = BUG-002 未修复）")
 	else:
-		_pass("商店 / 池内 58 项全为资源实例（零类型 ERROR）")
-	if weapon_count != 33:
-		_fail("商店: 池武器应 33, 实得 %d" % weapon_count)
+		_pass("商店 / 池内 49 项全为资源实例（零类型 ERROR）")
+	if weapon_count != 23:
+		_fail("商店: 池武器应 23, 实得 %d" % weapon_count)
 	else:
-		_pass("商店 / 池武器 33（36 - 3 evolution_result）")
-	# D24-F13 同步：机制型 3 被动同为 Item 入池 → item_count = 23 被动 + 2 遗物 = 25
-	if item_count != 25:
-		_fail("商店: 池 Item 应 25（23 被动 + 2 遗物）, 实得 %d" % item_count)
+		_pass("商店 / 池武器 23（36 - 3 evolution_result - 10 起始武器）")
+	# D24-F13 同步：机制型 3 被动同为 Item 入池 → 23 被动 + 2 遗物 + 1 服务 anvil = 26
+	if item_count != 26:
+		_fail("商店: 池 Item 应 26（23 被动 + 2 遗物 + 1 服务）, 实得 %d" % item_count)
 	else:
-		_pass("商店 / 池 Item 25（被动 23 + 遗物 2）")
+		_pass("商店 / 池 Item 26（被动 23 + 遗物 2 + 服务 1）")
 
 	# _refresh_shop 完整路径：4 卡非 null + 渲染不崩（注入的 mock item_container/coins_label）
 	_economy.add_coins(500)
@@ -463,7 +463,7 @@ func _part_evo_pool() -> void:
 				if sid == str(chain["result"]):
 					leaked.append(sid)
 	if leaked.is_empty():
-		_pass("进化 / 商店池无 evolution_result 结果武器泄漏（33 把全为常规武器）")
+		_pass("进化 / 商店池无 evolution_result 结果武器泄漏（23 把全为常规武器）")
 	else:
 		_fail("进化: 商店池泄漏结果武器 %s" % str(leaked))
 
@@ -474,7 +474,7 @@ func _part_evo_pool() -> void:
 		if d.get("evolution_result", false):
 			evo_total += 1
 	if evo_total == 3:
-		_pass("进化 / data 层 evolution_result 恰 3 把（36 - 3 = 33 进商店池）")
+		_pass("进化 / data 层 evolution_result 恰 3 把（36 - 3 - 10 起始 = 23 进商店池）")
 	else:
 		_fail("进化: evolution_result 应 3, 实得 %d" % evo_total)
 
@@ -498,7 +498,8 @@ func _part_evo_pool() -> void:
 		_fail("进化: 满级结果武器不应出现在武器升级池")
 	else:
 		_pass("进化 / 满级结果武器天然不在升级池（level<max_level 条件排除）")
-	# 未满级普通武器 → 有 weapon_upgrade 选项
+	# F31-2 反向（2026-08-08 用户拍板）：未满级普通武器 → 升级面板【零】weapon_upgrade
+	# （武器升级移出升级面板改走商店铁砧；_roll_options 结果仍非空 = 属性池可 roll）
 	_clear_weapons()
 	_wc.call("equip_weapon", _wc.call("build_weapon_from_data", "sword"))
 	var opts_lv1: Array = panel.call("_roll_options", 99)
@@ -507,10 +508,10 @@ func _part_evo_pool() -> void:
 		if str(o.get("type", "")) == "weapon_upgrade":
 			has_up2 = true
 			break
-	if has_up2:
-		_pass("进化 / 未满级武器正常出现在升级池（无泄漏无遗漏）")
+	if not has_up2 and opts_lv1.size() > 0:
+		_pass("进化 / 未满级武器升级面板零 weapon_upgrade（F31-2）+ 属性池可 roll（%d 项）" % opts_lv1.size())
 	else:
-		_fail("进化: 未满级 sword 应出现在武器升级池")
+		_fail("进化: 升级面板应零 weapon_upgrade 且非空，实得 has=%s size=%d" % [has_up2, opts_lv1.size()])
 	panel.free()
 
 

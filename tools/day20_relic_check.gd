@@ -11,10 +11,10 @@
 ##      broken_crown → damage ×1.5 + taken_mult 1.3；mech_engine → structure_mult 2.0；
 ##      remove 回退 → 全复位（percent 除法还原）
 ##   §3 take_damage 乘算：armor=0 扣 130；armor=20 扣 104；debug_cheat 开 → 仍 ×0.001 最后兜底
-##   §4 商店/上限：池 58（33+23+2）+ 含 2 遗物 + 零 String；add broken_crown ×2 成功 →
+##   §4 商店/上限：池 49（23+23+2+1 服务）+ 含 2 遗物 + 零 String；add broken_crown ×2 成功 →
 ##      第 3 次拒（inventory_full("relic")）；6 被动 + 2 遗物共存（MAX_ITEMS 语义不变）
 ##   §5 结构伤害消费 + 回归锚点：白盒 turret 弹药伤害 ×structure_damage_mult（se_mech_core 装配
-##      → structure_mult 1.4 顺带激活悬空词条）；icon_atlas items 25 / 商店池 58 / icon_index 0-24 唯一
+##      → structure_mult 1.4 顺带激活悬空词条）；icon_atlas items 25 / 商店池 49 / icon_index 0-24 唯一
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -249,12 +249,12 @@ func _part_take_damage() -> void:
 # ========== §4 商店/上限 ==========
 
 func _part_shop_cap() -> void:
-	# 商店池 58（33 武器 + 23 被动 + 2 遗物）+ 含 2 遗物 + 零 String
+	# 商店池 49（F31-1/3 同步：23 武器 + 23 被动 + 2 遗物 + 1 服务 anvil）+ 含 2 遗物 + 零 String
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 58:
-		_fail("商店: 池应 58, 实得 %d" % pool.size())
+	if pool.size() != 49:
+		_fail("商店: 池应 49, 实得 %d" % pool.size())
 	else:
-		_pass("商店 / 混合池 58（33 武器 + 23 被动 + 2 遗物）")
+		_pass("商店 / 混合池 49（23 武器 + 23 被动 + 2 遗物 + 1 服务）")
 	var has_crown: bool = false
 	var has_engine: bool = false
 	var bad_type: bool = false
@@ -362,7 +362,7 @@ func _part_structure_and_anchor() -> void:
 		else:
 			_pass("结构 / turret 弹药伤害 ×structure_damage_mult（5×1.4=7）")
 
-	# 回归锚点：icon_atlas items 25 / 商店池 58 / is_passive icon_index 0-24 唯一
+	# 回归锚点：icon_atlas items 25 / 商店池 49（F31 同步）/ is_passive icon_index 0-24 唯一
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
 	if fc != 25:
@@ -370,10 +370,10 @@ func _part_structure_and_anchor() -> void:
 	else:
 		_pass("锚点 / icon_atlas items 25 帧")
 	var pool: Array = _shop.call("_build_shop_pool")
-	if pool.size() != 58:
-		_fail("锚点: 商店池应 58, 实得 %d" % pool.size())
+	if pool.size() != 49:
+		_fail("锚点: 商店池应 49, 实得 %d" % pool.size())
 	else:
-		_pass("锚点 / 商店池 58")
+		_pass("锚点 / 商店池 49")
 	var seen: Dictionary = {}
 	var dup: bool = false
 	for iid in _loader.call("get_all_item_ids"):

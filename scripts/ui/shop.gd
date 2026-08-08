@@ -50,6 +50,13 @@ var _grace_label: Label = null
 ## D13-T6：武器资源懒构建器（WeaponController 未入树实例，仅调纯函数 build_weapon_from_data）
 var _wc_builder: Node = null
 
+# ========== 铁砧 anvil 面板（F31-3，动态构建零新 tscn） ==========
+
+var _anvil_layer: CanvasLayer = null        ## 置顶层（含全屏遮罩 + 选择列表）
+var _anvil_item: Resource = null            ## 当前购买的 anvil 商品（purchase_made 透传）
+var _anvil_index: int = -1                  ## anvil 在 shop_items 中的索引（购买后移除）
+var _anvil_price: int = 0                   ## 价格（数据驱动自 item.price，防硬编码漂移）
+
 # ========== 生命周期 ==========
 
 func _ready() -> void:
@@ -195,6 +202,15 @@ func _build_shop_pool() -> Array:
 		var relic: Resource = _build_item_resource(iid)
 		if relic != null:
 			pool.append(relic)
+	# 服务池（F31-3）：effects.shop_weapon_upgrade true 的服务商品（实测仅 anvil 铁砧 120G）
+	# anvil 无 is_passive / 无 slot=="relic" / 无 weapon_type → 前 3 池天然不收 = 真零消费点，本段入池
+	for iid in DataLoader.get_all_item_ids():
+		var idata: Dictionary = DataLoader.get_item(iid)
+		if idata.is_empty() or not bool(idata.get("effects", {}).get("shop_weapon_upgrade", false)):
+			continue
+		var svc: Resource = _build_item_resource(iid)
+		if svc != null:
+			pool.append(svc)
 	return pool
 
 ## 武器 id → Weapon 资源（懒加载纯函数构建器；未入树实例调用 build_weapon_from_data）
@@ -336,6 +352,26 @@ func _purchase_item(index: int) -> void:
 		push_warning("[Shop] 金币不足，无法购买: %s（%dG 需 %dG）" % [str(dn), GameManager.economy.coins, price])
 		return
 
+	# 铁砧购买（F31-3 用户拍板）：服务商品（effects.shop_weapon_upgrade = anvil）→ 弹武器升级选择 UI
+	# anvil 无 weapon_type / 无 is_passive / 无 slot=="relic" → 只走本分支，不落入下方武器/被动逻辑
+	var sb: Variant = item.get("stat_bonuses")
+	if sb is Dictionary and bool(sb.get("shop_weapon_upgrade", false)):
+		var wc: Node = GameManager.player.get_node_or_null("WeaponController") if GameManager.player else null
+		var ups: Array = []
+		if wc:
+			for w in wc.get("equipped_weapons"):
+				# Resource.get 单参（Object.get 无默认值重载）——先取再判空
+				var wlv: Variant = w.get("level")
+				var wmx: Variant = w.get("max_level")
+				if wlv != null and wmx != null and int(wlv) < int(wmx):
+					ups.append(w)
+		if ups.is_empty():
+			# 无可升级武器 → 拒绝不扣费（商品保留，玩家可刷新/离开）
+			push_warning("[Shop] 无可升级武器，铁砧购买失败")
+			return
+		_show_anvil_panel(ups, item, index)
+		return
+
 	# 武器购买：先入库，后装备（equip 失败回滚入库）
 	if item.get("weapon_type") != null:
 		if not GameManager.inventory.add_weapon(item):
@@ -367,3 +403,93 @@ func _purchase_item(index: int) -> void:
 			AudioManager.play_sfx("shop")   # D24-T3-⑦：购买成功 SFX（被动）
 	else:
 		push_warning("[Shop] 被动槽已满，购买失败")
+
+# ========== 铁砧 anvil 升级选择 UI（F31-3 用户拍板 · 动态构建零新 tscn） ==========
+
+## 弹武器升级选择面板：CanvasLayer 置顶 + 半透明全屏遮罩（STOP 防穿透）+ 居中 VBox
+## 每可升级武器一行 Button（武器名 · Lv.X → Lv.X+1）+ 取消；仿 _create_card 动态构建先例
+func _show_anvil_panel(ups: Array, item: Resource, index: int) -> void:
+	if _anvil_layer != null:
+		return
+	_anvil_item = item
+	_anvil_index = index
+	_anvil_price = int(item.get("price")) if item.get("price") != null else 0
+
+	var layer := CanvasLayer.new()
+	_anvil_layer = layer
+
+	# 全屏遮罩：半透明 + 吞点击（防穿透到商品卡）
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.0, 0.0, 0.0, 0.6)
+	bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	layer.add_child(bg)
+
+	# 居中容器
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(center)
+
+	var panel := Panel.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.10, 0.10, 0.14, 0.95)
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_left = 6
+	style.corner_radius_bottom_right = 6
+	style.content_margin_left = 16
+	style.content_margin_right = 16
+	style.content_margin_top = 12
+	style.content_margin_bottom = 12
+	panel.add_theme_stylebox_override("panel", style)
+	center.add_child(panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	panel.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "铁砧 · 武器升级（%dG）" % _anvil_price
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 10)
+	vbox.add_child(title)
+
+	for w in ups:
+		var btn := Button.new()
+		btn.text = "%s · Lv.%d → Lv.%d" % [str(w.weapon_name), int(w.level), int(w.level) + 1]
+		btn.pressed.connect(_apply_anvil_upgrade.bind(w))
+		vbox.add_child(btn)
+
+	var cancel := Button.new()
+	cancel.text = "取消"
+	cancel.pressed.connect(_close_anvil_panel)
+	vbox.add_child(cancel)
+
+	add_child(layer)
+
+## 应用铁砧升级：weapon.upgrade()（列表已过滤满级，不会 false）→ spend_coins(price 数据驱动)
+## → 商品移除 + 渲染刷新 → purchase_made + SFX → 关闭面板（升级语义与 level_up_panel 武器路径一致）
+func _apply_anvil_upgrade(weapon: Resource) -> void:
+	if weapon == null or not weapon.has_method("upgrade"):
+		_close_anvil_panel()
+		return
+	if not weapon.upgrade():
+		push_warning("[Shop] 铁砧升级失败（武器已满级）")
+		_close_anvil_panel()
+		return
+	if GameManager.economy and GameManager.economy.spend_coins(_anvil_price):
+		if _anvil_index >= 0 and _anvil_index < shop_items.size():
+			shop_items.remove_at(_anvil_index)
+			_render_cards()
+		purchase_made.emit(_anvil_item)
+		AudioManager.play_sfx("shop")   # D24-T3-⑦：购买成功 SFX（铁砧）
+	_close_anvil_panel()
+
+## 关闭铁砧面板（取消 = 仅关闭不扣费不升级；购买成功后亦调用复位）
+func _close_anvil_panel() -> void:
+	if _anvil_layer and is_instance_valid(_anvil_layer):
+		_anvil_layer.queue_free()
+	_anvil_layer = null
+	_anvil_item = null
+	_anvil_index = -1
+	_anvil_price = 0

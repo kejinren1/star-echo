@@ -200,23 +200,24 @@ func _check_generic_growth() -> void:
 	_checked += 1
 	print("  PASS  slots / 裸武器 fire_rate 通用成长 2.0 → 2.2（×1.1 兜底）")
 
-## 断言 4a + 4b：面板混合选项池含武器升级项 + 注入式应用升级
+## 断言 4a + 4b：面板选项池零武器升级项（F31-2）+ 注入式应用升级（分支保留）
 func _check_panel_pool() -> void:
 	var panel: Node = (load(LEVELUP_PANEL_SCENE) as PackedScene).instantiate()
 	root.add_child(panel)
 	panel.set("player", _player)
-	# 4a：白盒 roll 全量池 → 必须含 weapon_upgrade（此时 equipped 6 把均未满级）
+	# 4a：白盒 roll 全量池 → 必须【零】weapon_upgrade（F31-2 用户拍板：武器升级移出升级面板）
+	# 顺带验证属性池仍可 roll（结果非空）；4b 注入分支保留（铁砧/兼容路径）
 	var rolled: Array = panel.call("_roll_options", 20)
 	var has_weapon_opt: bool = false
 	for opt in rolled:
 		if str(opt.get("type", "")) == "weapon_upgrade":
 			has_weapon_opt = true
 			break
-	if has_weapon_opt:
+	if not has_weapon_opt and rolled.size() > 0:
 		_checked += 1
-		print("  PASS  slots / 选项池含「升级『X』」武器项")
+		print("  PASS  slots / 选项池零「升级『X』」武器项（F31-2）+ 属性池可 roll（%d 项）" % rolled.size())
 	else:
-		_fail("slots / 选项池应含 weapon_upgrade 项")
+		_fail("slots / 选项池应零 weapon_upgrade 且非空，实得 has=%s size=%d" % [has_weapon_opt, rolled.size()])
 	# 4b：注入式应用「升级『星刃』」→ level 1→2
 	var blade: Resource = _controller.call("build_weapon_from_data", "se_star_blade")
 	panel.call("_apply_option", {"label": "升级「星刃」", "type": "weapon_upgrade", "weapon": blade})
