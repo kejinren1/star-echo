@@ -96,6 +96,8 @@ var _xp_curve_cache: Expression = null       ## 经验曲线表达式缓存（�
 # 动画
 var _anim: AnimatedSprite2D
 var _is_walking: bool = false
+## F-33（08-09 用户反馈）：朝向 —— true=朝左（原图默认），false=朝右（flip_h 镜像）
+var _facing_left: bool = true
 ## D21-22-T3：角色精灵前缀（_apply_character_sprite 写入；空 = 默认 fighter 无 attack/skill）
 var _sprite_prefix: String = ""
 
@@ -369,7 +371,18 @@ func _handle_movement() -> void:
 
 	velocity = input_vector * move_speed
 	move_and_slide()
+	# F-33（08-09 用户反馈）：左右转向 —— 原图默认朝左，按水平移动方向镜像翻转
+	_update_facing()
 	_update_animation()
+
+## F-33（08-09 用户反馈）：原图默认朝左，向右移动/面向时 flip_h 镜像；
+## 静止时保持最后朝向；idle/walk/attack/skill/hit 全部动画共享当前朝向
+func _update_facing() -> void:
+	if not _anim:
+		return
+	if absf(velocity.x) > 1.0:
+		_facing_left = velocity.x < 0.0
+		_anim.flip_h = not _facing_left
 
 # ========== 主动技能（大纲 §5：玩家控制的主动技能，带冷却/资源） ==========
 # D1 打桩：输入动作 skill_cast 已注册；D3-T1 转发到 SkillController 统一释放。

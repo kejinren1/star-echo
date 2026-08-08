@@ -103,6 +103,9 @@ func _advance(sub: int) -> int:
 			return 2
 		2:
 			_part_regression()
+			return 3
+		3:
+			_part_facing()
 			return 10
 		_:
 			return 10
@@ -187,6 +190,31 @@ func _part_regression() -> void:
 	var pl_txt: String = FileAccess.get_file_as_string("res://scripts/player/player.gd")
 	_ok(pl_txt.contains('if _anim.animation in ["attack", "skill"]:'), "§3 文本: player _play_attack_anim 含 skill 守卫")
 	_ok(pl_txt.contains("func _play_skill_anim"), "§3 文本: _play_skill_anim 保留")
+
+
+# ========== §4 左右转向（F-33） ==========
+
+func _part_facing() -> void:
+	var anim: AnimatedSprite2D = _player.get_node_or_null("AnimatedSprite2D")
+	if anim == null:
+		_fail("§4 转向: 无 AnimatedSprite2D")
+		return
+	# 初始：原图默认朝左（flip_h false）
+	_ok(not anim.flip_h, "§4 转向: 初始 flip_h=false（原图朝左）")
+	# 向右移动 → 镜像朝右
+	_player.velocity = Vector2(120.0, 0.0)
+	_player.call("_update_facing")
+	_ok(anim.flip_h, "§4 转向: 向右移动 → flip_h=true（镜像朝右）")
+	# 向左移动 → 恢复原图朝左
+	_player.velocity = Vector2(-120.0, 0.0)
+	_player.call("_update_facing")
+	_ok(not anim.flip_h, "§4 转向: 向左移动 → flip_h=false（原图朝左）")
+	# 竖直移动 → 保持最后朝向
+	_player.velocity = Vector2(0.0, 120.0)
+	_player.call("_update_facing")
+	_ok(not anim.flip_h, "§4 转向: 竖直移动保持最后朝向（flip_h 不变）")
+	# _facing_left 状态同步
+	_ok(bool(_player.get("_facing_left")) == (not anim.flip_h), "§4 转向: _facing_left 与 flip_h 状态一致")
 
 
 func _ok(cond: bool, msg: String) -> void:
