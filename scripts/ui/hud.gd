@@ -70,12 +70,10 @@ func _ready() -> void:
 	# 此时 GameManager.player 尚未赋值；与 _connect_skill_controller 同范式）
 	_connect_player_signals()
 
-	# 连接背包信号
-	if GameManager.inventory:
-		GameManager.inventory.weapon_added.connect(_on_weapon_added)
-		GameManager.inventory.weapon_removed.connect(_on_weapon_removed)
-		GameManager.inventory.item_added.connect(_on_item_added)
-		GameManager.inventory.item_removed.connect(_on_item_removed)
+	# F-24（2026-08-08 用户拍板）：背包信号延迟连接——inventory 由 main._ready 注入
+	# GameManager（@onready $Inventory），HUD._ready 先于 main._ready 执行时为 null，
+	# 直接连接会静默失败 → 购买后 HUD 槽位不刷新（「买了不进下方物品栏」根因）
+	_connect_inventory_signals()
 
 	# 收集图标子节点
 	for slot in weapon_slots:
@@ -89,7 +87,16 @@ func _ready() -> void:
 # ========== 信号处理 ==========
 
 func _on_wave_started(wave_number: int) -> void:
-	wave_label.text = "波次 %d/%d" % [wave_number, GameManager.max_waves]
+	# F-26（2026-08-08 用户拍板）：删波次改关卡制——路线模式关 = 层（current_layer+1，
+	# 第 10/15 关为 Boss 关）；旧波次制保留 wave_number 作为关号；Boss 关加后缀
+	var stage: int = wave_number
+	if GameManager != null and not GameManager.route.is_empty():
+		# Node.get() 只收 1 参（无默认值），先判存在
+		stage = int(GameManager.get("current_layer")) + 1 if "current_layer" in GameManager else 1
+	var boss_suffix: String = ""
+	if GameManager != null and GameManager.is_boss_wave:
+		boss_suffix = " · BOSS"
+	wave_label.text = "第 %d 关%s" % [stage, boss_suffix]
 
 func _on_state_changed(new_state) -> void:
 	visible = (new_state == GameManager.GameState.BATTLE)
@@ -197,6 +204,18 @@ func _connect_player_signals() -> void:
 	_on_health_changed(GameManager.player.health, GameManager.player.max_health)
 	if GameManager.player.has_method("get_xp_to_next_level"):
 		_on_xp_changed(GameManager.player.exp, GameManager.player.get_xp_to_next_level())
+
+## F-24（2026-08-08 用户拍板）：延迟一帧连接背包信号（inventory 由 main._ready 注入，
+## HUD._ready 先于 main._ready → 直接连接静默失败 = 购买后槽位不刷新根因）
+func _connect_inventory_signals() -> void:
+	await get_tree().process_frame
+	if GameManager.inventory == null:
+		push_warning("[HUD] inventory 未就绪，槽位刷新信号未连接")
+		return
+	GameManager.inventory.weapon_added.connect(_on_weapon_added)
+	GameManager.inventory.weapon_removed.connect(_on_weapon_removed)
+	GameManager.inventory.item_added.connect(_on_item_added)
+	GameManager.inventory.item_removed.connect(_on_item_removed)
 
 ## 延迟连接 SkillController（Main._ready 需先装载英雄数据；取不到只告警不崩）
 func _connect_skill_controller() -> void:

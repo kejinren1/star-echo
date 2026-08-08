@@ -157,6 +157,9 @@ func build_weapon_from_data(weapon_id: String) -> Weapon:
 	# F-22（用户拍板 2026-08-08）：进化形态标志透传（weapons.json evolution_result 字段，
 	# 仅结果武器为 true）——orbit_weapon 据此给进化武器换渲染色/尺寸，补「进化无直观感受」
 	w.set_meta(&"evolution_result", bool(data.get("evolution_result", false)))
+	# F-24（用户拍板 2026-08-08）：进化结果名透传（商店 tooltip「满级可进化『X』」提示；
+	# desc_builder 禁引用 Autoload，改走资源 meta）
+	w.set_meta(&"evolution_result_name", str(data.get("evolution", {}).get("result_name", "")))
 	return w
 
 ## 按 id 装备数据驱动武器，覆盖 _ready() 装上的占位「初始枪」

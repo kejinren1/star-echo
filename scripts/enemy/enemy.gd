@@ -782,6 +782,10 @@ func die() -> void:
 	# Day 18-19 · T1：Boss 击杀登记（GameManager.register_boss_killed；双守卫防纯数据探针异常）
 	if is_boss and GameManager and GameManager.has_method("register_boss_killed"):
 		GameManager.register_boss_killed()
+	# F-28（2026-08-08 用户拍板）：击杀后触发通关判定——普通关敌全灭 / Boss 关 Boss 击杀
+	# （此前通关只由波次倒计时触发：Boss 没死超时也通 / Boss 死了要等倒计时）
+	if GameManager and GameManager.wave_manager and GameManager.wave_manager.has_method("check_wave_clear"):
+		GameManager.wave_manager.check_wave_clear()
 	# 播放死亡动画后销毁
 	if _anim and _anim.sprite_frames and _anim.sprite_frames.has_animation("death"):
 		_anim.play("death")

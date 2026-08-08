@@ -173,27 +173,41 @@ func _advance(sub: int) -> int:
 			var layers: Array = _route_same_a.get("layers", [])
 			_ok(layers.size() == int(_loader.get_routes().get("layers", -1)), "层数 == routes.json.layers")
 			var npl: int = int(_loader.get_routes().get("nodes_per_layer", -1))
+			# F-27（2026-08-08 用户拍板）：boss 层（boss_layers [9,14]）为单节点层，
+			# 普通层节点数 == nodes_per_layer（原「中间层」断言跳过 boss 层）
+			var boss_layers: Array = []
+			for bl in _route_same_a.get("boss_layers", []):
+				boss_layers.append(int(bl))
+			if boss_layers.is_empty():
+				boss_layers = [layers.size() - 1]
 			var middle_ok: bool = true
-			for li in layers.size() - 1:
+			for li in layers.size():
+				if li in boss_layers:
+					continue
 				if (layers[li] as Array).size() != npl:
 					middle_ok = false
-			_ok(middle_ok, "中间层每层节点数 == nodes_per_layer")
+			_ok(middle_ok, "普通层每层节点数 == nodes_per_layer")
 			var last_layer: Array = layers[layers.size() - 1]
 			_ok(last_layer.size() == 1 and str(last_layer[0].get("type")) == "boss", "末层唯一 boss 节点")
 			_ok(_layer_has_battle(layers[0]), "首层含 battle")
+			# F-27：boss 仅 boss_layers 层（第 10/15 关）
 			var boss_only_last: bool = true
-			for li in layers.size() - 1:
+			for li in layers.size():
+				if li in boss_layers:
+					continue
 				for node in layers[li]:
 					if str(node.get("type")) == "boss":
 						boss_only_last = false
-			_ok(boss_only_last, "boss 仅末层")
+			_ok(boss_only_last, "boss 仅 boss_layers 层（第 10/15 关）")
 			var types_ok: bool = true
 			var valid: Array = ["battle", "event", "elite", "shop", "boss"]
 			for node in _all_nodes(_route_same_a):
 				if not valid.has(str(node.get("type"))):
 					types_ok = false
 			_ok(types_ok, "节点类型 ∈ 5 类")
-			_ok(_battle_count(_route_same_a) <= 19, "battle_count <= 19")
+			# F-27：battle 上限随 15 关放宽（routes.json max_battle_nodes=36，boss 占 wave 10）
+			var max_battle: int = int(_loader.get_routes().get("constraints", {}).get("max_battle_nodes", 19))
+			_ok(_battle_count(_route_same_a) <= max_battle, "battle_count <= %d" % max_battle)
 			return 5
 		# ---------- §3 数据驱动 ----------
 		5:

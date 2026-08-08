@@ -18,6 +18,10 @@ extends Resource
 @export_group("属性加成")
 @export var stat_bonuses: Dictionary = {}       ## 属性加成 { "max_health": 20.0, "move_speed": 10.0, ... }
 
+## F-24（2026-08-08 用户拍板）：机制型被动词条配置（F-13 三机制 on_crit/on_kill/low_health，
+## 商店 tooltip 说明文本消费；装配消费点已在 Day 24 接线）
+@export var trigger: Dictionary = {}
+
 # ========== 属性查询 ==========
 
 ## 获取指定属性的加成值

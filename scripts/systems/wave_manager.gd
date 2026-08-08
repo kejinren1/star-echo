@@ -35,6 +35,13 @@ func _process(delta: float) -> void:
 	time_remaining -= delta
 	wave_timer_tick.emit(time_remaining)
 	if time_remaining <= 0.0:
+		# F-28（2026-08-08 用户拍板）：Boss 关不因倒计时通关——通关判定 = Boss 击杀
+		# （此前倒计时到点强制通关导致「Boss 没死就提示通关」）；普通关保留超时兜底。
+		# 防死锁：超时且容器已无任何存活敌人（生成异常）→ 放行通关
+		if GameManager != null and GameManager.is_boss_wave:
+			if _alive_enemy_count() > 0:
+				time_remaining = 5.0  # 续时继续等 Boss 击杀
+				return
 		_end_wave()
 
 # ========== 波次控制 ==========
@@ -53,6 +60,50 @@ func start_wave(wave_number: int) -> void:
 	# 通知生成器生成敌人
 	if GameManager.enemy_spawner:
 		GameManager.enemy_spawner.spawn_wave(config, wave_number)
+
+## F-28（2026-08-08 用户拍板）：通关判定——敌人击杀时由 enemy.die() 调用。
+## 普通关：容器内所有敌人死亡（is_alive==false）→ 通关；Boss 关：Boss 死亡 → 通关
+## （不等 Boss 召唤物/精英——此前「Boss 死了还要缠斗精英一会儿才通」）
+func check_wave_clear() -> void:
+	if not is_active:
+		return
+	if GameManager == null:
+		return
+	if GameManager.is_boss_wave:
+		var container := _enemy_container()
+		if container == null:
+			return
+		for enemy in container.get_children():
+			if is_instance_valid(enemy) and enemy.get("is_boss") == true and enemy.get("is_alive") != false:
+				return  # 仍有存活 Boss → 未通关
+		_end_wave()
+		return
+	# 普通关：敌全灭即通关（含精英产卵的怪——存活扫描天然涵盖）
+	if _alive_enemy_count() == 0:
+		_end_wave()
+
+## 敌人容器获取（enemy_spawner.enemies_container 优先，GameManager.enemies_container 兜底）
+func _enemy_container() -> Node:
+	if GameManager == null:
+		return null
+	if GameManager.enemy_spawner != null:
+		var c: Variant = GameManager.enemy_spawner.get("enemies_container")
+		if c != null:
+			return c
+	if GameManager.enemies_container != null:
+		return GameManager.enemies_container
+	return null
+
+## 容器内存活敌人数（is_alive != false 为存活）
+func _alive_enemy_count() -> int:
+	var container := _enemy_container()
+	if container == null:
+		return 0
+	var alive: int = 0
+	for enemy in container.get_children():
+		if is_instance_valid(enemy) and enemy.get("is_alive") != false:
+			alive += 1
+	return alive
 
 ## 结束当前波次
 func _end_wave() -> void:

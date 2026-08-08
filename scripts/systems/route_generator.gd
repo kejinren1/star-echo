@@ -1,9 +1,11 @@
 ## 随机节点路线生成器（Day 14-15 · D14-15-T1）
-## 层式分支拓扑（集成战略式）：L 层 × N 节点/层，末层固定 1 Boss 节点；
+## 层式分支拓扑（集成战略式）：L 层 × N 节点/层；boss 层（routes.json boss_layers，
+## 缺省末层）为单 Boss 节点层——F-27（2026-08-08 用户拍板）15 关双 Boss：第 10 关、第 15 关；
 ## 种子可复现：RandomNumberGenerator 实例（禁全局 RNG shuffle）；
 ## 事件改写预留：modifiers.reroute 可覆盖类型权重（消费归 Day 16）；
 ## 节点→波次映射：P1 Fix-2 改为按层号分配（layer_index+1），
-## 玩家每层只选1节点 → 波次连续不跳号；boss 固定 wave 10（invoker 2阶段），
+## 玩家每层只选1节点 → 波次连续不跳号；boss 固定 wave 10（invoker 2阶段，双 Boss 同配置 =
+## F-27 用户拍板「第二个 Boss 形象数值与第一个一模一样，不做新美术数值」），
 ## shop/event 无战斗（wave_index=0）；首层保证含 battle。
 extends RefCounted
 
@@ -30,10 +32,11 @@ const DEFAULT_WEIGHTS: Dictionary = {
 
 ## 精英禁抽阈值：当前战斗序号 < 6 时禁抽 elite（waves.json 前 5 波无 elite 前缀敌人）
 const MIN_ELITE_WAVE: int = 6
-## 硬约束：战斗类节点数上限（boss 占 wave 10，战斗类映射 wave 1-9）
-const MAX_BATTLE_NODES: int = 19
+## 硬约束：战斗类节点数上限（boss 占 wave 10；15 关 13 普通层 × 3 节点上限 39）
+const MAX_BATTLE_NODES: int = 36
 ## P1 试玩反馈 Fix-2：Boss 波次从 20 改为 10（invoker 2阶段），
 ## 配合层制 wave_index 分配消除跳号（4→10 远好于 4→20）
+## F-27：双 Boss 关（第 10/15 关）共用 wave 10 配置（第二个 Boss 复用 invoker 形象数值）
 const BOSS_WAVE: int = 10
 
 # ========== 生成入口 ==========
@@ -63,12 +66,23 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 	var modifiers: Dictionary = routes.get("modifiers", {})
 	var constraints: Dictionary = routes.get("constraints", {})
 	var max_battle: int = int(constraints.get("max_battle_nodes", MAX_BATTLE_NODES))
+	# F-27（2026-08-08 用户拍板）：boss 层（单 Boss 节点）数据驱动，缺省末层；
+	# 15 关配置 = [9, 14]（第 10 关、第 15 关各 1 Boss）
+	# ⚠️ JSON 数值解析为 float——`li in boss_layers`（int vs float）严格比较会 miss，
+	# 归一化 int 数组（Godot `in` 对数组元素按 Variant 比较，int/float 不等）
+	var boss_layers: Array = []
+	for bl in routes.get("boss_layers", []):
+		boss_layers.append(int(bl))
+	if boss_layers.is_empty():
+		boss_layers = [layers_count - 1]
 
-	# 1) 中间层类型生成（末层固定 boss，单独追加）
+	# 1) 层类型生成：普通层随机 N 节点；boss 层单 Boss 节点（跳过随机）
 	var layers: Array = []
 	var battle_count: int = 0
-	var middle_layers: int = layers_count - 1
-	for _li in middle_layers:
+	for li in layers_count:
+		if li in boss_layers:
+			layers.append([{"type": NODE_BOSS, "wave_index": 0}])
+			continue
 		var layer_nodes: Array = []
 		for _ni in nodes_per_layer:
 			var node_type: String = _weighted_pick(rng, weights, battle_count, modifiers)
@@ -79,7 +93,7 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 			layer_nodes.append({"type": node_type, "wave_index": 0})
 		layers.append(layer_nodes)
 
-	# 2) 首层保证 battle（防进局无事可做）
+	# 2) 首层保证 battle（防进局无事可做；首层为 boss 层时天然跳过）
 	if not layers.is_empty() and not _layer_has_battle(layers[0]):
 		var first_layer: Array = layers[0]
 		var first_type: String = str(first_layer[0].get("type", ""))
@@ -88,7 +102,7 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 			battle_count += 1
 
 	# 3) 波次分配（P1 Fix-2：按层号分配 wave_index，玩家每层只选1节点 → 不跳号）
-	# battle/elite → wave = layer_index + 1；shop/event → 0；boss 末层单独追加
+	# battle/elite → wave = layer_index + 1；boss → BOSS_WAVE(10，双 Boss 同配置)；shop/event → 0
 	battle_count = 0
 	for li in layers.size():
 		var layer_nodes: Array = layers[li]
@@ -98,13 +112,12 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 			if node_type == NODE_BATTLE or node_type == NODE_ELITE:
 				node_data["wave_index"] = li + 1
 				battle_count += 1
+			elif node_type == NODE_BOSS:
+				node_data["wave_index"] = BOSS_WAVE
 
-	# 4) 末层 boss
-	layers.append([{"type": NODE_BOSS, "wave_index": BOSS_WAVE}])
-
-	# 5) 硬校验：战斗类节点数 ≤ max_battle（boss 占 wave 20）
+	# 4) 硬校验：战斗类节点数 ≤ max_battle
 	if battle_count > max_battle:
-		push_error("[RouteGenerator] 战斗节点数 %d 超过上限 %d（boss 占 wave 20）" % [battle_count, max_battle])
+		push_error("[RouteGenerator] 战斗节点数 %d 超过上限 %d（boss 占 wave 10）" % [battle_count, max_battle])
 		return {}
 
 	return {
@@ -112,6 +125,7 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 		"layers": layers,
 		"modifiers": modifiers,
 		"flags": routes.get("flags", {}),
+		"boss_layers": boss_layers,
 	}
 
 # ========== 改线接口（Day 16 · D16-T3：事件 effect_on_route 消费落点） ==========
@@ -124,9 +138,14 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 ## 随机性：派生种子（seed + 7919）的 RNG 实例，禁 Array.shuffle（全局 RNG 种子不可控）。
 static func reroute_remaining(route: Dictionary, from_layer: int, weights_delta: Dictionary) -> void:
 	var layers: Array = route.get("layers", [])
-	# 末层 boss 保护：from_layer 越界或指向末层 → 拒绝
-	if from_layer < 0 or from_layer >= layers.size() - 1:
-		push_warning("[RouteGenerator] reroute_remaining 层越界: %d（末层 boss 不可改写）" % from_layer)
+	# F-27：boss 层（第 10/15 关）保护——含末层；from_layer 越界或指向 boss 层 → 拒绝
+	var boss_layers: Array = []
+	for bl in route.get("boss_layers", []):
+		boss_layers.append(int(bl))
+	if boss_layers.is_empty():
+		boss_layers = [layers.size() - 1]
+	if from_layer < 0 or from_layer >= layers.size() or from_layer in boss_layers:
+		push_warning("[RouteGenerator] reroute_remaining 层越界或指向 Boss 层: %d（boss 层不可改写）" % from_layer)
 		return
 	# 基准权重 = 默认权重 + 已登记 modifiers.reroute（绝对覆盖键值）
 	var weights: Dictionary = DEFAULT_WEIGHTS.duplicate()
@@ -151,6 +170,8 @@ static func reroute_remaining(route: Dictionary, from_layer: int, weights_delta:
 	rng.seed = int(route.get("seed", 0)) + 7919
 	var battle_count: int = _count_battles_before(layers, from_layer)
 	for li in range(from_layer, layers.size() - 1):
+		if li in boss_layers:
+			continue  # F-27：Boss 层（第 10/15 关）不改写
 		var layer_nodes: Array = layers[li]
 		for ni in layer_nodes.size():
 			var node: Dictionary = layer_nodes[ni]
@@ -180,11 +201,17 @@ static func reroute_remaining(route: Dictionary, from_layer: int, weights_delta:
 ## 强制后 wave_index 全量重映射（战斗序号变化）；不改 route.seed/modifiers/flags。
 static func force_node_type(route: Dictionary, layer_index: int, node_index: int, new_type: String) -> void:
 	var layers: Array = route.get("layers", [])
+	# F-27：boss 层（第 10/15 关）保护（含末层）
+	var boss_layers: Array = []
+	for bl in route.get("boss_layers", []):
+		boss_layers.append(int(bl))
+	if boss_layers.is_empty():
+		boss_layers = [layers.size() - 1]
 	if layer_index < 0 or layer_index >= layers.size():
 		push_warning("[RouteGenerator] force_node_type 层越界: %d" % layer_index)
 		return
-	if layer_index == layers.size() - 1:
-		push_warning("[RouteGenerator] force_node_type 末层 Boss 不可改写")
+	if layer_index in boss_layers:
+		push_warning("[RouteGenerator] force_node_type Boss 层不可改写: %d" % layer_index)
 		return
 	var layer_nodes: Array = layers[layer_index]
 	if node_index < 0 or node_index >= layer_nodes.size():

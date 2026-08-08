@@ -1,6 +1,7 @@
 {
-  "layers": 5,
+  "layers": 15,
   "nodes_per_layer": 3,
+  "boss_layers": [9, 14],
   "default_seed": 20260806,
   "weights": {
     "battle": 0.5,
@@ -11,6 +12,6 @@
   "constraints": {
     "first_layer_has_battle": true,
     "final_layer_boss": true,
-    "max_battle_nodes": 19
+    "max_battle_nodes": 36
   }
 }

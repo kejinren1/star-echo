@@ -35,6 +35,9 @@ func setup() -> void:
 		var button: Button = option_buttons[i]
 		if i < _options.size():
 			button.text = str(_options[i].get("label", "???"))
+			# F-25（2026-08-08 用户拍板）：悬停显示效果说明——武器升级/进化选项此前
+			# 只能看到「升级『X』」，看不到升完什么样；属性选项显示加成通道
+			button.tooltip_text = DescBuilder.option_tooltip(_options[i])
 			button.visible = true
 			button.pressed.connect(_on_option_pressed.bind(i))
 		else:
@@ -84,11 +87,20 @@ func _roll_options(count: int) -> Array:
 				if requires_item.is_empty():
 					continue
 				if GameManager.inventory.has_item_id(requires_item):
+					# F-25（2026-08-08 用户拍板）：结果武器数值注入（tooltip「伤害 N」展示；
+					# desc_builder 禁引用 Autoload，改走选项字段）
+					var result_damage: int = 0
+					var res_id: String = str(evolution.get("result_id", ""))
+					if not res_id.is_empty():
+						var rdata: Dictionary = DataLoader.get_weapon(res_id)
+						if not rdata.is_empty():
+							result_damage = int(rdata.get("damage", 0))
 					evolutions.append({
 						"label": "进化『%s』" % str(evolution.get("result_name", "")),
 						"type": "evolution",
 						"weapon": weapon,
 						"evolution": evolution,
+						"result_damage": result_damage,
 					})
 	# 2026-08-08 反馈专员·方案A（用户拍板「开发期优先质变闭环，暂不考虑玩法丰富度限制」）：
 	# 满级 + 持核心时进化选项【保底入选】——进化选项全部放入结果（至 count 上限），

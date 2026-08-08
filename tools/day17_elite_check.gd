@@ -418,6 +418,7 @@ func _advance(sub: int) -> int:
 		10:
 			# elite 节点 wave_index ∈ [6,19]（生成路径：battle_count≥6 才可抽 elite →
 			# 天然 ∈ [6,19]；种子随机可能全程无精英 → 条件断言，对齐 day14_15 口径）
+			# F-27（2026-08-08 用户拍板）：15 关后普通层 1-14，精英可出现在 wave 11-14
 			var route: Dictionary = _gen.generate_from(FIXED_SEED, _loader.get_routes())
 			var elite_wi_ok: bool = true
 			var boss_ok: bool = true
@@ -429,11 +430,11 @@ func _advance(sub: int) -> int:
 					var wi: int = int(node.get("wave_index", -1))
 					if t == "elite":
 						elite_found = true
-						if wi < 1 or wi > 9:
+						if wi < 1 or wi > 14:
 							elite_wi_ok = false
 					if t == "boss" and wi != 10:
 						boss_ok = false
-			_ok(elite_wi_ok, "回归: 路线 elite 节点 wave_index ∈ [1,9]（条件断言，实含 %s）" % ("是" if elite_found else "否"))
+			_ok(elite_wi_ok, "回归: 路线 elite 节点 wave_index ∈ [1,14]（条件断言，实含 %s）" % ("是" if elite_found else "否"))
 			_ok(boss_ok, "回归: 路线 boss 节点 wave_index == 10")
 			# 确定性覆盖：白盒构造路线 → force_node_type 强制精英 → wave_index 重映射 ∈ [1,19]（合法战斗映射）
 			var route2: Dictionary = _gen.generate_from(1234, _loader.get_routes())

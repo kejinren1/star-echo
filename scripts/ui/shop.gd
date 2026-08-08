@@ -214,6 +214,8 @@ func _build_item_resource(item_id: String) -> Resource:
 	item.slot = str(data.get("slot", ""))
 	item.category = str(data.get("category", ""))
 	item.stat_bonuses = data.get("effects", {})
+	# F-24（2026-08-08 用户拍板）：机制型 trigger 配置透传（tooltip 说明文本消费）
+	item.trigger = data.get("trigger", {})
 	return item
 
 ## 把 shop_items 渲染成卡片（清空容器后重建；购买/刷新共用）
@@ -299,6 +301,10 @@ func _create_card(item: Resource, index: int) -> Control:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			_purchase_item(index)
 	)
+
+	# F-24（2026-08-08 用户拍板）：悬停显示效果说明——「购买前不知道为什么要买」修复
+	# （武器 → 数值+描述+可进化提示；被动/遗物 → effects/trigger 中文说明；原生日志即可）
+	panel.tooltip_text = DescBuilder.card_tooltip(item)
 
 	return panel
 

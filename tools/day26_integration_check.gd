@@ -523,14 +523,14 @@ func _part_regression() -> void:
 				if last.is_valid_int():
 					expect_sum += int(last)
 					probe_count += 1
-	if probe_count == 25:
-		_pass("回归 / _regression_run.py PROBES 25 项（Day 27 起 25 探针：23 基础 + day26 + day27）")
+	if probe_count == 27:
+		_pass("回归 / _regression_run.py PROBES 27 项（25 基础 + day18_feedback4 18 + day18_feedback5 27）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 25" % probe_count)
-	if expect_sum == 678:
-		_pass("回归 / 期望断言合计 678（Day 27 收口基准：609 + day26 34 + day27 35）")
+		_fail("回归: PROBES 项数 %d ≠ 27" % probe_count)
+	if expect_sum == 723:
+		_pass("回归 / 期望断言合计 723（678 + 反馈专员 fb4 18 + fb5 27）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 678" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 723" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

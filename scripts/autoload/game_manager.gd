@@ -631,7 +631,12 @@ func _on_player_level_up(_new_level: int) -> void:
 func _spawn_game_over_panel(victory: bool) -> void:
 	if _game_over_panel != null and is_instance_valid(_game_over_panel):
 		return
-	var reason: String = "你在波次 %d 阵亡了" % current_wave if not victory else "你击败了星骸的异变！"
+	# F-26（2026-08-08 用户拍板）：删波次改关卡制——阵亡文案显示「第 N 关」而非波次号
+	# （路线模式关 = 层+1；旧波次制 = current_wave）
+	var stage: int = current_wave
+	if not route.is_empty():
+		stage = current_layer + 1
+	var reason: String = "你在第 %d 关阵亡了" % stage if not victory else "你击败了星骸的异变！"
 	_game_over_panel = GameOverPanelScene.instantiate()
 	_game_over_panel.tree_exited.connect(func() -> void:
 		if _game_over_panel == self:
