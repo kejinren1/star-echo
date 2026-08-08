@@ -12,11 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #35（08-08 10:05）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 action item
+- **最近轮次 #36（08-08 12:03）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 1 项 runner 配置 action item
 - **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2301 字段零缺陷**（items 54）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：二十五件套 25/25 · **678 断言全绿首跑**（计数与 #34 完全一致；本轮纯 docs 轮次 HEAD=654c06d Day28 合规等待第10轮，无新探针）
-- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常，非缺陷）；day5 stderr 242B→0B 为同类波动非回归
-- **在途 action item**：无新增；工作区在途仅 docs/* 4 文件交 #2 入库｜观察：Day 28 性能段（#4 域）零开工延续第 4 轮 🟠，11:4x 为最终裁决点
+- **探针回归**：二十五件套 25/25 · **678 断言全绿首跑**（计数与 #33-35 完全一致）+ **day18_feedback4 18/18 首纳入**（F-22/F-23 星刃进化变色/返回选角收口）= **696 断言**｜ HEAD=d73bf67（真人反馈落地轮，数据层零变更）
+- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常，非缺陷）；本轮 smoke/day10/day14_15 0B 无叠加为同类波动非回归
+- **在途 action item（1 项）**：day18_feedback4(18) 未入 `_regression_run.py` PROBES（runner 仍 25 项 678），建议 #3 并入使下轮 26 件套 696 一键跑通｜工作区在途仅 docs/* 3 文件｜观察：Day 28 性能段零开工，PROGRESS 11:43 已落裁决态②交 Owner
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -2813,3 +2813,53 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-08 10:05 自动化测试轮次 #35：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**654c06d**（Day 28 执行者合规等待第 10 轮，仅 docs 收尾同步，工作区无游戏代码在途）：工程可导入、可运行、数据完整且边界健康（**9 表 2301 字段零缺陷，items 54**）、**17 场景全可实例化**、**二十五件套探针 678 断言全绿且首跑**（计数与 #34 完全一致）。本轮为纯 docs 轮次，唯一变化为 day5 探针 stderr 242B→0B 的音频 BENIGN 时序波动（已定性非回归）。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.36 轮次 #36 · 2026-08-08 12:03（自动化 · 真人反馈 F-22/F-23 落地轮）
+
+> 快照：HEAD=**d73bf67**（较 #35 +4 提交：405e74b Day28 合规等待第11轮 docs / 689bc6f #5 PLAYTEST 增量#47 docs / **55b7dff 真人反馈 F-22/F-23 实质代码**：星刃进化特效变色（evolution_result meta 透传 + orbit_weapon 进化形态金色 1.25x）+ GameOverPanel「返回选角」按钮（reset 清态 + change_scene）+ **新探针 day18_feedback4_check 18/18** + day2/day4 探针 meta 隔离附带修复 / d73bf67 PLAYTEST 增量#48 docs）。**工作区在途仅 docs/* 3 文件**（PROGRESS / SOLUTION_PLAN / TASKS），**无游戏代码改动** → 验证快照 = HEAD 干净。
+
+### 1. 基线
+
+- `python tools/baseline_check.py`：**PASS**（import + runtime `--quit-after 4` 均 exit 0）。`baseline_*_err.log` 242 B（ObjectDB leaked + 1 resources）——Day 24 BENIGN 白名单条目，过滤后 0 显著行 → "stderr clean" 判定正确。
+
+### 2. 深度运行（600 帧）
+
+- `--quit-after 600`：EXIT 0，`deep_runtime_err.log` **242 B**（音频 BENIGN 泄漏，与 #33-#35 相同状态，非回归）。
+
+### 3. 数据层（qa_validate.py 固化工具）
+
+- **JSON 9/9 解析 OK**：chars 10 / weapons 36 / items 54 / events 10 / enemies 23 / waves 20（与 #35 完全持平）。
+- **数值字段 2301**（与 #35 持平零变更——F-22/F-23 为纯代码改动，无数据表变更）；39 负值全有意（惩罚/诅咒）、0 非豁免零伤害（force_field 按武器 id 豁免）、哨兵 -1×2（waves[9]/[19]）、crit 双口径越界 0。
+- 跨引用 **0 硬悬空**（chars→weapons 10/10；waves 前缀感知 0 悬空，mixed* 令牌放行）→ **DATA LAYER CLEAN**。
+
+### 4. 场景 smoke（17/17）
+
+- **17 场景全 load+instantiate**（Main.tscn 置列表末方法学维持），stderr **0 B**（本轮无 242B 叠加，音频 BENIGN 时序波动，非回归），exit 0。临时 `_smoke_tmp.gd/.tscn` 已 Python `os.remove()` 清理无残留。
+
+### 5. 探针回归（二十五件套 + 新探针，696 断言全 CLEAN 首跑）
+
+**二十五件套 25/25 PASS，678 断言（29s）**（= #33-#35 完全一致；runner PROBES 25 项无变更）：day2 32 / day3 16 / day4 21 / day5 16 / day6 14 / day7 13 / day8 19 / day10 21 / day11_12 24 / day13 36 / day14_15 54 / day16 41 / day17_elite 39 / day17_p0 20 / day18_feedback 16 / day18_feedback2 42 / day18_feedback3 27 / day18_19 48 / day20_relic 23 / day21_22 38 / day23_vfx 18 / day24_f13 17 / day24_audio 14 / day26_integration 34 / day27_meta 35。**全部首跑 PASS**。
+
+**🆕 day18_feedback4 18/18 本轮首纳入（单独运行）**——F-22/F-23 行为级收口实证：evolution_result meta 透传 / 进化形态配色（金色）与基础形态区分 / GameOverPanel 尺寸 210 / 6 刃数量 / 「返回选角」按钮接线 + reset 清态 + 真实 change_scene 切换；附带修复实证：**day2/day4 meta 隔离后断言 32/21 仍全过**（真实存档含研究增益 ×1.05/×1.10 不再污染数值断言，白盒重置默认不写盘，用户存档完好）。
+
+### 6. WARNING 汇总
+
+| 级别 | 内容 | 判定 |
+|---|---|---|
+| 良性（维持，全进程） | **退出泄漏 242 B/进程**（ObjectDB leaked + resources = `bgm_menu.wav` AudioStreamPlaybackWAV）——Day 24 音频 Autoload，BENIGN 白名单定性；本轮 baseline/600帧/多数探针进程均出现 242 B 叠加 | 已知良性，非缺陷 |
+| 良性（口径波动） | smoke 0B（上轮 242B）/ day10 132B（上轮 374=132+242）/ day14_15 130B（上轮 372）/ day2 0B（上轮 242B）——均音频 BENIGN 泄漏时序波动（与 #32→#35 各轮同类现象）；day3/day4/day6/day8/day17_elite/day17_p0/day18_feedback4 维持 242B；day5 维持 0B | 已知良性，非缺陷 |
+| minor（维持，无新增） | day26 402B / day7 366B（124+242）/ day16 518B（276+242）/ day18_19 359B（117+242）/ day24_audio 456B（214+242）/ day11_12 763B / day13 860B / day18_feedback 497B / day18_feedback2 571B / day18_feedback3 362B / day20 1044B / day21_22 564B / day23 496B / day24_f13 859B / day27_meta 496B（坏档兜底主动触发+242B） | 探针自身/主动预期，非游戏缺陷，维持 |
+| 主动预期 | day7/day10 越界保护；day14_15/day16 push_warning；day18_19「未知攻击指令」；day20 被动键未实现+HUD 未知技能 id；day24_audio 未知 BGM/SFX 兜底；day27_meta 坏档回退 | 测试主动触发/防御分支预期输出 |
+
+### 7. 遗留 latent（存量更新）
+
+- `mixed*` 池令牌：**维持关闭**（BUG-003 已收口）。
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）。
+- **观察项（非阻断，维持）**：音频退出泄漏白名单良性；**Day 28 性能段（#4 域）零开工**——PROGRESS 11:43 已落最终裁决态②「仍无工具 → 交 Owner」（#36 即 PROGRESS 所记延迟轮次的实际兑现），本轮测试轨自身 678+18 断言零漂移，属 #4 自主项未动工非测试轨问题。
+- **🛠 在途 action item（1 项，runner 配置）**：**day18_feedback4_check(18) 未入 `_regression_run.py` PROBES 表**（runner 仍 25 项 678）——本轮为单独运行；建议 #3 执行岗并入 PROBES 使下轮 26 件套 696 一键跑通（同 #32 day26 并入先例）。
+
+### 结论
+
+**✅ 2026-08-08 12:03 自动化测试轮次 #36：PASS（0 阻断 / 0 功能缺陷，无新增 minor，1 项 runner 配置 action item）。** HEAD=**d73bf67**（真人反馈 F-22/F-23 落地 + day18_feedback4 新探针）：工程可导入、可运行、数据完整且边界健康（**9 表 2301 字段零缺陷，items 54**）、**17 场景全可实例化**、**二十五件套 678 断言 + day18_feedback4 18/18 = 696 断言全绿且首跑**（runner 计数与 #33-#35 完全一致，新探针单独运行实证 F-22/F-23 行为级收口；day2/day4 meta 隔离附带修复零回归）。**无新增功能缺陷、无需回退。**
