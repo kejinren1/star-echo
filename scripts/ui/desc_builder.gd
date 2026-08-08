@@ -66,7 +66,8 @@ static func effects_text(effects: Dictionary) -> String:
 			continue
 		var suffix: String = ""
 		if str(key).ends_with("_percent"):
-			suffix = "%%" if v != 0.0 else ""
+			# 值变量原样插入（非格式串），"%s" 仅一个：%% 转义只适用于格式串本身
+			suffix = "%" if v != 0.0 else ""
 		elif str(key) == "shop_weapon_upgrade":
 			parts.append("%s" % cn)
 			continue

@@ -104,20 +104,21 @@ func _part_tooltip_shop() -> void:
 		_fail("F-24/资源: se_blade_core 构建失败")
 		return
 	var t1: String = DescBuilderScript.item_tooltip(core)
-	_ok(t1.contains("星刃核心") and t1.contains("近战伤害 +8") and t1.contains("暴击伤害 +20%"),
-		"F-24/被动: 星刃核心 tooltip 含 effects 中文（实得: %s）" % t1.replace("\n", " / "))
+	_ok(t1.contains("星刃核心") and t1.contains("近战伤害 +8") and t1.contains("暴击伤害 +20%")
+		and not t1.contains("%%"),
+		"F-24/被动: 星刃核心 tooltip 含 effects 中文且百分比无双 %%（实得: %s）" % t1.replace("\n", " / "))
 	# 机制 trigger 透传 + 文案
 	var oc: Resource = shop.call("_build_item_resource", "overload_capacitor")
 	_ok(oc != null and oc.get("trigger") is Dictionary and not (oc.get("trigger") as Dictionary).is_empty(),
 		"F-24/透传: overload_capacitor trigger 已透传到 Item 资源")
 	var t2: String = DescBuilderScript.item_tooltip(oc)
-	_ok(t2.contains("暴击命中时：周围 80px") and t2.contains("连锁 30%"),
-		"F-24/机制: 过载电容 tooltip 含 trigger 说明（实得: %s）" % t2.replace("\n", " / "))
+	_ok(t2.contains("暴击命中时：周围 80px") and t2.contains("连锁 30%") and not t2.contains("%%"),
+		"F-24/机制: 过载电容 tooltip 含 trigger 说明且百分比无双 %%（实得: %s）" % t2.replace("\n", " / "))
 	# 遗物
 	var crown: Resource = shop.call("_build_item_resource", "broken_crown")
 	var t3: String = DescBuilderScript.item_tooltip(crown)
-	_ok(t3.contains("伤害 +50%") and t3.contains("受到伤害 +30%") and t3.contains("遗物"),
-		"F-24/遗物: 破碎王冠 tooltip 含双刃剑效果（实得: %s）" % t3.replace("\n", " / "))
+	_ok(t3.contains("伤害 +50%") and t3.contains("受到伤害 +30%") and t3.contains("遗物") and not t3.contains("%%"),
+		"F-24/遗物: 破碎王冠 tooltip 含双刃剑效果且百分比无双 %%（实得: %s）" % t3.replace("\n", " / "))
 	# 武器 tooltip（数值 + 可进化提示）
 	var wc_script: GDScript = load("res://scripts/weapons/weapon_controller.gd")
 	var wc = wc_script.new()
