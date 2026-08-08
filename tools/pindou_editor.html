@@ -86,13 +86,13 @@
         <label>尺寸</label>
         <input type="number" id="artW" value="64" min="8" max="128" style="width:48px">×<input type="number" id="artH" value="64" min="8" max="128" style="width:48px">
         <label>抠底容差</label>
-        <input type="number" id="artTol" value="16" min="0" max="60" style="width:44px">
+        <input type="number" id="artTol" value="100" min="0" max="200" style="width:48px" title="背景与边缘众数色的色差阈值；100 可抠净渐变/多色背景（用户实测最优），角色贴边浅色若被误抠可调小">
       </div>
       <div class="row">
         <label>色板</label>
         <select id="artPal" style="flex:1">
-          <option value="beads" selected>beads 拼豆明亮板（46 色）</option>
-          <option value="dict">当前调色板（字典容差 Δ12）</option>
+          <option value="dict" selected>当前调色板（字典容差 12）——用户实测最优，请先加载 ART/COLOR_DICT.json</option>
+          <option value="beads">beads 拼豆明亮板（46 色）</option>
           <option value="none">不量化（原色）</option>
         </select>
       </div>
@@ -672,6 +672,25 @@ function importArtAsset(file, dataUrl, outW, outH, tol, palMode){
   img.src = dataUrl;
 }
 
+/* 素材参数记忆（localStorage）：用户实测最优 = dict 色板 + 容差 100 */
+function saveArtPrefs(){
+  try{
+    localStorage.setItem('pindou_art_tol', $('artTol').value);
+    localStorage.setItem('pindou_art_pal', $('artPal').value);
+    localStorage.setItem('pindou_art_w', $('artW').value);
+    localStorage.setItem('pindou_art_h', $('artH').value);
+  }catch(e){}
+}
+function restoreArtPrefs(){
+  try{
+    if (localStorage.getItem('pindou_art_tol') !== null) $('artTol').value = localStorage.getItem('pindou_art_tol');
+    if (localStorage.getItem('pindou_art_pal') !== null) $('artPal').value = localStorage.getItem('pindou_art_pal');
+    if (localStorage.getItem('pindou_art_w') !== null) $('artW').value = localStorage.getItem('pindou_art_w');
+    if (localStorage.getItem('pindou_art_h') !== null) $('artH').value = localStorage.getItem('pindou_art_h');
+  }catch(e){}
+}
+['artTol','artPal','artW','artH'].forEach(id=>{ $(id).addEventListener('change', saveArtPrefs); });
+
 /* 素材拖放 + 选择 */
 function openArtFile(file){
   if (!file || !/image\/(png|jpe?g)/.test(file.type)){ log('请选择 PNG/JPG 图片'); return; }
@@ -681,6 +700,10 @@ function openArtFile(file){
       const w=Math.max(8,+$('artW').value||64), h=Math.max(8,+$('artH').value||64);
       const tol=Math.max(0,+$('artTol').value||0);
       const pal=$('artPal').value;
+      // dict 模式但调色板未加载字典（锚点色 <20）→ 提示
+      if (pal==='dict' && Object.keys(state.palette).length < 20){
+        log('提示：当前调色板仅 '+Object.keys(state.palette).length+' 色（未加载字典）——点「加载 ART/COLOR_DICT.json」后效果最佳；继续用现有调色板量化');
+      }
       importArtAsset(file, r.result, w, h, tol, pal);
     }catch(e){ log('素材导入失败: '+e.message); console.error(e); }
   };
@@ -940,6 +963,7 @@ $('btnLoadDict').onclick = ()=>{
   // 默认空白工程 32×32（与游戏角色帧一致）
   const g=newGrid(32,32);
   state.frames=[{name:'frame1',grid:g}];
+  restoreArtPrefs();
   // 预置几个锚点色方便起步
   addColor('#e94560','战斗红','玩家主色（锚点）',true);
   addColor('#f38181','柔粉红','皮肤（锚点）',true);

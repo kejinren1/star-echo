@@ -25,7 +25,7 @@ img2sprite.py —— 图片降维成像素画（拼豆核心功能保留版）·
   --mode     代表色算法: mean(默认) | median | mode
   --palette  色板：省略=不量化；'32'(暗板) / 'beads'(拼豆明亮板,默认推荐) / .hex / .png / color_dict JSON
   --bg       背景：auto(默认,边缘floodfill自动检测白/浅灰) / white / keep(已透明)
-  --bg-tol   抠底容差（默认 16，浅灰/JPG 噪声可调大）
+  --bg-tol   抠底容差（默认 100：抠净渐变/多色背景，用户实测最优；纯白底可调小）
   --crop     自动裁剪透明边（默认开；--no-crop 关闭）
   --upscale  最近邻放大倍数（预览用；0=不放大）
 """
@@ -283,7 +283,7 @@ def main():
     ap.add_argument("--palette", nargs="?", const=True, default=None,
                     help="色板：省略=不量化 / 内置32色 / .hex / .png / color_dict JSON")
     ap.add_argument("--bg", default="auto", help="背景：auto(floodfill自动检测白/浅灰) / white(色度判据纯白) / keep(已透明)")
-    ap.add_argument("--bg-tol", type=int, default=16, help="抠底容差 ΔRGB（浅灰/JPG噪声调大）")
+    ap.add_argument("--bg-tol", type=int, default=100, help="抠底容差 ΔRGB（默认 100：可抠净渐变/多色背景，用户实测最优；纯白底可调小）")
     ap.add_argument("--no-crop", dest="crop", action="store_false", default=True)
     ap.add_argument("--upscale", type=int, default=0, help="最近邻放大倍数（预览）")
     ap.add_argument("--batch", action="store_true")
