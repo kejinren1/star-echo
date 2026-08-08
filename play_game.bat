@@ -2,7 +2,7 @@
 rem Star Echo launcher (fixed 2026-08-05: pure ASCII + absolute paths)
 rem Use --path "%~dp0." (dot suffix) so the trailing backslash is not swallowed
 rem by `start`'s quote re-parsing, which truncated the path at the space in
-rem "D:\Program Files\30DAYS" and made Godot abort immediately.
+rem "D:\30DAYS" and made Godot abort immediately.
 cd /d "%~dp0"
 
 if not exist "tools\Godot_v4.3-stable_win64.exe" (

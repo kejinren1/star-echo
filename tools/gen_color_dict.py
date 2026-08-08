@@ -88,7 +88,7 @@ doc = {
     },
     'colors': anchors,
 }
-out = r'D:/Program Files/30DAYS/ART/COLOR_DICT.json'
+out = r'D:/30DAYS/ART/COLOR_DICT.json'
 with open(out, 'w', encoding='utf-8') as f:
     json.dump(doc, f, ensure_ascii=False, indent=2)
 n_anchor = sum(1 for v in anchors.values() if v['anchor'])

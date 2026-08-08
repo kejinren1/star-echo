@@ -24,6 +24,10 @@ desktop.ini
 # Local AI/agent memory & secrets (never sync to other machines)
 .workbuddy/
 
+# 素材归档/临时备份目录（2026-08-09 项目迁移后：ART/RAW 的 JPG 源素材、
+# 旧版 PNG 备份等全部归档于此隐藏目录，Godot 不扫描，也不入库）
+.godot_tmp_backup/
+
 # Tool scratch files, test outputs & logs.
 # 约定：tools/ 下以下划线开头 = 一次性临时产物，永不入库；
 # 正式工具无下划线（pixelate_batch.py / baseline_check.py / build_release.py），

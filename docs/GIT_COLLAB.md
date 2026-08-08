@@ -35,7 +35,7 @@ Host github.com
 
 ## 3. 本地仓库 = 主仓库（保留策略）
 
-- **本地 `D:\Program Files\30DAYS` 始终是工作主仓库**，GitHub 是备份与协作镜像，两边都要留，互为冗余
+- **本地 `D:\30DAYS` 始终是工作主仓库**，GitHub 是备份与协作镜像，两边都要留，互为冗余
 - 自动化执行轮（每 2 小时）收尾会自动 `git add -A && commit && push`，远端保持最新
 - **不入库内容**（.gitignore 已配置）：`.workbuddy/`（AI 工作记忆，含本说明的完整开发日志）、`build/`、`*.exe/*.pck`、探针日志 `tools/probe_logs/`、`tools/_*` 临时产物、`*.zip`
 - 构建包走发布渠道（Release/云盘），不走 git
@@ -54,14 +54,13 @@ git add <具体文件>        # 不随手 git add -A，避免混入临时产物
 git commit -m "Day24-xxx 简述做了什么"
 
 # 推送
-git push origin master    # 注意：不要用 -u（Program Files 权限坑）
+git push origin master    # 2026-08-09 项目已迁至 D:\30DAYS，不再有 Program Files 写盘坑
 ```
 
 约定：
 - **主干直推**，改动小、频率高，不做 PR 分支
 - 提交前先跑验证护栏（见 §6），失败不推送
-- 若 `git push` 报 `Permission denied`（Program Files 下 .git 写盘被 ACL 拒）：
-  - 先用文件工具手动改 `.git/config` 补配置，或跳过提交并在群里说明；commit 本身不受影响
+- ~~若 `git push` 报 `Permission denied`（Program Files 下 .git 写盘被 ACL 拒）~~（2026-08-09 迁移后已消除）
 
 ## 5. 文档地图（docs/）
 

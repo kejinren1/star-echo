@@ -3,7 +3,7 @@
 ##   tools/Godot_v4.3-stable_win64.exe --path . --script res://tools/shot_ui.gd --resolution 1280x720
 extends SceneTree
 
-const SHOT_PATH: String = "D:/Program Files/30DAYS/tools/ui_shot.png"
+const SHOT_PATH: String = "D:/30DAYS/tools/ui_shot.png"
 
 var _frame: int = 0
 var _inst: Node = null

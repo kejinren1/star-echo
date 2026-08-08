@@ -50,6 +50,6 @@ build/       — 打包产物（不入库）
 
 ## 协作
 
-- 本地仓库 `D:\Program Files\30DAYS` = 主仓库，GitHub = 备份/协作镜像，两边同时保留
+- 本地仓库 `D:\30DAYS` = 主仓库，GitHub = 备份/协作镜像，两边同时保留
 - 自动化执行轮每 2h 收尾自动 `commit + push`
 - 推送/拉取走 SSH over 443 通道（详见 `docs/GIT_COLLAB.md` §2）

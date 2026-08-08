@@ -1,7 +1,7 @@
 # 并发分工执行方案（CONCURRENCY_PLAN）
 
 > 目的：把《星骸回响》30 天冲刺的每日任务，用**多 Agent 并发团队**在同一会话内并行执行，同时避免共享 Godot 工程下的并发写冲突。
-> 适用：D:\Program Files\30DAYS（单一 Godot 4.3 工程，数据驱动 JSON + 帧 strip）。
+> 适用：D:\30DAYS（单一 Godot 4.3 工程，数据驱动 JSON + 帧 strip）。
 > 配套：本方案与 `docs/30DAY_PLAN.md`（规划）、`docs/TASKS.md`（每日任务）、`docs/MEMORY.md`（专家配置）协同。
 
 ---

@@ -3,7 +3,7 @@
 > 负责人：**w5-qa**（并发团队 starecho-sprint，验证单点归口）
 > 执行日期：2026-08-04
 > 基线版本：`git HEAD = 343c78a`（docs: 交接简报同步至最新工程状态）
-> 项目路径：`D:\Program Files\30DAYS` · 引擎 `tools/Godot_v4.3-stable_win64.exe`（Godot **4.3.stable.official.77dcf97d8**）
+> 项目路径：`D:\30DAYS` · 引擎 `tools/Godot_v4.3-stable_win64.exe`（Godot **4.3.stable.official.77dcf97d8**）
 > 执行器：`C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python.exe`
 > 范围：无头基线自校验 · 全量 JSON 可解析性 · 数据交叉引用 · 新增美术资产规格抽检
 > **本报告全程只读验证，未修改任何游戏代码 / 数据 / 美术；唯一写入文件为本文件。**
@@ -12,11 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #38（08-08 16:00）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 action item
-- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2303 字段零缺陷**（items 54；data/ 零变更；COLOR_DICT.json 163/216 抽检 OK）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：二十八件套 28/28 · **733 断言全绿首跑（28s）**，计数与 #37 完全一致（elin 640×64/192×64 断言已随 1d86a19 同步，旧 32px 资产零回归）｜ HEAD=**1d86a19**（艾琳动画修正 v2 + 字典登记制 fe23792，较 #37 +5 提交）
-- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常）；stderr 口径与 #37 逐一一致无新增
-- **在途 action item（0 项）**：工作区在途仅 docs/* 3 文件零代码｜观察：**Day 28 性能段跨第 7 轮零开工维持**（交 Owner 未决）；**F-31 拆解+方案双就绪，16:35 执行窗口为开工裁决点**（下轮关注 HEAD）；艾琳 idle 三帧内容相同待用户补帧
+- **最近轮次 #40（08-08 18:40）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 探针维护 1 项已修复（day26 §6 硬编码期望 749→759 同步，首跑 FAIL→复验 34/34）/ 无新增 action item
+- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2303 字段零缺陷**（items 54；`data/` 零变更——本轮纯工具/文档侧）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
+- **探针回归**：**二十九件套 29/29 · 759 断言全绿首跑（33s）**，计数与 #39 完全一致 ｜ HEAD=**1763f6c**（ART/RAW 素材输入目录 + 交付规范 README，较 #39 +1 提交）
+- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程已入 baseline BENIGN 白名单（时序波动，真机正常）；stderr 口径与 #39 全一致，仅 day16/day27_meta 音频 242B 未叠加（波动非回归）
+- **在途 action item（0 项）**：工作区在途仅 docs/* 4 文件 + `AUTOMATION_SLIM_PLAN.md` + `idle1.jpg` 素材输入零代码｜观察：**Day 28 性能段（#4 域）跨第 10 轮零开工维持**（交 Owner 未决）；**艾琳动画 v3 已入库 U-1 待用户重新目视**；idle1.jpg 待管线消费（ART/RAW 已就绪）
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -2964,3 +2964,86 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 ### 结论
 
 **✅ 2026-08-08 16:00 自动化测试轮次 #38：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**1d86a19**（艾琳动画实装修正 v2 + 字典登记制 fe23792，较 #37 +5 提交，均在 ART/ 资产与工具侧，`data/` 零变更）：工程可导入、可运行、数据完整且边界健康（**9 表 2303 字段零缺陷，items 54**；COLOR_DICT.json 163 entries 抽检 OK）、**17 场景全可实例化**、**二十八件套 733 断言全绿首跑（28s）计数与 #37 完全一致**（elin 640×64/192×64 尺寸断言已随 1d86a19 同步，旧 32px 资产零回归）。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.39 轮次 #39 · 2026-08-08 18:00（自动化 · F-31 武器升级体系收口 + 艾琳动画 v3 + 素材管线系列落地轮）
+
+**验证快照 = HEAD=46b299a（干净）** · 执行 17:57-18:00 · 运行器 29 件套
+
+### 快照与在途
+
+- HEAD 较 #38（1d86a19）+8 提交，全部与 F-31 / 素材工具 / 文档相关，`data/` 零变更：
+  - **f30d402 + f0606bf = F-31 三子项收口**（16:35 执行窗口兑现 ✅）：初始武器出商店池（10 把出池，池 23）/ 升级面板移除武器升级 / 铁砧 120G 闭环（服务池 anvil 入池 49、`_show_anvil_panel` 动态 UI、`_apply_anvil_upgrade`）→ **day28_f31_check 26/26 入库 + runner 29 项**（#38 action item 关闭实证）
+  - **57adaea 艾琳动画 v3**（用户 17:2x 目视「实现不好」→ 根因 v2 误判格数 64 vs 实 60×60 → v3 自动测格 40px + 60×60 + 最大连通域剔装饰点 + 全帧 bbox 统一窗口 → 64×64 画布；sheet 640×64/192×64 尺寸不变，探针断言零改动）
+  - **7aa5348 / 01b53a6 / 6b9d39a / 46b299a 素材管线系列**（img2sprite.py 图片降维像素画 + beads 46 色板 + pindou_editor 素材导入面板 + 参数默认值按用户实测调优=当前调色板字典容差 12 + 抠底容差 100）
+  - 337800e / 074af59 PLAYTEST #53/#54 docs
+- 工作区在途：仅 docs/* 3 文件 + **idle1.jpg**（未跟踪，素材输入，R10 变体第 15 轮）——**无游戏代码改动**
+
+### 检查结果（全绿）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import+runtime） | ✅ PASS（err 242B = Day24 音频 BENIGN 白名单，真实落盘 17:58） |
+| 600 帧深探 | ✅ EXIT 0，`deep_runtime_err.log` 242B 良性 |
+| JSON 解析 | ✅ 9/9（chars 10 / weapons 36 / items 54 / events 10 / enemies 23 / waves 20） |
+| 数值边界 | ✅ **2303 字段与 #38 持平零变更**；负值 39 / 非豁免零伤害 0 / 哨兵 -1×2 全有意；crit 双口径合法 |
+| 跨引用完整性 | ✅ DATA LAYER CLEAN（0 硬悬空；chars→weapons 10/10；waves 前缀感知 0 悬空） |
+| 场景 smoke | ✅ **17/17**（BaseStation 含）stderr 242B 良性（临时文件 Python os.remove 清理无残留） |
+| **回归探针** | ✅ **二十九件套 29/29 PASS，759 断言（32s）全首跑**（=733 + day28_f31 26 首纳入；F-31 行为级收口实证：出池 10 把/面板无武器升级/铁砧 120G 消费+升级+移除+SFX/回归 7 处同步零破坏） |
+
+### stderr 口径（无新增异常）
+
+- **day28_f31 920B 新增已定性**：2× 主动 push_warning「[Shop] 无可升级武器，铁砧购买失败」（探针测试无武器场景购买被拒兜底分支 = 预期输出）+ 泄漏 minor（1 Canvas + 2 CanvasItem + ShapedText + Font + ObjectDB + 6 resources，同 day13/day24_f13 类，探针自身未完全 free）
+- **day17_elite / day17_p0：0B → 242B** = 音频 BENIGN 泄漏时序波动（#32 0B→#33 242B→#34 0B 同类先例，非探针回归）
+- 其余 27 项与 #38 **逐一一致**（day6/day4 0B；day7 366 / day10 374 / day14_15 372 / day16 533 / day18_fb 626 / day18_fb5 621 / day18_fb2 571 / day18_fb3 362 / day18_fb6 362 / day18_19 359 / day11_12 763 / day13 860 / day20 1044 / day21_22 564 / day23 496 / day24_f13 859 / day24_audio 456 / day26 402 / day27_meta 496 / 其余 242B）
+
+### 维护与观察
+
+- **runner 元数据同步**：`tools/_regression_run.py` PROBES day28_f31 expect 16→**26** 已本地修正（#22 同类：runner 只查 exit/script_errors 不校验断言数，此前无断言失败；`tools/_*` gitignore 仅本地生效，与 #24 先例一致）
+- **观察项（非阻断，维持）**：**Day 28 性能段（#4 域）跨第 9 轮零开工维持**（交 Owner 三选未决）；**艾琳动画 v3 已入库、U-1 转 🟡 待用户重新目视**；img2sprite/pindou_editor 素材管线系列为工具侧（用户换思路直派），无游戏代码影响；idle1.jpg 未跟踪素材输入待管线消费；艾琳 idle 三帧内容相同待补帧（1d86a19 登记维持）
+- 探针残留：`_probe_turret_tmp.gd` / `_probe_elin_sprite_tmp.gd` / `_preview_idle1.png.import` / `_preview_walk1.png.import` / `level_up_panel.gd.bak` / `qa_validate.py` / `tools/probe_logs/*`（gitignore 忽略，建议 w1 统一清理，非阻断）
+
+### 结论
+
+**✅ 2026-08-08 18:00 自动化测试轮次 #39：PASS（0 阻断 / 0 功能缺陷，1 minor 新增已定性，无新增 action item）。** HEAD=**46b299a**（F-31 三子项收口 + 艾琳动画 v3 + 素材管线系列，较 #38 +8 提交，游戏代码改动全部在 F-31 内，`data/` 零变更）：工程可导入、可运行、数据完整且边界健康（**9 表 2303 字段零缺陷，items 54**）、**17 场景全可实例化**、**二十九件套 759 断言全绿首跑（32s）**（day28_f31 26/26 首纳入实证 F-31 收口）。**无新增功能缺陷、无需回退。**
+
+---
+
+## §7.40 轮次 #40 · 2026-08-08 18:40（自动化 · ART/RAW 素材输入目录落地轮）
+
+**验证快照 = HEAD=1763f6c（干净）** · 执行 18:40-18:43 · 运行器 29 件套
+
+### 快照与在途
+
+- HEAD 较 #39（46b299a）+1 提交：**1763f6c ART/RAW 素材输入目录 + 交付规范 README**（用户直派：PNG 优先/浅色底/命名 角色_动作_帧号 + 动画帧规格建议表 + img2sprite 默认 dict+容差 100 流程说明）——纯工具/文档侧，**`data/` 零变更**，无游戏代码改动
+- 工作区在途：仅 docs/* 4 文件（PROGRESS/SOLUTION_PLAN/TASKS/TEST_REPORT）+ `AUTOMATION_SLIM_PLAN.md`（未跟踪）+ `idle1.jpg`（素材输入）——**无游戏代码改动**
+
+### 检查结果（全绿）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + --quit-after 4） | ✅ PASS · **BASELINE CLEAN**（err 242B=Day 24 音频 BENIGN 白名单） |
+| 600 帧深探 | ✅ EXIT 0 · deep_runtime_err.log 242B 良性（音频 BENIGN 时序，非回归） |
+| JSON 9/9 解析 | ✅ characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20 |
+| 数值边界 | ✅ **2303 字段零缺陷**（与 #39 持平零变更；39 负值=惩罚/诅咒有意 + 0 非豁免零伤害 + 2 Boss 哨兵 -1 有意；crit 双口径合法） |
+| 跨引用完整性 | ✅ 0 硬悬空 · **DATA LAYER CLEAN**（chars→weapons 10/10；waves 前缀感知 0 悬空，3 池令牌放行） |
+| 场景 smoke | ✅ **17/17 全可实例化** stderr 242B 良性（Main.tscn 置末方法学维持，临时文件 os.remove 清理无残留） |
+| 探针回归 | ✅ **二十九件套 29/29 · 759 断言全 CLEAN 首跑（33s）**，计数与 #39 完全一致（32/16/21/16/14/13/19/21/24/36/54/41/39/20/16/42/27/48/23/38/18/17/14/34/35/26） |
+
+### 🛠 探针维护 1 项（工具侧，非游戏缺陷）
+
+- **day26_integration_check.gd §6 硬编码回归期望过时**：runner PROBES 表 day28_f31 expect 已于 #39 修正 16→26（实际合计 759），但 day26 探针内仍硬编码「期望合计 749 / f31 16」（733+16 旧值）→ 首跑 34 passed 1 failed（`回归: 期望合计 759 ≠ 749`）。**根因 = #39 修 runner 漏修探针内硬编码（#22/#39 同类元数据不同步）**，非游戏缺陷。
+- **修复**：探针 §6 期望同步 749→759、文案 f31 16→26（`tools/day26_integration_check.gd`）→ 单跑复验 **34/34 全过** → runner 全量复跑 **29/29 PASS 实证**。
+- **方法学备忘**：探针内硬编码的回归期望须与 runner PROBES 表同步维护；后续 runner 增删探针时同步检查 day26 §6 期望值。
+
+### stderr 口径（与 #39 逐一比对）
+
+- **全部在历史口径内，无新增异常**；day16 291B（=2 条主动 push_warning：ghost_relic 缺失 + reroute 层 14 保护，历史 533B 差值为音频 242B 未叠加）、day27_meta 254B（=Parse JSON failed + 存档兜底主动测试预期，历史 496B 差值同源）——**音频 BENIGN 时序波动，非回归**（#32→#34 同类先例）
+- 维持项：day7 366 / day10 374 / day14_15 372 / day18_19 359 / day24_audio 456 含 242B 叠加；day11_12 763 / day13 860 / day18_fb 626 / day18_fb2 571 / day18_fb3 362 / day18_fb5 621 / day18_fb6 362 / day20 1044 / day21_22 564 / day23 496 / day24_f13 859 / day26 402（2× node.h:446 未入树 ERROR+242）/ day28_f31 920（2 主动 push_warning+泄漏）minor 维持；day4/day5 0B 消失态维持
+
+### 结论
+
+**✅ 2026-08-08 18:40 自动化测试轮次 #40：PASS（0 阻断 / 0 功能缺陷，探针维护 1 项已修复，无新增 action item）。** HEAD=**1763f6c**（ART/RAW 素材输入目录 + 交付规范，纯工具/文档侧，`data/` 零变更）：工程可导入、可运行、数据完整且边界健康（**9 表 2303 字段零缺陷，items 54**）、**17 场景全可实例化**、**二十九件套 759 断言全绿首跑**。day26 探针硬编码回归期望已同步修复（749→759），runner 29/29 实证。**无新增功能缺陷、无需回退。**
+
+**观察项维持**：Day 28 性能段（#4 域）跨第 10 轮零开工（交 Owner 未决）｜ 艾琳动画 v3 已入库 U-1 待用户重新目视 ｜ idle1.jpg 素材输入待管线消费（ART/RAW 目录已就绪）｜ 艾琳 idle 三帧内容相同待补帧 ｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs）维持
