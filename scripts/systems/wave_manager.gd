@@ -78,9 +78,26 @@ func check_wave_clear() -> void:
 				return  # 仍有存活 Boss → 未通关
 		_end_wave()
 		return
-	# 普通关：敌全灭即通关（含精英产卵的怪——存活扫描天然涵盖）
+	# 普通关：生成完成 + 敌全灭才通关（F-30，2026-08-08 真人反馈）
+	# 「第一关只有 1 个怪就通关」= 敌全灭判定没检查生成队列——wave 1 有 12 敌分批生成，
+	# 玩家杀掉已生成的 1 个时其余 11 个还在 spawn_queue 未出 → 误判敌全灭
+	if _spawning_incomplete():
+		return
 	if _alive_enemy_count() == 0:
 		_end_wave()
+
+## F-30：生成是否未完成（spawn_queue 非空或生成中）——敌全灭判定必须等全部敌人生成完
+func _spawning_incomplete() -> bool:
+	if GameManager == null or GameManager.enemy_spawner == null:
+		return false
+	# Node.get() 只收 1 参（无默认值），先判存在
+	var spawning: bool = false
+	if "_is_spawning" in GameManager.enemy_spawner:
+		spawning = bool(GameManager.enemy_spawner.get("_is_spawning"))
+	if spawning:
+		return true
+	var queue: Array = GameManager.enemy_spawner.get("spawn_queue")
+	return queue != null and not queue.is_empty()
 
 ## 敌人容器获取（enemy_spawner.enemies_container 优先，GameManager.enemies_container 兜底）
 func _enemy_container() -> Node:
