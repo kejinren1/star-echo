@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>拼豆图纸编辑器 · Star Echo 本地调试版</title>
+<style>
+  :root {
+    --bg: #14141c; --panel: #1e1e2f; --panel2: #26263a; --border: #3a3a4f;
+    --text: #cccccc; --text2: #7a7a8f; --accent: #00f5ff; --danger: #ff073a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  header { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--panel); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  header h1 { font-size: 13px; color: var(--accent); margin-right: 8px; white-space: nowrap; }
+  header button, header input[type=number], header select { background: var(--panel2); color: var(--text); border: 1px solid var(--border); padding: 3px 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  header button:hover { border-color: var(--accent); }
+  header button.active { background: #0e3d42; border-color: var(--accent); color: #fff; }
+  header input[type=number] { width: 56px; }
+  header label { color: var(--text2); white-space: nowrap; }
+  main { flex: 1; display: flex; overflow: hidden; }
+  #canvasWrap { flex: 1; overflow: auto; background: #101018; display: flex; align-items: flex-start; justify-content: center; padding: 16px; position: relative; }
+  #editorCanvas { image-rendering: pixelated; cursor: crosshair; box-shadow: 0 0 0 1px var(--border); background: #0a0a10; }
+  #side { width: 300px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+  #side section { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  #side h2 { font-size: 12px; color: var(--accent); margin-bottom: 6px; }
+  .paletteGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .swatch { position: relative; height: 34px; border: 1px solid var(--border); cursor: pointer; display: flex; align-items: flex-end; padding: 2px 3px; font-size: 9px; overflow: hidden; }
+  .swatch.selected { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .swatch .code { background: rgba(0,0,0,.55); color: #fff; padding: 0 2px; }
+  .swatch .anchor { position: absolute; top: 2px; right: 3px; color: #ffd700; font-size: 9px; }
+  .frameList { display: flex; flex-wrap: wrap; gap: 4px; }
+  .frameItem { width: 56px; border: 1px solid var(--border); cursor: pointer; text-align: center; padding: 3px; background: var(--panel2); }
+  .frameItem canvas { image-rendering: pixelated; display: block; margin: 0 auto 3px; background: #0a0a10; }
+  .frameItem .fn { font-size: 9px; color: var(--text2); word-break: break-all; }
+  .frameItem.active { border-color: var(--accent); }
+  .frameItem.playing { border-color: #39ff14; }
+  .row { display: flex; gap: 4px; align-items: center; margin: 3px 0; flex-wrap: wrap; }
+  .row label { color: var(--text2); font-size: 11px; }
+  .btn { background: var(--panel2); color: var(--text); border: 1px solid var(--border); padding: 3px 8px; cursor: pointer; font-family: inherit; font-size: 11px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { border-color: #0f8a94; background: #0e3d42; color: #fff; }
+  .btn.danger { border-color: var(--danger); color: var(--danger); }
+  #log { height: 120px; overflow-y: auto; background: #101018; color: #9df; font-size: 11px; padding: 6px 8px; border-top: 1px solid var(--border); white-space: pre-wrap; }
+  #status { position: absolute; top: 4px; left: 8px; color: var(--text2); font-size: 11px; z-index: 5; pointer-events: none; }
+  input[type=color] { width: 34px; height: 22px; border: 1px solid var(--border); background: var(--panel2); padding: 0; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⌬ 拼豆图纸编辑器（Star Echo 本地版）</h1>
+  <span id="fileHint"></span>
+  <button id="btnOpen" title="打开 SVG 图纸 / 本地 JSON / PNG（转拼豆）">打开</button>
+  <input type="file" id="fileInput" accept=".svg,.json,.png" class="hidden">
+  <button id="btnSave">保存(.starecho.json)</button>
+  <button id="btnExportSheet" class="primary" title="导出横排 PNG sprite sheet（可直接进 Godot）">导出 PNG</button>
+  <button id="btnExportSvg">导出 SVG 图纸</button>
+  <button id="btnExportJson">导出 pindou JSON</button>
+  <span style="flex:1"></span>
+  <label>工具</label>
+  <button id="btnBrush" class="active" title="画笔 B">✏️笔</button>
+  <button id="btnBucket" title="油漆桶 G">🪣桶</button>
+  <button id="btnEraser" title="橡皮 E">🧽擦</button>
+  <button id="btnPicker" title="取色 I">💉取</button>
+  <button id="btnPan" title="拖动 H">✋拖</button>
+  <label>尺寸</label>
+  <input type="number" id="inpW" value="32" min="1" max="99">×<input type="number" id="inpH" value="32" min="1" max="99">
+  <button id="btnResize" title="应用到所有帧">改</button>
+  <label>缩放</label>
+  <input type="number" id="inpZoom" value="16" min="1" max="64" step="1">
+</header>
+<main>
+  <div id="canvasWrap">
+    <div id="status"></div>
+    <canvas id="editorCanvas"></canvas>
+  </div>
+  <div id="side">
+    <section>
+      <h2>调色板 <span id="palMeta" style="color:var(--text2);font-size:10px"></span></h2>
+      <div class="row">
+        <button class="btn" id="btnLoadDict">加载 ART/COLOR_DICT.json</button>
+        <button class="btn" id="btnAddColor">+ 添加色</button>
+        <input type="color" id="inpNewColor" value="#ff00ff">
+      </div>
+      <div class="paletteGrid" id="palette"></div>
+    </section>
+    <section>
+      <h2>动画帧 <span id="frameMeta" style="color:var(--text2);font-size:10px"></span></h2>
+      <div class="row">
+        <button class="btn" id="btnAddFrame">+ 帧</button>
+        <button class="btn" id="btnDupFrame">复制帧</button>
+        <button class="btn danger" id="btnDelFrame">删帧</button>
+        <label>FPS</label><input type="number" id="inpFps" value="8" min="1" max="60" style="width:48px">
+        <button class="btn primary" id="btnPlay">▶ 播放</button>
+      </div>
+      <div class="frameList" id="frameList"></div>
+    </section>
+    <section>
+      <h2>字典登记（打开 PNG 自动归并 ΔRGB≤12）</h2>
+      <div id="dictReport" style="color:var(--text2);font-size:11px;line-height:1.6">打开 PNG 后在此显示提取/归并/新增结果。</div>
+      <div class="row" style="margin-top:6px">
+        <button class="btn primary" id="btnApplyDict" title="把当前帧用色量化到字典（含新增色）">量化到字典</button>
+        <button class="btn" id="btnSaveDict" title="下载合并后的 COLOR_DICT.json">下载字典</button>
+      </div>
+    </section>
+  </div>
+</main>
+<div id="log"></div>
+
+<script>
+"use strict";
+window.addEventListener('error', function(e){
+  var el = document.getElementById('log');
+  if (el) el.textContent += '⚡JS错误: ' + (e.message||e.error)+'\n';
+});
+/* ============================================================
+ * 拼豆图纸编辑器 · Star Echo 本地调试版（单文件无依赖）
+ * 数据模型：
+ *   state.frames[i] = { name, grid: Array[y][x] = code|null }（code 引用调色板）
+ *   state.palette  = { code: {hex, rgb, name, usage, anchor, count} }
+ * 与项目约定对齐（ART_STYLE.md）：
+ *   - 色号 = 前缀字母+两位数字，全局唯一
+ *   - 容差归并 ΔRGB ≤ 12
+ *   - 透明键：PNG 左上角像素 = 背景色，全图同色镂空（导出时自动处理）
+ *   - pindou JSON/SVG/TSV 格式兼容
+ * ============================================================ */
+const $ = id => {
+  const el = document.getElementById(id);
+  if (!el) throw new Error('ELEMENT NOT FOUND: '+id);
+  return el;
+};
+const state = {
+  frames: [], palette: {}, cur: 0, tool: 'brush', zoom: 16,
+  playing: false, fps: 8, raf: 0, dictName: 'ART/COLOR_DICT.json',
+  dictNew: {},  // 打开 PNG 时收集的新色 {code: entry}
+  keyHits: 0, source: '',
+};
+const PREFIXES = ['B','S','H','M','C','E','U','N'];
+
+/* ---------------- 颜色工具 ---------------- */
+function hex2rgb(h){ h = h.replace('#',''); return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)]; }
+function rgb2hex(r){ return '#'+r.map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join(''); }
+function distRGB(a,b){ return Math.max(Math.abs(a[0]-b[0]), Math.abs(a[1]-b[1]), Math.abs(a[2]-b[2])); }
+function nextCode(prefix){
+  let i = 0;
+  while ((prefix+String(i).padStart(2,'0')) in state.palette) i++;
+  return prefix+String(i).padStart(2,'0');
+}
+/* 在字典中查找匹配色（容差内），返回 code 或 null；exactOnly 时仅精确匹配 */
+function findInDict(rgb, tol){
+  let best=null, bestD=Infinity;
+  for (const [code, e] of Object.entries(state.palette)){
+    const d = distRGB(rgb, e.rgb);
+    if (d < bestD){ best=code; bestD=d; }
+  }
+  return bestD <= tol ? best : null;
+}
+
+/* ---------------- 数据操作 ---------------- */
+function log(msg){ const el=$('log'); el.textContent += msg+'\n'; el.scrollTop = el.scrollHeight; }
+function logc(msg){ console.log(msg); }
+function curFrame(){ return state.frames[state.cur]; }
+function frameSize(){ return { w: curFrame().grid[0].length, h: curFrame().grid.length }; }
+
+function newGrid(w,h){ return Array.from({length:h}, ()=>Array(w).fill(null)); }
+
+function addFrame(name, grid){
+  state.frames.push({ name: name||('frame'+state.frames.length), grid });
+  state.cur = state.frames.length-1;
+  renderAll();
+}
+
+function resizeFrames(w,h){
+  for (const f of state.frames){
+    const ng = newGrid(w,h);
+    for (let y=0; y<Math.min(h, f.grid.length); y++)
+      for (let x=0; x<Math.min(w, f.grid[y].length); x++)
+        ng[y][x] = f.grid[y][x];
+    f.grid = ng;
+  }
+  renderAll();
+}
+
+/* 收集当前调色板用色统计 */
+function paletteCounts(){
+  const counts = {};
+  for (const f of state.frames)
+    for (const row of f.grid)
+      for (const c of row)
+        if (c) counts[c] = (counts[c]||0)+1;
+  return counts;
+}
+
+/* ---------------- 渲染 ---------------- */
+const canvas = $('editorCanvas'), ctx = canvas.getContext('2d');
+
+function renderCanvas(){
+  const f = curFrame(); if (!f) return;
+  const w = f.grid[0].length, h = f.grid.length, z = state.zoom;
+  canvas.width = w*z; canvas.height = h*z;
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // 底色（棋盘格模拟透明）
+  ctx.fillStyle = '#0a0a10'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#15151f';
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++) if ((x+y)%2===0) ctx.fillRect(x*z,y*z,z,z);
+  // 色块
+  for (let y=0;y<h;y++){
+    for (let x=0;x<w;x++){
+      const c = f.grid[y][x];
+      if (!c) continue;
+      const e = state.palette[c]; if (!e) continue;
+      ctx.fillStyle = e.hex;
+      ctx.fillRect(x*z, y*z, z, z);
+    }
+  }
+  // 网格线
+  ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x=0;x<=w;x++){ ctx.moveTo(x*z+.5,0); ctx.lineTo(x*z+.5,h*z); }
+  for (let y=0;y<=h;y++){ ctx.moveTo(0,y*z+.5); ctx.lineTo(w*z,y*z+.5); }
+  ctx.stroke();
+  // 主网格（每8格）
+  ctx.strokeStyle = 'rgba(255,255,255,.22)';
+  ctx.beginPath();
+  for (let x=0;x<=w;x+=8){ ctx.moveTo(x*z+.5,0); ctx.lineTo(x*z+.5,h*z); }
+  for (let y=0;y<=h;y+=8){ ctx.moveTo(0,y*z+.5); ctx.lineTo(w*z,y*z+.5); }
+  ctx.stroke();
+  const s = frameSize();
+  $('status').textContent = `${f.name} · ${s.w}×${s.h} · 帧 ${state.cur+1}/${state.frames.length} · ${paletteSize()} 色${state.source?' · '+state.source:''}`;
+}
+
+function paletteSize(){
+  const counts = paletteCounts();
+  return Object.keys(counts).length;
+}
+
+function renderPalette(){
+  const el = $('palette'); el.innerHTML = '';
+  const counts = paletteCounts();
+  const codes = Object.keys(state.palette).sort((a,b)=>a.localeCompare(b));
+  for (const code of codes){
+    const e = state.palette[code];
+    const d = document.createElement('div');
+    d.className = 'swatch' + (state.curColor===code ? ' selected':'');
+    d.style.background = e.hex;
+    d.innerHTML = `<span class="code">${code}</span>${e.anchor?'<span class="anchor">★</span>':''}`;
+    const n = counts[code]||0;
+    d.title = `${code} ${e.hex}${e.name?' · '+e.name:''}\n用量 ${n}${e.usage?'\n用途: '+e.usage:''}`;
+    d.onclick = ()=>{ state.curColor = code; renderPalette(); renderCanvas(); };
+    el.appendChild(d);
+  }
+  $('palMeta').textContent = Object.keys(state.palette).length+' 色';
+}
+
+function renderFrames(){
+  const el = $('frameList'); el.innerHTML = '';
+  state.frames.forEach((f,i)=>{
+    const d = document.createElement('div');
+    d.className = 'frameItem' + (i===state.cur?' active':'') + (state.playing?' playing':'');
+    const c = document.createElement('canvas');
+    const w=f.grid[0].length, h=f.grid.length, z=2;
+    c.width=w*z; c.height=h*z;
+    const cx = c.getContext('2d'); cx.imageSmoothingEnabled=false;
+    cx.fillStyle='#0a0a10'; cx.fillRect(0,0,c.width,c.height);
+    for (let y=0;y<h;y++) for (let x=0;x<w;x++){
+      const code=f.grid[y][x]; if(!code) continue;
+      const e=state.palette[code]; if(!e) continue;
+      cx.fillStyle=e.hex; cx.fillRect(x*z,y*z,z,z);
+    }
+    d.appendChild(c);
+    const fn=document.createElement('div'); fn.className='fn'; fn.textContent=f.name;
+    d.appendChild(fn);
+    d.onclick = ()=>{ state.cur=i; renderAll(); };
+    el.appendChild(d);
+  });
+  $('frameMeta').textContent = state.frames.length+' 帧';
+}
+
+function renderAll(){ renderCanvas(); renderPalette(); renderFrames(); }
+
+/* ---------------- 画布交互 ---------------- */
+let panning = false, panStart = null;
+
+function canvasPos(ev){
+  const r = canvas.getBoundingClientRect();
+  const z = state.zoom;
+  const x = Math.floor((ev.clientX - r.left) / z);
+  const y = Math.floor((ev.clientY - r.top) / z);
+  return [x,y];
+}
+
+canvas.addEventListener('mousedown', ev=>{
+  const f = curFrame(); if (!f) return;
+  if (state.tool==='pan'){ panning=true; panStart=[ev.clientX,ev.clientY]; canvas.style.cursor='grabbing'; return; }
+  const [x,y] = canvasPos(ev);
+  if (x<0||y<0||x>=f.grid[0].length||y>=f.grid.length) return;
+  if (state.tool==='picker'){
+    const c = f.grid[y][x];
+    if (c && state.palette[c]){ state.curColor = c; renderPalette(); }
+    return;
+  }
+  paintAt(x,y);
+  canvas.addEventListener('mousemove', onDrag);
+});
+function onDrag(ev){
+  const f = curFrame(); if (!f) return;
+  if (panning){
+    const dx = ev.clientX-panStart[0], dy = ev.clientY-panStart[1];
+    $('canvasWrap').scrollLeft -= dx; $('canvasWrap').scrollTop -= dy;
+    panStart=[ev.clientX,ev.clientY]; return;
+  }
+  const [x,y] = canvasPos(ev);
+  if (x<0||y<0||x>=f.grid[0].length||y>=f.grid.length) return;
+  paintAt(x,y);
+}
+function paintAt(x,y){
+  const f = curFrame(); if (!f) return;
+  const w=f.grid[0].length, h=f.grid.length;
+  if (state.tool==='brush'){
+    if (!state.curColor) return;
+    f.grid[y][x] = state.curColor;
+  } else if (state.tool==='eraser'){
+    f.grid[y][x] = null;
+  } else if (state.tool==='bucket'){
+    if (!state.curColor) return;
+    const target = f.grid[y][x];
+    if (target === state.curColor) return;
+    const stack=[[x,y]]; const seen=new Set();
+    while(stack.length){
+      const [cx,cy]=stack.pop();
+      if (cx<0||cy<0||cx>=w||cy>=h) continue;
+      const k=cx+','+cy; if (seen.has(k)) continue; seen.add(k);
+      if (f.grid[cy][cx]!==target) continue;
+      f.grid[cy][cx]=state.curColor;
+      stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+    }
+  }
+  renderCanvas(); renderPalette();
+}
+window.addEventListener('mouseup', ()=>{
+  panning=false; canvas.style.cursor='crosshair';
+  canvas.removeEventListener('mousemove', onDrag);
+});
+canvas.addEventListener('mouseleave', ()=>{ canvas.removeEventListener('mousemove', onDrag); });
+
+/* ---------------- 调色板操作 ---------------- */
+function addColor(hex, name, usage, anchor){
+  hex = hex.toLowerCase();
+  for (const [code,e] of Object.entries(state.palette))
+    if (e.hex===hex){ state.curColor=code; renderPalette(); return code; }
+  const lum = 0.299*hex2rgb(hex)[0]+0.587*hex2rgb(hex)[1]+0.114*hex2rgb(hex)[2];
+  const prefix = lum < 45 ? 'N' : 'C';
+  const code = nextCode(prefix);
+  state.palette[code] = { hex, rgb: hex2rgb(hex), name: name||'', usage: usage||'', anchor: !!anchor };
+  state.curColor = code;
+  return code;
+}
+$('btnAddColor').onclick = ()=> addColor($('inpNewColor').value);
+$('inpNewColor').onchange = ()=> addColor($('inpNewColor').value);
+
+/* ---------------- 打开 ---------------- */
+$('btnOpen').onclick = ()=> $('fileInput').click();
+$('fileInput').onchange = ev=>{
+  const file = ev.target.files[0]; if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try {
+      if (ext==='svg') loadSvg(reader.result, file.name);
+      else if (ext==='json') loadJson(reader.result, file.name);
+      else if (ext==='png') loadPngAsBeads(file, reader.result);
+      else log('不支持的文件类型: '+ext);
+    } catch(e){ log('打开失败: '+e.message); console.error(e); }
+  };
+  if (ext==='png') reader.readAsDataURL(file); else reader.readAsText(file);
+  ev.target.value='';
+};
+
+/* SVG 图纸 → 帧（pixel_to_pindou.py 输出格式：margin 40/28，cell 16） */
+function loadSvg(text, name){
+  const doc = new DOMParser().parseFromString(text,'image/svg+xml');
+  // 从底部统计行解析真实尺寸：「宽 128 / 高 32 / 颜色数 13」
+  const m = text.match(/宽 (\d+) \/ 高 (\d+) \/ 颜色数 (\d+)/);
+  const w0 = m ? +m[1] : 0, h0 = m ? +m[2] : 0;
+  const marginX=40, marginTop=28, cell=16;
+  const cells = [];
+  for (const r of doc.querySelectorAll('rect')){
+    const x=parseFloat(r.getAttribute('x')), y=parseFloat(r.getAttribute('y'));
+    const w=parseFloat(r.getAttribute('width')), h=parseFloat(r.getAttribute('height'));
+    if (isNaN(x)||isNaN(y)||isNaN(w)||isNaN(h)) continue;
+    if (x<marginX||y<marginTop) continue;                 // 跳过背景/坐标区
+    if (h<10 || w<10) continue;                           // 跳过图例小色块
+    const col=Math.round((x-marginX)/cell), row=Math.round((y-marginTop)/cell);
+    if (col<0||row<0||col>199||row>199) continue;
+    if (w0 && (col>=w0 || row>=h0)) continue;             // 画布区外（图例等）
+    const fill=r.getAttribute('fill')||'';
+    if (!fill || fill==='#ffffff') continue;
+    cells.push([col,row,fill]);
+  }
+  if (!cells.length){ log('SVG 中未解析到色块，可能不是 pixel_to_pindou 图纸'); return; }
+  let w=0,h=0;
+  for (const [cx,cy] of cells){ w=Math.max(w,cx+1); h=Math.max(h,cy+1); }
+  state.palette = {}; state.dictNew = {};
+  const grid = newGrid(w,h);
+  for (const [cx,cy,hexv] of cells){
+    const code = addColor(hexv);
+    grid[cy][cx] = code;
+  }
+  state.frames = [{ name: name.replace(/\.svg$/i,'')||'frame1', grid }];
+  state.cur = 0; state.source = name;
+  log(`已打开 SVG 图纸: ${name} → ${w}×${h}，色 ${Object.keys(state.palette).length}`);
+  renderAll();
+}
+
+/* 本地 JSON（含 cells）或 pindou 色表 JSON */
+function loadJson(text, name){
+  const d = JSON.parse(text);
+  if (d.format==='starecho-bead'){ loadStarEcho(d); return; }
+  // pindou 色表 JSON：只有颜色统计，无布局 → 仅导入调色板
+  if (d.colors && Array.isArray(d.colors) && d.colors[0] && d.colors[0].code){
+    for (const c of d.colors){
+      const code = c.code;
+      const hexv = c.hex || rgb2hex(c.rgb);
+      state.palette[code] = { hex: hexv, rgb: hex2rgb(hexv), name:'', usage:'', anchor:false };
+    }
+    if (d.width && d.height && !state.frames.length){
+      state.frames = [{ name:'frame1', grid: newGrid(d.width, d.height) }];
+      state.cur = 0;
+    }
+    log(`已导入 pindou 色表: ${name}（${d.colors.length} 色，无布局）——配合 SVG 或自行绘制`);
+    renderAll();
+    return;
+  }
+  throw new Error('未知 JSON 格式');
+}
+function loadStarEcho(d){
+  state.palette = {};
+  for (const [code,e] of Object.entries(d.palette||{}))
+    state.palette[code] = {...e, rgb: e.rgb||hex2rgb(e.hex)};
+  state.frames = (d.frames||[]).map(f=>({name:f.name, grid:f.cells}));
+  state.cur = 0; state.source = d.name||'';
+  if (!state.frames.length){ state.frames=[{name:'frame1',grid:newGrid(d.width||16,d.height||16)}]; }
+  log(`已打开本地工程: ${d.name||name}（${state.frames.length} 帧）`);
+  renderAll();
+}
+
+/* PNG → 拼豆（量化到当前调色板，未命中收集进 dictNew 供登记） */
+function loadPngAsBeads(file, dataUrl){
+  const img = new Image();
+  img.onload = ()=>{
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const cx = c.getContext('2d');
+    cx.drawImage(img,0,0);
+    const id = cx.getImageData(0,0,c.width,c.height);
+    const px = id.data;
+    // 透明键：左上角颜色
+    const tl = [px[0],px[1],px[2]];
+    const tlAlpha = px[3];
+    let key = tlAlpha > 0 ? tl : null;
+    const grid = newGrid(c.width, c.height);
+    let added = 0, merged = 0, newCount = 0;
+    for (let y=0;y<c.height;y++){
+      for (let x=0;x<c.width;x++){
+        const i=(y*c.width+x)*4;
+        const a=px[i+3];
+        if (a<8){ grid[y][x]=null; continue; }
+        const rgb=[px[i],px[i+1],px[i+2]];
+        if (key && distRGB(rgb,key)<=4){ grid[y][x]=null; continue; }
+        const code = findInDict(rgb, 12);
+        if (code){ grid[y][x]=code; merged++; }
+        else {
+          // 收集为待登记新色（同帧内先互归并）
+          let found=null;
+          for (const [nc,e] of Object.entries(state.dictNew)){
+            if (distRGB(rgb,e.rgb)<=12){ found=nc; break; }
+          }
+          if (!found){
+            const hexv=rgb2hex(rgb);
+            const lum=0.299*rgb[0]+0.587*rgb[1]+0.114*rgb[2];
+            const prefix = lum<45?'N':'C';
+            let code = nextCode(prefix);
+            // 避免与 dictNew 中前缀撞号：nextCode 基于 palette，字典新色在 palette 内临时登记
+            state.palette[code]={hex:hexv,rgb,name:'',usage:'',anchor:false};
+            state.dictNew[code]={hex:hexv,rgb,name:'',usage:'',anchor:false};
+            found=code; added++; newCount++;
+          }
+          grid[y][x]=found;
+        }
+      }
+    }
+    state.frames = [{ name: file.name.replace(/\.png$/i,'')||'frame1', grid }];
+    state.cur = 0; state.source = file.name;
+    const keys = Object.keys(state.dictNew).length;
+    $('dictReport').innerHTML =
+      `已转拼豆: ${file.name} → ${c.width}×${c.height}<br>`+
+      `命中字典(≤Δ12): ${merged} 像素<br>`+
+      `新提取色(待登记): <b style="color:#39ff14">${newCount}</b> 色`+
+      (keys?`<br>色号: ${Object.keys(state.dictNew).sort().join(' ')}`:'');
+    log(`PNG 转拼豆完成: ${file.name}（新增 ${newCount} 色待登记，已挂进调色板）`);
+    renderAll();
+  };
+  img.src = dataUrl;
+}
+
+/* ---------------- 字典登记（保存/下载） ---------------- */
+$('btnApplyDict').onclick = ()=>{
+  // 把当前所有帧像素量化到字典色（含 dictNew，已可被 findInDict 命中——它们已在 palette 中）
+  const f = curFrame(); if (!f) return;
+  let changed=0, total=0;
+  for (let y=0;y<f.grid.length;y++) for (let x=0;x<f.grid[0].length;x++){
+    const c=f.grid[y][x]; if(!c) continue;
+    total++;
+    const e=state.palette[c]; if(!e) continue;
+    const best=findInDict(e.rgb, 12);
+    if (best && best!==c){ f.grid[y][x]=best; changed++; }
+  }
+  log(`量化完成: ${changed}/${total} 格映射到字典色`);
+  renderAll();
+};
+
+$('btnSaveDict').onclick = ()=>{
+  const colors = {};
+  for (const [code,e] of Object.entries(state.palette))
+    colors[code] = { hex:e.hex, rgb:e.rgb, name:e.name||'', usage:e.usage||'', anchor:!!e.anchor };
+  const doc = {
+    meta: { version:1, limit:216, merge_tolerance:12, updated: new Date().toISOString().slice(0,10),
+      note:'色板字典登记制：提取实际用色→登记入字典→容差内(ΔRGB≤12)归并邻近色；anchor=true=硬锚点不容差归并；色号全局唯一' },
+    colors,
+  };
+  download(JSON.stringify(doc,null,2), 'COLOR_DICT.json', 'application/json');
+  log(`已下载字典（${Object.keys(colors).length} 色）——保存为 ART/COLOR_DICT.json 即完成登记`);
+};
+
+/* ---------------- 帧管理 ---------------- */
+$('btnAddFrame').onclick = ()=>{
+  const f = curFrame();
+  const s = frameSize();
+  addFrame('frame'+state.frames.length, newGrid(s.w,s.h));
+};
+$('btnDupFrame').onclick = ()=>{
+  const f = curFrame(); if(!f) return;
+  const grid = f.grid.map(row=>[...row]);
+  addFrame(f.name+'_copy', grid);
+};
+$('btnDelFrame').onclick = ()=>{
+  if (state.frames.length<=1){ log('至少保留 1 帧'); return; }
+  state.frames.splice(state.cur,1);
+  state.cur = Math.max(0, state.cur-1);
+  renderAll();
+};
+$('btnPlay').onclick = ()=>{
+  if (state.playing){ stopPlay(); return; }
+  state.playing = true; state.fps = +$('inpFps').value||8;
+  let last = performance.now(), fi = state.cur;
+  const tick = now=>{
+    if (!state.playing) return;
+    const dt = now-last;
+    if (dt >= 1000/state.fps){
+      fi = (fi+1)%state.frames.length;
+      state.cur = fi; last = now;
+      renderCanvas(); renderFrames();
+    }
+    requestAnimationFrame(tick);
+  };
+  state.raf = requestAnimationFrame(tick);
+  $('btnPlay').textContent = '⏸ 停止';
+};
+function stopPlay(){
+  state.playing = false; cancelAnimationFrame(state.raf);
+  $('btnPlay').textContent = '▶ 播放';
+  renderFrames();
+}
+
+/* ---------------- 导出 ---------------- */
+function download(text, name, mime){
+  const a = document.createElement('a');
+  const blob = new Blob([text], {type: mime||'text/plain'});
+  a.href = URL.createObjectURL(blob); a.download = name;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* 导出 PNG sprite sheet（1 或 N 帧横排，透明键协议自动处理） */
+$('btnExportSheet').onclick = ()=>{
+  const frames = state.frames;
+  const w = frames[0].grid[0].length, h = frames[0].grid.length;
+  const out = document.createElement('canvas');
+  out.width = w*frames.length; out.height = h;
+  const ox = out.getContext('2d');
+  ox.clearRect(0,0,out.width,out.height);
+  frames.forEach((f,fi)=>{
+    for (let y=0;y<h;y++) for (let x=0;x<w;x++){
+      const c=f.grid[y][x]; if(!c) continue;
+      const e=state.palette[c]; if(!e) continue;
+      ox.fillStyle=e.hex;
+      ox.fillRect(fi*w+x, y, 1, 1);
+    }
+  });
+  // 透明键协议：左上角若有色 → 该色全局镂空
+  const id = ox.getImageData(0,0,out.width,out.height);
+  const key=[id.data[0],id.data[1],id.data[2]];
+  if (id.data[3]>0){
+    let hit=0;
+    for (let i=0;i<id.data.length;i+=4){
+      if (id.data[i+3]>0 && distRGB([id.data[i],id.data[i+1],id.data[i+2]],key)<=2){
+        id.data[i+3]=0; hit++;
+      }
+    }
+    ox.putImageData(id,0,0);
+    if (hit>0) log(`透明键协议：左上角色 ${rgb2hex(key)} 已全局镂空（${hit}px）`);
+  }
+  // 放大 4x（查看用）
+  const big = document.createElement('canvas');
+  big.width = out.width*4; big.height = out.height*4;
+  const bx = big.getContext('2d'); bx.imageSmoothingEnabled=false;
+  bx.drawImage(out,0,0,big.width,big.height);
+  big.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`sheet_${frames.length}f_${w}x${h}.png`;
+    a.click(); URL.revokeObjectURL(a.href);
+    log(`已导出 PNG sheet: ${frames.length} 帧 × ${w}×${h}（另含 4x 预览版请另存）`);
+  });
+};
+
+/* 导出 pindou 兼容 JSON（色表统计） */
+$('btnExportJson').onclick = ()=>{
+  const f = curFrame();
+  const w=f.grid[0].length, h=f.grid.length;
+  const counts = paletteCounts();
+  let keyHits=0, total=0;
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++){ if(f.grid[y][x]) total++; else keyHits++; }
+  const colors = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(code=>({
+    code, hex: state.palette[code].hex, rgb: state.palette[code].rgb, count: counts[code],
+  }));
+  const d = { source: state.source||'editor', width: w, height: h, key_hits: keyHits, colors };
+  download(JSON.stringify(d,null,2), f.name+'.json', 'application/json');
+  log('已导出 pindou JSON（'+colors.length+' 色）');
+};
+
+/* 导出 SVG 图纸（pixel_to_pindou 风格） */
+$('btnExportSvg').onclick = ()=>{
+  const f = curFrame();
+  const w=f.grid[0].length, h=f.grid.length;
+  const counts = paletteCounts();
+  const used = Object.fromEntries(Object.entries(state.palette).filter(([c])=>counts[c]));
+  const cell=16, pad=8, marginX=40, marginTop=28;
+  const legendH = (Object.keys(used).length+7)>>3;
+  const L = legendH*30+20;
+  const W = marginX+w*cell+pad, H = marginTop+h*cell+pad+L;
+  const s = [`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="monospace">`];
+  s.push(`<rect width="${W}" height="${H}" fill="#ffffff"/>`);
+  for (let x=0;x<w;x++) if (x%8===0) s.push(`<text x="${marginX+x*cell+cell/2}" y="${marginTop-6}" font-size="8" text-anchor="middle" fill="#666">${x+1}</text>`);
+  for (let y=0;y<h;y++) if (y%8===0) s.push(`<text x="${marginX-4}" y="${marginTop+y*cell+cell/2+3}" font-size="8" text-anchor="end" fill="#666">${y+1}</text>`);
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++){
+    const c=f.grid[y][x]; if(!c||!used[c]) continue;
+    s.push(`<rect x="${marginX+x*cell}" y="${marginTop+y*cell}" width="${cell}" height="${cell}" fill="${used[c].hex}"/>`);
+  }
+  s.push('<g stroke="#cccccc" stroke-width="0.5">');
+  for (let x=0;x<=w;x++) s.push(`<line x1="${marginX+x*cell}" y1="${marginTop}" x2="${marginX+x*cell}" y2="${marginTop+h*cell}"/>`);
+  for (let y=0;y<=h;y++) s.push(`<line x1="${marginX}" y1="${marginTop+y*cell}" x2="${marginX+w*cell}" y2="${marginTop+y*cell}"/>`);
+  s.push('</g>');
+  let gi=0;
+  for (const [code,e] of Object.entries(used)){
+    const gx=marginX+(gi%8)*68, yy=marginTop+h*cell+pad+4+Math.floor(gi/8)*30;
+    s.push(`<rect x="${gx}" y="${yy}" width="16" height="16" fill="${e.hex}" stroke="#999"/>`);
+    s.push(`<text x="${gx+20}" y="${yy+13}" font-size="10" fill="#222">${code}</text>`);
+    s.push(`<text x="${gx+54}" y="${yy+13}" font-size="9" fill="#666">×${counts[code]}</text>`);
+    gi++;
+  }
+  s.push(`<text x="${marginX}" y="${H-8}" font-size="10" fill="#999">宽 ${w} / 高 ${h} / 颜色数 ${Object.keys(used).length} / 本地拼豆编辑器 (Star Echo)</text>`);
+  s.push('</svg>');
+  download(s.join(''), f.name+'.svg', 'image/svg+xml');
+  log('已导出 SVG 图纸');
+};
+
+/* 保存本地工程（cells 全数据） */
+$('btnSave').onclick = ()=>{
+  const d = {
+    format:'starecho-bead', version:1,
+    name: state.source||'bead_project',
+    width: frameSize().w, height: frameSize().h,
+    palette: state.palette,
+    frames: state.frames.map(f=>({name:f.name, cells:f.grid})),
+  };
+  download(JSON.stringify(d,null,2), (d.name.replace(/\.(svg|png|json)$/i,'')||'bead')+'.starecho.json','application/json');
+  log('已保存本地工程（.starecho.json，含全部帧布局）');
+};
+
+/* ---------------- 工具/设置 ---------------- */
+function setTool(t){
+  state.tool=t;
+  for (const b of ['btnBrush','btnBucket','btnEraser','btnPicker','btnPan']){
+    $(b).classList.toggle('active', b==='btn'+t[0].toUpperCase()+t.slice(1));
+  }
+}
+$('btnBrush').onclick=()=>setTool('brush');
+$('btnBucket').onclick=()=>setTool('bucket');
+$('btnEraser').onclick=()=>setTool('eraser');
+$('btnPicker').onclick=()=>setTool('picker');
+$('btnPan').onclick=()=>setTool('pan');
+$('inpZoom').onchange=()=>{ state.zoom=Math.max(1,+$('inpZoom').value||16); renderCanvas(); };
+$('btnResize').onclick=()=>{
+  const w=Math.max(1,+$('inpW').value||32), h=Math.max(1,+$('inpH').value||32);
+  resizeFrames(w,h);
+  log(`尺寸已改为 ${w}×${h}（全部帧）`);
+};
+document.addEventListener('keydown', ev=>{
+  if (ev.target.tagName==='INPUT') return;
+  switch(ev.key.toLowerCase()){
+    case 'b': setTool('brush'); break;
+    case 'g': setTool('bucket'); break;
+    case 'e': setTool('eraser'); break;
+    case 'i': setTool('picker'); break;
+    case 'h': setTool('pan'); break;
+  }
+});
+$('btnLoadDict').onclick = ()=>{
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='.json';
+  inp.onchange=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const d=JSON.parse(r.result);
+        const colors=d.colors||d;
+        if(!colors||typeof colors!=='object') throw new Error('字典结构不符');
+        let n=0;
+        for(const [code,entry] of Object.entries(colors)){
+          if(!entry||typeof entry!=='object'||!entry.hex) continue;
+          state.palette[code]={hex:entry.hex, rgb:entry.rgb||hex2rgb(entry.hex), name:entry.name||'', usage:entry.usage||'', anchor:!!entry.anchor};
+          n++;
+        }
+        state.dictName=f.name;
+        log(`已加载字典 ${f.name}（${n} 色）`);
+        renderPalette();
+      }catch(err){ log('字典加载失败: '+err.message); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+};
+
+/* ---------------- 初始化 ---------------- */
+(function init(){
+  // 默认空白工程 32×32（与游戏角色帧一致）
+  const g=newGrid(32,32);
+  state.frames=[{name:'frame1',grid:g}];
+  // 预置几个锚点色方便起步
+  addColor('#e94560','战斗红','玩家主色（锚点）',true);
+  addColor('#f38181','柔粉红','皮肤（锚点）',true);
+  addColor('#0d0d12','深空黑','描边（锚点）',true);
+  addColor('#ffffff','纯白','高光（锚点）',true);
+  addColor('#ff00ff','品红','魔法特效（锚点）',true);
+  addColor('#00f5ff','电青','闪电特效（锚点）',true);
+  addColor('#f6c90e','警示黄','精英/物品（锚点）',true);
+  renderAll();
+  log('拼豆图纸编辑器就绪。');
+  log('· 打开 docs/pindou/*.svg 可加载艾琳旧图纸继续编辑');
+  log('· 打开 PNG 自动转拼豆 + 提取新色（容差 ΔRGB≤12）');
+  log('· 导出 PNG = 横排 sprite sheet（透明键协议自动处理）');
+  log('· 字典：加载 ART/COLOR_DICT.json 后，下载按钮可生成合并字典');
+})();
+</script>
+</body>
+</html>

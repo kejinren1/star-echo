@@ -77,6 +77,13 @@
 - **容差归并**：与已有色号 RGB 距离 ≤ 容差（默认 ΔRGB ≤ 12）的像素自动归并，防字典膨胀
 - **锚点色**：描边 / 皮肤 / 发色等关键色硬编码锚点，禁止容差归并
 
+#### 字典文件协议（2026-08-08 制度化落地）
+- **单一事实源**：`ART/COLOR_DICT.json`（git 入库；色号全局唯一，前缀字母+两位数字，不分命名空间）
+- 结构：`meta`（version / limit=216 / merge_tolerance=12 / updated）+ `colors`（code → `{hex, rgb, name, usage, anchor}`），`anchor=true` = 硬锚点不容差归并
+- **登记工具**：`tools/color_dict.py`（register 提取+归并+登记 / check 216 上限+未登记检查 / quantize 量化到字典色 / extract 统计 / report 汇总）；初始字典由 `tools/gen_color_dict.py` 生成（锚点色板 29 色 + 艾琳图纸 13 色 = 42 色起步）
+- **标准流程**：新素材导出 → `register`（自动归并分配色号）→ 人工审查 name/usage/前缀 → `check` 全 PASS 即合规；需严格入字典的素材再跑 `quantize`
+- **首个闭环案例（2026-08-08）**：艾琳 elin_walk/elin_idle sheet 经 register（字典 42→132 色）+ quantize → 单帧 93/95 色、`check` PASS，帧动画结构无损（相邻帧差异 242~448 像素）
+
 #### 透明键协议（背景识别，与拼豆图纸惯例一致）
 - **每张精灵 PNG 左上角 (0,0) 像素的颜色 = 透明键（背景色）**，全图与该色相同的像素一律视为透明镂空
 - 该色只允许用于背景，**禁止出现在角色关键位置**（会造成"透视"破洞）

@@ -1,0 +1,1467 @@
+{
+  "meta": {
+    "version": 1,
+    "limit": 216,
+    "merge_tolerance": 12,
+    "updated": "2026-08-08",
+    "source": [
+      "ART_STYLE.md 锚点色板(32色)",
+      "docs/pindou/elin_idle.json 艾琳图纸(13色)"
+    ],
+    "note": "色板字典登记制：提取实际用色→登记入字典→容差内(ΔRGB≤12)归并邻近色；anchor=true=硬锚点不容差归并；色号全局唯一（前缀+两位数字）"
+  },
+  "colors": {
+    "N00": {
+      "hex": "#0d0d12",
+      "rgb": [
+        13,
+        13,
+        18
+      ],
+      "name": "深空黑",
+      "usage": "描边/最暗背景（硬锚点）",
+      "anchor": true
+    },
+    "B00": {
+      "hex": "#1a1a2e",
+      "rgb": [
+        26,
+        26,
+        46
+      ],
+      "name": "暗夜蓝",
+      "usage": "主背景",
+      "anchor": true
+    },
+    "B01": {
+      "hex": "#16213e",
+      "rgb": [
+        22,
+        33,
+        62
+      ],
+      "name": "深海蓝",
+      "usage": "背景渐变",
+      "anchor": true
+    },
+    "B02": {
+      "hex": "#0f3460",
+      "rgb": [
+        15,
+        52,
+        96
+      ],
+      "name": "午夜蓝",
+      "usage": "地面阴影",
+      "anchor": true
+    },
+    "B03": {
+      "hex": "#2d2d3f",
+      "rgb": [
+        45,
+        45,
+        63
+      ],
+      "name": "暗石灰",
+      "usage": "中间调暗色",
+      "anchor": true
+    },
+    "B04": {
+      "hex": "#3d3d4f",
+      "rgb": [
+        61,
+        61,
+        79
+      ],
+      "name": "冷灰",
+      "usage": "地面基础",
+      "anchor": true
+    },
+    "B05": {
+      "hex": "#4a4a5f",
+      "rgb": [
+        74,
+        74,
+        95
+      ],
+      "name": "暖灰",
+      "usage": "地面高光",
+      "anchor": true
+    },
+    "C00": {
+      "hex": "#e94560",
+      "rgb": [
+        233,
+        69,
+        96
+      ],
+      "name": "战斗红",
+      "usage": "玩家主色/血条",
+      "anchor": true
+    },
+    "S00": {
+      "hex": "#f38181",
+      "rgb": [
+        243,
+        129,
+        129
+      ],
+      "name": "柔粉红",
+      "usage": "玩家次色/皮肤（硬锚点）",
+      "anchor": true
+    },
+    "C01": {
+      "hex": "#f6c90e",
+      "rgb": [
+        246,
+        201,
+        14
+      ],
+      "name": "警示黄",
+      "usage": "精英敌人/物品",
+      "anchor": true
+    },
+    "C02": {
+      "hex": "#6bc86b",
+      "rgb": [
+        107,
+        200,
+        107
+      ],
+      "name": "毒绿",
+      "usage": "毒系敌人/经验/UI确认绿",
+      "anchor": true
+    },
+    "C03": {
+      "hex": "#4e89de",
+      "rgb": [
+        78,
+        137,
+        222
+      ],
+      "name": "钴蓝",
+      "usage": "冰系敌人/UI蓝",
+      "anchor": true
+    },
+    "C04": {
+      "hex": "#9d4edd",
+      "rgb": [
+        157,
+        78,
+        221
+      ],
+      "name": "暗紫",
+      "usage": "Boss/稀有",
+      "anchor": true
+    },
+    "C05": {
+      "hex": "#ff6b35",
+      "rgb": [
+        255,
+        107,
+        53
+      ],
+      "name": "烈焰橙",
+      "usage": "火系敌人",
+      "anchor": true
+    },
+    "C06": {
+      "hex": "#2ec4b6",
+      "rgb": [
+        46,
+        196,
+        182
+      ],
+      "name": "青绿",
+      "usage": "闪电/特殊",
+      "anchor": true
+    },
+    "E00": {
+      "hex": "#00f5ff",
+      "rgb": [
+        0,
+        245,
+        255
+      ],
+      "name": "电青",
+      "usage": "闪电特效/暴击",
+      "anchor": true
+    },
+    "E01": {
+      "hex": "#ff00ff",
+      "rgb": [
+        255,
+        0,
+        255
+      ],
+      "name": "品红",
+      "usage": "魔法特效",
+      "anchor": true
+    },
+    "E02": {
+      "hex": "#fffd00",
+      "rgb": [
+        255,
+        253,
+        0
+      ],
+      "name": "电黄",
+      "usage": "金币/拾取高亮",
+      "anchor": true
+    },
+    "E03": {
+      "hex": "#39ff14",
+      "rgb": [
+        57,
+        255,
+        20
+      ],
+      "name": "霓虹绿",
+      "usage": "升级/治疗",
+      "anchor": true
+    },
+    "E04": {
+      "hex": "#ff5e00",
+      "rgb": [
+        255,
+        94,
+        0
+      ],
+      "name": "烈焰橙",
+      "usage": "火焰特效",
+      "anchor": true
+    },
+    "E05": {
+      "hex": "#b026ff",
+      "rgb": [
+        176,
+        38,
+        255
+      ],
+      "name": "紫电",
+      "usage": "穿透特效",
+      "anchor": true
+    },
+    "E06": {
+      "hex": "#ff073a",
+      "rgb": [
+        255,
+        7,
+        58
+      ],
+      "name": "激光红",
+      "usage": "远程特效",
+      "anchor": true
+    },
+    "E07": {
+      "hex": "#ffffff",
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "name": "纯白",
+      "usage": "命中闪白/文字/UI高亮文字",
+      "anchor": true
+    },
+    "U00": {
+      "hex": "#1e1e2f",
+      "rgb": [
+        30,
+        30,
+        47
+      ],
+      "name": "UI面板底",
+      "usage": "半透明面板",
+      "anchor": true
+    },
+    "U01": {
+      "hex": "#2a2a3f",
+      "rgb": [
+        42,
+        42,
+        63
+      ],
+      "name": "UI面板边",
+      "usage": "边框",
+      "anchor": true
+    },
+    "U02": {
+      "hex": "#7a7a8f",
+      "rgb": [
+        122,
+        122,
+        143
+      ],
+      "name": "UI次文字",
+      "usage": "次要文字",
+      "anchor": true
+    },
+    "U03": {
+      "hex": "#cccccc",
+      "rgb": [
+        204,
+        204,
+        204
+      ],
+      "name": "UI主文字",
+      "usage": "主文字",
+      "anchor": true
+    },
+    "U04": {
+      "hex": "#5c5c73",
+      "rgb": [
+        92,
+        92,
+        115
+      ],
+      "name": "UI禁用",
+      "usage": "灰色不可用",
+      "anchor": true
+    },
+    "U05": {
+      "hex": "#3a3a4f",
+      "rgb": [
+        58,
+        58,
+        79
+      ],
+      "name": "UI槽位底",
+      "usage": "空/占位",
+      "anchor": true
+    },
+    "C07": {
+      "hex": "#6f4b48",
+      "rgb": [
+        111,
+        75,
+        72
+      ],
+      "name": "艾琳披风主",
+      "usage": "艾琳(se_irene)服装主色",
+      "anchor": false
+    },
+    "C08": {
+      "hex": "#dad8d6",
+      "rgb": [
+        218,
+        216,
+        214
+      ],
+      "name": "艾琳浅灰",
+      "usage": "艾琳服装高光",
+      "anchor": false
+    },
+    "C09": {
+      "hex": "#aa9892",
+      "rgb": [
+        170,
+        152,
+        146
+      ],
+      "name": "艾琳灰褐",
+      "usage": "艾琳服装中间调",
+      "anchor": false
+    },
+    "C10": {
+      "hex": "#89625d",
+      "rgb": [
+        137,
+        98,
+        93
+      ],
+      "name": "艾琳红褐",
+      "usage": "艾琳服装次色",
+      "anchor": false
+    },
+    "N01": {
+      "hex": "#2d2427",
+      "rgb": [
+        45,
+        36,
+        39
+      ],
+      "name": "艾琳深描边",
+      "usage": "艾琳轮廓描边",
+      "anchor": false
+    },
+    "C11": {
+      "hex": "#c5bebc",
+      "rgb": [
+        197,
+        190,
+        188
+      ],
+      "name": "艾琳亮灰",
+      "usage": "艾琳服装亮部",
+      "anchor": false
+    },
+    "N02": {
+      "hex": "#301818",
+      "rgb": [
+        48,
+        24,
+        24
+      ],
+      "name": "艾琳暗红描边",
+      "usage": "艾琳暗部描边",
+      "anchor": false
+    },
+    "C12": {
+      "hex": "#782725",
+      "rgb": [
+        120,
+        39,
+        37
+      ],
+      "name": "艾琳深红",
+      "usage": "艾琳服装暗部",
+      "anchor": false
+    },
+    "N03": {
+      "hex": "#531a18",
+      "rgb": [
+        83,
+        26,
+        24
+      ],
+      "name": "艾琳暗红",
+      "usage": "艾琳发饰暗色",
+      "anchor": false
+    },
+    "C13": {
+      "hex": "#4d312d",
+      "rgb": [
+        77,
+        49,
+        45
+      ],
+      "name": "艾琳深褐",
+      "usage": "艾琳服装过渡",
+      "anchor": false
+    },
+    "N04": {
+      "hex": "#220f10",
+      "rgb": [
+        34,
+        15,
+        16
+      ],
+      "name": "艾琳近黑",
+      "usage": "艾琳最暗描边",
+      "anchor": false
+    },
+    "C14": {
+      "hex": "#a8342f",
+      "rgb": [
+        168,
+        52,
+        47
+      ],
+      "name": "艾琳红",
+      "usage": "艾琳法袍红",
+      "anchor": false
+    },
+    "C15": {
+      "hex": "#d6ebe6",
+      "rgb": [
+        214,
+        235,
+        230
+      ],
+      "name": "艾琳青白",
+      "usage": "艾琳高光/发色点缀",
+      "anchor": false
+    },
+    "C16": {
+      "hex": "#e9e9e9",
+      "rgb": [
+        233,
+        233,
+        233
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C17": {
+      "hex": "#a1a4a7",
+      "rgb": [
+        161,
+        164,
+        167
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C18": {
+      "hex": "#f7f1f8",
+      "rgb": [
+        247,
+        241,
+        248
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C19": {
+      "hex": "#e7d3df",
+      "rgb": [
+        231,
+        211,
+        223
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C20": {
+      "hex": "#b1b0ba",
+      "rgb": [
+        177,
+        176,
+        186
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C21": {
+      "hex": "#989498",
+      "rgb": [
+        152,
+        148,
+        152
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C22": {
+      "hex": "#3b3739",
+      "rgb": [
+        59,
+        55,
+        57
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C23": {
+      "hex": "#612929",
+      "rgb": [
+        97,
+        41,
+        41
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C24": {
+      "hex": "#544546",
+      "rgb": [
+        84,
+        69,
+        70
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C25": {
+      "hex": "#605c5f",
+      "rgb": [
+        96,
+        92,
+        95
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C26": {
+      "hex": "#6f3d3a",
+      "rgb": [
+        111,
+        61,
+        58
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C27": {
+      "hex": "#843733",
+      "rgb": [
+        132,
+        55,
+        51
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C28": {
+      "hex": "#777476",
+      "rgb": [
+        119,
+        116,
+        118
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C29": {
+      "hex": "#93433d",
+      "rgb": [
+        147,
+        67,
+        61
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C30": {
+      "hex": "#3b292a",
+      "rgb": [
+        59,
+        41,
+        42
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C31": {
+      "hex": "#9a6561",
+      "rgb": [
+        154,
+        101,
+        97
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C32": {
+      "hex": "#ffede1",
+      "rgb": [
+        255,
+        237,
+        225
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C33": {
+      "hex": "#887070",
+      "rgb": [
+        136,
+        112,
+        112
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C34": {
+      "hex": "#aea8ab",
+      "rgb": [
+        174,
+        168,
+        171
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C35": {
+      "hex": "#8c8a8b",
+      "rgb": [
+        140,
+        138,
+        139
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C36": {
+      "hex": "#725f61",
+      "rgb": [
+        114,
+        95,
+        97
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C37": {
+      "hex": "#614a4d",
+      "rgb": [
+        97,
+        74,
+        77
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C38": {
+      "hex": "#623e3d",
+      "rgb": [
+        98,
+        62,
+        61
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C39": {
+      "hex": "#84443d",
+      "rgb": [
+        132,
+        68,
+        61
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C40": {
+      "hex": "#996d6e",
+      "rgb": [
+        153,
+        109,
+        110
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C41": {
+      "hex": "#4c373a",
+      "rgb": [
+        76,
+        55,
+        58
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C42": {
+      "hex": "#bda6a5",
+      "rgb": [
+        189,
+        166,
+        165
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C43": {
+      "hex": "#a18384",
+      "rgb": [
+        161,
+        131,
+        132
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C44": {
+      "hex": "#461c1c",
+      "rgb": [
+        70,
+        28,
+        28
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C45": {
+      "hex": "#d3c0bf",
+      "rgb": [
+        211,
+        192,
+        191
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C46": {
+      "hex": "#ac5046",
+      "rgb": [
+        172,
+        80,
+        70
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C47": {
+      "hex": "#1b1b1d",
+      "rgb": [
+        27,
+        27,
+        29
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C48": {
+      "hex": "#ba9d94",
+      "rgb": [
+        186,
+        157,
+        148
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C49": {
+      "hex": "#9a524c",
+      "rgb": [
+        154,
+        82,
+        76
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C50": {
+      "hex": "#b27470",
+      "rgb": [
+        178,
+        116,
+        112
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C51": {
+      "hex": "#a85d58",
+      "rgb": [
+        168,
+        93,
+        88
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C52": {
+      "hex": "#d8b0a8",
+      "rgb": [
+        216,
+        176,
+        168
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C53": {
+      "hex": "#bc544e",
+      "rgb": [
+        188,
+        84,
+        78
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C54": {
+      "hex": "#a5423e",
+      "rgb": [
+        165,
+        66,
+        62
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C55": {
+      "hex": "#91332e",
+      "rgb": [
+        145,
+        51,
+        46
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C56": {
+      "hex": "#b6817c",
+      "rgb": [
+        182,
+        129,
+        124
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C57": {
+      "hex": "#7c4f4c",
+      "rgb": [
+        124,
+        79,
+        76
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C58": {
+      "hex": "#a17a74",
+      "rgb": [
+        161,
+        122,
+        116
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C59": {
+      "hex": "#cc8f88",
+      "rgb": [
+        204,
+        143,
+        136
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C60": {
+      "hex": "#cba39b",
+      "rgb": [
+        203,
+        163,
+        155
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C61": {
+      "hex": "#ad6a62",
+      "rgb": [
+        173,
+        106,
+        98
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C62": {
+      "hex": "#ba8e8a",
+      "rgb": [
+        186,
+        142,
+        138
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C63": {
+      "hex": "#e4bdb3",
+      "rgb": [
+        228,
+        189,
+        179
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C64": {
+      "hex": "#f6dcd1",
+      "rgb": [
+        246,
+        220,
+        209
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C65": {
+      "hex": "#e4a699",
+      "rgb": [
+        228,
+        166,
+        153
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C66": {
+      "hex": "#ecc9c0",
+      "rgb": [
+        236,
+        201,
+        192
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C67": {
+      "hex": "#cbafab",
+      "rgb": [
+        203,
+        175,
+        171
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C68": {
+      "hex": "#fcbf9d",
+      "rgb": [
+        252,
+        191,
+        157
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C69": {
+      "hex": "#efb799",
+      "rgb": [
+        239,
+        183,
+        153
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C70": {
+      "hex": "#542425",
+      "rgb": [
+        84,
+        36,
+        37
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C71": {
+      "hex": "#e8d6d1",
+      "rgb": [
+        232,
+        214,
+        209
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C72": {
+      "hex": "#93837e",
+      "rgb": [
+        147,
+        131,
+        126
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C73": {
+      "hex": "#debea6",
+      "rgb": [
+        222,
+        190,
+        166
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C74": {
+      "hex": "#e9ba82",
+      "rgb": [
+        233,
+        186,
+        130
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C75": {
+      "hex": "#efb36a",
+      "rgb": [
+        239,
+        179,
+        106
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C76": {
+      "hex": "#e28f71",
+      "rgb": [
+        226,
+        143,
+        113
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C77": {
+      "hex": "#f4c5ac",
+      "rgb": [
+        244,
+        197,
+        172
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C78": {
+      "hex": "#ffc989",
+      "rgb": [
+        255,
+        201,
+        137
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C79": {
+      "hex": "#ffba87",
+      "rgb": [
+        255,
+        186,
+        135
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C80": {
+      "hex": "#dfb898",
+      "rgb": [
+        223,
+        184,
+        152
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C81": {
+      "hex": "#e0a185",
+      "rgb": [
+        224,
+        161,
+        133
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C82": {
+      "hex": "#8c4e4b",
+      "rgb": [
+        140,
+        78,
+        75
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C83": {
+      "hex": "#d5a360",
+      "rgb": [
+        213,
+        163,
+        96
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C84": {
+      "hex": "#d9af75",
+      "rgb": [
+        217,
+        175,
+        117
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C85": {
+      "hex": "#ba956d",
+      "rgb": [
+        186,
+        149,
+        109
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C86": {
+      "hex": "#705c54",
+      "rgb": [
+        112,
+        92,
+        84
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C87": {
+      "hex": "#d6dde4",
+      "rgb": [
+        214,
+        221,
+        228
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C88": {
+      "hex": "#e9eff7",
+      "rgb": [
+        233,
+        239,
+        247
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C89": {
+      "hex": "#b02641",
+      "rgb": [
+        176,
+        38,
+        65
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C90": {
+      "hex": "#8b1d28",
+      "rgb": [
+        139,
+        29,
+        40
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C91": {
+      "hex": "#c40c2f",
+      "rgb": [
+        196,
+        12,
+        47
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C92": {
+      "hex": "#c05a65",
+      "rgb": [
+        192,
+        90,
+        101
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C93": {
+      "hex": "#bd454f",
+      "rgb": [
+        189,
+        69,
+        79
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C94": {
+      "hex": "#ad081f",
+      "rgb": [
+        173,
+        8,
+        31
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C95": {
+      "hex": "#a5102c",
+      "rgb": [
+        165,
+        16,
+        44
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C96": {
+      "hex": "#af202d",
+      "rgb": [
+        175,
+        32,
+        45
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C97": {
+      "hex": "#ce7e7e",
+      "rgb": [
+        206,
+        126,
+        126
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C98": {
+      "hex": "#c4364a",
+      "rgb": [
+        196,
+        54,
+        74
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C99": {
+      "hex": "#ca5649",
+      "rgb": [
+        202,
+        86,
+        73
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C100": {
+      "hex": "#af4853",
+      "rgb": [
+        175,
+        72,
+        83
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C101": {
+      "hex": "#7e1a28",
+      "rgb": [
+        126,
+        26,
+        40
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C102": {
+      "hex": "#8d2135",
+      "rgb": [
+        141,
+        33,
+        53
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C103": {
+      "hex": "#bf253e",
+      "rgb": [
+        191,
+        37,
+        62
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C104": {
+      "hex": "#6a1524",
+      "rgb": [
+        106,
+        21,
+        36
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    },
+    "C105": {
+      "hex": "#beb1b2",
+      "rgb": [
+        190,
+        177,
+        178
+      ],
+      "name": "未命名",
+      "usage": "待人工审查",
+      "anchor": false
+    }
+  }
+}
