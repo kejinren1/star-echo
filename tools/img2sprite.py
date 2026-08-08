@@ -23,9 +23,9 @@ img2sprite.py —— 图片降维成像素画（拼豆核心功能保留版）·
   --output   输出路径（文件或目录）
   --size     输出尺寸：'64'（宽=64，高按比例）或 '64x48'（宽x高）
   --mode     代表色算法: mean(默认) | median | mode
-  --palette  色板：省略=不量化；内置32色；.hex 文件；.png 色板图；color_dict JSON
-  --bg       背景判定颜色（默认自动：白 = 高亮低饱和）；'keep'=不抠底（输入已透明）
-  --bg-tol   背景容差（默认 12：max-min 差；背景若为浅灰可调大）
+  --palette  色板：省略=不量化；'32'(暗板) / 'beads'(拼豆明亮板,默认推荐) / .hex / .png / color_dict JSON
+  --bg       背景：auto(默认,边缘floodfill自动检测白/浅灰) / white / keep(已透明)
+  --bg-tol   抠底容差（默认 16，浅灰/JPG 噪声可调大）
   --crop     自动裁剪透明边（默认开；--no-crop 关闭）
   --upscale  最近邻放大倍数（预览用；0=不放大）
 """
@@ -34,7 +34,7 @@ import glob
 import json
 import os
 import sys
-from collections import Counter
+from collections import Counter, deque
 
 from PIL import Image
 
@@ -50,12 +50,36 @@ _PALETTE = [
     (0x5c, 0x5c, 0x73), (0x3a, 0x3a, 0x4f),
 ]
 
+# 拼豆预设明亮色板（Hama/Perler 风格，~48 色饱和豆色，替代暗沉板）
+_BEADS = [
+    (255, 255, 255), (240, 238, 235), (210, 208, 205), (200, 198, 196),   # 白/米白/浅灰
+    (255, 228, 196), (245, 205, 160), (222, 170, 120),                    # 肤色系
+    (230, 57, 70), (176, 24, 31), (255, 105, 120), (255, 150, 160),       # 红/深红/浅红/粉
+    (230, 60, 120), (255, 100, 180),                                      # 玫红/亮粉
+    (255, 140, 50), (255, 180, 70), (255, 120, 90),                       # 橙/浅橙/珊瑚
+    (255, 220, 60), (250, 235, 120), (240, 200, 40), (220, 160, 30),      # 黄/浅黄/金黄/深黄
+    (120, 190, 60), (60, 150, 50), (170, 220, 90), (140, 150, 60),        # 绿/深绿/黄绿/橄榄
+    (90, 200, 160), (40, 170, 140), (120, 220, 190),                      # 青绿/深青/薄荷
+    (70, 130, 240), (30, 80, 200), (140, 180, 255), (70, 190, 230),       # 蓝/深蓝/浅蓝/天蓝
+    (25, 45, 120),                                                        # 藏青
+    (160, 90, 220), (120, 50, 180), (200, 150, 240), (170, 160, 230),     # 紫/深紫/浅紫/薰衣草
+    (240, 150, 200),                                                      # 粉紫
+    (140, 90, 50), (180, 130, 80), (100, 65, 35), (210, 180, 140),        # 棕/浅棕/深棕/米
+    (120, 20, 40),                                                        # 酒红
+    (60, 60, 60), (120, 120, 120), (160, 160, 160), (30, 30, 30),         # 灰/黑
+]
+_PRESETS = {"32": _PALETTE, "default": _PALETTE, "beads": _BEADS, "hama": _BEADS,
+            "perler": _BEADS, "bright": _BEADS}
+
 
 def load_palette(spec):
-    """加载色板：None→不量化；True/内置→32色；.hex；.png；color_dict JSON。"""
+    """加载色板：None→不量化；'32'/'beads'/'hama'/'perler'/'bright'→内置预设；.hex；.png；color_dict JSON。"""
     if spec is None or str(spec).lower() == "none":
         return None
-    if spec is True or str(spec).lower() in ("32", "内置", "default"):
+    key = str(spec).lower()
+    if key in _PRESETS:
+        return _PRESETS[key]
+    if key in ("32", "内置", "default"):
         return _PALETTE
     p = str(spec)
     if p.lower().endswith(".hex"):
@@ -89,6 +113,57 @@ def nearest_color(rgb, palette):
         if d < bd:
             bd, best = d, c
     return best
+
+
+def cutout_floodfill(im, tol=16):
+    """边缘洪水填充抠底（推荐）：从图像四边向里扩散，与背景参考色相近 → 透明。
+    背景参考色 = 边缘众数（自动适配纯白/浅灰 JPG 背景）；角色内部的相似色
+    （白衣/高光）因不与边缘连通而保留。tol = ΔRGB 容差（JPG 噪声可调大）。
+    """
+    im = im.convert("RGBA")
+    px = im.load()
+    w, h = im.size
+    # 背景参考色：四边采样众数
+    edge = Counter()
+    for x in range(0, w, 3):
+        for y in (0, h - 1):
+            edge[px[x, y][:3]] += 1
+    for y in range(0, h, 3):
+        for x in (0, w - 1):
+            edge[px[x, y][:3]] += 1
+    if not edge:
+        return im
+    bg = edge.most_common(1)[0][0]
+
+    def is_bg(x, y):
+        r, g, b = px[x, y][:3]
+        return max(abs(r - bg[0]), abs(g - bg[1]), abs(b - bg[2])) <= tol
+
+    out = im.copy()
+    op = out.load()
+    visited = [[False] * w for _ in range(h)]
+    q = deque()
+    for x in range(w):
+        for y in (0, h - 1):
+            if not visited[y][x]:
+                visited[y][x] = True
+                q.append((x, y))
+    for y in range(h):
+        for x in (0, w - 1):
+            if not visited[y][x]:
+                visited[y][x] = True
+                q.append((x, y))
+    while q:
+        x, y = q.popleft()
+        if is_bg(x, y):
+            r, g, b, a = px[x, y]
+            op[x, y] = (r, g, b, 0)
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < w and 0 <= ny < h and not visited[ny][nx]:
+                    visited[ny][nx] = True
+                    q.append((nx, ny))
+    return out
 
 
 def cutout_white(im, tol=12, lum_thr=235):
@@ -177,10 +252,12 @@ def quantize(im, palette):
 
 
 def process(im, size, mode, palette, do_crop, bg, bg_tol):
-    # 1) 抠底（默认自动白底；--bg keep = 输入已透明）
+    # 1) 抠底：默认 floodfill（自动背景色检测，适配纯白/浅灰）；white=色度判据；keep=已透明
     im = im.convert("RGBA")
-    if str(bg).lower() != "keep":
+    if str(bg).lower() == "white":
         im = cutout_white(im, tol=bg_tol)
+    elif str(bg).lower() != "keep":
+        im = cutout_floodfill(im, tol=bg_tol)
     # 2) bbox 裁剪
     if do_crop:
         im = auto_crop(im)
@@ -205,8 +282,8 @@ def main():
     ap.add_argument("--mode", choices=["mean", "median", "mode"], default="mean")
     ap.add_argument("--palette", nargs="?", const=True, default=None,
                     help="色板：省略=不量化 / 内置32色 / .hex / .png / color_dict JSON")
-    ap.add_argument("--bg", default="auto", help="背景：auto(自动白底) / keep(输入已透明)")
-    ap.add_argument("--bg-tol", type=int, default=12, help="白底容差(max-min)")
+    ap.add_argument("--bg", default="auto", help="背景：auto(floodfill自动检测白/浅灰) / white(色度判据纯白) / keep(已透明)")
+    ap.add_argument("--bg-tol", type=int, default=16, help="抠底容差 ΔRGB（浅灰/JPG噪声调大）")
     ap.add_argument("--no-crop", dest="crop", action="store_false", default=True)
     ap.add_argument("--upscale", type=int, default=0, help="最近邻放大倍数（预览）")
     ap.add_argument("--batch", action="store_true")
