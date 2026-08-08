@@ -94,6 +94,11 @@ func _spawn(test_case: Dictionary) -> void:
 			root.remove_meta(SELECTION_META)
 	else:
 		root.set_meta(SELECTION_META, hero)
+	# F-22/F-23 轮（2026-08-08）局外增益隔离：同 day4——真实存档含研究增益
+	# （max_health ×1.10 等）会污染数值断言（期望 90.000 实得 99.000）；白盒重置默认不写盘
+	var gm: Node = root.get_node_or_null("GameManager")
+	if gm:
+		gm.set("meta_progress", gm.call("_default_meta"))
 
 	var packed: PackedScene = load(MAIN_SCENE) as PackedScene
 	_instance = packed.instantiate()

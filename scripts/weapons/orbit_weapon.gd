@@ -68,6 +68,9 @@ func _current_blade_count() -> int:
 	return maxi(base + bonus, 1)
 
 ## 重建刃到当前数量（释放旧刃 → 按数量均布角度重建）
+## F-22（用户拍板 2026-08-08）：进化形态（weapons.json evolution_result=true，如
+## 星刃风暴）刃体换金色 + 放大 1.25x，与基础星刃蓝白形成直观差异——补「买核心进化
+## 无直观感受」；沿用占位纯色机制（用户 08-07 美术策略，不强制色号编码）
 func _sync_blades() -> void:
 	for blade in _blades:
 		if is_instance_valid(blade):
@@ -75,15 +78,18 @@ func _sync_blades() -> void:
 	_blades.clear()
 	_angles.clear()
 	_hit_cd.clear()
+	var evolved: bool = bool(weapon.get_meta("evolution_result", false))
+	var blade_color: Color = Color(1.0, 0.78, 0.2) if evolved else Color(0.65, 0.85, 1.0)
+	var size_scale: float = 1.25 if evolved else 1.0
 	var count: int = _current_blade_count()
 	for i in count:
 		var blade := Polygon2D.new()
 		blade.polygon = PackedVector2Array([
-			Vector2(0.0, -BLADE_SIZE.y / 2.0),
-			Vector2(BLADE_SIZE.x / 2.0, BLADE_SIZE.y / 2.0),
-			Vector2(-BLADE_SIZE.x / 2.0, BLADE_SIZE.y / 2.0),
+			Vector2(0.0, -BLADE_SIZE.y / 2.0 * size_scale),
+			Vector2(BLADE_SIZE.x / 2.0 * size_scale, BLADE_SIZE.y / 2.0 * size_scale),
+			Vector2(-BLADE_SIZE.x / 2.0 * size_scale, BLADE_SIZE.y / 2.0 * size_scale),
 		])
-		blade.color = Color(0.65, 0.85, 1.0)  # 星刃蓝白占位色（真精灵归 Day 21-22）
+		blade.color = blade_color  # 基础星刃蓝白 / 进化星刃风暴金色
 		add_child(blade)
 		_blades.append(blade)
 		_angles.append(float(i) * 360.0 / float(count))

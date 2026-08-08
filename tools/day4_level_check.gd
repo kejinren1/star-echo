@@ -73,6 +73,12 @@ func _advance(sub: int) -> int:
 func _spawn() -> void:
 	var hero: String = str(CASES[_idx]["hero"])
 	root.set_meta(SELECTION_META, hero)
+	# F-22/F-23 轮（2026-08-08）局部增益隔离：main._apply_meta_bonus 实时读
+	# GameManager.meta_progress，真实存档（用户游玩产生，含研究 ×1.05）会污染数值断言
+	# （期望 1.100 实得 1.155）；白盒重置默认（不写盘——探针不触发 end_game(victory)，真实存档安全）
+	var gm: Node = root.get_node_or_null("GameManager")
+	if gm:
+		gm.set("meta_progress", gm.call("_default_meta"))
 	_instance = (load(MAIN_SCENE) as PackedScene).instantiate()
 	root.add_child(_instance)
 	_manager = root.get_node_or_null("GameManager")
