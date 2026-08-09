@@ -78,12 +78,21 @@ const STAT_MAP: Dictionary = {
 ##          直接加会把倍率打成负数使武器射程失效 —— 口径统一属 Day 4 强化面板的决策
 const STAT_MAP_EXCLUDED: PackedStringArray = ["range"]
 
+## P0-Bug2 修复（2026-08-10）：未映射键中「已有消费方」的白名单 —— 收进 bonus_stats 即生效，不警告
+## 消费方：orbit_blade_count → orbit_weapon.gd；elemental_damage → skill_controller 燃烧 dps；
+##         summon_count → skill_controller 炮台数量。其余未映射键无消费方 → 收进 bonus_stats + 警告登记
+const CONSUMED_BONUS_KEYS: PackedStringArray = ["orbit_blade_count", "elemental_damage", "summon_count"]
+
 var character_id: String = ""                ## 当前英雄 id（空 = 未经角色选择）
 var bonus_stats: Dictionary = {}             ## 引擎尚未实现的被动/惩罚键，Day 3 技能与 Day 4 面板读此字典
 
 # ========== 内部状态 ==========
 
 var health: float                            ## 当前生命值
+## P0-Bug1 修复（2026-08-10）：希亚「神圣庇护」护盾 —— 受击优先吸收，时长到自动归零
+var shield: float = 0.0                      ## 护盾值（神圣庇护等技能来源）
+var _shield_timer: float = 0.0               ## 护盾剩余时长（<=0 归零）
+var _shield_duration: float = 0.0            ## 护盾总时长
 var is_alive: bool = true
 var _invulnerable_timer: float = 0.0         ## 无敌帧计时
 var _last_stand_active: bool = false         ## D24-F13-2（F-13 low_health · last_stand 背水一战）当前是否生效
@@ -155,8 +164,9 @@ func _apply_stat_dict(source: Dictionary) -> void:
 				apply_stat_modifier(stat_name, amount / 100.0)
 
 ## D11-12-T3：被动道具装配（买了必生效）/ 回退（remove=true 反向还原）
-## 与角色 _apply_stat_dict 的区别：未映射键不收集 bonus_stats，而是 push_warning 登记后跳过
-## （被动数据已白名单化，未知键 = 数据缺陷，须显式暴露不静默）。
+## P0-Bug2 修复（2026-08-10）：未映射键不再静默跳过 —— 一律收进 bonus_stats（与角色
+## _apply_stat_dict 同口径）；已有消费方的键（CONSUMED_BONUS_KEYS）零噪音生效，
+## 无消费方的键 push_warning 显式暴露（登记 docs/TECH_DEBT_ISSUES.md，F 阶段接线或删死数据）。
 ## percent 模式 remove 用除法精确还原（乘算非对称：撤销 +8% 是 ÷1.08 而非 ×0.92）。
 func apply_item_bonuses(item: Resource, remove: bool = false) -> void:
 	if item == null or not item.has_method("get_stat"):
@@ -168,7 +178,14 @@ func apply_item_bonuses(item: Resource, remove: bool = false) -> void:
 	for key: String in bonuses:
 		var amount: float = float(bonuses[key])
 		if not STAT_MAP.has(key):
-			push_warning("[Player] 被动效果键未实现，仅登记: %s" % key)
+			# P0-Bug2：收进 bonus_stats（数值不丢，remove 对称还原）
+			if remove:
+				bonus_stats[key] = float(bonus_stats.get(key, 0.0)) - amount
+			else:
+				bonus_stats[key] = float(bonus_stats.get(key, 0.0)) + amount
+			# 无消费方的键仍显式暴露（有消费方 = 白名单零噪音）
+			if not CONSUMED_BONUS_KEYS.has(key):
+				push_warning("[Player] 被动效果键无消费方，仅登记 bonus_stats: %s" % key)
 			continue
 		var rule: Dictionary = STAT_MAP[key]
 		var stat_name: String = str(rule["stat"])
@@ -357,6 +374,7 @@ func _physics_process(delta: float) -> void:
 
 	_handle_movement()
 	_handle_regeneration(delta)
+	_handle_shield(delta)
 
 	if _invulnerable_timer > 0.0:
 		_invulnerable_timer -= delta
@@ -404,10 +422,34 @@ func _handle_regeneration(delta: float) -> void:
 	if regen > 0.0 and health < max_health:
 		heal(regen * delta)
 
+## 护盾倒计时（P0-Bug1 修复）：时长耗尽护盾归零（溢出值丢弃，不累计下次）
+func _handle_shield(delta: float) -> void:
+	if _shield_timer <= 0.0:
+		return
+	_shield_timer -= delta
+	if _shield_timer <= 0.0:
+		shield = 0.0
+
+## 添加护盾（技能调用；同源重复施放 = 刷新时长并叠加值）
+func add_shield(amount: float, duration: float) -> void:
+	shield += maxf(amount, 0.0)
+	_shield_duration = maxf(duration, 0.0)
+	_shield_timer = _shield_duration
+
 ## 受到伤害
 func take_damage(amount: float) -> void:
 	if not is_alive or _invulnerable_timer > 0.0:
 		return
+
+	# 护盾吸收（P0-Bug1 修复）：护盾优先于闪避/护甲；全吸收时仅受击反馈 + 无敌帧
+	if shield > 0.0:
+		var absorbed: float = minf(shield, amount)
+		shield -= absorbed
+		amount -= absorbed
+		if amount <= 0.0:
+			_play_hit_flash()
+			_invulnerable_timer = 0.4
+			return
 
 	# 闪避判定
 	if randf() < dodge:

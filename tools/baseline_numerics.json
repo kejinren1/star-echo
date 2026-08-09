@@ -1,0 +1,5045 @@
+{
+ "generated_at": "2026-08-10T00:42:58",
+ "tables": {
+  "weapons": [
+   {
+    "id": "fist",
+    "category": "melee",
+    "tier": 1,
+    "price": 10,
+    "damage": 3,
+    "cooldown": 0.3,
+    "range": 120,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": 5,
+    "life_steal": 0,
+    "scaling": {
+     "melee_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 3,
+      "cooldown": 0.3,
+      "range": 120,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 4,
+      "cooldown": 0.3,
+      "range": 124,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 5,
+      "cooldown": 0.28,
+      "range": 128,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 6,
+      "cooldown": 0.28,
+      "range": 132,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 5,
+      "damage": 8,
+      "cooldown": 0.26,
+      "range": 136,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 10,
+      "cooldown": 0.26,
+      "range": 140,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 12,
+      "cooldown": 0.24,
+      "range": 145,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 14,
+      "cooldown": 0.22,
+      "range": 150,
+      "upgrade": "满级: 极致连打"
+     }
+    ]
+   },
+   {
+    "id": "stick",
+    "category": "melee",
+    "tier": 1,
+    "price": 12,
+    "damage": 6,
+    "cooldown": 0.55,
+    "range": 160,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": 20,
+    "life_steal": null,
+    "scaling": {
+     "melee_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 6,
+      "cooldown": 0.55,
+      "range": 160,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 8,
+      "cooldown": 0.55,
+      "range": 166,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 10,
+      "cooldown": 0.52,
+      "range": 172,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 12,
+      "cooldown": 0.52,
+      "range": 178,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 15,
+      "cooldown": 0.49,
+      "range": 184,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 19,
+      "cooldown": 0.49,
+      "range": 190,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 7,
+      "damage": 23,
+      "cooldown": 0.45,
+      "range": 195,
+      "upgrade": "伤害 +4, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 28,
+      "cooldown": 0.41,
+      "range": 200,
+      "upgrade": "满级: 强力击退"
+     }
+    ]
+   },
+   {
+    "id": "dagger",
+    "category": "melee",
+    "tier": 1,
+    "price": 15,
+    "damage": 4,
+    "cooldown": 0.25,
+    "range": 130,
+    "crit_chance": 0.15,
+    "crit_damage": 2.5,
+    "knockback": 3,
+    "life_steal": null,
+    "scaling": {
+     "melee_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 4,
+      "cooldown": 0.25,
+      "range": 130,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 5,
+      "cooldown": 0.25,
+      "range": 134,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 6,
+      "cooldown": 0.23,
+      "range": 138,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 8,
+      "cooldown": 0.23,
+      "range": 142,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 10,
+      "cooldown": 0.22,
+      "range": 146,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 12,
+      "cooldown": 0.22,
+      "range": 150,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 15,
+      "cooldown": 0.2,
+      "range": 155,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 19,
+      "cooldown": 0.19,
+      "range": 160,
+      "upgrade": "满级: 暴击强化"
+     }
+    ]
+   },
+   {
+    "id": "sword",
+    "category": "melee",
+    "tier": 2,
+    "price": 35,
+    "damage": 12,
+    "cooldown": 0.5,
+    "range": 180,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": 10,
+    "life_steal": null,
+    "scaling": {
+     "melee_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 12,
+      "cooldown": 0.5,
+      "range": 180,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 15,
+      "cooldown": 0.5,
+      "range": 185,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 3,
+      "damage": 19,
+      "cooldown": 0.47,
+      "range": 190,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 23,
+      "cooldown": 0.47,
+      "range": 196,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 5,
+      "damage": 28,
+      "cooldown": 0.44,
+      "range": 202,
+      "upgrade": "攻速提升, 射程扩展"
+     },
+     {
+      "level": 6,
+      "damage": 34,
+      "cooldown": 0.44,
+      "range": 208,
+      "upgrade": "伤害 +6"
+     },
+     {
+      "level": 7,
+      "damage": 41,
+      "cooldown": 0.4,
+      "range": 214,
+      "upgrade": "伤害 +7, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 50,
+      "cooldown": 0.36,
+      "range": 220,
+      "upgrade": "满级: 劈砍范围最大化"
+     }
+    ]
+   },
+   {
+    "id": "hammer",
+    "category": "melee",
+    "tier": 3,
+    "price": 60,
+    "damage": 30,
+    "cooldown": 1.2,
+    "range": 200,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": 40,
+    "life_steal": null,
+    "scaling": {
+     "melee_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 30,
+      "cooldown": 1.2,
+      "range": 200,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 37,
+      "cooldown": 1.2,
+      "range": 207,
+      "upgrade": "伤害 +7"
+     },
+     {
+      "level": 3,
+      "damage": 45,
+      "cooldown": 1.13,
+      "range": 214,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 55,
+      "cooldown": 1.13,
+      "range": 221,
+      "upgrade": "伤害 +10"
+     },
+     {
+      "level": 5,
+      "damage": 68,
+      "cooldown": 1.06,
+      "range": 228,
+      "upgrade": "伤害 +13, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 84,
+      "cooldown": 1.06,
+      "range": 235,
+      "upgrade": "伤害 +16"
+     },
+     {
+      "level": 7,
+      "damage": 105,
+      "cooldown": 0.98,
+      "range": 243,
+      "upgrade": "伤害 +21, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 140,
+      "cooldown": 0.9,
+      "range": 250,
+      "upgrade": "满级: 范围重击"
+     }
+    ]
+   },
+   {
+    "id": "chainsaw",
+    "category": "melee",
+    "tier": 3,
+    "price": 70,
+    "damage": 8,
+    "cooldown": 0.1,
+    "range": 150,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": 5,
+    "life_steal": 3,
+    "scaling": {
+     "melee_damage": 0.7
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 8,
+      "cooldown": 0.1,
+      "range": 150,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 10,
+      "cooldown": 0.1,
+      "range": 154,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 12,
+      "cooldown": 0.095,
+      "range": 158,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 15,
+      "cooldown": 0.095,
+      "range": 162,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 5,
+      "damage": 18,
+      "cooldown": 0.09,
+      "range": 166,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 22,
+      "cooldown": 0.09,
+      "range": 170,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 7,
+      "damage": 27,
+      "cooldown": 0.085,
+      "range": 175,
+      "upgrade": "伤害 +5, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 33,
+      "cooldown": 0.08,
+      "range": 180,
+      "upgrade": "满级: 电锯切割最大化"
+     }
+    ]
+   },
+   {
+    "id": "flaming_knuckles",
+    "category": "melee",
+    "tier": 3,
+    "price": 65,
+    "damage": 10,
+    "cooldown": 0.3,
+    "range": 130,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": 5,
+    "life_steal": null,
+    "scaling": {
+     "melee_damage": 0.5,
+     "elemental_damage": 0.5
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 10,
+      "cooldown": 0.3,
+      "range": 130,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 12,
+      "cooldown": 0.3,
+      "range": 134,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 15,
+      "cooldown": 0.28,
+      "range": 138,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 19,
+      "cooldown": 0.28,
+      "range": 142,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 5,
+      "damage": 23,
+      "cooldown": 0.26,
+      "range": 146,
+      "upgrade": "伤害 +4, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 28,
+      "cooldown": 0.26,
+      "range": 150,
+      "upgrade": "伤害 +5"
+     },
+     {
+      "level": 7,
+      "damage": 36,
+      "cooldown": 0.24,
+      "range": 155,
+      "upgrade": "伤害 +8, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 47,
+      "cooldown": 0.22,
+      "range": 160,
+      "upgrade": "满级: 烈焰连打"
+     }
+    ]
+   },
+   {
+    "id": "se_star_blade",
+    "category": "melee",
+    "tier": 1,
+    "price": 15,
+    "damage": 7,
+    "cooldown": 0.45,
+    "range": 110,
+    "crit_chance": 0.08,
+    "crit_damage": 1.8,
+    "knockback": 8,
+    "life_steal": 1,
+    "scaling": {
+     "melee_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 7,
+      "cooldown": 0.45,
+      "range": null,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 9,
+      "cooldown": 0.45,
+      "range": null,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 11,
+      "cooldown": 0.42,
+      "range": null,
+      "upgrade": "星刃数量 +1"
+     },
+     {
+      "level": 4,
+      "damage": 14,
+      "cooldown": 0.42,
+      "range": null,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 5,
+      "damage": 17,
+      "cooldown": 0.38,
+      "range": null,
+      "upgrade": "星刃数量 +1, 转速提升"
+     },
+     {
+      "level": 6,
+      "damage": 21,
+      "cooldown": 0.38,
+      "range": null,
+      "upgrade": "伤害 +4, 半径扩大"
+     },
+     {
+      "level": 7,
+      "damage": 26,
+      "cooldown": 0.34,
+      "range": null,
+      "upgrade": "星刃数量 +1"
+     },
+     {
+      "level": 8,
+      "damage": 32,
+      "cooldown": 0.3,
+      "range": null,
+      "upgrade": "满级: 可进化(需对应核心)"
+     }
+    ]
+   },
+   {
+    "id": "se_blade_storm",
+    "category": "melee",
+    "tier": 4,
+    "price": null,
+    "damage": 45,
+    "cooldown": 0.9,
+    "range": 150,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": null,
+    "levels": [
+     {
+      "level": 1,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 2,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 3,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 4,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 5,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 6,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 7,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 8,
+      "damage": 45,
+      "cooldown": 0.9,
+      "range": 150,
+      "upgrade": "进化形态（满级）"
+     }
+    ]
+   },
+   {
+    "id": "pistol",
+    "category": "ranged",
+    "tier": 1,
+    "price": 10,
+    "damage": 5,
+    "cooldown": 0.45,
+    "range": 250,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 5,
+      "cooldown": 0.45,
+      "range": 250,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 6,
+      "cooldown": 0.45,
+      "range": 258,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 8,
+      "cooldown": 0.42,
+      "range": 266,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 10,
+      "cooldown": 0.42,
+      "range": 274,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 12,
+      "cooldown": 0.39,
+      "range": 282,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 15,
+      "cooldown": 0.39,
+      "range": 290,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 7,
+      "damage": 18,
+      "cooldown": 0.36,
+      "range": 298,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 22,
+      "cooldown": 0.33,
+      "range": 308,
+      "upgrade": "满级: 穿透强化"
+     }
+    ]
+   },
+   {
+    "id": "slingshot",
+    "category": "ranged",
+    "tier": 1,
+    "price": 12,
+    "damage": 4,
+    "cooldown": 0.35,
+    "range": 220,
+    "crit_chance": 0.1,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 4,
+      "cooldown": 0.35,
+      "range": 220,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 5,
+      "cooldown": 0.35,
+      "range": 227,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 6,
+      "cooldown": 0.33,
+      "range": 234,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 8,
+      "cooldown": 0.33,
+      "range": 241,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 10,
+      "cooldown": 0.31,
+      "range": 248,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 12,
+      "cooldown": 0.31,
+      "range": 255,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 15,
+      "cooldown": 0.28,
+      "range": 262,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 19,
+      "cooldown": 0.26,
+      "range": 270,
+      "upgrade": "满级: 弹射强化"
+     }
+    ]
+   },
+   {
+    "id": "smg",
+    "category": "ranged",
+    "tier": 2,
+    "price": 30,
+    "damage": 3,
+    "cooldown": 0.12,
+    "range": 240,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 3,
+      "cooldown": 0.12,
+      "range": 240,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 4,
+      "cooldown": 0.12,
+      "range": 247,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 5,
+      "cooldown": 0.11,
+      "range": 254,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 6,
+      "cooldown": 0.11,
+      "range": 261,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 5,
+      "damage": 8,
+      "cooldown": 0.1,
+      "range": 268,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 10,
+      "cooldown": 0.1,
+      "range": 275,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 12,
+      "cooldown": 0.09,
+      "range": 282,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 15,
+      "cooldown": 0.085,
+      "range": 290,
+      "upgrade": "满级: 极限射速"
+     }
+    ]
+   },
+   {
+    "id": "shotgun",
+    "category": "ranged",
+    "tier": 2,
+    "price": 35,
+    "damage": 4,
+    "cooldown": 0.8,
+    "range": 180,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 4,
+      "cooldown": 0.8,
+      "range": 180,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 5,
+      "cooldown": 0.8,
+      "range": 185,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 6,
+      "cooldown": 0.75,
+      "range": 190,
+      "upgrade": "弹丸数 +1"
+     },
+     {
+      "level": 4,
+      "damage": 8,
+      "cooldown": 0.75,
+      "range": 195,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 10,
+      "cooldown": 0.7,
+      "range": 200,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 12,
+      "cooldown": 0.7,
+      "range": 205,
+      "upgrade": "弹丸数 +1"
+     },
+     {
+      "level": 7,
+      "damage": 15,
+      "cooldown": 0.65,
+      "range": 210,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 18,
+      "cooldown": 0.6,
+      "range": 218,
+      "upgrade": "满级: 弹幕最大化"
+     }
+    ]
+   },
+   {
+    "id": "crossbow",
+    "category": "ranged",
+    "tier": 2,
+    "price": 40,
+    "damage": 15,
+    "cooldown": 0.9,
+    "range": 300,
+    "crit_chance": 0.15,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 15,
+      "cooldown": 0.9,
+      "range": 300,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 18,
+      "cooldown": 0.9,
+      "range": 310,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 3,
+      "damage": 22,
+      "cooldown": 0.85,
+      "range": 320,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 27,
+      "cooldown": 0.85,
+      "range": 330,
+      "upgrade": "伤害 +5"
+     },
+     {
+      "level": 5,
+      "damage": 33,
+      "cooldown": 0.8,
+      "range": 340,
+      "upgrade": "伤害 +6, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 41,
+      "cooldown": 0.8,
+      "range": 350,
+      "upgrade": "伤害 +8"
+     },
+     {
+      "level": 7,
+      "damage": 52,
+      "cooldown": 0.74,
+      "range": 360,
+      "upgrade": "伤害 +11, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 70,
+      "cooldown": 0.68,
+      "range": 370,
+      "upgrade": "满级: 强力穿透"
+     }
+    ]
+   },
+   {
+    "id": "sniper",
+    "category": "ranged",
+    "tier": 3,
+    "price": 55,
+    "damage": 40,
+    "cooldown": 1.5,
+    "range": 400,
+    "crit_chance": 0.25,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 40,
+      "cooldown": 1.5,
+      "range": 400,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 50,
+      "cooldown": 1.5,
+      "range": 410,
+      "upgrade": "伤害 +10"
+     },
+     {
+      "level": 3,
+      "damage": 62,
+      "cooldown": 1.42,
+      "range": 420,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 76,
+      "cooldown": 1.42,
+      "range": 430,
+      "upgrade": "伤害 +14"
+     },
+     {
+      "level": 5,
+      "damage": 92,
+      "cooldown": 1.34,
+      "range": 440,
+      "upgrade": "伤害 +16, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 110,
+      "cooldown": 1.34,
+      "range": 450,
+      "upgrade": "伤害 +18"
+     },
+     {
+      "level": 7,
+      "damage": 132,
+      "cooldown": 1.26,
+      "range": 462,
+      "upgrade": "伤害 +22, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 158,
+      "cooldown": 1.18,
+      "range": 475,
+      "upgrade": "满级: 致命一击"
+     }
+    ]
+   },
+   {
+    "id": "rocket_launcher",
+    "category": "ranged",
+    "tier": 3,
+    "price": 70,
+    "damage": 25,
+    "cooldown": 1.2,
+    "range": 280,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 25,
+      "cooldown": 1.2,
+      "range": 280,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 31,
+      "cooldown": 1.2,
+      "range": 289,
+      "upgrade": "伤害 +6"
+     },
+     {
+      "level": 3,
+      "damage": 38,
+      "cooldown": 1.13,
+      "range": 298,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 47,
+      "cooldown": 1.13,
+      "range": 307,
+      "upgrade": "伤害 +9"
+     },
+     {
+      "level": 5,
+      "damage": 58,
+      "cooldown": 1.06,
+      "range": 316,
+      "upgrade": "伤害 +11, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 72,
+      "cooldown": 1.06,
+      "range": 325,
+      "upgrade": "伤害 +14"
+     },
+     {
+      "level": 7,
+      "damage": 90,
+      "cooldown": 0.98,
+      "range": 333,
+      "upgrade": "伤害 +18, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 117,
+      "cooldown": 0.9,
+      "range": 340,
+      "upgrade": "满级: 爆裂弹幕"
+     }
+    ]
+   },
+   {
+    "id": "minigun",
+    "category": "ranged",
+    "tier": 4,
+    "price": 100,
+    "damage": 4,
+    "cooldown": 0.08,
+    "range": 260,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 4,
+      "cooldown": 0.08,
+      "range": 260,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 5,
+      "cooldown": 0.08,
+      "range": 267,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 6,
+      "cooldown": 0.076,
+      "range": 274,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 8,
+      "cooldown": 0.076,
+      "range": 281,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 10,
+      "cooldown": 0.07,
+      "range": 288,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 12,
+      "cooldown": 0.07,
+      "range": 295,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 15,
+      "cooldown": 0.062,
+      "range": 302,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 19,
+      "cooldown": 0.055,
+      "range": 310,
+      "upgrade": "满级: 极限射速"
+     }
+    ]
+   },
+   {
+    "id": "se_holy_staff",
+    "category": "ranged",
+    "tier": 1,
+    "price": 15,
+    "damage": 6,
+    "cooldown": 0.6,
+    "range": 240,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "ranged_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 6,
+      "cooldown": 0.6,
+      "range": 240,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 8,
+      "cooldown": 0.6,
+      "range": 248,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 10,
+      "cooldown": 0.55,
+      "range": 256,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 12,
+      "cooldown": 0.55,
+      "range": 264,
+      "upgrade": "弹丸数 +1"
+     },
+     {
+      "level": 5,
+      "damage": 15,
+      "cooldown": 0.5,
+      "range": 272,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 18,
+      "cooldown": 0.5,
+      "range": 280,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 7,
+      "damage": 22,
+      "cooldown": 0.45,
+      "range": 290,
+      "upgrade": "伤害 +4, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 27,
+      "cooldown": 0.4,
+      "range": 300,
+      "upgrade": "满级: 圣光弹威力最大化"
+     }
+    ]
+   },
+   {
+    "id": "wand",
+    "category": "elemental",
+    "tier": 1,
+    "price": 15,
+    "damage": 3,
+    "cooldown": 0.4,
+    "range": 240,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 3,
+      "cooldown": 0.4,
+      "range": 240,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 4,
+      "cooldown": 0.4,
+      "range": 248,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 5,
+      "cooldown": 0.37,
+      "range": 256,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 6,
+      "cooldown": 0.37,
+      "range": 264,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 5,
+      "damage": 8,
+      "cooldown": 0.35,
+      "range": 272,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 10,
+      "cooldown": 0.35,
+      "range": 280,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 12,
+      "cooldown": 0.32,
+      "range": 288,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 15,
+      "cooldown": 0.3,
+      "range": 298,
+      "upgrade": "满级: 燃烧强化"
+     }
+    ]
+   },
+   {
+    "id": "icicle",
+    "category": "elemental",
+    "tier": 1,
+    "price": 15,
+    "damage": 5,
+    "cooldown": 0.5,
+    "range": 250,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 5,
+      "cooldown": 0.5,
+      "range": 250,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 6,
+      "cooldown": 0.5,
+      "range": 258,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 8,
+      "cooldown": 0.47,
+      "range": 266,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 10,
+      "cooldown": 0.47,
+      "range": 274,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 12,
+      "cooldown": 0.44,
+      "range": 282,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 15,
+      "cooldown": 0.44,
+      "range": 290,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 7,
+      "damage": 18,
+      "cooldown": 0.41,
+      "range": 298,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 22,
+      "cooldown": 0.38,
+      "range": 308,
+      "upgrade": "满级: 减速强化"
+     }
+    ]
+   },
+   {
+    "id": "lightning_shiv",
+    "category": "elemental",
+    "tier": 2,
+    "price": 30,
+    "damage": 6,
+    "cooldown": 0.35,
+    "range": 220,
+    "crit_chance": 0.1,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 6,
+      "cooldown": 0.35,
+      "range": 220,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 8,
+      "cooldown": 0.35,
+      "range": 227,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 10,
+      "cooldown": 0.33,
+      "range": 234,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 12,
+      "cooldown": 0.33,
+      "range": 241,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 15,
+      "cooldown": 0.31,
+      "range": 248,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 19,
+      "cooldown": 0.31,
+      "range": 255,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 7,
+      "damage": 23,
+      "cooldown": 0.28,
+      "range": 262,
+      "upgrade": "伤害 +4, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 28,
+      "cooldown": 0.26,
+      "range": 270,
+      "upgrade": "满级: 连锁强化"
+     }
+    ]
+   },
+   {
+    "id": "flamethrower",
+    "category": "elemental",
+    "tier": 2,
+    "price": 40,
+    "damage": 2,
+    "cooldown": 0.05,
+    "range": 160,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.6
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 2,
+      "cooldown": 0.05,
+      "range": 160,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 3,
+      "cooldown": 0.05,
+      "range": 165,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 4,
+      "cooldown": 0.048,
+      "range": 170,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 5,
+      "cooldown": 0.048,
+      "range": 175,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 5,
+      "damage": 6,
+      "cooldown": 0.045,
+      "range": 180,
+      "upgrade": "伤害 +1, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 7,
+      "cooldown": 0.045,
+      "range": 185,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 7,
+      "damage": 8,
+      "cooldown": 0.042,
+      "range": 190,
+      "upgrade": "伤害 +1, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 10,
+      "cooldown": 0.04,
+      "range": 198,
+      "upgrade": "满级: 持续喷焰"
+     }
+    ]
+   },
+   {
+    "id": "venom_staff",
+    "category": "elemental",
+    "tier": 2,
+    "price": 35,
+    "damage": 4,
+    "cooldown": 0.6,
+    "range": 200,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 4,
+      "cooldown": 0.6,
+      "range": 200,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 5,
+      "cooldown": 0.6,
+      "range": 207,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 6,
+      "cooldown": 0.57,
+      "range": 214,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 8,
+      "cooldown": 0.57,
+      "range": 221,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 10,
+      "cooldown": 0.53,
+      "range": 228,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 12,
+      "cooldown": 0.53,
+      "range": 235,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 15,
+      "cooldown": 0.49,
+      "range": 243,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 19,
+      "cooldown": 0.45,
+      "range": 250,
+      "upgrade": "满级: 剧毒强化"
+     }
+    ]
+   },
+   {
+    "id": "storm_staff",
+    "category": "elemental",
+    "tier": 3,
+    "price": 60,
+    "damage": 12,
+    "cooldown": 0.8,
+    "range": 300,
+    "crit_chance": 0.1,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 12,
+      "cooldown": 0.8,
+      "range": 300,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 15,
+      "cooldown": 0.8,
+      "range": 310,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 3,
+      "damage": 19,
+      "cooldown": 0.75,
+      "range": 320,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 23,
+      "cooldown": 0.75,
+      "range": 330,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 5,
+      "damage": 28,
+      "cooldown": 0.7,
+      "range": 340,
+      "upgrade": "伤害 +5, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 35,
+      "cooldown": 0.7,
+      "range": 350,
+      "upgrade": "伤害 +7"
+     },
+     {
+      "level": 7,
+      "damage": 44,
+      "cooldown": 0.65,
+      "range": 360,
+      "upgrade": "伤害 +9, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 56,
+      "cooldown": 0.6,
+      "range": 370,
+      "upgrade": "满级: 风暴范围最大化"
+     }
+    ]
+   },
+   {
+    "id": "frost_nova",
+    "category": "elemental",
+    "tier": 3,
+    "price": 55,
+    "damage": 8,
+    "cooldown": 1.0,
+    "range": 180,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 8,
+      "cooldown": 1.0,
+      "range": 180,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 10,
+      "cooldown": 1.0,
+      "range": 186,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 12,
+      "cooldown": 0.95,
+      "range": 192,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 15,
+      "cooldown": 0.95,
+      "range": 198,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 5,
+      "damage": 19,
+      "cooldown": 0.89,
+      "range": 204,
+      "upgrade": "伤害 +4, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 23,
+      "cooldown": 0.89,
+      "range": 210,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 7,
+      "damage": 28,
+      "cooldown": 0.82,
+      "range": 215,
+      "upgrade": "伤害 +5, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 37,
+      "cooldown": 0.76,
+      "range": 220,
+      "upgrade": "满级: 冻结强化"
+     }
+    ]
+   },
+   {
+    "id": "plasma_cannon",
+    "category": "elemental",
+    "tier": 4,
+    "price": 90,
+    "damage": 20,
+    "cooldown": 1.0,
+    "range": 350,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 1.0
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 20,
+      "cooldown": 1.0,
+      "range": 350,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 25,
+      "cooldown": 1.0,
+      "range": 361,
+      "upgrade": "伤害 +5"
+     },
+     {
+      "level": 3,
+      "damage": 31,
+      "cooldown": 0.95,
+      "range": 372,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 38,
+      "cooldown": 0.95,
+      "range": 383,
+      "upgrade": "伤害 +7"
+     },
+     {
+      "level": 5,
+      "damage": 47,
+      "cooldown": 0.89,
+      "range": 394,
+      "upgrade": "伤害 +9, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 58,
+      "cooldown": 0.89,
+      "range": 405,
+      "upgrade": "伤害 +11"
+     },
+     {
+      "level": 7,
+      "damage": 72,
+      "cooldown": 0.82,
+      "range": 418,
+      "upgrade": "伤害 +14, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 94,
+      "cooldown": 0.76,
+      "range": 430,
+      "upgrade": "满级: 贯穿强化"
+     }
+    ]
+   },
+   {
+    "id": "se_star_flame",
+    "category": "elemental",
+    "tier": 1,
+    "price": 15,
+    "damage": 6,
+    "cooldown": 0.55,
+    "range": 260,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "elemental_damage": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 6,
+      "cooldown": 0.55,
+      "range": 260,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 8,
+      "cooldown": 0.55,
+      "range": 270,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 10,
+      "cooldown": 0.5,
+      "range": 280,
+      "upgrade": "攻速提升, 燃烧 4 秒"
+     },
+     {
+      "level": 4,
+      "damage": 12,
+      "cooldown": 0.5,
+      "range": 290,
+      "upgrade": "弹丸数 +1"
+     },
+     {
+      "level": 5,
+      "damage": 15,
+      "cooldown": 0.45,
+      "range": 300,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 18,
+      "cooldown": 0.45,
+      "range": 310,
+      "upgrade": "命中产生小范围爆燃(半径40)"
+     },
+     {
+      "level": 7,
+      "damage": 22,
+      "cooldown": 0.4,
+      "range": 320,
+      "upgrade": "弹丸数 +1"
+     },
+     {
+      "level": 8,
+      "damage": 27,
+      "cooldown": 0.35,
+      "range": 340,
+      "upgrade": "满级: 可进化为炎星陨落(需烈焰核心)"
+     }
+    ]
+   },
+   {
+    "id": "se_star_fall",
+    "category": "elemental",
+    "tier": 4,
+    "price": null,
+    "damage": 45,
+    "cooldown": 1.2,
+    "range": 320,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": null,
+    "levels": [
+     {
+      "level": 1,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 2,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 3,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 4,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 5,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 6,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 7,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 8,
+      "damage": 45,
+      "cooldown": 1.2,
+      "range": 320,
+      "upgrade": "进化形态（满级）"
+     }
+    ]
+   },
+   {
+    "id": "turret",
+    "category": "engineering",
+    "tier": 1,
+    "price": 15,
+    "damage": 4,
+    "cooldown": 0.5,
+    "range": 200,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "engineering": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 4,
+      "cooldown": 0.5,
+      "range": 200,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 5,
+      "cooldown": 0.5,
+      "range": 206,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 6,
+      "cooldown": 0.47,
+      "range": 212,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 8,
+      "cooldown": 0.47,
+      "range": 218,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 5,
+      "damage": 10,
+      "cooldown": 0.44,
+      "range": 224,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 12,
+      "cooldown": 0.44,
+      "range": 230,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 15,
+      "cooldown": 0.4,
+      "range": 238,
+      "upgrade": "伤害 +3, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 18,
+      "cooldown": 0.37,
+      "range": 246,
+      "upgrade": "满级: 炮台火力最大化"
+     }
+    ]
+   },
+   {
+    "id": "landmine",
+    "category": "engineering",
+    "tier": 1,
+    "price": 12,
+    "damage": 20,
+    "cooldown": 1.0,
+    "range": 100,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "engineering": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 20,
+      "cooldown": 1.0,
+      "range": 100,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 25,
+      "cooldown": 1.0,
+      "range": 103,
+      "upgrade": "伤害 +5"
+     },
+     {
+      "level": 3,
+      "damage": 31,
+      "cooldown": 0.94,
+      "range": 106,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 38,
+      "cooldown": 0.94,
+      "range": 109,
+      "upgrade": "伤害 +7"
+     },
+     {
+      "level": 5,
+      "damage": 46,
+      "cooldown": 0.88,
+      "range": 112,
+      "upgrade": "伤害 +8, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 56,
+      "cooldown": 0.88,
+      "range": 115,
+      "upgrade": "伤害 +10"
+     },
+     {
+      "level": 7,
+      "damage": 67,
+      "cooldown": 0.82,
+      "range": 119,
+      "upgrade": "伤害 +11, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 80,
+      "cooldown": 0.76,
+      "range": 124,
+      "upgrade": "满级: 爆炸范围最大化"
+     }
+    ]
+   },
+   {
+    "id": "wrench",
+    "category": "engineering",
+    "tier": 2,
+    "price": 25,
+    "damage": 8,
+    "cooldown": 0.5,
+    "range": 150,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "melee_damage": 0.5,
+     "engineering": 0.5
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 8,
+      "cooldown": 0.5,
+      "range": 150,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 10,
+      "cooldown": 0.5,
+      "range": 155,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 3,
+      "damage": 12,
+      "cooldown": 0.47,
+      "range": 160,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 15,
+      "cooldown": 0.47,
+      "range": 165,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 5,
+      "damage": 19,
+      "cooldown": 0.44,
+      "range": 170,
+      "upgrade": "伤害 +4, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 23,
+      "cooldown": 0.44,
+      "range": 175,
+      "upgrade": "伤害 +4"
+     },
+     {
+      "level": 7,
+      "damage": 28,
+      "cooldown": 0.41,
+      "range": 180,
+      "upgrade": "伤害 +5, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 37,
+      "cooldown": 0.38,
+      "range": 185,
+      "upgrade": "满级: 修复强化"
+     }
+    ]
+   },
+   {
+    "id": "laser_turret",
+    "category": "engineering",
+    "tier": 2,
+    "price": 40,
+    "damage": 3,
+    "cooldown": 0.15,
+    "range": 250,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "engineering": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 3,
+      "cooldown": 0.15,
+      "range": 250,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 4,
+      "cooldown": 0.15,
+      "range": 258,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 3,
+      "damage": 5,
+      "cooldown": 0.14,
+      "range": 266,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 6,
+      "cooldown": 0.14,
+      "range": 274,
+      "upgrade": "伤害 +1"
+     },
+     {
+      "level": 5,
+      "damage": 8,
+      "cooldown": 0.13,
+      "range": 282,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 10,
+      "cooldown": 0.13,
+      "range": 290,
+      "upgrade": "伤害 +2"
+     },
+     {
+      "level": 7,
+      "damage": 12,
+      "cooldown": 0.12,
+      "range": 300,
+      "upgrade": "伤害 +2, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 14,
+      "cooldown": 0.11,
+      "range": 310,
+      "upgrade": "满级: 激光持续强化"
+     }
+    ]
+   },
+   {
+    "id": "mech_arm",
+    "category": "engineering",
+    "tier": 3,
+    "price": 55,
+    "damage": 15,
+    "cooldown": 0.6,
+    "range": 180,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "melee_damage": 0.5,
+     "engineering": 0.5
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 15,
+      "cooldown": 0.6,
+      "range": 180,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 18,
+      "cooldown": 0.6,
+      "range": 186,
+      "upgrade": "伤害 +3"
+     },
+     {
+      "level": 3,
+      "damage": 22,
+      "cooldown": 0.56,
+      "range": 192,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 4,
+      "damage": 27,
+      "cooldown": 0.56,
+      "range": 198,
+      "upgrade": "伤害 +5"
+     },
+     {
+      "level": 5,
+      "damage": 33,
+      "cooldown": 0.52,
+      "range": 204,
+      "upgrade": "伤害 +6, 攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 41,
+      "cooldown": 0.52,
+      "range": 210,
+      "upgrade": "伤害 +8"
+     },
+     {
+      "level": 7,
+      "damage": 52,
+      "cooldown": 0.48,
+      "range": 217,
+      "upgrade": "伤害 +11, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 70,
+      "cooldown": 0.45,
+      "range": 225,
+      "upgrade": "满级: 机械强化"
+     }
+    ]
+   },
+   {
+    "id": "force_field",
+    "category": "engineering",
+    "tier": 3,
+    "price": 60,
+    "damage": 0,
+    "cooldown": 2.0,
+    "range": 120,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "engineering": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 0,
+      "cooldown": 2.0,
+      "range": 120,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 0,
+      "cooldown": 2.0,
+      "range": 126,
+      "upgrade": "护盾范围扩大"
+     },
+     {
+      "level": 3,
+      "damage": 0,
+      "cooldown": 1.9,
+      "range": 132,
+      "upgrade": "冷却缩短"
+     },
+     {
+      "level": 4,
+      "damage": 0,
+      "cooldown": 1.9,
+      "range": 138,
+      "upgrade": "护盾范围扩大"
+     },
+     {
+      "level": 5,
+      "damage": 0,
+      "cooldown": 1.78,
+      "range": 144,
+      "upgrade": "冷却缩短, 范围扩大"
+     },
+     {
+      "level": 6,
+      "damage": 0,
+      "cooldown": 1.78,
+      "range": 150,
+      "upgrade": "护盾范围扩大"
+     },
+     {
+      "level": 7,
+      "damage": 0,
+      "cooldown": 1.63,
+      "range": 155,
+      "upgrade": "冷却缩短, 范围扩大"
+     },
+     {
+      "level": 8,
+      "damage": 0,
+      "cooldown": 1.5,
+      "range": 160,
+      "upgrade": "满级: 护盾领域最大化"
+     }
+    ]
+   },
+   {
+    "id": "se_auto_turret",
+    "category": "engineering",
+    "tier": 1,
+    "price": 15,
+    "damage": 5,
+    "cooldown": 0.5,
+    "range": 220,
+    "crit_chance": 0.05,
+    "crit_damage": 1.5,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": {
+     "engineering": 0.8
+    },
+    "levels": [
+     {
+      "level": 1,
+      "damage": 5,
+      "cooldown": 0.5,
+      "range": 220,
+      "upgrade": "基础形态"
+     },
+     {
+      "level": 2,
+      "damage": 7,
+      "cooldown": 0.5,
+      "range": 225,
+      "upgrade": "伤害 +2, 存在时间 +2s"
+     },
+     {
+      "level": 3,
+      "damage": 9,
+      "cooldown": 0.46,
+      "range": 230,
+      "upgrade": "炮台数量 +1"
+     },
+     {
+      "level": 4,
+      "damage": 11,
+      "cooldown": 0.46,
+      "range": 240,
+      "upgrade": "伤害 +2, 射程提升"
+     },
+     {
+      "level": 5,
+      "damage": 14,
+      "cooldown": 0.42,
+      "range": 250,
+      "upgrade": "攻速提升"
+     },
+     {
+      "level": 6,
+      "damage": 17,
+      "cooldown": 0.42,
+      "range": 255,
+      "upgrade": "炮台数量 +1"
+     },
+     {
+      "level": 7,
+      "damage": 21,
+      "cooldown": 0.36,
+      "range": 265,
+      "upgrade": "伤害 +4, 攻速提升"
+     },
+     {
+      "level": 8,
+      "damage": 26,
+      "cooldown": 0.32,
+      "range": 280,
+      "upgrade": "满级: 可进化为机械炮阵(需机械核心)"
+     }
+    ]
+   },
+   {
+    "id": "se_turret_array",
+    "category": "engineering",
+    "tier": 4,
+    "price": null,
+    "damage": 30,
+    "cooldown": 0.5,
+    "range": 320,
+    "crit_chance": null,
+    "crit_damage": null,
+    "knockback": null,
+    "life_steal": null,
+    "scaling": null,
+    "levels": [
+     {
+      "level": 1,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 2,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 3,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 4,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 5,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 6,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 7,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态"
+     },
+     {
+      "level": 8,
+      "damage": 30,
+      "cooldown": 0.5,
+      "range": 320,
+      "upgrade": "进化形态（满级）"
+     }
+    ]
+   }
+  ],
+  "items": [
+   {
+    "id": "coffee",
+    "rarity": "common",
+    "price": 20,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "attack",
+    "effects": {
+     "attack_speed_percent": 8
+    },
+    "tags": [
+     "attack_speed"
+    ]
+   },
+   {
+    "id": "helmet",
+    "rarity": "common",
+    "price": 15,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "defense",
+    "effects": {
+     "armor": 2
+    },
+    "tags": [
+     "armor"
+    ]
+   },
+   {
+    "id": "head_injury",
+    "rarity": "common",
+    "price": 25,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "damage_percent": 6,
+     "range": -8
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "injection",
+    "rarity": "common",
+    "price": 20,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "attack",
+    "effects": {
+     "damage_percent": 7,
+     "max_hp": -2
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "sneakers",
+    "rarity": "common",
+    "price": 20,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "stat",
+    "effects": {
+     "speed_percent": 5
+    },
+    "tags": [
+     "speed"
+    ]
+   },
+   {
+    "id": "glasses",
+    "rarity": "common",
+    "price": 20,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "range": 10
+    },
+    "tags": [
+     "range"
+    ]
+   },
+   {
+    "id": "fertilizer",
+    "rarity": "common",
+    "price": 15,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "harvesting": 3
+    },
+    "tags": [
+     "harvesting"
+    ]
+   },
+   {
+    "id": "alien_worm",
+    "rarity": "common",
+    "price": 15,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "defense",
+    "effects": {
+     "max_hp": 3,
+     "hp_regen": 1
+    },
+    "tags": [
+     "max_hp",
+     "hp_regen"
+    ]
+   },
+   {
+    "id": "feather",
+    "rarity": "common",
+    "price": 18,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "dodge_percent": 5,
+     "ranged_damage": -3
+    },
+    "tags": [
+     "dodge"
+    ]
+   },
+   {
+    "id": "charcoal",
+    "rarity": "common",
+    "price": 20,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "elemental_damage": 3,
+     "melee_damage": -2
+    },
+    "tags": [
+     "elemental"
+    ]
+   },
+   {
+    "id": "boxing_glove",
+    "rarity": "common",
+    "price": 18,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "melee_damage": 3,
+     "knockback": 5
+    },
+    "tags": [
+     "melee"
+    ]
+   },
+   {
+    "id": "lens",
+    "rarity": "common",
+    "price": 20,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "ranged_damage": 4
+    },
+    "tags": [
+     "ranged"
+    ]
+   },
+   {
+    "id": "insanity",
+    "rarity": "common",
+    "price": 20,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "stat",
+    "effects": {
+     "crit_chance_percent": 5,
+     "dodge_percent": -5
+    },
+    "tags": [
+     "crit"
+    ]
+   },
+   {
+    "id": "jelly",
+    "rarity": "common",
+    "price": 15,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "defense",
+    "effects": {
+     "max_hp": 5
+    },
+    "tags": [
+     "max_hp"
+    ]
+   },
+   {
+    "id": "book",
+    "rarity": "common",
+    "price": 8,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "engineering": 2
+    },
+    "tags": [
+     "engineering"
+    ]
+   },
+   {
+    "id": "adrenaline",
+    "rarity": "uncommon",
+    "price": 50,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "dodge_percent": 5,
+     "dodge_heal_chance": 50,
+     "dodge_heal_amount": 5
+    },
+    "tags": [
+     "dodge"
+    ]
+   },
+   {
+    "id": "black_belt",
+    "rarity": "uncommon",
+    "price": 50,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "melee_damage": 5,
+     "knockback": 10,
+     "xp_gain_percent": 10
+    },
+    "tags": [
+     "melee"
+    ]
+   },
+   {
+    "id": "banner",
+    "rarity": "uncommon",
+    "price": 55,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "special",
+    "effects": {
+     "attack_speed_percent": 5,
+     "range_percent": 8
+    },
+    "tags": [
+     "range",
+     "attack_speed"
+    ]
+   },
+   {
+    "id": "blood_leech",
+    "rarity": "uncommon",
+    "price": 45,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "special",
+    "effects": {
+     "life_steal_percent": 3,
+     "hp_regen": 2
+    },
+    "tags": [
+     "life_steal"
+    ]
+   },
+   {
+    "id": "bone_dice",
+    "rarity": "uncommon",
+    "price": 30,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "attack",
+    "effects": {
+     "damage_percent": 5,
+     "luck": 5
+    },
+    "tags": [
+     "damage",
+     "luck"
+    ]
+   },
+   {
+    "id": "campfire",
+    "rarity": "uncommon",
+    "price": 40,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "elemental_damage": 4,
+     "hp_regen": 2
+    },
+    "tags": [
+     "elemental",
+     "hp_regen"
+    ]
+   },
+   {
+    "id": "compass",
+    "rarity": "uncommon",
+    "price": 40,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "speed_percent": 5,
+     "engineering": 3
+    },
+    "tags": [
+     "speed",
+     "engineering"
+    ]
+   },
+   {
+    "id": "blindfold",
+    "rarity": "uncommon",
+    "price": 45,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "crit_chance_percent": 8,
+     "miss_chance_percent": 5
+    },
+    "tags": [
+     "crit"
+    ]
+   },
+   {
+    "id": "bait",
+    "rarity": "uncommon",
+    "price": 25,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "damage_percent": 8,
+     "special_enemies_next_wave": true
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "medal",
+    "rarity": "uncommon",
+    "price": 55,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "attack",
+    "effects": {
+     "max_hp": 3,
+     "damage_percent": 3,
+     "armor": 1,
+     "speed_percent": 3,
+     "crit_chance_percent": -4
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "mushroom",
+    "rarity": "uncommon",
+    "price": 25,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "defense",
+    "effects": {
+     "hp_regen": 3,
+     "max_hp": -5
+    },
+    "tags": [
+     "hp_regen"
+    ]
+   },
+   {
+    "id": "saw",
+    "rarity": "uncommon",
+    "price": 45,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "melee_damage": 6,
+     "attack_speed_percent": 5,
+     "ranged_damage": -3
+    },
+    "tags": [
+     "melee",
+     "attack_speed"
+    ]
+   },
+   {
+    "id": "alloy",
+    "rarity": "rare",
+    "price": 80,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "melee_damage": 3,
+     "ranged_damage": 3,
+     "elemental_damage": 3,
+     "engineering": 3,
+     "crit_chance_percent": 5,
+     "dodge_percent": -6
+    },
+    "tags": [
+     "melee",
+     "ranged",
+     "engineering",
+     "crit",
+     "elemental"
+    ]
+   },
+   {
+    "id": "ball_and_chain",
+    "rarity": "rare",
+    "price": 75,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "stat",
+    "effects": {
+     "damage_percent": 15,
+     "armor": 3,
+     "speed_percent": -3
+    },
+    "tags": [
+     "damage",
+     "armor"
+    ]
+   },
+   {
+    "id": "glass_cannon",
+    "rarity": "rare",
+    "price": 75,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "attack",
+    "effects": {
+     "damage_percent": 25,
+     "armor": -3
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "silver_bullet",
+    "rarity": "rare",
+    "price": 70,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "boss_elite_damage_percent": 25
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "triangle_of_power",
+    "rarity": "rare",
+    "price": 65,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "damage_percent": 20,
+     "armor": 1,
+     "damage_reduction_on_hit_percent": 2
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "adrenaline_shot",
+    "rarity": "rare",
+    "price": 70,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "stat",
+    "effects": {
+     "attack_speed_percent": 15,
+     "speed_percent": 10,
+     "max_hp": -10
+    },
+    "tags": [
+     "attack_speed",
+     "speed"
+    ]
+   },
+   {
+    "id": "guardian_shield",
+    "rarity": "rare",
+    "price": 65,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "defense",
+    "effects": {
+     "armor": 4,
+     "max_hp": 10,
+     "speed_percent": -5
+    },
+    "tags": [
+     "armor",
+     "max_hp"
+    ]
+   },
+   {
+    "id": "radar",
+    "rarity": "rare",
+    "price": 70,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "range": 20,
+     "xp_gain_percent": 10
+    },
+    "tags": [
+     "range"
+    ]
+   },
+   {
+    "id": "elemental_core",
+    "rarity": "rare",
+    "price": 75,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "elemental_damage": 8,
+     "element_reaction_damage_percent": 30
+    },
+    "tags": [
+     "elemental"
+    ]
+   },
+   {
+    "id": "blueprint",
+    "rarity": "rare",
+    "price": 70,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "engineering": 8,
+     "structure_duration_percent": 50
+    },
+    "tags": [
+     "engineering"
+    ]
+   },
+   {
+    "id": "anvil",
+    "rarity": "legendary",
+    "price": 120,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "shop_weapon_upgrade": true,
+     "no_weapon_armor_bonus": 2
+    },
+    "tags": []
+   },
+   {
+    "id": "ashes",
+    "rarity": "legendary",
+    "price": 100,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "attack_speed_percent": 15,
+     "damage_percent": 10,
+     "range": 10
+    },
+    "tags": [
+     "attack_speed",
+     "damage"
+    ]
+   },
+   {
+    "id": "focus",
+    "rarity": "legendary",
+    "price": 110,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "damage_percent": 30,
+     "attack_speed_per_different_weapon_percent": -3
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "heavy_bullets",
+    "rarity": "legendary",
+    "price": 100,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "ranged_damage": 5,
+     "damage_percent": 10,
+     "range": 10,
+     "attack_speed_percent": -5,
+     "crit_chance_percent": -5
+    },
+    "tags": [
+     "ranged"
+    ]
+   },
+   {
+    "id": "spider",
+    "rarity": "legendary",
+    "price": 110,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "damage_percent": 12,
+     "attack_speed_per_different_weapon_percent": 6,
+     "dodge_percent": -3,
+     "harvesting": -5
+    },
+    "tags": [
+     "damage"
+    ]
+   },
+   {
+    "id": "potato",
+    "rarity": "legendary",
+    "price": 95,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "stat",
+    "effects": {
+     "max_hp": 3,
+     "hp_regen": 2,
+     "life_steal_percent": 1,
+     "damage_percent": 5,
+     "attack_speed_percent": 5,
+     "speed_percent": 3,
+     "dodge_percent": 3,
+     "armor": 1,
+     "luck": 5
+    },
+    "tags": []
+   },
+   {
+    "id": "elemental_master",
+    "rarity": "legendary",
+    "price": 115,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "elemental_damage": 10,
+     "reaction_heal": 5,
+     "element_duration_percent": 50
+    },
+    "tags": [
+     "elemental"
+    ]
+   },
+   {
+    "id": "mech_heart",
+    "rarity": "legendary",
+    "price": 105,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "engineering": 10,
+     "structure_damage_percent": 50,
+     "auto_turret_per_wave": 1
+    },
+    "tags": [
+     "engineering"
+    ]
+   },
+   {
+    "id": "se_flame_core",
+    "rarity": "legendary",
+    "price": 120,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "special",
+    "effects": {
+     "elemental_damage": 8,
+     "fire_damage_percent": 25,
+     "burn_duration_percent": 30
+    },
+    "tags": [
+     "elemental",
+     "evolution_core"
+    ]
+   },
+   {
+    "id": "se_mech_core",
+    "rarity": "legendary",
+    "price": 120,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "special",
+    "effects": {
+     "engineering": 8,
+     "structure_damage_percent": 40,
+     "structure_duration_percent": 50,
+     "summon_count": 1
+    },
+    "tags": [
+     "engineering",
+     "evolution_core"
+    ]
+   },
+   {
+    "id": "se_blade_core",
+    "rarity": "legendary",
+    "price": 120,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "special",
+    "effects": {
+     "melee_damage": 8,
+     "crit_damage_percent": 20
+    },
+    "tags": [
+     "melee",
+     "evolution_core"
+    ]
+   },
+   {
+    "id": "resonant_shard",
+    "rarity": "epic",
+    "price": 0,
+    "is_passive": null,
+    "slot": null,
+    "category": null,
+    "effects": {
+     "crit_damage_percent": 25
+    },
+    "tags": [
+     "relic"
+    ]
+   },
+   {
+    "id": "broken_crown",
+    "rarity": "legendary",
+    "price": 120,
+    "is_passive": null,
+    "slot": "relic",
+    "category": null,
+    "effects": {
+     "damage_percent": 50,
+     "damage_taken_percent": 30
+    },
+    "tags": [
+     "relic",
+     "damage"
+    ]
+   },
+   {
+    "id": "mech_engine",
+    "rarity": "legendary",
+    "price": 120,
+    "is_passive": null,
+    "slot": "relic",
+    "category": null,
+    "effects": {
+     "structure_damage_percent": 100
+    },
+    "tags": [
+     "relic",
+     "engineering"
+    ]
+   },
+   {
+    "id": "overload_capacitor",
+    "rarity": "epic",
+    "price": 60,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "attack",
+    "effects": {},
+    "tags": [
+     "crit"
+    ]
+   },
+   {
+    "id": "executioner_mark",
+    "rarity": "rare",
+    "price": 40,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "defense",
+    "effects": {},
+    "tags": [
+     "life_steal"
+    ]
+   },
+   {
+    "id": "last_stand",
+    "rarity": "rare",
+    "price": 45,
+    "is_passive": true,
+    "slot": "passive",
+    "category": "stat",
+    "effects": {},
+    "tags": [
+     "damage"
+    ]
+   }
+  ],
+  "enemies": [
+   {
+    "id": "chaser",
+    "category": "regular",
+    "hp": 3,
+    "hp_growth": 2,
+    "damage": 3,
+    "damage_growth": 0.6,
+    "speed": 320,
+    "behavior": "chase",
+    "coin_value": 2,
+    "exp_value": 3,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "charger",
+    "category": "regular",
+    "hp": 6,
+    "hp_growth": 3,
+    "damage": 4,
+    "damage_growth": 0.8,
+    "speed": 400,
+    "behavior": "charge",
+    "coin_value": 2,
+    "exp_value": 4,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "fly",
+    "category": "regular",
+    "hp": 8,
+    "hp_growth": 3,
+    "damage": 3,
+    "damage_growth": 0.7,
+    "speed": 350,
+    "behavior": "zigzag",
+    "coin_value": 2,
+    "exp_value": 3,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "bruiser",
+    "category": "regular",
+    "hp": 20,
+    "hp_growth": 10,
+    "damage": 6,
+    "damage_growth": 0.8,
+    "speed": 250,
+    "behavior": "chase",
+    "coin_value": 4,
+    "exp_value": 6,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "spitter",
+    "category": "regular",
+    "hp": 10,
+    "hp_growth": 2,
+    "damage": 4,
+    "damage_growth": 0.6,
+    "speed": 180,
+    "behavior": "ranged",
+    "coin_value": 3,
+    "exp_value": 4,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "healer",
+    "category": "regular",
+    "hp": 12,
+    "hp_growth": 6,
+    "damage": 3,
+    "damage_growth": 0.5,
+    "speed": 300,
+    "behavior": "heal",
+    "coin_value": 3,
+    "exp_value": 4,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "spawner",
+    "category": "regular",
+    "hp": 15,
+    "hp_growth": 3,
+    "damage": 4,
+    "damage_growth": 0.5,
+    "speed": 120,
+    "behavior": "spawn",
+    "coin_value": 3,
+    "exp_value": 4,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "horned_charger",
+    "category": "regular",
+    "hp": 15,
+    "hp_growth": 5,
+    "damage": 5,
+    "damage_growth": 0.9,
+    "speed": 425,
+    "behavior": "charge",
+    "coin_value": 3,
+    "exp_value": 5,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "pursuer",
+    "category": "regular",
+    "hp": 12,
+    "hp_growth": 18,
+    "damage": 5,
+    "damage_growth": 1.0,
+    "speed": 150,
+    "behavior": "chase",
+    "coin_value": 3,
+    "exp_value": 5,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "slasher",
+    "category": "regular",
+    "hp": 50,
+    "hp_growth": 20,
+    "damage": 6,
+    "damage_growth": 1.0,
+    "speed": 275,
+    "behavior": "chase",
+    "coin_value": 6,
+    "exp_value": 10,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "helmet_alien",
+    "category": "regular",
+    "hp": 10,
+    "hp_growth": 4,
+    "damage": 4,
+    "damage_growth": 0.8,
+    "speed": 250,
+    "behavior": "chase",
+    "coin_value": 3,
+    "exp_value": 4,
+    "armor": 3,
+    "phases": null
+   },
+   {
+    "id": "horned_fly",
+    "category": "regular",
+    "hp": 18,
+    "hp_growth": 5,
+    "damage": 4,
+    "damage_growth": 0.8,
+    "speed": 350,
+    "behavior": "zigzag",
+    "coin_value": 3,
+    "exp_value": 5,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "corrupted_tree",
+    "category": "regular",
+    "hp": 15,
+    "hp_growth": 12,
+    "damage": 5,
+    "damage_growth": 0.9,
+    "speed": 0,
+    "behavior": "stationary",
+    "coin_value": 4,
+    "exp_value": 5,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "mad_slasher",
+    "category": "regular",
+    "hp": 80,
+    "hp_growth": 30,
+    "damage": 8,
+    "damage_growth": 1.2,
+    "speed": 275,
+    "behavior": "chase",
+    "coin_value": 8,
+    "exp_value": 15,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "lamprey",
+    "category": "regular",
+    "hp": 30,
+    "hp_growth": 12,
+    "damage": 4,
+    "damage_growth": 0.7,
+    "speed": 350,
+    "behavior": "chase",
+    "coin_value": 5,
+    "exp_value": 7,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "butcher",
+    "category": "elite",
+    "hp": 200,
+    "hp_growth": 100,
+    "damage": 8,
+    "damage_growth": null,
+    "speed": 200,
+    "behavior": "aoe_attack",
+    "coin_value": 20,
+    "exp_value": 30,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "colossus",
+    "category": "elite",
+    "hp": 300,
+    "hp_growth": 150,
+    "damage": 10,
+    "damage_growth": null,
+    "speed": 150,
+    "behavior": "chase",
+    "coin_value": 25,
+    "exp_value": 40,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "rhino",
+    "category": "elite",
+    "hp": 250,
+    "hp_growth": 120,
+    "damage": 8,
+    "damage_growth": null,
+    "speed": 250,
+    "behavior": "charge",
+    "coin_value": 22,
+    "exp_value": 35,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "monk",
+    "category": "elite",
+    "hp": 200,
+    "hp_growth": 100,
+    "damage": 6,
+    "damage_growth": null,
+    "speed": 300,
+    "behavior": "self_heal",
+    "coin_value": 20,
+    "exp_value": 30,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "croc",
+    "category": "elite",
+    "hp": 220,
+    "hp_growth": 110,
+    "damage": 8,
+    "damage_growth": null,
+    "speed": 300,
+    "behavior": "chase",
+    "coin_value": 22,
+    "exp_value": 35,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "mom",
+    "category": "elite",
+    "hp": 250,
+    "hp_growth": 120,
+    "damage": 6,
+    "damage_growth": null,
+    "speed": 200,
+    "behavior": "spawn",
+    "coin_value": 22,
+    "exp_value": 35,
+    "armor": null,
+    "phases": null
+   },
+   {
+    "id": "invoker",
+    "category": "boss",
+    "hp": 8000,
+    "hp_growth": null,
+    "damage": 15,
+    "damage_growth": null,
+    "speed": 200,
+    "behavior": null,
+    "coin_value": 150,
+    "exp_value": 400,
+    "armor": null,
+    "phases": [
+     {
+      "hp_threshold_percent": 100,
+      "attacks": [
+       "summon_2_enemies_every_5s",
+       "3_projectile_spread"
+      ],
+      "speed_multiplier": 1.0
+     },
+     {
+      "hp_threshold_percent": 60,
+      "attacks": [
+       "summon_4_enemies_every_2.5s",
+       "6_projectile_spread"
+      ],
+      "speed_multiplier": 1.2
+     }
+    ]
+   },
+   {
+    "id": "predator",
+    "category": "boss",
+    "hp": 15000,
+    "hp_growth": null,
+    "damage": 20,
+    "damage_growth": null,
+    "speed": 300,
+    "behavior": null,
+    "coin_value": 200,
+    "exp_value": 500,
+    "armor": null,
+    "phases": [
+     {
+      "hp_threshold_percent": 100,
+      "attacks": [
+       "charge_attack",
+       "aoe_every_8s"
+      ],
+      "speed_multiplier": 1.0
+     },
+     {
+      "hp_threshold_percent": 66,
+      "attacks": [
+       "charge_attack_2x",
+       "summon_1_elite",
+       "projectile_barrage"
+      ],
+      "speed_multiplier": 1.0
+     },
+     {
+      "hp_threshold_percent": 33,
+      "attacks": [
+       "all_attacks_2x",
+       "summon_2_elite"
+      ],
+      "speed_multiplier": 1.3
+     }
+    ]
+   }
+  ],
+  "enemy_scaling": {
+   "hp_formula": "base_hp + hp_growth * wave",
+   "damage_formula": "base_damage + damage_growth * wave",
+   "speed_formula": "base_speed * (1 + min(wave * 0.01, 0.2)) * 0.5  # F-01(2026-08-06 用户拍板): 怪物移速降至50%",
+   "elite_hp_multiplier": "1 + wave * 0.15",
+   "elite_damage_multiplier": "1 + wave * 0.08"
+  },
+  "characters": [
+   {
+    "id": "well_rounded",
+    "passive": {
+     "max_hp": 10,
+     "speed_percent": 5,
+     "harvesting": 3
+    },
+    "penalty": null,
+    "skill": null,
+    "starting_weapon": "pistol"
+   },
+   {
+    "id": "brawler",
+    "passive": {
+     "melee_attack_speed_percent": 50,
+     "melee_damage": 15,
+     "life_steal_percent": 10
+    },
+    "penalty": {
+     "range": -50
+    },
+    "skill": null,
+    "starting_weapon": "fist"
+   },
+   {
+    "id": "ranger",
+    "passive": {
+     "ranged_range_bonus": 60,
+     "ranged_damage_effect_percent": 50,
+     "crit_chance_percent": 10
+    },
+    "penalty": {
+     "max_hp": -25
+    },
+    "skill": null,
+    "starting_weapon": "slingshot"
+   },
+   {
+    "id": "mage",
+    "passive": {
+     "elemental_damage": 10,
+     "double_element_chance_percent": 30,
+     "elemental_damage_effect_percent": 33
+    },
+    "penalty": {
+     "melee_damage_percent": -100,
+     "ranged_damage_percent": -100,
+     "engineering": -50
+    },
+    "skill": null,
+    "starting_weapon": "wand"
+   },
+   {
+    "id": "engineer",
+    "passive": {
+     "engineering": 15,
+     "structure_hp_percent": 50,
+     "structure_damage_percent": 30
+    },
+    "penalty": {
+     "attack_speed_percent": -20,
+     "melee_damage": -10
+    },
+    "skill": null,
+    "starting_weapon": "turret"
+   },
+   {
+    "id": "gambler",
+    "passive": {
+     "luck": 50,
+     "shop_quality_percent": 25,
+     "double_material_chance_percent": 20
+    },
+    "penalty": {
+     "damage_percent": -30,
+     "attack_speed_percent": -20
+    },
+    "skill": null,
+    "starting_weapon": "dagger"
+   },
+   {
+    "id": "se_irene",
+    "passive": {
+     "elemental_damage": 8,
+     "fire_damage_percent": 15,
+     "burn_duration_percent": 30
+    },
+    "penalty": {
+     "melee_damage_percent": -50,
+     "max_hp": -10
+    },
+    "skill": {
+     "id": "se_skill_fireball",
+     "name": "炽星火球",
+     "name_en": "Blazing Fireball",
+     "type": "active",
+     "cooldown": 8.0,
+     "damage": 30,
+     "radius": 90,
+     "element_type": "fire",
+     "burn_duration": 4.0,
+     "description": "向鼠标方向抛射巨型火球，命中爆炸并施加燃烧(4秒)"
+    },
+    "starting_weapon": "se_star_flame"
+   },
+   {
+    "id": "se_noa",
+    "passive": {
+     "engineering": 12,
+     "structure_hp_percent": 40,
+     "summon_count": 1
+    },
+    "penalty": {
+     "attack_speed_percent": -15,
+     "speed_percent": -5
+    },
+    "skill": {
+     "id": "se_skill_deploy_turret",
+     "name": "紧急部署",
+     "name_en": "Emergency Deploy",
+     "type": "active",
+     "cooldown": 12.0,
+     "summon_id": "se_auto_turret",
+     "summon_count": 2,
+     "duration": 15.0,
+     "description": "立即在身侧部署 2 台临时炮台，持续 15 秒"
+    },
+    "starting_weapon": "se_auto_turret"
+   },
+   {
+    "id": "se_ren",
+    "passive": {
+     "melee_damage": 8,
+     "crit_chance_percent": 10,
+     "life_steal_percent": 5
+    },
+    "penalty": {
+     "ranged_damage_percent": -50,
+     "range": -20
+    },
+    "skill": {
+     "id": "se_skill_blade_burst",
+     "name": "星刃爆发",
+     "name_en": "Blade Burst",
+     "type": "active",
+     "cooldown": 10.0,
+     "duration": 5.0,
+     "effects": {
+      "orbit_blade_count": 3,
+      "attack_speed_percent": 50
+     },
+     "description": "5 秒内环绕星刃额外 +3 把并提升 50% 攻速"
+    },
+    "starting_weapon": "se_star_blade"
+   },
+   {
+    "id": "se_siia",
+    "passive": {
+     "hp_regen": 2,
+     "max_hp": 15,
+     "luck": 5
+    },
+    "penalty": {
+     "damage_percent": -15,
+     "speed_percent": -5
+    },
+    "skill": {
+     "id": "se_skill_holy_shield",
+     "name": "神圣庇护",
+     "name_en": "Holy Shield",
+     "type": "active",
+     "cooldown": 14.0,
+     "duration": 5.0,
+     "effects": {
+      "shield": 30,
+      "heal": 10
+     },
+     "description": "5 秒内获得 30 点护盾并每秒恢复 10 点生命"
+    },
+    "starting_weapon": "se_holy_staff"
+   }
+  ],
+  "waves": [
+   {
+    "wave": 1,
+    "duration": 20,
+    "total_enemies": 12,
+    "composition": [
+     {
+      "enemy": "chaser",
+      "count": 8
+     },
+     {
+      "enemy": "fly",
+      "count": 4
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 2,
+    "duration": 25,
+    "total_enemies": 18,
+    "composition": [
+     {
+      "enemy": "chaser",
+      "count": 10
+     },
+     {
+      "enemy": "charger",
+      "count": 5
+     },
+     {
+      "enemy": "fly",
+      "count": 3
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 3,
+    "duration": 30,
+    "total_enemies": 25,
+    "composition": [
+     {
+      "enemy": "charger",
+      "count": 10
+     },
+     {
+      "enemy": "fly",
+      "count": 8
+     },
+     {
+      "enemy": "spitter",
+      "count": 5
+     },
+     {
+      "enemy": "bruiser",
+      "count": 2
+     }
+    ],
+    "special": "chest_enemy_first_appearance"
+   },
+   {
+    "wave": 4,
+    "duration": 30,
+    "total_enemies": 28,
+    "composition": [
+     {
+      "enemy": "chaser",
+      "count": 12
+     },
+     {
+      "enemy": "charger",
+      "count": 8
+     },
+     {
+      "enemy": "helmet_alien",
+      "count": 5
+     },
+     {
+      "enemy": "spitter",
+      "count": 3
+     }
+    ],
+    "special": "curse_enemy_appearance"
+   },
+   {
+    "wave": 5,
+    "duration": 35,
+    "total_enemies": 32,
+    "composition": [
+     {
+      "enemy": "fly",
+      "count": 10
+     },
+     {
+      "enemy": "horned_charger",
+      "count": 8
+     },
+     {
+      "enemy": "bruiser",
+      "count": 5
+     },
+     {
+      "enemy": "spitter",
+      "count": 5
+     },
+     {
+      "enemy": "spawner",
+      "count": 2
+     }
+    ],
+    "special": "swarm_wave"
+   },
+   {
+    "wave": 6,
+    "duration": 35,
+    "total_enemies": 35,
+    "composition": [
+     {
+      "enemy": "horned_charger",
+      "count": 10
+     },
+     {
+      "enemy": "helmet_alien",
+      "count": 8
+     },
+     {
+      "enemy": "bruiser",
+      "count": 7
+     },
+     {
+      "enemy": "spitter",
+      "count": 5
+     },
+     {
+      "enemy": "elite:butcher",
+      "count": 1
+     }
+    ],
+    "special": "elite_first_appearance"
+   },
+   {
+    "wave": 7,
+    "duration": 40,
+    "total_enemies": 38,
+    "composition": [
+     {
+      "enemy": "horned_fly",
+      "count": 10
+     },
+     {
+      "enemy": "bruiser",
+      "count": 8
+     },
+     {
+      "enemy": "slasher",
+      "count": 5
+     },
+     {
+      "enemy": "spitter",
+      "count": 8
+     },
+     {
+      "enemy": "healer",
+      "count": 2
+     },
+     {
+      "enemy": "elite:monk",
+      "count": 1
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 8,
+    "duration": 40,
+    "total_enemies": 42,
+    "composition": [
+     {
+      "enemy": "chaser",
+      "count": 15
+     },
+     {
+      "enemy": "charger",
+      "count": 10
+     },
+     {
+      "enemy": "slasher",
+      "count": 8
+     },
+     {
+      "enemy": "horned_charger",
+      "count": 5
+     },
+     {
+      "enemy": "elite:rhino",
+      "count": 2
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 9,
+    "duration": 45,
+    "total_enemies": 45,
+    "composition": [
+     {
+      "enemy": "mad_slasher",
+      "count": 5
+     },
+     {
+      "enemy": "lamprey",
+      "count": 10
+     },
+     {
+      "enemy": "horned_fly",
+      "count": 12
+     },
+     {
+      "enemy": "bruiser",
+      "count": 8
+     },
+     {
+      "enemy": "spawner",
+      "count": 3
+     },
+     {
+      "enemy": "elite:croc",
+      "count": 2
+     }
+    ],
+    "special": "high_pressure"
+   },
+   {
+    "wave": 10,
+    "duration": 60,
+    "total_enemies": -1,
+    "composition": [
+     {
+      "enemy": "boss:invoker",
+      "count": 1
+     }
+    ],
+    "special": "boss_wave"
+   },
+   {
+    "wave": 11,
+    "duration": 40,
+    "total_enemies": 48,
+    "composition": [
+     {
+      "enemy": "horned_charger",
+      "count": 15
+     },
+     {
+      "enemy": "helmet_alien",
+      "count": 10
+     },
+     {
+      "enemy": "slasher",
+      "count": 8
+     },
+     {
+      "enemy": "spitter",
+      "count": 8
+     },
+     {
+      "enemy": "healer",
+      "count": 3
+     },
+     {
+      "enemy": "elite:butcher",
+      "count": 2
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 12,
+    "duration": 45,
+    "total_enemies": 52,
+    "composition": [
+     {
+      "enemy": "mad_slasher",
+      "count": 8
+     },
+     {
+      "enemy": "lamprey",
+      "count": 12
+     },
+     {
+      "enemy": "bruiser",
+      "count": 10
+     },
+     {
+      "enemy": "spawner",
+      "count": 5
+     },
+     {
+      "enemy": "elite:colossus",
+      "count": 3
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 13,
+    "duration": 45,
+    "total_enemies": 55,
+    "composition": [
+     {
+      "enemy": "horned_fly",
+      "count": 15
+     },
+     {
+      "enemy": "slasher",
+      "count": 10
+     },
+     {
+      "enemy": "horned_charger",
+      "count": 12
+     },
+     {
+      "enemy": "healer",
+      "count": 5
+     },
+     {
+      "enemy": "elite:rhino",
+      "count": 3
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 14,
+    "duration": 50,
+    "total_enemies": 58,
+    "composition": [
+     {
+      "enemy": "mad_slasher",
+      "count": 10
+     },
+     {
+      "enemy": "helmet_alien",
+      "count": 12
+     },
+     {
+      "enemy": "lamprey",
+      "count": 15
+     },
+     {
+      "enemy": "spitter",
+      "count": 10
+     },
+     {
+      "enemy": "elite:croc",
+      "count": 3
+     }
+    ],
+    "special": "curse_wave"
+   },
+   {
+    "wave": 15,
+    "duration": 50,
+    "total_enemies": 60,
+    "composition": [
+     {
+      "enemy": "mixed",
+      "count": 56
+     },
+     {
+      "enemy": "elite:mixed",
+      "count": 4
+     }
+    ],
+    "special": "swarm_wave"
+   },
+   {
+    "wave": 16,
+    "duration": 50,
+    "total_enemies": 62,
+    "composition": [
+     {
+      "enemy": "mad_slasher",
+      "count": 12
+     },
+     {
+      "enemy": "lamprey",
+      "count": 15
+     },
+     {
+      "enemy": "bruiser",
+      "count": 12
+     },
+     {
+      "enemy": "spawner",
+      "count": 8
+     },
+     {
+      "enemy": "elite:monk",
+      "count": 3
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 17,
+    "duration": 55,
+    "total_enemies": 65,
+    "composition": [
+     {
+      "enemy": "mixed_with_curse",
+      "count": 61
+     },
+     {
+      "enemy": "elite:mixed",
+      "count": 4
+     }
+    ],
+    "special": "curse_wave"
+   },
+   {
+    "wave": 18,
+    "duration": 55,
+    "total_enemies": 68,
+    "composition": [
+     {
+      "enemy": "mad_slasher",
+      "count": 15
+     },
+     {
+      "enemy": "horned_charger",
+      "count": 15
+     },
+     {
+      "enemy": "slasher",
+      "count": 10
+     },
+     {
+      "enemy": "elite:rhino",
+      "count": 4
+     }
+    ],
+    "special": null
+   },
+   {
+    "wave": 19,
+    "duration": 55,
+    "total_enemies": 70,
+    "composition": [
+     {
+      "enemy": "mixed",
+      "count": 65
+     },
+     {
+      "enemy": "elite:mixed",
+      "count": 5
+     }
+    ],
+    "special": "high_pressure"
+   },
+   {
+    "wave": 20,
+    "duration": 90,
+    "total_enemies": -1,
+    "composition": [
+     {
+      "enemy": "boss:predator",
+      "count": 1
+     }
+    ],
+    "special": "final_boss_wave"
+   }
+  ],
+  "wave_generation": {
+   "base_enemy_count_formula": "base_count + wave * 2",
+   "spawn_interval_formula": "max(0.3, base_interval - wave * 0.02)",
+   "max_concurrent_formula": "min(20 + wave * 2, 60)"
+  },
+  "wave_rewards": {
+   "wave_complete_base": "5 + wave * 2",
+   "harvesting_bonus": "= harvesting_stat",
+   "kill_bonus": "kill_count * 1 (elite * 3, boss * 50)"
+  },
+  "elemental_status": {
+   "fire": {
+    "name": "燃烧",
+    "name_en": "Burning",
+    "duration": 3,
+    "effect": "每秒造成 3 + (元素伤害×0.2) 点伤害",
+    "dot": 3,
+    "dot_scaling": 0.2
+   },
+   "ice": {
+    "name": "减速",
+    "name_en": "Chilled",
+    "duration": 2,
+    "effect": "移动速度-40%",
+    "slow_percent": 40
+   },
+   "lightning": {
+    "name": "麻痹",
+    "name_en": "Paralyzed",
+    "duration": 0.5,
+    "effect": "无法行动",
+    "stun": true
+   },
+   "poison": {
+    "name": "中毒",
+    "name_en": "Poisoned",
+    "duration": 5,
+    "effect": "每秒造成 2 + (元素伤害×0.15) 点伤害",
+    "dot": 2,
+    "dot_scaling": 0.15
+   },
+   "plasma": {
+    "name": "灼烧",
+    "name_en": "Sear",
+    "duration": 3,
+    "effect": "防御-5",
+    "armor_reduction": 5
+   }
+  },
+  "element_reactions": [
+   {
+    "combination": [
+     "fire",
+     "ice"
+    ],
+    "name": "蒸汽爆破",
+    "name_en": "Steam Burst",
+    "damage": 20,
+    "damage_scaling": 0.5,
+    "aoe_radius": 80,
+    "extra_effect": "致盲(命中率-50%) 2秒"
+   },
+   {
+    "combination": [
+     "fire",
+     "lightning"
+    ],
+    "name": "雷火风暴",
+    "name_en": "Storm of Fire",
+    "damage": 15,
+    "damage_scaling": 0.4,
+    "chain_count": 3,
+    "chain_falloff": 0.25,
+    "extra_effect": "触发3次连锁闪电"
+   },
+   {
+    "combination": [
+     "fire",
+     "poison"
+    ],
+    "name": "瘟疫之火",
+    "name_en": "Plague Fire",
+    "damage": 25,
+    "damage_scaling": 0.6,
+    "extra_effect": "留下一片毒火区域(3秒, 每秒5点伤害)"
+   },
+   {
+    "combination": [
+     "fire",
+     "plasma"
+    ],
+    "name": "超新星",
+    "name_en": "Supernova",
+    "damage": 40,
+    "damage_scaling": 0.8,
+    "aoe_radius": 120,
+    "extra_effect": "无视护甲"
+   },
+   {
+    "combination": [
+     "ice",
+     "lightning"
+    ],
+    "name": "超导",
+    "name_en": "Superconduct",
+    "damage": 10,
+    "damage_scaling": 0.3,
+    "extra_effect": "冻结2秒"
+   },
+   {
+    "combination": [
+     "ice",
+     "poison"
+    ],
+    "name": "寒毒",
+    "name_en": "Frost Toxin",
+    "damage": 8,
+    "damage_scaling": 0.2,
+    "extra_effect": "减速延长至4秒且减速60%"
+   },
+   {
+    "combination": [
+     "ice",
+     "plasma"
+    ],
+    "name": "绝对零度",
+    "name_en": "Absolute Zero",
+    "damage": 15,
+    "damage_scaling": 0.4,
+    "extra_effect": "冻结3秒"
+   },
+   {
+    "combination": [
+     "lightning",
+     "poison"
+    ],
+    "name": "腐蚀链",
+    "name_en": "Corrosive Chain",
+    "damage": 12,
+    "damage_scaling": 0.3,
+    "chain_count": 3,
+    "extra_effect": "连锁敌人并施加中毒"
+   },
+   {
+    "combination": [
+     "lightning",
+     "plasma"
+    ],
+    "name": "电磁脉冲",
+    "name_en": "EMP",
+    "damage": 18,
+    "damage_scaling": 0.4,
+    "extra_effect": "沉默敌人3秒(无法使用特殊技能)"
+   },
+   {
+    "combination": [
+     "poison",
+     "plasma"
+    ],
+    "name": "衰变",
+    "name_en": "Decay",
+    "damage": 30,
+    "damage_scaling": 0.6,
+    "extra_effect": "最大生命值-10% 持续整局"
+   }
+  ],
+  "stats": {
+   "basic": [
+    {
+     "id": "max_hp",
+     "name": "最大生命值",
+     "name_en": "Max HP",
+     "base": 100,
+     "max": null,
+     "description": "玩家生命上限"
+    },
+    {
+     "id": "hp_regen",
+     "name": "生命回复",
+     "name_en": "HP Regen",
+     "base": 0,
+     "max": null,
+     "description": "每秒回复生命值"
+    },
+    {
+     "id": "armor",
+     "name": "护甲",
+     "name_en": "Armor",
+     "base": 0,
+     "max": 20,
+     "description": "减免物理伤害, 上限75%减伤"
+    },
+    {
+     "id": "dodge",
+     "name": "闪避",
+     "name_en": "Dodge",
+     "base": 0,
+     "max": 60,
+     "description": "概率完全躲避攻击, 上限60%",
+     "unit": "percent"
+    },
+    {
+     "id": "speed",
+     "name": "移动速度",
+     "name_en": "Speed",
+     "base": 300,
+     "max": null,
+     "description": "移动速度(像素/秒)"
+    },
+    {
+     "id": "pickup_range",
+     "name": "拾取范围",
+     "name_en": "Pickup Range",
+     "base": 80,
+     "max": null,
+     "description": "自动拾取半径"
+    }
+   ],
+   "offensive": [
+    {
+     "id": "melee_damage",
+     "name": "近战伤害",
+     "name_en": "Melee Damage",
+     "base": 0,
+     "max": null
+    },
+    {
+     "id": "ranged_damage",
+     "name": "远程伤害",
+     "name_en": "Ranged Damage",
+     "base": 0,
+     "max": null
+    },
+    {
+     "id": "elemental_damage",
+     "name": "元素伤害",
+     "name_en": "Elemental Damage",
+     "base": 0,
+     "max": null
+    },
+    {
+     "id": "attack_speed",
+     "name": "攻击速度",
+     "name_en": "Attack Speed",
+     "base": 0,
+     "max": null,
+     "unit": "percent"
+    },
+    {
+     "id": "crit_chance",
+     "name": "暴击率",
+     "name_en": "Crit Chance",
+     "base": 5,
+     "max": null,
+     "unit": "percent"
+    },
+    {
+     "id": "crit_damage",
+     "name": "暴击伤害",
+     "name_en": "Crit Damage",
+     "base": 150,
+     "max": null,
+     "unit": "percent"
+    },
+    {
+     "id": "range",
+     "name": "攻击范围",
+     "name_en": "Range",
+     "base": 0,
+     "max": null
+    },
+    {
+     "id": "knockback",
+     "name": "击退",
+     "name_en": "Knockback",
+     "base": 0,
+     "max": null
+    },
+    {
+     "id": "life_steal",
+     "name": "生命偷取",
+     "name_en": "Life Steal",
+     "base": 0,
+     "max": null,
+     "unit": "percent"
+    }
+   ],
+   "economy": [
+    {
+     "id": "harvesting",
+     "name": "收获",
+     "name_en": "Harvesting",
+     "base": 0,
+     "max": null,
+     "description": "每波次结束获得额外材料"
+    },
+    {
+     "id": "luck",
+     "name": "幸运",
+     "name_en": "Luck",
+     "base": 0,
+     "max": null,
+     "description": "影响掉落品质和商店品质"
+    },
+    {
+     "id": "xp_gain",
+     "name": "经验加成",
+     "name_en": "XP Gain",
+     "base": 0,
+     "max": null,
+     "unit": "percent"
+    },
+    {
+     "id": "engineering",
+     "name": "工程学",
+     "name_en": "Engineering",
+     "base": 0,
+     "max": null
+    },
+    {
+     "id": "curse",
+     "name": "诅咒",
+     "name_en": "Curse",
+     "base": 0,
+     "max": null,
+     "description": "增强敌人但增加掉落"
+    }
+   ]
+  },
+  "formulas": {
+   "damage": "final_damage = (weapon_base_damage + damage_stat) * crit_check",
+   "crit_check": "if random() < crit_chance: * crit_damage_multiplier, else: * 1.0",
+   "armor_reduction": "damage_reduction = min(armor / (armor + 20), 0.75)",
+   "armor_final": "final_damage = raw_damage * (1 - damage_reduction)",
+   "attack_speed": "actual_cooldown = weapon_base_cooldown / (1 + attack_speed_percent / 100)",
+   "attack_speed_min": "min_cooldown = 0.1s",
+   "dodge": "if random() < min(dodge_percent/100, 0.60): ignore_damage",
+   "knockback": "knockback_distance = base_knockback + knockback_stat",
+   "harvesting": "bonus_materials_per_wave = harvesting_stat",
+   "luck_shop": "high_quality_chance = base_chance + luck * 0.5%",
+   "luck_chest": "chest_drop_chance = base_chance + luck * 0.3%",
+   "curse_hp": "enemy_hp_multiplier = 1.5 + curse * 0.02",
+   "curse_damage": "enemy_damage_multiplier = 1.25",
+   "curse_speed": "enemy_speed_multiplier = 1.15",
+   "curse_drop": "material_drop_multiplier = 1.33"
+  },
+  "leveling": {
+   "xp_per_level": "20 + current_level * 10",
+   "choices_per_level": 3,
+   "upgrade_options": [
+    {
+     "group": "damage",
+     "options": [
+      {
+       "label": "攻击 +10%",
+       "stat": "damage",
+       "mode": "percent",
+       "value": 10
+      },
+      {
+       "label": "攻速 +5%",
+       "stat": "attack_speed",
+       "mode": "percent",
+       "value": 5
+      },
+      {
+       "label": "暴伤 +10%",
+       "stat": "crit_damage",
+       "mode": "percent",
+       "value": 10
+      }
+     ]
+    },
+    {
+     "group": "offense",
+     "options": [
+      {
+       "label": "范围 +8%",
+       "stat": "range",
+       "mode": "percent",
+       "value": 8
+      },
+      {
+       "label": "暴击率 +3%",
+       "stat": "crit_chance",
+       "mode": "ratio",
+       "value": 3
+      },
+      {
+       "label": "移速 +5%",
+       "stat": "move_speed",
+       "mode": "percent",
+       "value": 5
+      }
+     ]
+    },
+    {
+     "group": "defense",
+     "options": [
+      {
+       "label": "生命 +10",
+       "stat": "max_health",
+       "mode": "add",
+       "value": 10
+      },
+      {
+       "label": "护甲 +1",
+       "stat": "armor",
+       "mode": "add",
+       "value": 1
+      },
+      {
+       "label": "吸血 +2%",
+       "stat": "life_steal",
+       "mode": "ratio",
+       "value": 2
+      }
+     ]
+    },
+    {
+     "group": "economy",
+     "options": [
+      {
+       "label": "幸运 +5",
+       "stat": "luck",
+       "mode": "add",
+       "value": 5
+      },
+      {
+       "label": "暴伤 +10%",
+       "stat": "crit_damage",
+       "mode": "percent",
+       "value": 10
+      },
+      {
+       "label": "攻击 +10%",
+       "stat": "damage",
+       "mode": "percent",
+       "value": 10
+      }
+     ]
+    }
+   ]
+  },
+  "events": [
+   {
+    "id": "echo_cradle",
+    "theme": "苏醒"
+   },
+   {
+    "id": "mutant_child",
+    "theme": "异变生命"
+   },
+   {
+    "id": "dead_recorder",
+    "theme": "回响者联盟"
+   },
+   {
+    "id": "crystal_vein",
+    "theme": "星骸"
+   },
+   {
+    "id": "ark_misdrop",
+    "theme": "回响者联盟"
+   },
+   {
+    "id": "mirror_pool",
+    "theme": "苏醒"
+   },
+   {
+    "id": "corrupted_grove",
+    "theme": "异变生命"
+   },
+   {
+    "id": "signal_choir",
+    "theme": "异变生命"
+   },
+   {
+    "id": "tithe_interface",
+    "theme": "星骸"
+   },
+   {
+    "id": "awakening_pulse",
+    "theme": "苏醒"
+   }
+  ],
+  "routes": {
+   "layers": 15,
+   "nodes_per_layer": 3,
+   "boss_layers": [
+    9,
+    14
+   ],
+   "default_seed": 20260806,
+   "weights": {
+    "battle": 0.5,
+    "event": 0.2,
+    "elite": 0.15,
+    "shop": 0.15
+   },
+   "constraints": {
+    "first_layer_has_battle": true,
+    "final_layer_boss": true,
+    "max_battle_nodes": 36
+   }
+  }
+ },
+ "fingerprint": "829fb9555b4237fe"
+}

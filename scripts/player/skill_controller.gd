@@ -78,6 +78,8 @@ func try_cast() -> bool:
 				return false
 		"se_skill_blade_burst":
 			_cast_blade_burst()
+		"se_skill_holy_shield":   # P0-Bug1 修复（2026-08-10）：希亚「神圣庇护」实装
+			_cast_holy_shield()
 		_:
 			push_warning("[SkillController] 未知技能 id: %s" % skill_id)
 			return false
@@ -222,6 +224,30 @@ func _restore_blade_burst(duration: float, atk_mult: float, orbit_count: int) ->
 		player.apply_stat_modifier("attack_speed", 1.0 / atk_mult, true)
 	if orbit_count > 0:
 		player.bonus_stats["orbit_blade_count"] = float(player.bonus_stats.get("orbit_blade_count", 0.0)) - orbit_count
+
+## 希亚「神圣庇护」（P0-Bug1 修复 2026-08-10，数据自 characters.json se_siia.skill）：
+## 立即获得 effects.shield 点护盾，并在 duration 秒内每秒恢复 effects.heal 点生命。
+## 数值全部来自 skill_data（cooldown 14 / duration 5 / shield 30 / heal 10），禁止硬编码。
+func _cast_holy_shield() -> void:
+	if player == null:
+		return
+	var effects: Dictionary = skill_data.get("effects", {})
+	var duration: float = float(skill_data.get("duration", 5.0))
+	var shield_amt: float = float(effects.get("shield", 0.0))
+	var heal_per_sec: float = float(effects.get("heal", 0.0))
+	if shield_amt > 0.0:
+		player.add_shield(shield_amt, duration)
+	if heal_per_sec > 0.0 and duration > 0.0:
+		_run_holy_shield_heal(heal_per_sec, duration)
+
+## 神圣庇护持续回血：每秒一跳，duration 秒（玩家死亡/失效即停）
+func _run_holy_shield_heal(heal_per_sec: float, duration: float) -> void:
+	var ticks_left: int = int(ceil(duration))
+	for i in ticks_left:
+		await get_tree().create_timer(1.0).timeout
+		if not is_instance_valid(player) or not player.is_alive:
+			return
+		player.heal(heal_per_sec)
 
 # ========== 工具（与 weapon_controller 同一口径，避免两套瞄准/容器逻辑） ==========
 
