@@ -2329,3 +2329,37 @@
 - [ ] 视觉/听觉主观感受（Anime 像素、华丽特效、音频氛围）
 - [ ] 剧情文本调性
 - [ ] 崩溃复现需真人路径
+
+
+---
+
+## 阶段 F：技术债整改（2026-08-10 用户拍板 · 总方案 docs/TECH_DEBT_PLAN.md · 债清单 docs/TECH_DEBT_ISSUES.md）
+
+> 维护：#2 拆解岗按 TECH_DEBT_PLAN.md §4 继续拆解；#3 执行按 SOLUTION_PLAN「阶段 F」章节；#1 进度按本区统计。
+> 数据管线铁律：改数只改 docs/GameData.xlsx →  校验导出 → 探针；data/*.json 禁手改。
+
+### F0 基线冻结【✅ 已收口 · f0-baseline / 42871c9】
+- [x] F0-1 全量探针基线（30 项/774 断言）
+- [x] F0-2 P0-Bug1 希亚「神圣庇护」实装（player 护盾层 + skill_controller 接线，day30_p0_fix_check 15 断言）
+- [x] F0-3 P0-Bug2 被动未映射键收拢 bonus_stats（CONSUMED_BONUS_KEYS 白名单）
+- [x] F0-4 docs/TECH_DEBT_ISSUES.md 53 条登记（T-001~T-053）
+- [x] F0-5 tools/gen_baseline_numerics.py + baseline_numerics.json 数值快照
+
+### F1.0 Excel 数据管线【✅ 已收口 · f1-excel-pipeline】
+- [x] F1.0-1 tools/json_to_excel.py 导入 → docs/GameData.xlsx（18 表）
+- [x] F1.0-2 tools/excel_export.py（校验/导出/DATA_OVERVIEW/manifest；--check-only）roundtrip 9 表零差异
+- [x] F1.0-3 配置生效探针 day30_data_effect_check.gd + 自动化护栏（#3 prompt 已含数据管线纪律）
+
+### F1 数据层统一【进行中】
+- [x] F1-A enemies.scaling 参数化（T-001/002：speed_growth/cap/reduction + elite_*_mult_per_wave；实测改数生效）
+- [x] F1-B waves.generation + routes.boss_wave 参数化（T-003/014；day30_f1_scaling_check 10 断言）
+- [ ] F1-C 护甲公式统一（T-006：player 平直减 vs enemy 百分比两套 → stats.formulas 参数化统一；⚠️ 数值重平衡需用户确认口径）
+- [ ] F1-D 商店参数数据化（T-010：REROLL_COST=10 / 星刃保底 current_wave==4 → stats.json shop 段）
+- [ ] F1-E 表现配置抽表（T-016~024：SPRITE_MAP/BEHAVIOR_MAP/BGM/SFX/FX/SHEET_CONFIG/初始枪/炮台默认 → Excel presentation sheet）
+- [ ] F1-F 机制 id 收敛（T-025~030：HERO_IDS 改 DataLoader 全量；道具/技能 id 常量表）
+- [ ] F1-G 无消费方效果键逐键裁决（T-050 22 键：接线 or 删，参考 wave_rewards.harvesting_bonus 等现成消费点）
+
+### F2 代码边界收拢【未开始】（T-037~045 + GM 首拆 T-046：信号化/容器工厂/实体创建收口）
+### F3 状态机规范化【未开始】（T-031~036：自研两形态 enum+_transition / enum+状态表 + 合规探针 + 状态流探针）
+### F4 上帝脚本拆分【未开始】（T-046~048：GM754/enemy882/player610 拆分，目标 <400 行，数值快照零漂移验证）
+### F5 回归与收口【未开始】（全量回归 + 策划改数手册 CODE_STYLE/DATA_DICT_GUIDE）

@@ -70,3 +70,109 @@
 - P0 检查：PLAYTEST 追踪区增量 #59 最新（F-34 登记轮）+ 方案 §0 双一致 → 🔴 **机器可验证 P0 零命中**（F 系列全 🟢 已落地·待真人回归 = 主观项交 #5；E-0 终审完整局 = 真人侧最高优先）。
 - 动作：零代码改动、零探针运行（无执行输入）；TASKS 无本岗可标记项；git 实测 HEAD=`acaa2bf`，工作区在途 4 份 docs（PROGRESS/TASKS/LOOP_HEALTH/本方案 = #1/#2/#4/方案师产出）零游戏代码 → 收尾同步一并提交推送。
 - 后续轮次动作模板：#3 维持合规等待直至方案师落盘新开发任务方案（Day 30 发布准备候选 = #1 裁决；Day 29 真人反馈如有修复项 → 方案师定案后执行）。
+
+
+---
+
+## 阶段 F 技术债整改方案（2026-08-10 主窗口录入 · 供 #3 执行岗接手）
+
+> 总方案/决策记录：docs/TECH_DEBT_PLAN.md（§7 决策表 · §8 状态机选型 · §8.6 能力上限清单）
+> 债清单：docs/TECH_DEBT_ISSUES.md（T-001~T-053 逐条状态）
+> **数据管线铁律**：改数只改 docs/GameData.xlsx → `python tools/excel_export.py`（校验不过禁止提交）→ 探针；data/*.json 为 generated 禁手改。
+> **探针套件**：`python tools/_regression_run.py`（当前 31 项/784 断言，改完必跑）；数值基线 `tools/baseline_numerics.json`（F4 拆分后对比防漂移）。
+
+### 已完成（无需再执行）
+- F0 基线冻结 + 2 P0 bug 修复（f0-baseline / 42871c9）
+- F1.0 Excel 管线全链（f1-excel-pipeline）
+- F1-A enemies.scaling 参数化（T-001/002）、F1-B waves.generation + routes.boss_wave（T-003/014），day30_f1_scaling_check.gd 10 断言
+
+### 任务 F1-C 护甲公式统一（T-006）【执行者按此方案执行】
+- **现状**：player.gd `take_damage` 用平直减法 `max(amount - armor, 1.0)`；enemy.gd 减伤用百分比 `min(armor/(armor+20), 0.75)`；stats.json.formulas 的 armor_reduction/armor_final 公式字符串零消费
+- **改动**：① stats.json formulas 段参数化（stats_formulas sheet）：`armor_factor: 20` / `armor_cap: 0.75`（改 Excel 导出）；② player.gd `take_damage` 改为百分比减伤 `actual = amount * (1 - min(armor/(armor+armor_factor), armor_cap))`，保留 damage_taken_mult 后乘与 F-04 金手指；③ 伤害数值口径变更属**数值重平衡**——统一前先确认：角色/道具 armor 数据（max_hp 体系小数值 2-15）在百分比制下的等效性，必要时按比例换算并在 DATA_OVERVIEW 对比
+- **验证**：day30 新探针或扩 day30_f1_scaling_check：armor=0 全伤 / armor=20 → 50% / armor 超限 clamp cap；回归 31 项全绿
+- ⚠️ 本任务含数值语义变更，执行前若无法确认换算口径 → 在 TASKS 标记「执行阻塞：护甲数值口径待用户确认」不强行改
+
+### 任务 F1-D 商店参数数据化（T-010）【执行者按此方案执行】
+- **现状**：shop.gd `REROLL_COST = 10`（:31）、`current_wave == 4` 星刃核心保底（:125）
+- **改动**：① stats.json 顶层加 `shop` 段（stats_formulas sheet 同级：新 sheet 或并入 formulas）：`reroll_cost: 10` / `core_grace_wave: 4`（改 Excel stats sheet 结构 → 新增 sheet 后 excel_export 需在 data_schema.py 注册）；② shop.gd 两处常量改 `DataLoader.get_stats_shop()`（新接口，DataLoader 加载 stats.json 时缓存 shop 段）
+- **验证**：day13_build_check / day28_f31_check 回归（REROLL_COST 消费点有断言）+ 新探针断言 shop 读参
+
+### 任务 F1-E 表现配置抽表（T-016~024）【大改 · 主窗口优先承接，执行者勿自行开工】
+- **内容**：enemy.gd SPRITE_MAP(26 条)/FALLBACK_SPRITES/BEHAVIOR_MAP、audio_manager BGM_MAP/SFX_MAP、vfx_player FX_CONFIG、icon_atlas SHEET_CONFIG、hud SKILL_ICON_MAP、weapon_controller 初始枪、turret 默认值 → **新建 Excel presentation sheet**（data_schema.py 注册新表 → data/presentation.json）+ 各脚本改 DataLoader 读取（**保留代码兜底默认值**，缺字段不崩）
+- **规模**：涉及 7+ 脚本 + 新数据表，且与图标/精灵资产耦合 → 由主窗口（用户会话）分步执行并逐脚本验证；执行者看到本任务未在 TASKS 标记 [x] 时**不要自行开工**（避免与主窗口冲突），在轮次里标注「F1-E 主窗口承接」即可
+
+### 任务 F1-F 机制 id 收敛（T-025~030）【执行者可执行】
+- character_select.gd HERO_IDS → `DataLoader.get_all_character_ids()` 过滤 SE 前缀（先例：base_station.gd 已用 DataLoader 全量）；道具/技能 id 散落消费点（shop se_blade_core / main executioner_mark / player last_stand / projectile overload_capacitor / skill_controller 三技能 id）→ 统一走 DataLoader 常量接口（`DataLoader.has_item_id` 已有，新增 `get_skill_ids()` 或直接字符串常量收敛到 data 侧）
+- **验证**：回归 31 项全绿（day24_f13 覆盖 on_crit/on_kill/low_health 三 id 消费）+ grep 断言无新字面量
+
+### 任务 F1-G 无消费方键裁决（T-050）【执行者可执行，每键一个提交】
+- 22 个无消费方效果键逐键裁决：**有现成消费点先接线**（harvesting → wave_rewards.harvesting_bonus 波次奖励；xp_gain_percent → player.gain_exp；knockback → 武器/弹丸击退；engineering → turret 属性；fire_damage_percent/burn_duration_percent → 元素伤害计算；melee_damage/ranged_damage → 对应武器 scaling 消费）；**纯设计残留**（miss_chance/no_weapon_armor_bonus/dodge_heal_* 等无系统支撑）→ TECH_DEBT_ISSUES 标记「删数据」或「保留待 F2+」不硬接
+- **验证**：每接线一键跑 day11_12_passive_check + 回归
+
+### 任务 F2 代码边界收拢（T-037~045）【待 F1 收口后拆解】
+- 概览：GameManager 状态信号化（state_changed）、UI 直读改查询接口、跨层容器访问收口（world.get_container）、实体创建工厂化（world.spawn_*）、wave_manager↔spawner 信号化、GM 面板工厂/事件系统首拆
+- 方案：进入 F2 时由 #2 拆解 + 方案师定案（或主窗口承接信号化骨架）
+
+### 任务 F3 状态机规范化（T-031~036）【待 F2 后拆解】
+- 范式已定（TECH_DEBT_PLAN §8.5/8.6）：**仅两种形态**——① 扁平流程态 enum+match+`_transition()`；② 行为/表现态 enum+状态表。禁多 bool/字符串状态/int 字面量/散落赋值；单机 >8 态或层级需求 → 触发评审
+- 交付含：状态机合规探针（扫描代码）+ 状态流探针（固定序列断言流转）
+
+### 任务 F4/F5【概要】F4 拆分 GM/enemy/player 上帝脚本（<400 行 + 数值快照零漂移）；F5 全量回归 + CODE_STYLE.md + DATA_DICT_GUIDE.md（策划改数手册）
+
+### 执行者交接说明
+- 主窗口（用户会话）与 #3 执行岗并行推进：**主窗口承接 F1-E（表现抽表大改）与 F2+ 骨架**；**#3 按本方案执行 F1-C/D/F/G**（每任务一个收口 commit，提交信息带 T 编号）
+- 冲突规避：动 data/*.json 前先 `git status` 确认无他人未提交改动；改 Excel 前同样检查（Excel 是共享文件）
+- 每任务完成后在 TASKS.md 阶段 F 区标记 [x] + TECH_DEBT_ISSUES.md 对应条目状态 → 已收口
+
+
+---
+
+## 阶段 F 技术债整改方案（2026-08-10 主窗口录入 · 供 #3 执行岗接手）
+
+> 总方案/决策记录：docs/TECH_DEBT_PLAN.md（§7 决策表 · §8 状态机选型 · §8.6 能力上限清单）
+> 债清单：docs/TECH_DEBT_ISSUES.md（T-001~T-053 逐条状态）
+> **数据管线铁律**：改数只改 docs/GameData.xlsx → `python tools/excel_export.py`（校验不过禁止提交）→ 探针；data/*.json 为 generated 禁手改。
+> **探针套件**：`python tools/_regression_run.py`（当前 31 项/784 断言，改完必跑）；数值基线 `tools/baseline_numerics.json`（F4 拆分后对比防漂移）。
+
+### 已完成（无需再执行）
+- F0 基线冻结 + 2 P0 bug 修复（f0-baseline / 42871c9）
+- F1.0 Excel 管线全链（f1-excel-pipeline）
+- F1-A enemies.scaling 参数化（T-001/002）、F1-B waves.generation + routes.boss_wave（T-003/014），day30_f1_scaling_check.gd 10 断言
+
+### 任务 F1-C 护甲公式统一（T-006）【执行者按此方案执行】
+- **现状**：player.gd `take_damage` 用平直减法 `max(amount - armor, 1.0)`；enemy.gd 减伤用百分比 `min(armor/(armor+20), 0.75)`；stats.json.formulas 的 armor_reduction/armor_final 公式字符串零消费
+- **改动**：① stats.json formulas 段参数化（stats_formulas sheet）：`armor_factor: 20` / `armor_cap: 0.75`（改 Excel 导出）；② player.gd `take_damage` 改为百分比减伤 `actual = amount * (1 - min(armor/(armor+armor_factor), armor_cap))`，保留 damage_taken_mult 后乘与 F-04 金手指；③ 伤害数值口径变更属**数值重平衡**——统一前先确认：角色/道具 armor 数据（max_hp 体系小数值 2-15）在百分比制下的等效性，必要时按比例换算并在 DATA_OVERVIEW 对比
+- **验证**：day30 新探针或扩 day30_f1_scaling_check：armor=0 全伤 / armor=20 → 50% / armor 超限 clamp cap；回归 31 项全绿
+- ⚠️ 本任务含数值语义变更，执行前若无法确认换算口径 → 在 TASKS 标记「执行阻塞：护甲数值口径待用户确认」不强行改
+
+### 任务 F1-D 商店参数数据化（T-010）【执行者按此方案执行】
+- **现状**：shop.gd `REROLL_COST = 10`（:31）、`current_wave == 4` 星刃核心保底（:125）
+- **改动**：① stats.json 顶层加 `shop` 段（stats_formulas sheet 同级：新 sheet 或并入 formulas）：`reroll_cost: 10` / `core_grace_wave: 4`（改 Excel stats sheet 结构 → 新增 sheet 后 excel_export 需在 data_schema.py 注册）；② shop.gd 两处常量改 `DataLoader.get_stats_shop()`（新接口，DataLoader 加载 stats.json 时缓存 shop 段）
+- **验证**：day13_build_check / day28_f31_check 回归（REROLL_COST 消费点有断言）+ 新探针断言 shop 读参
+
+### 任务 F1-E 表现配置抽表（T-016~024）【大改 · 主窗口优先承接，执行者勿自行开工】
+- **内容**：enemy.gd SPRITE_MAP(26 条)/FALLBACK_SPRITES/BEHAVIOR_MAP、audio_manager BGM_MAP/SFX_MAP、vfx_player FX_CONFIG、icon_atlas SHEET_CONFIG、hud SKILL_ICON_MAP、weapon_controller 初始枪、turret 默认值 → **新建 Excel presentation sheet**（data_schema.py 注册新表 → data/presentation.json）+ 各脚本改 DataLoader 读取（**保留代码兜底默认值**，缺字段不崩）
+- **规模**：涉及 7+ 脚本 + 新数据表，且与图标/精灵资产耦合 → 由主窗口（用户会话）分步执行并逐脚本验证；执行者看到本任务未在 TASKS 标记 [x] 时**不要自行开工**（避免与主窗口冲突），在轮次里标注「F1-E 主窗口承接」即可
+
+### 任务 F1-F 机制 id 收敛（T-025~030）【执行者可执行】
+- character_select.gd HERO_IDS → `DataLoader.get_all_character_ids()` 过滤 SE 前缀（先例：base_station.gd 已用 DataLoader 全量）；道具/技能 id 散落消费点（shop se_blade_core / main executioner_mark / player last_stand / projectile overload_capacitor / skill_controller 三技能 id）→ 统一走 DataLoader 常量接口（`DataLoader.has_item_id` 已有，新增 `get_skill_ids()` 或直接字符串常量收敛到 data 侧）
+- **验证**：回归 31 项全绿（day24_f13 覆盖 on_crit/on_kill/low_health 三 id 消费）+ grep 断言无新字面量
+
+### 任务 F1-G 无消费方键裁决（T-050）【执行者可执行，每键一个提交】
+- 22 个无消费方效果键逐键裁决：**有现成消费点先接线**（harvesting → wave_rewards.harvesting_bonus 波次奖励；xp_gain_percent → player.gain_exp；knockback → 武器/弹丸击退；engineering → turret 属性；fire_damage_percent/burn_duration_percent → 元素伤害计算；melee_damage/ranged_damage → 对应武器 scaling 消费）；**纯设计残留**（miss_chance/no_weapon_armor_bonus/dodge_heal_* 等无系统支撑）→ TECH_DEBT_ISSUES 标记「删数据」或「保留待 F2+」不硬接
+- **验证**：每接线一键跑 day11_12_passive_check + 回归
+
+### 任务 F2 代码边界收拢（T-037~045）【待 F1 收口后拆解】
+- 概览：GameManager 状态信号化（state_changed）、UI 直读改查询接口、跨层容器访问收口（world.get_container）、实体创建工厂化（world.spawn_*）、wave_manager↔spawner 信号化、GM 面板工厂/事件系统首拆
+- 方案：进入 F2 时由 #2 拆解 + 方案师定案（或主窗口承接信号化骨架）
+
+### 任务 F3 状态机规范化（T-031~036）【待 F2 后拆解】
+- 范式已定（TECH_DEBT_PLAN §8.5/8.6）：**仅两种形态**——① 扁平流程态 enum+match+`_transition()`；② 行为/表现态 enum+状态表。禁多 bool/字符串状态/int 字面量/散落赋值；单机 >8 态或层级需求 → 触发评审
+- 交付含：状态机合规探针（扫描代码）+ 状态流探针（固定序列断言流转）
+
+### 任务 F4/F5【概要】F4 拆分 GM/enemy/player 上帝脚本（<400 行 + 数值快照零漂移）；F5 全量回归 + CODE_STYLE.md + DATA_DICT_GUIDE.md（策划改数手册）
+
+### 执行者交接说明
+- 主窗口（用户会话）与 #3 执行岗并行推进：**主窗口承接 F1-E（表现抽表大改）与 F2+ 骨架**；**#3 按本方案执行 F1-C/D/F/G**（每任务一个收口 commit，提交信息带 T 编号）
+- 冲突规避：动 data/*.json 前先 `git status` 确认无他人未提交改动；改 Excel 前同样检查（Excel 是共享文件）
+- 每任务完成后在 TASKS.md 阶段 F 区标记 [x] + TECH_DEBT_ISSUES.md 对应条目状态 → 已收口
