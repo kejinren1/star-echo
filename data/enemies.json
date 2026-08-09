@@ -111,7 +111,7 @@
         "hp": 12,
         "hp_growth": 18,
         "damage": 5,
-        "damage_growth": 1.0,
+        "damage_growth": 1,
         "speed": 150,
         "drop": 3,
         "behavior": "chase",
@@ -124,7 +124,7 @@
         "hp": 50,
         "hp_growth": 20,
         "damage": 6,
-        "damage_growth": 1.0,
+        "damage_growth": 1,
         "speed": 275,
         "drop": 5,
         "behavior": "chase",
@@ -141,9 +141,9 @@
         "speed": 250,
         "drop": 1,
         "behavior": "chase",
-        "armor": 3,
         "exp_value": 4,
-        "coin_value": 3
+        "coin_value": 3,
+        "armor": 3
       },
       {
         "id": "horned_fly",
@@ -209,13 +209,13 @@
         "drop": 10,
         "behavior": "aoe_attack",
         "exp_value": 30,
+        "coin_value": 20,
         "ability": {
           "type": "aoe",
-          "radius": 90.0,
-          "interval": 3.0,
+          "radius": 90,
+          "interval": 3,
           "damage_mult": 1.2
-        },
-        "coin_value": 20
+        }
       },
       {
         "id": "colossus",
@@ -251,13 +251,13 @@
         "drop": 10,
         "behavior": "self_heal",
         "exp_value": 30,
+        "coin_value": 20,
         "ability": {
           "type": "self_heal",
+          "interval": 4,
           "threshold": 0.5,
-          "heal_percent": 0.15,
-          "interval": 4.0
-        },
-        "coin_value": 20
+          "heal_percent": 0.15
+        }
       },
       {
         "id": "croc",
@@ -281,13 +281,13 @@
         "drop": 10,
         "behavior": "spawn",
         "exp_value": 35,
+        "coin_value": 22,
         "ability": {
           "type": "spawn",
+          "interval": 5,
           "minion": "chaser",
-          "count": 2,
-          "interval": 5.0
-        },
-        "coin_value": 22
+          "count": 2
+        }
       }
     ],
     "boss": [
@@ -297,6 +297,8 @@
         "hp": 8000,
         "damage": 15,
         "speed": 200,
+        "exp_value": 400,
+        "coin_value": 150,
         "wave": 10,
         "phases": [
           {
@@ -315,9 +317,7 @@
             ],
             "speed_multiplier": 1.2
           }
-        ],
-        "exp_value": 400,
-        "coin_value": 150
+        ]
       },
       {
         "id": "predator",
@@ -325,6 +325,8 @@
         "hp": 15000,
         "damage": 20,
         "speed": 300,
+        "exp_value": 500,
+        "coin_value": 200,
         "wave": 20,
         "phases": [
           {
@@ -352,9 +354,7 @@
             ],
             "speed_multiplier": 1.3
           }
-        ],
-        "exp_value": 500,
-        "coin_value": 200
+        ]
       }
     ]
   },

@@ -1,30 +1,147 @@
 {
   "stats": {
     "basic": [
-      { "id": "max_hp", "name": "最大生命值", "name_en": "Max HP", "base": 100, "max": null, "description": "玩家生命上限" },
-      { "id": "hp_regen", "name": "生命回复", "name_en": "HP Regen", "base": 0, "max": null, "description": "每秒回复生命值" },
-      { "id": "armor", "name": "护甲", "name_en": "Armor", "base": 0, "max": 20, "description": "减免物理伤害, 上限75%减伤" },
-      { "id": "dodge", "name": "闪避", "name_en": "Dodge", "base": 0, "max": 60, "description": "概率完全躲避攻击, 上限60%", "unit": "percent" },
-      { "id": "speed", "name": "移动速度", "name_en": "Speed", "base": 300, "max": null, "description": "移动速度(像素/秒)" },
-      { "id": "pickup_range", "name": "拾取范围", "name_en": "Pickup Range", "base": 80, "max": null, "description": "自动拾取半径" }
+      {
+        "id": "max_hp",
+        "name": "最大生命值",
+        "name_en": "Max HP",
+        "base": 100,
+        "description": "玩家生命上限"
+      },
+      {
+        "id": "hp_regen",
+        "name": "生命回复",
+        "name_en": "HP Regen",
+        "base": 0,
+        "description": "每秒回复生命值"
+      },
+      {
+        "id": "armor",
+        "name": "护甲",
+        "name_en": "Armor",
+        "base": 0,
+        "max": 20,
+        "description": "减免物理伤害, 上限75%减伤"
+      },
+      {
+        "id": "dodge",
+        "name": "闪避",
+        "name_en": "Dodge",
+        "base": 0,
+        "max": 60,
+        "description": "概率完全躲避攻击, 上限60%",
+        "unit": "percent"
+      },
+      {
+        "id": "speed",
+        "name": "移动速度",
+        "name_en": "Speed",
+        "base": 300,
+        "description": "移动速度(像素/秒)"
+      },
+      {
+        "id": "pickup_range",
+        "name": "拾取范围",
+        "name_en": "Pickup Range",
+        "base": 80,
+        "description": "自动拾取半径"
+      }
     ],
     "offensive": [
-      { "id": "melee_damage", "name": "近战伤害", "name_en": "Melee Damage", "base": 0, "max": null },
-      { "id": "ranged_damage", "name": "远程伤害", "name_en": "Ranged Damage", "base": 0, "max": null },
-      { "id": "elemental_damage", "name": "元素伤害", "name_en": "Elemental Damage", "base": 0, "max": null },
-      { "id": "attack_speed", "name": "攻击速度", "name_en": "Attack Speed", "base": 0, "max": null, "unit": "percent" },
-      { "id": "crit_chance", "name": "暴击率", "name_en": "Crit Chance", "base": 5, "max": null, "unit": "percent" },
-      { "id": "crit_damage", "name": "暴击伤害", "name_en": "Crit Damage", "base": 150, "max": null, "unit": "percent" },
-      { "id": "range", "name": "攻击范围", "name_en": "Range", "base": 0, "max": null },
-      { "id": "knockback", "name": "击退", "name_en": "Knockback", "base": 0, "max": null },
-      { "id": "life_steal", "name": "生命偷取", "name_en": "Life Steal", "base": 0, "max": null, "unit": "percent" }
+      {
+        "id": "melee_damage",
+        "name": "近战伤害",
+        "name_en": "Melee Damage",
+        "base": 0
+      },
+      {
+        "id": "ranged_damage",
+        "name": "远程伤害",
+        "name_en": "Ranged Damage",
+        "base": 0
+      },
+      {
+        "id": "elemental_damage",
+        "name": "元素伤害",
+        "name_en": "Elemental Damage",
+        "base": 0
+      },
+      {
+        "id": "attack_speed",
+        "name": "攻击速度",
+        "name_en": "Attack Speed",
+        "base": 0,
+        "unit": "percent"
+      },
+      {
+        "id": "crit_chance",
+        "name": "暴击率",
+        "name_en": "Crit Chance",
+        "base": 5,
+        "unit": "percent"
+      },
+      {
+        "id": "crit_damage",
+        "name": "暴击伤害",
+        "name_en": "Crit Damage",
+        "base": 150,
+        "unit": "percent"
+      },
+      {
+        "id": "range",
+        "name": "攻击范围",
+        "name_en": "Range",
+        "base": 0
+      },
+      {
+        "id": "knockback",
+        "name": "击退",
+        "name_en": "Knockback",
+        "base": 0
+      },
+      {
+        "id": "life_steal",
+        "name": "生命偷取",
+        "name_en": "Life Steal",
+        "base": 0,
+        "unit": "percent"
+      }
     ],
     "economy": [
-      { "id": "harvesting", "name": "收获", "name_en": "Harvesting", "base": 0, "max": null, "description": "每波次结束获得额外材料" },
-      { "id": "luck", "name": "幸运", "name_en": "Luck", "base": 0, "max": null, "description": "影响掉落品质和商店品质" },
-      { "id": "xp_gain", "name": "经验加成", "name_en": "XP Gain", "base": 0, "max": null, "unit": "percent" },
-      { "id": "engineering", "name": "工程学", "name_en": "Engineering", "base": 0, "max": null },
-      { "id": "curse", "name": "诅咒", "name_en": "Curse", "base": 0, "max": null, "description": "增强敌人但增加掉落" }
+      {
+        "id": "harvesting",
+        "name": "收获",
+        "name_en": "Harvesting",
+        "base": 0,
+        "description": "每波次结束获得额外材料"
+      },
+      {
+        "id": "luck",
+        "name": "幸运",
+        "name_en": "Luck",
+        "base": 0,
+        "description": "影响掉落品质和商店品质"
+      },
+      {
+        "id": "xp_gain",
+        "name": "经验加成",
+        "name_en": "XP Gain",
+        "base": 0,
+        "unit": "percent"
+      },
+      {
+        "id": "engineering",
+        "name": "工程学",
+        "name_en": "Engineering",
+        "base": 0
+      },
+      {
+        "id": "curse",
+        "name": "诅咒",
+        "name_en": "Curse",
+        "base": 0,
+        "description": "增强敌人但增加掉落"
+      }
     ]
   },
   "formulas": {
@@ -51,33 +168,93 @@
       {
         "group": "damage",
         "options": [
-          { "label": "攻击 +10%", "stat": "damage", "mode": "percent", "value": 10 },
-          { "label": "攻速 +5%", "stat": "attack_speed", "mode": "percent", "value": 5 },
-          { "label": "暴伤 +10%", "stat": "crit_damage", "mode": "percent", "value": 10 }
+          {
+            "label": "攻击 +10%",
+            "stat": "damage",
+            "mode": "percent",
+            "value": 10
+          },
+          {
+            "label": "攻速 +5%",
+            "stat": "attack_speed",
+            "mode": "percent",
+            "value": 5
+          },
+          {
+            "label": "暴伤 +10%",
+            "stat": "crit_damage",
+            "mode": "percent",
+            "value": 10
+          }
         ]
       },
       {
         "group": "offense",
         "options": [
-          { "label": "范围 +8%", "stat": "range", "mode": "percent", "value": 8 },
-          { "label": "暴击率 +3%", "stat": "crit_chance", "mode": "ratio", "value": 3 },
-          { "label": "移速 +5%", "stat": "move_speed", "mode": "percent", "value": 5 }
+          {
+            "label": "范围 +8%",
+            "stat": "range",
+            "mode": "percent",
+            "value": 8
+          },
+          {
+            "label": "暴击率 +3%",
+            "stat": "crit_chance",
+            "mode": "ratio",
+            "value": 3
+          },
+          {
+            "label": "移速 +5%",
+            "stat": "move_speed",
+            "mode": "percent",
+            "value": 5
+          }
         ]
       },
       {
         "group": "defense",
         "options": [
-          { "label": "生命 +10", "stat": "max_health", "mode": "add", "value": 10 },
-          { "label": "护甲 +1", "stat": "armor", "mode": "add", "value": 1 },
-          { "label": "吸血 +2%", "stat": "life_steal", "mode": "ratio", "value": 2 }
+          {
+            "label": "生命 +10",
+            "stat": "max_health",
+            "mode": "add",
+            "value": 10
+          },
+          {
+            "label": "护甲 +1",
+            "stat": "armor",
+            "mode": "add",
+            "value": 1
+          },
+          {
+            "label": "吸血 +2%",
+            "stat": "life_steal",
+            "mode": "ratio",
+            "value": 2
+          }
         ]
       },
       {
         "group": "economy",
         "options": [
-          { "label": "幸运 +5", "stat": "luck", "mode": "add", "value": 5 },
-          { "label": "暴伤 +10%", "stat": "crit_damage", "mode": "percent", "value": 10 },
-          { "label": "攻击 +10%", "stat": "damage", "mode": "percent", "value": 10 }
+          {
+            "label": "幸运 +5",
+            "stat": "luck",
+            "mode": "add",
+            "value": 5
+          },
+          {
+            "label": "暴伤 +10%",
+            "stat": "crit_damage",
+            "mode": "percent",
+            "value": 10
+          },
+          {
+            "label": "攻击 +10%",
+            "stat": "damage",
+            "mode": "percent",
+            "value": 10
+          }
         ]
       }
     ]

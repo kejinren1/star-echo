@@ -5,154 +5,149 @@
       "name": "均衡者",
       "name_en": "Well-Rounded",
       "description": "全能型角色，适合新手了解基础玩法",
-      "passive": {
-        "max_hp": 10,
-        "speed_percent": 5,
-        "harvesting": 3
-      },
       "sprite": "fighter",
       "starting_weapon": "pistol",
       "weapon_restrictions": [],
       "unlock_condition": "默认解锁",
       "story": "回响者联盟的新晋训练生，各项能力均衡，是踏上星骸战场的第一课。（LORE.md 无条目，description 扩写）",
-      "story_unlock_level": 1
+      "story_unlock_level": 1,
+      "passive": {
+        "max_hp": 10,
+        "speed_percent": 5,
+        "harvesting": 3
+      }
     },
     {
       "id": "brawler",
       "name": "格斗家",
       "name_en": "Brawler",
       "description": "近战爆发型，贴脸输出",
-      "passive": {
-        "melee_attack_speed_percent": 50,
-        "melee_damage": 15,
-        "life_steal_percent": 10
-      },
       "sprite": "fighter",
       "starting_weapon": "fist",
       "weapon_restrictions": [
         "no_ranged"
       ],
-      "penalty": {
-        "range": -50
-      },
       "unlock_condition": "默认解锁",
       "story": "崇尚近身搏斗的斗士，坚信拳头比任何星骸造物都更可靠。（LORE.md 无条目，description 扩写）",
-      "story_unlock_level": 1
+      "story_unlock_level": 1,
+      "passive": {
+        "melee_attack_speed_percent": 50,
+        "melee_damage": 15,
+        "life_steal_percent": 10
+      },
+      "penalty": {
+        "range": -50
+      }
     },
     {
       "id": "ranger",
       "name": "游侠",
       "name_en": "Ranger",
       "description": "远程风筝型，安全输出",
-      "passive": {
-        "ranged_range_bonus": 60,
-        "ranged_damage_effect_percent": 50,
-        "crit_chance_percent": 10
-      },
       "sprite": "fighter",
       "starting_weapon": "slingshot",
       "weapon_restrictions": [
         "no_melee"
       ],
-      "penalty": {
-        "max_hp": -25
-      },
       "unlock_condition": "默认解锁",
       "story": "习惯于在远距离游走猎杀异变生命的射手，弓弦一响，箭矢从不落空。（LORE.md 无条目，description 扩写）",
-      "story_unlock_level": 1
+      "story_unlock_level": 1,
+      "passive": {
+        "ranged_range_bonus": 60,
+        "ranged_damage_effect_percent": 50,
+        "crit_chance_percent": 10
+      },
+      "penalty": {
+        "max_hp": -25
+      }
     },
     {
       "id": "mage",
       "name": "法师",
       "name_en": "Mage",
       "description": "元素反应型，利用元素反应打出爆发",
+      "sprite": "fighter",
+      "starting_weapon": "wand",
+      "weapon_restrictions": [],
+      "unlock_condition": "默认解锁",
+      "story": "钻研元素法则的施法者，擅长以元素反应引燃成片战场。（LORE.md 无条目，description 扩写）",
+      "story_unlock_level": 1,
       "passive": {
         "elemental_damage": 10,
         "double_element_chance_percent": 30,
         "elemental_damage_effect_percent": 33
       },
-      "sprite": "fighter",
-      "starting_weapon": "wand",
-      "weapon_restrictions": [],
       "penalty": {
         "melee_damage_percent": -100,
         "ranged_damage_percent": -100,
         "engineering": -50
-      },
-      "unlock_condition": "默认解锁",
-      "story": "钻研元素法则的施法者，擅长以元素反应引燃成片战场。（LORE.md 无条目，description 扩写）",
-      "story_unlock_level": 1
+      }
     },
     {
       "id": "engineer",
       "name": "工程师",
       "name_en": "Engineer",
       "description": "阵地战型，靠结构物输出",
+      "sprite": "fighter",
+      "starting_weapon": "turret",
+      "weapon_restrictions": [],
+      "unlock_condition": "默认解锁",
+      "story": "靠结构与机械说话的阵地专家，炮台就是他的第二语言。（LORE.md 无条目，description 扩写）",
+      "story_unlock_level": 1,
       "passive": {
         "engineering": 15,
         "structure_hp_percent": 50,
         "structure_damage_percent": 30
       },
-      "sprite": "fighter",
-      "starting_weapon": "turret",
-      "weapon_restrictions": [],
       "penalty": {
         "attack_speed_percent": -20,
         "melee_damage": -10
-      },
-      "unlock_condition": "默认解锁",
-      "story": "靠结构与机械说话的阵地专家，炮台就是他的第二语言。（LORE.md 无条目，description 扩写）",
-      "story_unlock_level": 1
+      }
     },
     {
       "id": "gambler",
       "name": "赌徒",
       "name_en": "Gambler",
       "description": "经济滚雪球型，前期弱后期翻盘",
+      "sprite": "fighter",
+      "starting_weapon": "dagger",
+      "weapon_restrictions": [],
+      "unlock_condition": "默认解锁",
+      "story": "把一切都押在运气上的冒险者，前期落魄、后期翻盘的赌徒。（LORE.md 无条目，description 扩写）",
+      "story_unlock_level": 1,
       "passive": {
         "luck": 50,
         "shop_quality_percent": 25,
         "double_material_chance_percent": 20
       },
-      "sprite": "fighter",
-      "starting_weapon": "dagger",
-      "weapon_restrictions": [],
       "penalty": {
         "damage_percent": -30,
         "attack_speed_percent": -20
-      },
-      "unlock_condition": "默认解锁",
-      "story": "把一切都押在运气上的冒险者，前期落魄、后期翻盘的赌徒。（LORE.md 无条目，description 扩写）",
-      "story_unlock_level": 1
+      }
     },
     {
       "id": "se_irene",
       "name": "炎术师·艾琳",
       "name_en": "Irene the Pyromancer",
-      "class": "Mage",
       "description": "回响者联盟的炎系术士，以星骸之火灼烧异变生命；越战越炽。",
-      "passive": {
-        "elemental_damage": 8,
-        "fire_damage_percent": 15,
-        "burn_duration_percent": 30
-      },
       "sprite": "elin",
       "starting_weapon": "se_star_flame",
       "weapon_restrictions": [],
-      "penalty": {
-        "melee_damage_percent": -50,
-        "max_hp": -10
-      },
+      "unlock_condition": "默认解锁",
+      "story": "联盟第三代回响者，共鸣适性历史最高值，也因此被改写得最深。她相信星骸是活的、而且孤独——每一次释放火焰，她的体温就更接近星骸腔体一次。（LORE.md §2.1 提炼）",
+      "story_unlock_level": 2,
+      "class": "Mage",
+      "star_echo": true,
       "skill": {
         "id": "se_skill_fireball",
         "name": "炽星火球",
         "name_en": "Blazing Fireball",
         "type": "active",
-        "cooldown": 8.0,
+        "cooldown": 8,
         "damage": 30,
         "radius": 90,
         "element_type": "fire",
-        "burn_duration": 4.0,
+        "burn_duration": 4,
         "description": "向鼠标方向抛射巨型火球，命中爆炸并施加燃烧(4秒)"
       },
       "growth": {
@@ -163,142 +158,147 @@
         },
         "description": "火焰伤害成长：每级 +2 元素伤害 / +3% 火焰伤害"
       },
-      "unlock_condition": "默认解锁",
-      "star_echo": true,
-      "story": "联盟第三代回响者，共鸣适性历史最高值，也因此被改写得最深。她相信星骸是活的、而且孤独——每一次释放火焰，她的体温就更接近星骸腔体一次。（LORE.md §2.1 提炼）",
-      "story_unlock_level": 2
+      "passive": {
+        "elemental_damage": 8,
+        "fire_damage_percent": 15,
+        "burn_duration_percent": 30
+      },
+      "penalty": {
+        "melee_damage_percent": -50,
+        "max_hp": -10
+      }
     },
     {
       "id": "se_noa",
       "name": "机械师·诺亚",
       "name_en": "Noa the Machinist",
-      "class": "Summoner",
       "description": "从星骸残骸中打捞造物的机械师，以炮台阵列构筑阵地。",
-      "passive": {
-        "engineering": 12,
-        "structure_hp_percent": 40,
-        "summon_count": 1
-      },
       "sprite": "noah",
       "starting_weapon": "se_auto_turret",
       "weapon_restrictions": [],
-      "penalty": {
-        "attack_speed_percent": -15,
-        "speed_percent": -5
-      },
+      "unlock_condition": "默认解锁",
+      "story": "联盟军械与结构物工程师，全身上下没有一处星骸组织。他拒绝共鸣改造，靠炮台与无人机代替一切——「我只是不想签一份看不懂的合同」。（LORE.md §2.2 提炼）",
+      "story_unlock_level": 2,
+      "class": "Summoner",
+      "star_echo": true,
       "skill": {
         "id": "se_skill_deploy_turret",
         "name": "紧急部署",
         "name_en": "Emergency Deploy",
         "type": "active",
-        "cooldown": 12.0,
+        "cooldown": 12,
+        "description": "立即在身侧部署 2 台临时炮台，持续 15 秒",
         "summon_id": "se_auto_turret",
         "summon_count": 2,
-        "duration": 15.0,
-        "description": "立即在身侧部署 2 台临时炮台，持续 15 秒"
+        "duration": 15
       },
       "growth": {
         "type": "summon_count",
+        "description": "召唤数量成长：每 5 级 +1 召唤上限，每级 +2 工程学",
         "per_level": {
           "engineering": 2
         },
         "per_5_levels": {
           "summon_count": 1
-        },
-        "description": "召唤数量成长：每 5 级 +1 召唤上限，每级 +2 工程学"
+        }
       },
-      "unlock_condition": "默认解锁",
-      "star_echo": true,
-      "story": "联盟军械与结构物工程师，全身上下没有一处星骸组织。他拒绝共鸣改造，靠炮台与无人机代替一切——「我只是不想签一份看不懂的合同」。（LORE.md §2.2 提炼）",
-      "story_unlock_level": 2
+      "passive": {
+        "engineering": 12,
+        "structure_hp_percent": 40,
+        "summon_count": 1
+      },
+      "penalty": {
+        "attack_speed_percent": -15,
+        "speed_percent": -5
+      }
     },
     {
       "id": "se_ren",
       "name": "剑士·莱恩",
       "name_en": "Ren the Blademaster",
-      "class": "Melee",
       "description": "以星刃贴身收割的剑士，暴击时汲取异变生命的回响。",
-      "passive": {
-        "melee_damage": 8,
-        "crit_chance_percent": 10,
-        "life_steal_percent": 5
-      },
       "sprite": "lain",
       "starting_weapon": "se_star_blade",
       "weapon_restrictions": [],
-      "penalty": {
-        "ranged_damage_percent": -50,
-        "range": -20
-      },
+      "unlock_condition": "默认解锁",
+      "story": "出身第七勘探队——三年前全队失联，只有他一个人走出来。他的星刃由队友装甲上的星骸化残片重铸：想不明白的东西，先砍开看看内部结构。（LORE.md §2.3 提炼）",
+      "story_unlock_level": 2,
+      "class": "Melee",
+      "star_echo": true,
       "skill": {
         "id": "se_skill_blade_burst",
         "name": "星刃爆发",
         "name_en": "Blade Burst",
         "type": "active",
-        "cooldown": 10.0,
-        "duration": 5.0,
+        "cooldown": 10,
+        "description": "5 秒内环绕星刃额外 +3 把并提升 50% 攻速",
+        "duration": 5,
         "effects": {
           "orbit_blade_count": 3,
           "attack_speed_percent": 50
-        },
-        "description": "5 秒内环绕星刃额外 +3 把并提升 50% 攻速"
+        }
       },
       "growth": {
         "type": "crit_life_steal",
+        "description": "暴击吸血成长：每级 +1% 暴击率 / +0.5% 生命偷取",
         "per_level": {
           "crit_chance_percent": 1,
           "life_steal_percent": 0.5
-        },
-        "description": "暴击吸血成长：每级 +1% 暴击率 / +0.5% 生命偷取"
+        }
       },
-      "unlock_condition": "默认解锁",
-      "star_echo": true,
-      "story": "出身第七勘探队——三年前全队失联，只有他一个人走出来。他的星刃由队友装甲上的星骸化残片重铸：想不明白的东西，先砍开看看内部结构。（LORE.md §2.3 提炼）",
-      "story_unlock_level": 2
+      "passive": {
+        "melee_damage": 8,
+        "crit_chance_percent": 10,
+        "life_steal_percent": 5
+      },
+      "penalty": {
+        "ranged_damage_percent": -50,
+        "range": -20
+      }
     },
     {
       "id": "se_siia",
       "name": "医师·希亚",
       "name_en": "Siia the Healer",
-      "class": "Healer",
       "description": "星骸回响中的医师，以神圣之力治愈同伴、庇护弱者；光耀法杖驱散异变生命。",
-      "passive": {
-        "hp_regen": 2,
-        "max_hp": 15,
-        "luck": 5
-      },
       "sprite": "siia",
       "starting_weapon": "se_holy_staff",
       "weapon_restrictions": [],
-      "penalty": {
-        "damage_percent": -15,
-        "speed_percent": -5
-      },
+      "unlock_condition": "默认解锁",
+      "story": "星骸回响中的医师，以神圣之力治愈同伴、庇护弱者；光耀法杖驱散异变生命。（LORE.md 无独立条目，description 提炼）",
+      "story_unlock_level": 2,
+      "class": "Healer",
+      "star_echo": true,
       "skill": {
         "id": "se_skill_holy_shield",
         "name": "神圣庇护",
         "name_en": "Holy Shield",
         "type": "active",
-        "cooldown": 14.0,
-        "duration": 5.0,
+        "cooldown": 14,
+        "description": "5 秒内获得 30 点护盾并每秒恢复 10 点生命",
+        "duration": 5,
         "effects": {
           "shield": 30,
           "heal": 10
-        },
-        "description": "5 秒内获得 30 点护盾并每秒恢复 10 点生命"
+        }
       },
       "growth": {
         "type": "heal_support",
+        "description": "治疗成长：每级 +0.3 生命回复 / +1 幸运",
         "per_level": {
           "hp_regen": 0.3,
           "luck": 1
-        },
-        "description": "治疗成长：每级 +0.3 生命回复 / +1 幸运"
+        }
       },
-      "unlock_condition": "默认解锁",
-      "star_echo": true,
-      "story": "星骸回响中的医师，以神圣之力治愈同伴、庇护弱者；光耀法杖驱散异变生命。（LORE.md 无独立条目，description 提炼）",
-      "story_unlock_level": 2
+      "passive": {
+        "hp_regen": 2,
+        "max_hp": 15,
+        "luck": 5
+      },
+      "penalty": {
+        "damage_percent": -15,
+        "speed_percent": -5
+      }
     }
   ]
 }

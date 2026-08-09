@@ -297,18 +297,18 @@ func _part_skills() -> void:
 		_pass("技能 / blade_burst → 玩家身周 blade_burst ×1（D23-T3）")
 	sc2.queue_free()
 
-	# holy_shield → 静默 false 不崩（VFX 顺延 P1，登记不判失败）
+	# holy_shield（Day30-P0 已实装：try_cast true + 护盾生效；VFX 尚未接线，零 spawn 属预期）
 	_clear_probe()
 	var sc3: Node = _make_skill({"id": "se_skill_holy_shield", "cooldown": 5.0})
 	var cast3: bool = bool(sc3.call("try_cast"))
 	if cast3:
-		_fail("技能: holy_shield try_cast 应 false（技能本体未实装顺延 P1）")
+		_pass("技能 / holy_shield → try_cast true（P0-Bug1 已实装 2026-08-10）")
 	else:
-		_pass("技能 / holy_shield → try_cast false 静默（VFX 顺延 P1 登记）")
+		_fail("技能: holy_shield try_cast 应 true（P0-Bug1 实装后）")
 	if _count_fx("shield") != 0:
-		_fail("技能: holy_shield 不应 spawn shield（本体未实装）")
+		_fail("技能: holy_shield 不应 spawn shield（VFX 未接线）")
 	else:
-		_pass("技能 / holy_shield 零 spawn（不臆造接线）")
+		_pass("技能 / holy_shield 零 spawn（VFX 顺延，不臆造接线）")
 	sc3.queue_free()
 	_clear_probe()
 

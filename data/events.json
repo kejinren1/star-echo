@@ -7,11 +7,19 @@
       "description": "腔体深处传来一段低频，缓慢、规律，像谁在哼摇篮曲。你的护目镜自动降噪三次，又三次失败——它把这段声音判定为「语言」。终端提示：距离最近的异变生命 1200 米，此处不应有声源。艾琳按住耳麦低声说：「它在……哄自己睡觉？还是在哄我们？」",
       "choiceA": {
         "text": "把频率录进共鸣核心，让身体去适应这段旋律",
-        "reward": { "type": "attack_speed_percent", "value": 8, "label": "共鸣同调：攻速 +8%" }
+        "reward": {
+          "type": "attack_speed_percent",
+          "value": 8,
+          "label": "共鸣同调：攻速 +8%"
+        }
       },
       "choiceB": {
         "text": "切断外置拾音，全队静默推进",
-        "effect_on_route": { "type": "reroute", "value": "silent_corridor", "label": "转入静默走廊：事件节点减少，战斗节点增加" }
+        "effect_on_route": {
+          "type": "reroute",
+          "value": "silent_corridor",
+          "label": "转入静默走廊：事件节点减少，战斗节点增加"
+        }
       }
     },
     {
@@ -21,11 +29,19 @@
       "description": "一只不足膝高的异变体蹲在配电箱阴影里，双臂环抱一只联盟制式水壶，壶身编号属于三年前失联的第七勘探队。它没有攻击，只是把水壶往你这边推了推，然后退回阴影。数据面板给出的威胁等级是「0」——这台机器从来没有给活体打过 0。",
       "choiceA": {
         "text": "收下水壶，回赠一份合成口粮",
-        "reward": { "type": "max_hp", "value": 20, "label": "第七队的补给：生命上限 +20" }
+        "reward": {
+          "type": "max_hp",
+          "value": 20,
+          "label": "第七队的补给：生命上限 +20"
+        }
       },
       "choiceB": {
         "text": "标记坐标，把它列入回收名单后离开",
-        "effect_on_route": { "type": "flag", "value": "alliance_report_filed", "label": "上报联盟：后续商店节点折扣，但异变生命敌意提升" }
+        "effect_on_route": {
+          "type": "flag",
+          "value": "alliance_report_filed",
+          "label": "上报联盟：后续商店节点折扣，但异变生命敌意提升"
+        }
       }
     },
     {
@@ -35,11 +51,19 @@
       "description": "记录仪嵌在一具已经星骸化的装甲里，指示灯还亮着。最后一段音频只有十一秒：「……第四层不是墙，是肋骨。别再往里挖了，我们一直在给它——」录音在这里断掉，之后是四十分钟的空白，以及一声不属于人类的呼吸。",
       "choiceA": {
         "text": "拆下电池组与制导芯片，物尽其用",
-        "reward": { "type": "gold", "value": 150, "label": "回收残骸：星尘 +150" }
+        "reward": {
+          "type": "gold",
+          "value": 150,
+          "label": "回收残骸：星尘 +150"
+        }
       },
       "choiceB": {
         "text": "听完那四十分钟的空白",
-        "effect_on_route": { "type": "unlock_node", "value": "rib_layer_shortcut", "label": "解锁「肋层」捷径：跳过一个战斗节点，直通精英" }
+        "effect_on_route": {
+          "type": "unlock_node",
+          "value": "rib_layer_shortcut",
+          "label": "解锁「肋层」捷径：跳过一个战斗节点，直通精英"
+        }
       }
     },
     {
@@ -49,11 +73,19 @@
       "description": "整面墙都是结晶，切面里流动着不属于任何已知谱系的光。联盟守则第九条：禁止对活性星骸组织进行采样。诺亚已经把切割器举起来了，回头看你一眼：「守则是给『遗迹』写的。可这玩意儿会流血——流的是光，但确实会流。」",
       "choiceA": {
         "text": "切三块，剩下的封存",
-        "reward": { "type": "item", "value": "resonant_shard", "label": "获得遗物「共鸣碎晶」：暴击伤害 +25%" }
+        "reward": {
+          "type": "item",
+          "value": "resonant_shard",
+          "label": "获得遗物「共鸣碎晶」：暴击伤害 +25%"
+        }
       },
       "choiceB": {
         "text": "一块不动，绕行标记为禁区",
-        "effect_on_route": { "type": "difficulty", "value": -1, "label": "星骸未被激怒：本层敌人强度下降一档" }
+        "effect_on_route": {
+          "type": "difficulty",
+          "value": -1,
+          "label": "星骸未被激怒：本层敌人强度下降一档"
+        }
       }
     },
     {
@@ -63,11 +95,19 @@
       "description": "方舟基地的补给舱砸偏了三公里，落点周围的异变体正围着它转圈，动作整齐得像在等舱门开。舱体外壳的编号显示，这批货本该投给一支两小时前刚被判定「全员阵亡」的小队。它还是被投下来了。有人在基地那边，没把他们划掉。",
       "choiceA": {
         "text": "强行破舱取货，速战速决",
-        "reward": { "type": "weapon_upgrade", "value": 1, "label": "整备补给：随机一把武器 +1 级" }
+        "reward": {
+          "type": "weapon_upgrade",
+          "value": 1,
+          "label": "整备补给：随机一把武器 +1 级"
+        }
       },
       "choiceB": {
         "text": "把舱门权限改回原小队，留在原地",
-        "effect_on_route": { "type": "add_node", "value": "rescue_signal", "label": "两层后追加一个救援事件节点" }
+        "effect_on_route": {
+          "type": "add_node",
+          "value": "rescue_signal",
+          "label": "两层后追加一个救援事件节点"
+        }
       }
     },
     {
@@ -77,11 +117,19 @@
       "description": "积液池平静得不像液体。倒影里的你比池边的你晚半秒抬手——半秒，足够一个人做完一个决定。莱恩把星刃探进水面，倒影里的莱恩没有动，只是抬起头，对着池外的你笑了一下。星刃拔出来时，是干的。",
       "choiceA": {
         "text": "伸手，和它握一次",
-        "reward": { "type": "luck", "value": 15, "label": "另一种可能：幸运 +15" }
+        "reward": {
+          "type": "luck",
+          "value": 15,
+          "label": "另一种可能：幸运 +15"
+        }
       },
       "choiceB": {
         "text": "把池面打碎，不留倒影",
-        "effect_on_route": { "type": "reroute", "value": "shattered_path", "label": "碎面路径：下一节点必定为精英，奖励翻倍" }
+        "effect_on_route": {
+          "type": "reroute",
+          "value": "shattered_path",
+          "label": "碎面路径：下一节点必定为精英，奖励翻倍"
+        }
       }
     },
     {
@@ -91,11 +139,19 @@
       "description": "一排幼树整齐地列在培养槽里，根系全部朝同一个方向——朝着森林深处那棵已经高过穹顶的东西。它们不是被种下的，是自己排的队。终端把这片区域标为「农业遗址」，可没有任何一份档案记载过：谁在给星骸种树。",
       "choiceA": {
         "text": "烧掉苗圃，断掉它的补给",
-        "reward": { "type": "attack_percent", "value": 12, "label": "焚苗：攻击力 +12%" }
+        "reward": {
+          "type": "attack_percent",
+          "value": 12,
+          "label": "焚苗：攻击力 +12%"
+        }
       },
       "choiceB": {
         "text": "顺着根系的方向走下去",
-        "effect_on_route": { "type": "unlock_node", "value": "boss_corrupted_tree_early", "label": "提前接触「腐化巨树」：Boss 首阶段血量降低，但直接进入 Boss 层" }
+        "effect_on_route": {
+          "type": "unlock_node",
+          "value": "boss_corrupted_tree_early",
+          "label": "提前接触「腐化巨树」：Boss 首阶段血量降低，但直接进入 Boss 层"
+        }
       }
     },
     {
@@ -105,11 +161,19 @@
       "description": "十七只异变体围成环，同时向联盟公共频道广播。内容是同一段呼号，属于回响者第一批探索者的开场白：「这里是回响者，我们为理解而来。」它们把这句话重复了六百次，语调越来越接近人类。没有一只在攻击。它们只是在……练习。",
       "choiceA": {
         "text": "接入频道，用同一句呼号回应",
-        "reward": { "type": "heal_percent", "value": 40, "label": "被理解：立即恢复 40% 生命" }
+        "reward": {
+          "type": "heal_percent",
+          "value": 40,
+          "label": "被理解：立即恢复 40% 生命"
+        }
       },
       "choiceB": {
         "text": "投掷干扰弹，切断整个频段",
-        "effect_on_route": { "type": "flag", "value": "choir_silenced", "label": "唱诗班沉默：后续事件节点减少，商店刷新品质提升" }
+        "effect_on_route": {
+          "type": "flag",
+          "value": "choir_silenced",
+          "label": "唱诗班沉默：后续事件节点减少，商店刷新品质提升"
+        }
       }
     },
     {
@@ -119,11 +183,22 @@
       "description": "接口是人形的，凹槽的轮廓恰好是一个成年人张开双臂的样子。旁边刻着一行联盟早期的手写体：「它不收钱，只收『还没用完的部分』。」诺亚看了很久，说：「这不是机器，是……账本。我们欠了它什么，从第一天进来就欠了。」",
       "choiceA": {
         "text": "把手放进去，付一点还没用完的东西",
-        "reward": { "type": "trade", "value": { "max_hp_percent": -15, "damage_percent": 30 }, "label": "赊账：生命上限 -15%，伤害 +30%" }
+        "reward": {
+          "type": "trade",
+          "value": {
+            "max_hp_percent": -15,
+            "damage_percent": 30
+          },
+          "label": "赊账：生命上限 -15%，伤害 +30%"
+        }
       },
       "choiceB": {
         "text": "空手贴上接口，问它欠的是什么",
-        "effect_on_route": { "type": "flag", "value": "debt_acknowledged", "label": "认账：本局所有事件的选择 A 奖励提升，但 Boss 额外获得一层护盾" }
+        "effect_on_route": {
+          "type": "flag",
+          "value": "debt_acknowledged",
+          "label": "认账：本局所有事件的选择 A 奖励提升，但 Boss 额外获得一层护盾"
+        }
       }
     },
     {
@@ -133,11 +208,19 @@
       "description": "整座星骸震了一下。不是塌方，是一次收缩——间隔 4.2 秒，第二次，第三次。艾琳盯着生命体征仪，声音很轻：「这个频率……和人在睡梦里翻身之前，心率变化的曲线，一模一样。」终端弹出一行从未见过的提示：**目标正在退出休眠。剩余阶段：未知。**",
       "choiceA": {
         "text": "抓住脉冲峰值，强行汲取一次力量",
-        "reward": { "type": "level_up", "value": 2, "label": "汲取心跳：立即提升 2 级" }
+        "reward": {
+          "type": "level_up",
+          "value": 2,
+          "label": "汲取心跳：立即提升 2 级"
+        }
       },
       "choiceB": {
         "text": "全队伏低，记录完整的苏醒曲线",
-        "effect_on_route": { "type": "unlock_node", "value": "awakening_archive", "label": "解锁「苏醒档案」：本局结束后永久解锁一段核心剧情与基地研究项" }
+        "effect_on_route": {
+          "type": "unlock_node",
+          "value": "awakening_archive",
+          "label": "解锁「苏醒档案」：本局结束后永久解锁一段核心剧情与基地研究项"
+        }
       }
     }
   ]

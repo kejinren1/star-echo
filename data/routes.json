@@ -1,7 +1,10 @@
 {
   "layers": 15,
   "nodes_per_layer": 3,
-  "boss_layers": [9, 14],
+  "boss_layers": [
+    9,
+    14
+  ],
   "default_seed": 20260806,
   "weights": {
     "battle": 0.5,
