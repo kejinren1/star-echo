@@ -41,8 +41,12 @@ func _process(delta: float) -> void:
 	_spawn_timer -= delta
 	if _spawn_timer <= 0.0:
 		_spawn_next()
-		# 生成间隔随波次递减: max(0.3, base - wave * 0.02)
-		_spawn_timer = max(0.3, base_spawn_interval - _current_wave * 0.02)
+		# 生成间隔随波次递减（F1-B 参数化 2026-08-10：waves.json.generation）
+		# 公式: max(spawn_interval_min, base_spawn_interval - wave * spawn_interval_decay)
+		var gen: Dictionary = DataLoader.get_wave_generation()
+		var interval_min: float = float(gen.get("spawn_interval_min", 0.3))
+		var interval_decay: float = float(gen.get("spawn_interval_decay", 0.02))
+		_spawn_timer = max(interval_min, base_spawn_interval - _current_wave * interval_decay)
 
 # ========== 生成逻辑 ==========
 

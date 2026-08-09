@@ -9,9 +9,9 @@
 
 | 编号 | 位置 | 问题 | 状态 | 阶段 |
 |---|---|---|---|---|
-| T-001 | data_loader.gd:198-199 | 精英 HP/伤害乘数硬编码，enemies.json.scaling 同值但零消费（改 JSON 不生效） | 待处理 | F1 |
-| T-002 | data_loader.gd:191,194 | 移速公式 + F-01 减速 0.5 硬编码（scaling.speed_formula 零消费） | 待处理 | F1 |
-| T-003 | enemy_spawner.gd:45 | 生成间隔公式硬编码（waves.json.generation 零消费） | 待处理 | F1 |
+| T-001 | data_loader.gd:198-199 | 精英 HP/伤害乘数硬编码 → scaling 参数化（elite_hp/dmg_mult_per_wave），改 Excel enemy_scaling 即生效 | 已收口(F1) | F1 |
+| T-002 | data_loader.gd:191,194 | 移速公式 + F-01 减速 0.5 → scaling 参数化（speed_growth_per_wave/cap/reduction），验证改 0.5→0.4 移速 176→140.8 生效 | 已收口(F1) | F1 |
+| T-003 | enemy_spawner.gd:45 | 生成间隔公式 → generation 参数化（spawn_interval_min/decay）接入 spawner | 已收口(F1) | F1 |
 | T-004 | weapon_controller.gd:50-62 | 初始枪内联配置，不在 weapons.json | 待处理 | F1 |
 | T-005 | audio_manager.gd:89-96 | int 字面量匹配 GameState，枚举增删即静默错乱 | 待处理 | F3 |
 | T-006 | player.gd:417 / enemy.gd:762 | 护甲两套算法并存（平直减 vs 百分比），stats.json.formulas 零消费 | 待处理 | F1 |
@@ -22,7 +22,7 @@
 | T-011 | projectile.gd:47,56 | collision_mask=2 / 半径 4.0 魔法数字 | 待处理 | F1 |
 | T-012 | skill_controller.gd:118-130 | 火球 speed/lifetime/pierce/radius 硬编码（damage 部分已数据化） | 待处理 | F1 |
 | T-013 | player.gd:430,422,593 | 无敌帧 0.4 / 金手指 0.001 / 闪避上限 0.9 | 待处理 | F1 |
-| T-014 | route_generator.gd:34-40 | MIN_ELITE_WAVE=6/MAX_BATTLE_NODES=36/BOSS_WAVE=10 写死 | 待处理 | F1 |
+| T-014 | route_generator.gd:34-40 | BOSS_WAVE=10 → routes.json.boss_wave（MIN_ELITE_WAVE/MAX_BATTLE_NODES 为结构约束保留） | 已收口(F1) | F1 |
 | T-015 | enemy.gd:190,212,762 | 击退衰减 0.5 / 接触冷却 0.5 / 护甲上限 0.75 | 待处理 | F1 |
 
 ## 配置型数据结构（.gd 内建配置，应抽表）
@@ -82,7 +82,7 @@
 
 | 编号 | 位置 | 问题 | 状态 | 阶段 |
 |---|---|---|---|---|
-| T-049 | data_loader.gd | get_wave_generation()/get_formulas() 全项目零消费（并入 T-002/003/006 处理） | 待处理 | F1 |
+| T-049 | data_loader.gd | get_wave_generation() 已消费（spawn_interval）；get_formulas() 仍零消费（T-006 护甲统一时接线）；generation/scaling 死公式列（hp/damage/base_enemy_count/max_concurrent）已删 | 部分收口 | F1 |
 | T-050 | items.json / player.gd | 无消费方效果键 22 个（harvesting/engineering/melee_damage/ranged_damage/knockback/xp_gain_percent/fire_damage_percent/burn_duration_percent/structure_duration_percent/miss_chance_percent/dodge_heal_* 等）：P0-Bug2 已收进 bonus_stats 不丢数，需逐键决定「接线 or 删死数据」 | 待处理 | F1 |
 | T-051 | skill_controller.gd:73 | se_skill_holy_shield 未实装（P0-Bug1 已修 ✓） | 已收口(F0) | 已修 |
 | T-052 | characters.json well_rounded | harvesting:3 死数据（无消费方） | 待处理 | F1 |

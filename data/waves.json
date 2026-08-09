@@ -471,9 +471,8 @@
     }
   ],
   "generation": {
-    "base_enemy_count_formula": "base_count + wave * 2",
-    "spawn_interval_formula": "max(0.3, base_interval - wave * 0.02)",
-    "max_concurrent_formula": "min(20 + wave * 2, 60)"
+    "spawn_interval_min": 0.3,
+    "spawn_interval_decay": 0.02
   },
   "rewards": {
     "wave_complete_base": "5 + wave * 2",

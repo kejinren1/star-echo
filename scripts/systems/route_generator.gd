@@ -66,6 +66,8 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 	var modifiers: Dictionary = routes.get("modifiers", {})
 	var constraints: Dictionary = routes.get("constraints", {})
 	var max_battle: int = int(constraints.get("max_battle_nodes", MAX_BATTLE_NODES))
+	# F1-B（2026-08-10）：boss 波次号数据化 routes.json.boss_wave（缺省 10 = 原常量）
+	var boss_wave: int = int(routes.get("boss_wave", BOSS_WAVE))
 	# F-27（2026-08-08 用户拍板）：boss 层（单 Boss 节点）数据驱动，缺省末层；
 	# 15 关配置 = [9, 14]（第 10 关、第 15 关各 1 Boss）
 	# ⚠️ JSON 数值解析为 float——`li in boss_layers`（int vs float）严格比较会 miss，
@@ -113,7 +115,7 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 				node_data["wave_index"] = li + 1
 				battle_count += 1
 			elif node_type == NODE_BOSS:
-				node_data["wave_index"] = BOSS_WAVE
+				node_data["wave_index"] = boss_wave
 
 	# 4) 硬校验：战斗类节点数 ≤ max_battle
 	if battle_count > max_battle:
@@ -236,9 +238,13 @@ static func _count_battles_before(layers: Array, from_layer: int) -> int:
 	return count
 
 ## 全路线 wave_index 重映射（P1 Fix-2：按层号分配，与生成主路径一致）
-## battle/elite → wave = layer_index + 1；boss → BOSS_WAVE(10)；shop/event → 0
+## battle/elite → wave = layer_index + 1；boss → boss_wave(routes.json，缺省 10)；shop/event → 0
 ## 生成器主路径与改线接口共用同一套映射逻辑（D16-T3）
 static func _reassign_wave_indices(route: Dictionary) -> void:
+	# F1-B（2026-08-10）：boss 波次号数据化 routes.json.boss_wave（与 generate_from 同一数据源）
+	var boss_wave: int = BOSS_WAVE
+	if DataLoader != null:
+		boss_wave = int(DataLoader.get_routes().get("boss_wave", BOSS_WAVE))
 	var layers: Array = route.get("layers", [])
 	for li in layers.size():
 		var layer_nodes: Array = layers[li]
@@ -248,7 +254,7 @@ static func _reassign_wave_indices(route: Dictionary) -> void:
 			if node_type == NODE_BATTLE or node_type == NODE_ELITE:
 				node["wave_index"] = li + 1
 			elif node_type == NODE_BOSS:
-				node["wave_index"] = BOSS_WAVE
+				node["wave_index"] = boss_wave
 			else:
 				node["wave_index"] = 0
 

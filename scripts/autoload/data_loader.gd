@@ -184,19 +184,24 @@ func get_scaled_enemy(enemy_id: String, wave: int) -> Dictionary:
 	# 金币掉落：优先 coin_value（08-07 反馈修复，数值 2-200 数据化），兜底旧键 drop（历史数据兼容）
 	var drop: int = int(data.get("coin_value", data.get("drop", 1)))
 
-	# 成长公式: base + growth * wave
+	# 成长公式: base + growth * wave（结构在代码；系数全部数据化自 enemies.json.scaling）
 	var final_hp := base_hp + hp_growth * wave
 	var final_damage := base_damage + damage_growth * wave
-	# 速度公式: base * (1 + min(wave * 0.01, 0.2))
-	var final_speed: float = base_speed * (1.0 + min(wave * 0.01, 0.2))
+	# 速度公式: base * (1 + min(wave * speed_growth_per_wave, speed_growth_cap)) * speed_reduction
 	# F-01（用户拍板 2026-08-06 · P0）：怪物移速降至 50% —— 围杀体验修复
 	# （真人反馈「怪物移速没有削弱」；全敌人含普通/精英/Boss 统一减速）
-	final_speed *= 0.5
+	# 参数化（F1-A 2026-08-10）：speed_growth_per_wave=0.01 / speed_growth_cap=0.2 / speed_reduction=0.5
+	var speed_growth_per_wave: float = float(_enemy_scaling.get("speed_growth_per_wave", 0.01))
+	var speed_growth_cap: float = float(_enemy_scaling.get("speed_growth_cap", 0.2))
+	var speed_reduction: float = float(_enemy_scaling.get("speed_reduction", 0.5))
+	var final_speed: float = base_speed * (1.0 + min(wave * speed_growth_per_wave, speed_growth_cap)) * speed_reduction
 
-	# 精英乘数
+	# 精英乘数（F1-A 参数化：enemies.json.scaling.elite_*_mult_per_wave）
 	if category == "elite":
-		var elite_hp_mult := 1.0 + wave * 0.15
-		var elite_dmg_mult := 1.0 + wave * 0.08
+		var elite_hp_mult_per_wave: float = float(_enemy_scaling.get("elite_hp_mult_per_wave", 0.15))
+		var elite_dmg_mult_per_wave: float = float(_enemy_scaling.get("elite_dmg_mult_per_wave", 0.08))
+		var elite_hp_mult := 1.0 + wave * elite_hp_mult_per_wave
+		var elite_dmg_mult := 1.0 + wave * elite_dmg_mult_per_wave
 		final_hp *= elite_hp_mult
 		final_damage *= elite_dmg_mult
 

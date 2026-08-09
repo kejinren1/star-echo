@@ -16,5 +16,6 @@
     "first_layer_has_battle": true,
     "final_layer_boss": true,
     "max_battle_nodes": 36
-  }
+  },
+  "boss_wave": 10
 }
