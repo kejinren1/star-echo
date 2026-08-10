@@ -320,6 +320,20 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 	var dmg: float = weapon.base_damage
 	if owner_node and "damage_multiplier" in owner_node:
 		dmg *= owner_node.damage_multiplier
+	# F1-G（T-050）：melee_damage/ranged_damage 按武器分类加成（bonus_stats 默认 0 零回归；
+	# charcoal -2 / boxing_glove +3 / saw +6 / se_blade_core +8 等，百分比语义与其它 percent 键一致）
+	if owner_node and "bonus_stats" in owner_node:
+		var wtype: String = ""
+		if weapon != null and weapon.get("weapon_type") != null:
+			wtype = str(weapon.get("weapon_type"))
+		if wtype == "melee":
+			dmg *= 1.0 + float(owner_node.bonus_stats.get("melee_damage", 0.0)) / 100.0
+		elif wtype == "ranged":
+			dmg *= 1.0 + float(owner_node.bonus_stats.get("ranged_damage", 0.0)) / 100.0
+	# F1-G（T-050）：knockback 被动击退加成（boxing_glove +5 / black_belt +10，累加到武器基础击退）
+	var kb: float = weapon.knockback
+	if owner_node and "bonus_stats" in owner_node:
+		kb += float(owner_node.bonus_stats.get("knockback", 0.0))
 	# F-04（金手指）：debug_mult 攻击倍率（默认 1.0 零回归；toggle_debug_cheat 置 10）
 	if owner_node and "debug_mult" in owner_node:
 		dmg *= float(owner_node.debug_mult)
@@ -339,7 +353,7 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 		"damage": dmg,
 		"lifetime": travel_time,
 		"pierce": weapon.pierce,
-		"knockback": weapon.knockback,
+		"knockback": kb,
 		# D10-T3：爆炸 AOE 透传（projectile.initialize 已支持 :155-158）；
 		# explosion_damage 兜底 = base_damage；radius <= 0 时 projectile 不爆炸，零回归
 		"explosion_radius": weapon.explosion_radius,

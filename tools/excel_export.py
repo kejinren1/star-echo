@@ -44,17 +44,19 @@ KNOWN_EFFECT_KEYS = {
     "damage_percent", "range_percent", "luck", "pickup_range", "life_steal_percent",
     "crit_damage_percent", "damage_taken_percent", "structure_damage_percent",
     "range",
-    # CONSUMED_BONUS_KEYS（有消费方）
+    # CONSUMED_BONUS_KEYS（有消费方；F1-G 2026-08-10 接线：xp→gain_exp / melee·ranged→分类伤害
+    # / knockback→击退 / boss_elite→精英·Boss 增伤；shop_weapon_upgrade→服务池 F31-3）
     "orbit_blade_count", "elemental_damage", "summon_count",
-    # 无消费方但已登记（T-050 待 F1 裁决）—— 新增键会触发 WARN
+    "xp_gain_percent", "melee_damage", "ranged_damage", "knockback",
+    "boss_elite_damage_percent", "shop_weapon_upgrade",
+    # 无消费方已登记（T-050 裁决：保留待 F2+ / 删数据，F1-G 已 22/22 裁决）—— 新增键会触发 WARN
     "attack_speed_per_different_weapon_percent", "auto_turret_per_wave",
-    "boss_elite_damage_percent", "burn_duration_percent",
-    "damage_reduction_on_hit_percent", "dodge_heal_amount", "dodge_heal_chance",
+    "burn_duration_percent", "damage_reduction_on_hit_percent",
+    "dodge_heal_amount", "dodge_heal_chance",
     "element_duration_percent", "element_reaction_damage_percent", "engineering",
-    "fire_damage_percent", "harvesting", "knockback", "melee_damage",
-    "miss_chance_percent", "no_weapon_armor_bonus", "ranged_damage", "reaction_heal",
-    "shop_weapon_upgrade", "special_enemies_next_wave", "structure_duration_percent",
-    "xp_gain_percent",
+    "fire_damage_percent", "harvesting",
+    "miss_chance_percent", "no_weapon_armor_bonus", "reaction_heal",
+    "special_enemies_next_wave", "structure_duration_percent",
 }
 
 
@@ -416,8 +418,11 @@ def build_overview(tables: dict[str, list[dict]], rep: Report) -> str:
         "damage_percent", "range_percent", "luck", "pickup_range", "life_steal_percent",
         "crit_damage_percent", "damage_taken_percent", "structure_damage_percent",
         "orbit_blade_count", "elemental_damage", "summon_count",
+        # F1-G 接线 6 键（2026-08-10）：xp/melee/ranged/knockback/boss_elite/shop_weapon_upgrade
+        "xp_gain_percent", "melee_damage", "ranged_damage", "knockback",
+        "boss_elite_damage_percent", "shop_weapon_upgrade",
     }]
-    lines.append(f"- 无消费方效果键 {len(unmapped)} 个（T-050，待 F1 逐键裁决）：{', '.join(sorted(unmapped))}")
+    lines.append(f"- 无消费方效果键 {len(unmapped)} 个（T-050 已裁决：保留待 F2+/删数据）：{', '.join(sorted(unmapped))}")
     lines.append("")
     return "\n".join(lines)
 

@@ -75,6 +75,7 @@ func _on_body_entered(body: Node) -> void:
 	# 命中敌人则造成伤害（D13-T1：暴击结算）
 	if body.is_in_group("enemies") and body.has_method("take_damage"):
 		var final_damage: float = _roll_crit(damage)
+		final_damage = _apply_boss_elite_bonus(final_damage, body)
 		# F-11（用户拍板 2026-08-06）：伤害数字子系统——命中时透传暴击态（enemy 侧展示）
 		body.take_damage(final_damage, _is_crit_hit())
 		_apply_life_steal(final_damage)
@@ -125,6 +126,7 @@ func _do_explosion() -> void:
 			if explosion_damage > 0.0 and enemy.has_method("take_damage"):
 				# D13-T1：AOE 与线弹同口径暴击（暴击伤害同样走吸血）
 				var final_damage: float = _roll_crit(explosion_damage)
+				final_damage = _apply_boss_elite_bonus(final_damage, enemy)
 				# F-11：AOE 暴击态透传（enemy 侧展示伤害数字）
 				enemy.take_damage(final_damage, _is_crit_hit())
 				_apply_life_steal(final_damage)
@@ -165,6 +167,19 @@ func apply_life_steal(damage_dealt: float) -> void:
 
 func _apply_life_steal(damage_dealt: float) -> void:
 	apply_life_steal(damage_dealt)
+
+## F1-G（T-050）：boss_elite_damage_percent 对精英/Boss 增伤（silver_bullet +25%）
+## 线弹/AOE 统一口径：enemy.enemy_category ∈ {elite, boss} 时乘算；bonus_stats 默认 0 零回归
+func _apply_boss_elite_bonus(dmg: float, enemy: Node) -> float:
+	var player_node: Node = GameManager.player if GameManager else null
+	if player_node == null or not ("bonus_stats" in player_node):
+		return dmg
+	if enemy == null or enemy.get("enemy_category") not in ["elite", "boss"]:
+		return dmg
+	var pct: float = float(player_node.bonus_stats.get("boss_elite_damage_percent", 0.0))
+	if pct == 0.0:
+		return dmg
+	return dmg * (1.0 + pct / 100.0)
 
 # ========== 暴击结算（Day 13 · D13-T1） ==========
 

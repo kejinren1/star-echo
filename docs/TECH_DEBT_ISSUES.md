@@ -83,12 +83,13 @@
 | 编号 | 位置 | 问题 | 状态 | 阶段 |
 |---|---|---|---|---|
 | T-049 | data_loader.gd | get_wave_generation() 已消费（spawn_interval）；get_formulas() 仍零消费（T-006 护甲统一时接线）；generation/scaling 死公式列（hp/damage/base_enemy_count/max_concurrent）已删 | 部分收口 | F1 |
-| T-050 | items.json / player.gd | 无消费方效果键 22 个（harvesting/engineering/melee_damage/ranged_damage/knockback/xp_gain_percent/fire_damage_percent/burn_duration_percent/structure_duration_percent/miss_chance_percent/dodge_heal_* 等）：P0-Bug2 已收进 bonus_stats 不丢数，需逐键决定「接线 or 删死数据」 | 待处理 | F1 |
+| T-050 | items.json / player.gd | 无消费方效果键 22 个逐键裁决（2026-08-10 F1-G 已裁决 22/22）：**已接线 5 键**（xp_gain_percent→gain_exp / melee_damage·ranged_damage→weapon_controller 分类伤害 / knockback→弹丸击退 / boss_elite_damage_percent→projectile 精英·Boss 增伤）；**实为已消费 1 键**（shop_weapon_upgrade→shop.gd:219 服务池 F31-3）；**保留待 F2+ 13 键**（harvesting（波次奖励系统未实现）/engineering（炮台成长）/fire_damage_percent·burn_duration_percent（元素增伤）/element_duration_percent·element_reaction_damage_percent·reaction_heal（元素反应）/miss_chance_percent（与 dodge 合并裁决）/dodge_heal_amount·dodge_heal_chance（闪避回血）/damage_reduction_on_hit_percent（受击减伤 buff）/structure_duration_percent（炮台时长）/attack_speed_per_different_weapon_percent（多武器攻速））；**删数据 3 键**（no_weapon_armor_bonus（无武器护甲系统不存在）/special_enemies_next_wave（特殊波次不存在）/auto_turret_per_wave（自动炮台不存在）） | 部分收口(5/22 接线+3 删) | F1 |
 | T-051 | skill_controller.gd:73 | se_skill_holy_shield 未实装（P0-Bug1 已修 ✓） | 已收口(F0) | 已修 |
-| T-052 | characters.json well_rounded | harvesting:3 死数据（无消费方） | 待处理 | F1 |
+| T-052 | characters.json well_rounded | harvesting:3 死数据（波次奖励系统未实现；harvesting 裁决保留待 F2+，与 T-050 同轨） | 保留待F2+ | F1 |
 | T-053 | enemy_spawner.gd:126 | 补 stats.wave_number 但 get_scaled_enemy() 返回值不含该键，Boss 召唤物路径拿不到 | 待处理 | F1 |
 
 ## 处理顺序备注
 1. F0 已修：T-021（P0-Bug2 收口）、T-051（P0-Bug1 实装）；新探针 day30_p0_fix_check.gd（15 断言）
 2. F1 按 T-001→T-015（公式接数据）+ T-016→T-024（抽表）+ T-025→T-030（id 收敛）+ T-050 逐键裁决
 3. T-050 裁决原则：有潜在消费点（如 knockback→武器击退、xp_gain_percent→gain_exp）优先接线；纯设计残留（harvesting）删表或留档
+4. F1-G（2026-08-10）已裁决 22/22：接线 5 键 + 实为已消费 1 键（shop_weapon_upgrade）；13 键保留待 F2+（随对应系统实现接线）；3 键删数据（下次改 Excel 时从 items_effects 移除：no_weapon_armor_bonus/special_enemies_next_wave/auto_turret_per_wave——已 grep 确认零代码消费，仅 anvil/bait/mech_heart 数据引用）

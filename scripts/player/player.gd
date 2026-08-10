@@ -80,8 +80,15 @@ const STAT_MAP_EXCLUDED: PackedStringArray = ["range"]
 
 ## P0-Bug2 修复（2026-08-10）：未映射键中「已有消费方」的白名单 —— 收进 bonus_stats 即生效，不警告
 ## 消费方：orbit_blade_count → orbit_weapon.gd；elemental_damage → skill_controller 燃烧 dps；
-##         summon_count → skill_controller 炮台数量。其余未映射键无消费方 → 收进 bonus_stats + 警告登记
-const CONSUMED_BONUS_KEYS: PackedStringArray = ["orbit_blade_count", "elemental_damage", "summon_count"]
+##         summon_count → skill_controller 炮台数量。
+## F1-G（2026-08-10）：xp_gain_percent → gain_exp；melee_damage/ranged_damage/knockback/
+##         boss_elite_damage_percent → weapon_controller 伤害/击退计算。其余未映射键无消费方 →
+##         收进 bonus_stats + 警告登记
+const CONSUMED_BONUS_KEYS: PackedStringArray = [
+	"orbit_blade_count", "elemental_damage", "summon_count",
+	"xp_gain_percent", "melee_damage", "ranged_damage", "knockback",
+	"boss_elite_damage_percent",
+]
 
 var character_id: String = ""                ## 当前英雄 id（空 = 未经角色选择）
 var bonus_stats: Dictionary = {}             ## 引擎尚未实现的被动/惩罚键，Day 3 技能与 Day 4 面板读此字典
@@ -520,7 +527,9 @@ func die() -> void:
 func gain_exp(amount: float) -> void:
 	if not is_alive or amount <= 0.0:
 		return
-	exp += amount
+	# F1-G（T-050）：xp_gain_percent 经验获取加成（bonus_stats 默认 0 零回归；radar/black_belt +10%）
+	var xp_mult: float = 1.0 + float(bonus_stats.get("xp_gain_percent", 0.0)) / 100.0
+	exp += amount * xp_mult
 	_check_level_up()
 	xp_changed.emit(exp, get_xp_to_next_level())
 	stats_changed.emit()

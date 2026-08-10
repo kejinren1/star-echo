@@ -1,6 +1,6 @@
 # 数据分布总览（DATA_OVERVIEW）
 
-- 生成时间：2026-08-10 08:22
+- 生成时间：2026-08-10 08:33
 - 来源：docs/GameData.xlsx（tools/excel_export.py 导出时自动刷新）
 
 ## weapons（36 行）
@@ -35,4 +35,4 @@
 ## routes（1 行）
 
 ## 关注项
-- 无消费方效果键 23 个（T-050，待 F1 逐键裁决）：attack_speed_per_different_weapon_percent, auto_turret_per_wave, boss_elite_damage_percent, burn_duration_percent, damage_reduction_on_hit_percent, dodge_heal_amount, dodge_heal_chance, element_duration_percent, element_reaction_damage_percent, engineering, fire_damage_percent, harvesting, knockback, melee_damage, miss_chance_percent, no_weapon_armor_bonus, range, ranged_damage, reaction_heal, shop_weapon_upgrade, special_enemies_next_wave, structure_duration_percent, xp_gain_percent
+- 无消费方效果键 17 个（T-050 已裁决：保留待 F2+/删数据）：attack_speed_per_different_weapon_percent, auto_turret_per_wave, burn_duration_percent, damage_reduction_on_hit_percent, dodge_heal_amount, dodge_heal_chance, element_duration_percent, element_reaction_damage_percent, engineering, fire_damage_percent, harvesting, miss_chance_percent, no_weapon_armor_bonus, range, reaction_heal, special_enemies_next_wave, structure_duration_percent
