@@ -2356,11 +2356,11 @@
 ### F1 数据层统一【进行中】
 - [x] F1-A enemies.scaling 参数化（T-001/002：speed_growth/cap/reduction + elite_*_mult_per_wave；实测改数生效）
 - [x] F1-B waves.generation + routes.boss_wave 参数化（T-003/014；day30_f1_scaling_check 10 断言）
-- [ ] F1-C 护甲公式统一（T-006：player 平直减 vs enemy 百分比两套 → stats.formulas 参数化统一；⚠️ 数值重平衡需用户确认口径）【✅ 方案已定：SOLUTION_PLAN 阶段 F · 待执行；执行前无法确认换算口径 → 标「执行阻塞：护甲数值口径待用户确认」不强行改】
-- [ ] F1-D 商店参数数据化（T-010：REROLL_COST=10 / 星刃保底 current_wave==4 → stats.json shop 段）【✅ 方案已定：SOLUTION_PLAN 阶段 F · 待执行；Excel stats sheet 结构变更需 data_schema.py 注册】
+- [~] F1-C 护甲公式统一（T-006：player 平直减 vs enemy 百分比两套 → stats.formulas 参数化统一；⚠️ 数值重平衡需用户确认口径）【执行阻塞 2026-08-10 #3 第 43 轮：armor 数据实测（道具 -3~+4 / 角色 passive 零 / stats base 0 max 20），平直制→百分比制改变玩家承伤曲线（低伤害平直护甲过强、高伤害过弱），换算口径待用户确认 → 按方案兜底不强行改；stats_formulas sheet 参数化（armor_factor/cap）随时可落地】
+- [x] F1-D 商店参数数据化（T-010：REROLL_COST=10 / 星刃保底 current_wave==4 → stats.json shop 段）【✅ 收口 2026-08-10 `b6e0177`：Excel stats_shop sheet + data_schema 注册 + DataLoader.get_stats_shop + shop.gd 读参兜底 + day30_f1d_shop_check 8 断言】
 - [ ] F1-E 表现配置抽表（T-016~024：SPRITE_MAP/BEHAVIOR_MAP/BGM/SFX/FX/SHEET_CONFIG/初始枪/炮台默认 → Excel presentation sheet）【🏠 主窗口承接 · #3 勿自行开工（SOLUTION_PLAN 阶段 F：7+ 脚本 + 新表，主窗口分步执行并逐脚本验证，保留代码兜底默认值）】
-- [ ] F1-F 机制 id 收敛（T-025~030：HERO_IDS 改 DataLoader 全量；道具/技能 id 常量表）【✅ 方案已定：SOLUTION_PLAN 阶段 F · 待执行；回归含 grep 断言无新字面量】
-- [ ] F1-G 无消费方效果键逐键裁决（T-050 22 键：接线 or 删，参考 wave_rewards.harvesting_bonus 等现成消费点）【✅ 方案已定：SOLUTION_PLAN 阶段 F · 待执行；每键一个提交，接线后跑 day11_12_passive_check + 回归】
+- [x] F1-F 机制 id 收敛（T-025~030：HERO_IDS 改 DataLoader 全量；道具/技能 id 常量表）【✅ 收口 2026-08-10 `162fa52`：HERO_IDS→DataLoader SE 过滤兜底 + 9 机制 id 常量 + get_skill_ids + 消费点收敛（grep 零残留）】
+- [~] F1-G 无消费方效果键逐键裁决（T-050 22 键：接线 or 删，参考 wave_rewards.harvesting_bonus 等现成消费点）【部分收口 2026-08-10 `112e6a9`：22/22 裁决——接线 5 键（xp/melee/ranged/knockback/boss_elite）+ shop_weapon_upgrade 实为已消费 + 13 键保留待 F2+ + 3 键删数据（anvil/bait/mech_heart 下次改 Excel 移除）；余下 16 键不硬接（防为接线而接线），TECH_DEBT_ISSUES T-050 逐键登记】
 
 ### F2 代码边界收拢【未开始】（T-037~045 + GM 首拆 T-046：信号化/容器工厂/实体创建收口）
 ### F3 状态机规范化【未开始】（T-031~036：自研两形态 enum+_transition / enum+状态表 + 合规探针 + 状态流探针）

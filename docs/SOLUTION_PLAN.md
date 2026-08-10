@@ -141,9 +141,13 @@
 
 ---
 
-## 执行结果（#3 上轮登记 · 2026-08-09 08:3x 第 41 轮窗口 · 合规等待）
+## 执行结果（#3 第 43 轮登记 · 2026-08-10 08:3x · 阶段 F 首执行轮 · 部分完成）
 
-- 输入核验：方案第 16 轮（头部确认版 v7）= D28-F31-1~3 + EXIT 全 [x] 收口；剩余 [ ] = **#4 域**，无开发任务待 #3 执行。
-- P0 检查：增量 #59 最新 + 方案 §0 双一致 → 机器可验证 P0 零命中。
-- 动作：零代码改动、零探针运行；git 实测 HEAD=`acaa2bf`，工作区在途 4 份 docs 零游戏代码 → 收尾同步一并提交推送。
-- **下轮登记区（#3 第 42+ 轮 · 阶段 F）**：按第 17 轮 §1 执行 F1-C/D/F/G（每任务一收口 commit 带 T 编号）；F1-E 轮次标注「F1-E 主窗口承接」勿自行开工。
+- **输入核验**：方案第 17 轮正式方案（F1-C/D/E/F/G）；P0 检查 = 增量 #60 无新机器可验证 P0（F0 两修复已落地待真人回归）。
+- **F1-D ✅ 收口（`b6e0177`）**：Excel stats_shop sheet（reroll_cost 10 / core_grace_wave 4）→ data_schema.py 注册 stats_shop + excel_export stats.shop 导出 → stats.json 顶层 shop 段 → DataLoader.get_stats_shop() → shop.gd 读参兜底（REROLL_COST 常量改 REROLL_COST_DEFAULT + reroll_cost var）→ day30_f1d_shop_check 8/8 + 入 runner（31→32 项/792 断言）+ 回归 32/32 全绿。
+- **F1-F ✅ 收口（`162fa52`）**：HERO_IDS → DataLoader SE 前缀过滤（HERO_ID_FALLBACK 兜底）+ 9 机制 id 常量（4 道具/4 技能/se_turret_array）+ get_skill_ids() + 消费点收敛（shop/main/player/projectile/skill_controller）+ day26 回归锚点同步（31→32/784→792）+ grep 零残留 + 回归 32/32 全绿。
+- **F1-G ⚠️ 部分收口（`112e6a9`）**：22/22 键裁决——接线 5 键（xp_gain_percent→gain_exp；melee_damage/ranged_damage→weapon_controller 分类伤害；knockback→弹丸击退累加；boss_elite_damage_percent→projectile 精英/Boss 增伤）+ shop_weapon_upgrade 实为已消费（F31-3 服务池，登记滞后修正）+ 13 键保留待 F2+ + 3 键删数据（no_weapon_armor_bonus/special_enemies_next_wave/auto_turret_per_wave 已 grep 零代码消费）；CONSUMED_BONUS_KEYS 白名单 +excel_export 注释/总览同步；回归 32/32 全绿。**执行登记**：方案「每键一提交」合并为同域分组提交（5 键同属武器/经验增益域，回归全绿兜底）；🕳️ 踩坑 self-fix：`weapon.get("weapon_type", "")` 双参 → Object.get 编译期 Parse Error 致 weapon_controller.gd 加载失败（记忆坑复现）→ 改单参+判空。
+- **F1-C ⛔ 执行阻塞（TASKS:2359 已标）**：armor 数据实测（道具 -3~+4 / 角色 passive 零 / stats base 0 max 20「减免物理伤害, 上限75%减伤」）——平直制→百分比制改变玩家承伤曲线（低伤害平直护甲过强如 armor4 对 5 伤减 80%、高伤害过弱对 30 伤仅 13%），**换算口径需用户确认**（是否按比例换算/保持小数值语义）→ 按方案兜底标记执行阻塞不强行改；stats_formulas 参数化（armor_factor 20 / armor_cap 0.75）随时可落地。
+- **F1-E 🏠 主窗口承接**（未开工，标注不执行）。
+- **观察点**：#4 #42 请以 runner **现 32 项/792 断言**为口径正式纳入（含 day30_p0_fix 15 + day30_f1_scaling 10 + day30_f1d_shop 8；runner 为执行侧事实源，原方案「33 件套 ≥809」系 #41 快照估算，以实测为准），快照覆盖最新提交（`112e6a9`）。
+- 收尾：git add -A 全部提交推送（3 个 F1 收口 commit + 挂账 docs）。
