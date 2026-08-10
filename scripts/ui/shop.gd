@@ -28,9 +28,14 @@ const WeaponControllerScript: GDScript = preload("res://scripts/weapons/weapon_c
 # ========== 配置 ==========
 
 const SHOP_ITEM_COUNT: int = 4                  ## 商店刷新物品数
-const REROLL_COST: int = 10                     ## 刷新费用
+const REROLL_COST_DEFAULT: int = 10             ## 刷新费用兜底默认（数据驱动 stats.json shop.reroll_cost）
+const CORE_GRACE_WAVE_DEFAULT: int = 4          ## 星刃核心保底波兜底默认（数据驱动 stats.json shop.core_grace_wave）
 const CARD_HEIGHT: int = 36                     ## 卡片高度
 const CARD_PATCH_MARGIN: int = 12               ## 卡片 9-slice 边距
+
+## F1-D（T-010）：商店参数数据化——_ready 从 DataLoader.get_stats_shop() 读参，缺字段用兜底默认
+var reroll_cost: int = REROLL_COST_DEFAULT      ## 刷新费用
+var core_grace_wave: int = CORE_GRACE_WAVE_DEFAULT  ## 星刃核心保底波（current_wave == 此值）
 
 ## 卡片面板纹理
 const CARD_TEXTURE: Texture2D = preload("res://assets/sprites/ui/panel_card.png")
@@ -61,6 +66,11 @@ var _anvil_price: int = 0                   ## 价格（数据驱动自 item.pri
 
 func _ready() -> void:
 	visible = false
+	# F1-D（T-010）：商店参数数据驱动读参（DataLoader 缺失/缺字段 → 兜底默认，零回归）
+	if DataLoader:
+		var shop_cfg: Dictionary = DataLoader.get_stats_shop()
+		reroll_cost = int(shop_cfg.get("reroll_cost", REROLL_COST_DEFAULT))
+		core_grace_wave = int(shop_cfg.get("core_grace_wave", CORE_GRACE_WAVE_DEFAULT))
 	GameManager.shop_opened.connect(_on_shop_opened)
 	GameManager.shop_closed.connect(_on_shop_closed)
 	continue_button.pressed.connect(_on_continue_pressed)
@@ -93,7 +103,7 @@ func _on_reroll_pressed() -> void:
 		_clear_star_grace_ui()
 		_refresh_shop(true)
 		return
-	if GameManager.economy and GameManager.economy.spend_coins(REROLL_COST):
+	if GameManager.economy and GameManager.economy.spend_coins(reroll_cost):
 		_refresh_shop()
 
 # ========== 商品生成（D11-12-T4 真实商品） ==========
@@ -121,8 +131,8 @@ func _refresh_shop(force_blade_core: bool = false) -> void:
 func _check_star_grace() -> void:
 	if star_grace_used or star_grace_available:
 		return
-	# 第四关：current_wave == 4（route 模式 wave_index 4 / 旧制第 4 波，商店打开时值保持）
-	if GameManager == null or not ("current_wave" in GameManager) or int(GameManager.get("current_wave")) != 4:
+	# 保底波：current_wave == core_grace_wave（route 模式 wave_index / 旧制第 N 波，商店打开时值保持）
+	if GameManager == null or not ("current_wave" in GameManager) or int(GameManager.get("current_wave")) != core_grace_wave:
 		return
 	# 已升级两次技能：player.level >= 3（从 1 起升两次；player 缺失/未绑定 → 不激活）
 	var p: Node = GameManager.get("player") if GameManager else null

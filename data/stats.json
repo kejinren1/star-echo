@@ -258,5 +258,9 @@
         ]
       }
     ]
+  },
+  "shop": {
+    "reroll_cost": 10,
+    "core_grace_wave": 4
   }
 }

@@ -117,6 +117,11 @@ SHEETS = {
         "key": None, "category": None, "kind": "flat_dict",
         "json_cols": ["upgrade_options"], "child": None,
     },
+    "stats_shop": {
+        "sheet": "stats_shop", "file": "stats.json", "root": "shop",
+        "key": None, "category": None, "kind": "flat_dict",
+        "json_cols": [], "child": None,
+    },
     "elements": {
         "sheet": "elements", "file": "elements.json", "root": "elemental_status",
         "key": "element_id", "category": None, "kind": "dict",

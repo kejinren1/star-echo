@@ -335,6 +335,7 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         "stats": srows,
         "formulas": flat_sheet("stats_formulas"),
         "leveling": flat_sheet("stats_leveling"),
+        "shop": flat_sheet("stats_shop"),
     }
 
     # elements（dict + reactions + reaction_rules）

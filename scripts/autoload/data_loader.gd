@@ -17,6 +17,7 @@ var _element_reactions: Array = []      ## 元素反应列表
 var _stats: Dictionary = {}             ## 属性定义
 var _formulas: Dictionary = {}          ## 公式定义
 var _leveling: Dictionary = {}          ## 升级定义
+var _shop: Dictionary = {}              ## 商店参数（stats.json shop 段，F1-D T-010）
 var _routes: Dictionary = {}            ## 随机节点路线参数（routes.json）
 var _events: Array = []                 ## 事件列表（events.json，Day 16：GameManager 随机取）
 
@@ -123,6 +124,7 @@ func _load_stats() -> void:
 			_stats[stat["id"]] = stat
 	_formulas = data.get("formulas", {})
 	_leveling = data.get("leveling", {})
+	_shop = data.get("shop", {})
 
 ## 加载路线参数（routes.json；缺失返回空字典 → 生成器走默认参数）
 func _load_routes() -> void:
@@ -354,6 +356,10 @@ func get_formulas() -> Dictionary:
 ## 获取升级定义
 func get_leveling() -> Dictionary:
 	return _leveling
+
+## 获取商店参数（stats.json shop 段；缺段返回 {} → 消费方 get(key, 默认) 兜底）
+func get_stats_shop() -> Dictionary:
+	return _shop
 
 # ========== 路线接口（Day 14-15 · D14-15-T3） ==========
 
