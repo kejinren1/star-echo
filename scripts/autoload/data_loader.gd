@@ -2,6 +2,22 @@
 ## 游戏启动时加载所有 JSON 数据表到内存缓存，提供统一访问接口
 extends Node
 
+# ========== 机制 id 常量（F1-F T-025~030：数据侧 id 单一事实源，消费点禁散落字面量） ==========
+
+## 机制型被动 id（D24-F13-1 三机制被动；消费点 main/player/projectile 读此常量防改名即坏）
+const ITEM_EXECUTIONER_MARK: String = "executioner_mark"
+const ITEM_LAST_STAND: String = "last_stand"
+const ITEM_OVERLOAD_CAPACITOR: String = "overload_capacitor"
+## 星刃核心（F-21 群星回应保底 / 进化链关键道具）
+const ITEM_BLADE_CORE: String = "se_blade_core"
+## 主动技能 id（与 characters.json skill.id 对齐；skill_controller 消费点读此常量）
+const SKILL_FIREBALL: String = "se_skill_fireball"
+const SKILL_DEPLOY_TURRET: String = "se_skill_deploy_turret"
+const SKILL_BLADE_BURST: String = "se_skill_blade_burst"
+const SKILL_HOLY_SHIELD: String = "se_skill_holy_shield"
+## 武器 id（进化/机制识别消费点：炮台常驻多台判定等）
+const WEAPON_TURRET_ARRAY: String = "se_turret_array"
+
 # ========== 数据缓存 ==========
 
 var _enemies: Dictionary = {}           ## 敌人数据 { id → data } (含 category 标记)
@@ -294,6 +310,15 @@ func get_starting_weapon_ids() -> Array[String]:
 		var sw: String = str(_characters[cid].get("starting_weapon", ""))
 		if not sw.is_empty() and not ids.has(sw):
 			ids.append(sw)
+	return ids
+
+## 获取全部技能 ID（characters.json skill.id 去重；F1-F 数据侧收敛，skill_controller 可校验）
+func get_skill_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for cid in _characters:
+		var sid: String = str(_characters[cid].get("skill", {}).get("id", ""))
+		if not sid.is_empty() and not ids.has(sid):
+			ids.append(sid)
 	return ids
 
 # ========== 波次接口 ==========

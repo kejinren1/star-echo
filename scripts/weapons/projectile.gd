@@ -188,7 +188,7 @@ func _is_crit_hit() -> bool:
 ## F-19 升级冲击波容器遍历范式（禁物理查询）：GameManager.enemies_container.get_children()
 ## + is_alive 守卫 + has_method("take_damage") + 距离判断；连锁命中 is_crit=false（不再二次暴击）
 func _trigger_on_crit_chain(target_pos: Vector2, crit_damage: float) -> void:
-	if not (GameManager and GameManager.inventory and GameManager.inventory.has_item_id("overload_capacitor")):
+	if not (GameManager and GameManager.inventory and GameManager.inventory.has_item_id(DataLoader.ITEM_OVERLOAD_CAPACITOR)):
 		return
 	if GameManager.enemies_container == null or crit_damage <= 0.0:
 		return

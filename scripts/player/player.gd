@@ -491,7 +491,7 @@ func heal(amount: float) -> void:
 func _update_last_stand() -> void:
 	var should: bool = false
 	if is_alive and health > 0.0 and GameManager and GameManager.inventory \
-			and GameManager.inventory.has_item_id("last_stand") \
+			and GameManager.inventory.has_item_id(DataLoader.ITEM_LAST_STAND) \
 			and health <= max_health * 0.3:
 		should = true
 	if should and not _last_stand_active:

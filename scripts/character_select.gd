@@ -11,8 +11,10 @@ signal character_chosen(character_id: String)
 
 # ========== 配置 ==========
 
-## Star Echo 三英雄 id（与 data/characters.json 约定一致）
-const HERO_IDS: Array[String] = ["se_irene", "se_noa", "se_ren", "se_siia"]
+## F1-F（T-025）：英雄列表单一事实源 = DataLoader 全量角色过滤 SE 前缀
+## （先例 base_station.gd；数据侧新增 SE 英雄自动上架，DataLoader 缺失时兜底 4 SE 防冷启动崩）
+const HERO_ID_PREFIX: String = "se_"
+const HERO_ID_FALLBACK: Array[String] = ["se_irene", "se_noa", "se_ren", "se_siia"]
 
 ## 选择结果存放的 meta key（挂在 get_tree().root 上）
 const SELECTION_META: StringName = &"se_selected_character"
@@ -63,12 +65,23 @@ func _on_base_station_pressed() -> void:
 
 # ========== 卡片构建 ==========
 
+## F1-F（T-025）：英雄 id 列表 = DataLoader 全量角色过滤 SE 前缀（数据侧单一事实源）
+func _get_hero_ids() -> Array[String]:
+	var ids: Array[String] = []
+	if DataLoader:
+		for cid in DataLoader.get_all_character_ids():
+			if str(cid).begins_with(HERO_ID_PREFIX):
+				ids.append(str(cid))
+	if ids.is_empty():
+		ids = HERO_ID_FALLBACK
+	return ids
+
 func _build_cards() -> void:
 	for child in card_row.get_children():
 		child.queue_free()
 	_cards.clear()
 
-	for hero_id in HERO_IDS:
+	for hero_id in _get_hero_ids():
 		var data: Dictionary = DataLoader.get_character(hero_id)
 		if data.is_empty():
 			push_warning("[CharacterSelect] characters.json 缺少英雄: %s" % hero_id)

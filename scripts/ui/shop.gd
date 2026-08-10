@@ -119,7 +119,7 @@ func _refresh_shop(force_blade_core: bool = false) -> void:
 	for i in count:
 		shop_items.append(pool[i])
 	if force_blade_core and not _has_blade_core() and not shop_items.is_empty():
-		var core: Resource = _build_item_resource("se_blade_core")
+		var core: Resource = _build_item_resource(DataLoader.ITEM_BLADE_CORE)
 		if core != null:
 			shop_items[shop_items.size() - 1] = core
 	_render_cards()
@@ -144,10 +144,10 @@ func _check_star_grace() -> void:
 	star_grace_available = true
 	_show_star_grace_ui()
 
-## 当前商店 4 卡中是否有星刃核心（item_id == se_blade_core）
+## 当前商店 4 卡中是否有星刃核心（item_id == DataLoader.ITEM_BLADE_CORE）
 func _has_blade_core() -> bool:
 	for item in shop_items:
-		if item and ("item_id" in item) and str(item.get("item_id")) == "se_blade_core":
+		if item and ("item_id" in item) and str(item.get("item_id")) == DataLoader.ITEM_BLADE_CORE:
 			return true
 	return false
 

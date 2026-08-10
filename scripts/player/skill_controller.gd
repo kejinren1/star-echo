@@ -136,7 +136,7 @@ func _cast_fireball() -> void:
 	proj.set_direction(aim_dir)
 	# Day 23-T3：火球来源标记（D13-T2 meta 范式）——projectile._explode 据此
 	# spawn 专属 "fireball" VFX 替换通用 crit；含 F-07 穿透全分支都覆盖
-	proj.set_meta(&"source_id", "se_skill_fireball")
+	proj.set_meta(&"source_id", DataLoader.SKILL_FIREBALL)
 
 ## 燃烧 dps 唯一口径（D3-T7b）：dot / dot_scaling 只从 elements.json 读，
 ## 禁止在技能数据里另写一份 —— 艾琳 passive elemental_damage:8 → dps = 3 + 8*0.2 = 4.6
@@ -171,7 +171,7 @@ func _cast_deploy_turret() -> bool:
 		var wc: Node = player.get_node("WeaponController")
 		var equipped: Array = wc.get("equipped_weapons")
 		for w in equipped:
-			if w and w.has_meta(&"source_id") and str(w.get_meta(&"source_id")) == "se_turret_array":
+			if w and w.has_meta(&"source_id") and str(w.get_meta(&"source_id")) == DataLoader.WEAPON_TURRET_ARRAY:
 				duration = -1.0
 				count += 2
 				break
