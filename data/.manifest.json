@@ -1,7 +1,15 @@
 {
-  "generated_at": "2026-08-10T08:33:16",
+  "generated_at": "2026-08-10T08:35:28",
   "fingerprint": "f13acdbbecbb1591",
   "files": {
+    "characters.json": "184f2bebcf26",
+    "elements.json": "d99c78df73f6",
+    "enemies.json": "259bcfc1927c",
+    "events.json": "9cb6b6b5389f",
+    "items.json": "e9f400a6fed3",
+    "routes.json": "c080ab39b564",
+    "stats.json": "c62c87283758",
+    "waves.json": "edb17bc94f05",
     "weapons.json": "97a1f492f78f"
   }
 }

@@ -500,7 +500,10 @@ def main() -> int:
     manifest = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "fingerprint": hashlib.sha256("|".join(fp_parts).encode()).hexdigest()[:16],
-        "files": {name: fp.split(":")[1] for fp in fp_parts},
+        # 🕳️ 修复 2026-08-10（F1.0 latent bug）：原 `{name: fp.split(":")[1] for fp in fp_parts}`
+        # 误用外部循环残留 name → 9 文件指纹全部映射到最后一个键名，files 恒为 1 键；
+        # 改为从 fp 解析文件名，9 键全量落盘（单表指纹检测才有效）
+        "files": {fp.split(":")[0]: fp.split(":")[1] for fp in fp_parts},
     }
     MANIFEST_PATH.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
