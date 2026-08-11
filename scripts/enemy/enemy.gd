@@ -758,9 +758,8 @@ func is_target_valid() -> bool:
 func take_damage(amount: float, is_crit: bool = false) -> void:
 	if not is_alive:
 		return
-	# 护甲减伤: reduction = min(armor / (armor + 20), 0.75)
-	var reduction: float = min(armor / (armor + 20.0), 0.75)
-	var actual_damage: float = amount * (1.0 - reduction)
+	# 护甲减伤（F1-C · 用户 2026-08-10 拍板「伤害-护甲=最终伤害」平直减法，与 player.gd 同式）
+	var actual_damage: float = max(amount - armor, 1.0)
 	health -= actual_damage
 	health_changed.emit(health, max_health)
 	_play_hit_flash()

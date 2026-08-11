@@ -3,13 +3,15 @@
 ## 用法（无头）：
 ##     tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day30_f1_scaling_check.gd
 ##
-## 校验内容（docs/TECH_DEBT_PLAN.md F1 · T-001/002/003/014）：
+## 校验内容（docs/TECH_DEBT_PLAN.md F1 · T-001/002/003/014 + F1-C T-006）：
 ##   §1 敌人成长（enemies.json.scaling 参数化）：get_scaled_enemy 结果 == 旧公式期望
 ##      · chaser wave10：hp = base+growth*10；speed = base*(1+min(10*0.01,0.2))*0.5
 ##      · butcher(elite) wave10：hp/dmg 再乘 (1+10*0.15)/(1+10*0.08)
 ##      · boss(predator) wave10：speed 走同一速度公式（F-01 全局减速）
 ##   §2 生成间隔（waves.json.generation 参数化）：wave10 → max(0.3, 0.8-10*0.02)=0.6
 ##   §3 路线 boss 波（routes.json.boss_wave）：DataLoader 读取 ==10；生成路线 boss 节点 wave_index==10
+##   §4 敌人护甲平直减法（F1-C · T-006 · 用户 2026-08-10 拍板「伤害-护甲=最终伤害」）：
+##      armor=0 全伤 / armor=3 → 减 3 / 大 armor 保底 1.0 不归零（与 player.gd :466 同式）
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -41,6 +43,7 @@ func _advance(sub: int) -> int:
 	_part_enemy_scaling()
 	_part_spawn_interval()
 	_part_boss_wave()
+	_part_enemy_armor_flat()
 	return 1
 
 # ========== §1 敌人成长 ==========
@@ -105,6 +108,40 @@ func _part_boss_wave() -> void:
 		print("  PASS  路线 boss 节点 wave_index == %d" % boss_wave)
 	else:
 		_fail("路线 boss 节点 wave_index 应为 %d（hit=%s ok=%s）" % [boss_wave, boss_hit, boss_wave_ok])
+
+# ========== §4 敌人护甲平直减法（F1-C · T-006） ==========
+
+func _part_enemy_armor_flat() -> void:
+	# 裸节点 + enemy.gd 脚本（day30_p0_fix 范式），只测 take_damage 护甲口径
+	var e: CharacterBody2D = CharacterBody2D.new()
+	e.name = "MockEnemyArmor"
+	e.set_script(load("res://scripts/enemy/enemy.gd"))
+	e.armor = 0.0
+	e.max_health = 100.0
+	root.add_child(e)
+	e.health = e.max_health
+	e.is_alive = true
+	# armor=0：全伤
+	e.call("take_damage", 10.0)
+	_assert_near("enemy armor=0 全伤", e.health, 90.0)
+	# armor=3：减 3（max(10-3, 1.0)=7）
+	e.health = e.max_health
+	e.armor = 3.0
+	e.call("take_damage", 10.0)
+	_assert_near("enemy armor=3 减 3", e.health, 93.0)
+	# 大 armor：保底 1.0 不归零（max(5-999, 1.0)=1.0）
+	e.health = e.max_health
+	e.armor = 999.0
+	e.call("take_damage", 5.0)
+	_assert_near("enemy 大 armor 保底 1.0", e.health, 99.0)
+	# 玩家侧零漂移锚点：player.gd 仍为平直减（同式，语义锚定）
+	var psrc: String = FileAccess.get_file_as_string("res://scripts/player/player.gd")
+	if psrc.contains("max(amount - armor, 1.0)"):
+		_checked += 1
+		print("  PASS  player.gd 平直减法锚点（零改动）")
+	else:
+		_fail("player.gd 平直减法锚点缺失")
+	e.queue_free()
 
 # ========== 断言 ==========
 

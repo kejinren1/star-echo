@@ -14,7 +14,7 @@
 | T-003 | enemy_spawner.gd:45 | 生成间隔公式 → generation 参数化（spawn_interval_min/decay）接入 spawner | 已收口(F1) | F1 |
 | T-004 | weapon_controller.gd:50-62 | 初始枪内联配置，不在 weapons.json | 待处理 | F1 |
 | T-005 | audio_manager.gd:89-96 | int 字面量匹配 GameState，枚举增删即静默错乱 | 待处理 | F3 |
-| T-006 | player.gd:417 / enemy.gd:762 | 护甲两套算法并存（平直减 vs 百分比），stats.json.formulas 零消费 | 待处理 | F1 |
+| T-006 | player.gd:417 / enemy.gd:762 | 护甲两套算法并存（平直减 vs 百分比），stats.json.formulas 零消费 | 已收口(F1) | F1 |
 | T-007 | game_manager.gd:184 | F-05 通关回血 50% 硬编码 | 待处理 | F1 |
 | T-008 | game_manager.gd:109 / wave_manager.gd:30 | max_waves=20 双处重复 | 待处理 | F1 |
 | T-009 | enemy.gd:421,425,434 | 冲锋倍率/蓄力/冲锋时长硬编码 | 待处理 | F1 |
@@ -83,7 +83,7 @@
 | 编号 | 位置 | 问题 | 状态 | 阶段 |
 |---|---|---|---|---|
 | T-049 | data_loader.gd | get_wave_generation() 已消费（spawn_interval）；get_formulas() 仍零消费（T-006 护甲统一时接线）；generation/scaling 死公式列（hp/damage/base_enemy_count/max_concurrent）已删 | 部分收口 | F1 |
-| T-050 | items.json / player.gd | 无消费方效果键 22 个逐键裁决（2026-08-10 F1-G 已裁决 22/22）：**已接线 5 键**（xp_gain_percent→gain_exp / melee_damage·ranged_damage→weapon_controller 分类伤害 / knockback→弹丸击退 / boss_elite_damage_percent→projectile 精英·Boss 增伤）；**实为已消费 1 键**（shop_weapon_upgrade→shop.gd:219 服务池 F31-3）；**保留待 F2+ 13 键**（harvesting（波次奖励系统未实现）/engineering（炮台成长）/fire_damage_percent·burn_duration_percent（元素增伤）/element_duration_percent·element_reaction_damage_percent·reaction_heal（元素反应）/miss_chance_percent（与 dodge 合并裁决）/dodge_heal_amount·dodge_heal_chance（闪避回血）/damage_reduction_on_hit_percent（受击减伤 buff）/structure_duration_percent（炮台时长）/attack_speed_per_different_weapon_percent（多武器攻速））；**删数据 3 键**（no_weapon_armor_bonus（无武器护甲系统不存在）/special_enemies_next_wave（特殊波次不存在）/auto_turret_per_wave（自动炮台不存在）） | 部分收口(5/22 接线+3 删) | F1 |
+| T-050 | items.json / player.gd | 无消费方效果键 22 个逐键裁决（2026-08-10 F1-G 已裁决 22/22）：**已接线 5 键**（xp_gain_percent→gain_exp / melee_damage·ranged_damage→weapon_controller 分类伤害 / knockback→弹丸击退 / boss_elite_damage_percent→projectile 精英·Boss 增伤）；**实为已消费 1 键**（shop_weapon_upgrade→shop.gd:219 服务池 F31-3）；**保留待 F2+ 13 键**（harvesting（波次奖励系统未实现）/engineering（炮台成长）/fire_damage_percent·burn_duration_percent（元素增伤）/element_duration_percent·element_reaction_damage_percent·reaction_heal（元素反应）/miss_chance_percent（与 dodge 合并裁决）/dodge_heal_amount·dodge_heal_chance（闪避回血）/damage_reduction_on_hit_percent（受击减伤 buff）/structure_duration_percent（炮台时长）/attack_speed_per_different_weapon_percent（多武器攻速））；**删数据 3 键**（no_weapon_armor_bonus（无武器护甲系统不存在）/special_enemies_next_wave（特殊波次不存在）/auto_turret_per_wave（自动炮台不存在）） | ⚠️ 部分收口：F1-G-尾 执行阻塞（08-11 #3：GameData.xlsx 被 WPS et.exe 占用无法改写；Excel 删行已定位 row 43/82/111 待用户关闭后执行） | F1 |
 | T-051 | skill_controller.gd:73 | se_skill_holy_shield 未实装（P0-Bug1 已修 ✓） | 已收口(F0) | 已修 |
 | T-052 | characters.json well_rounded | harvesting:3 死数据（波次奖励系统未实现；harvesting 裁决保留待 F2+，与 T-050 同轨） | 保留待F2+ | F1 |
 | T-053 | enemy_spawner.gd:126 | 补 stats.wave_number 但 get_scaled_enemy() 返回值不含该键，Boss 召唤物路径拿不到 | 待处理 | F1 |
