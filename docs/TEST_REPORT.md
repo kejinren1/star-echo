@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #41（08-09 18:40 · 迁移后新路径首轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / action item 1 项（runner 纳入 day29 两探针）
-- **基线**：`BASELINE CLEAN` ｜ JSON 9/9 · **2303 字段零缺陷**（items 54；`data/` 零变更——本轮 13 提交全代码/工具/文档侧）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：**二十九件套 29/29 · 759 断言全绿首跑（34s）** + **day29_elin 14/14** + **day29_attack 20/20 首纳入（单独运行）= 31 探针 · 793 断言全 CLEAN** ｜ HEAD=**fb1317d**（较 #40 +13 提交：Day29 艾琳动画 `e0490c2` + 项目迁移 `908d1f5` + F-32/F-33/F-34 + PLAYTEST #55-59 等）
-- **已知良性**：Day 24 音频 headless 退出泄漏 242 B/进程 BENIGN 白名单维持；**day28_f31 920B 首次记录**=2× 主动铁砧兜底 push_warning+泄漏 minor，定性非缺陷；stderr 全口径与 #40 逐一比对无新增异常
-- **在途 action item（1 项）**：**day29_elin(14)/day29_attack(20) 未入 `_regression_run.py` PROBES**（#5 已请求纳入）→ 建议 #3 并入 = 31 件套 793 一键跑通；工作区在途仅 `docs/ART_GAP_LIST.md`（未跟踪）零代码
-- **观察**：**迁移 `908d1f5` 后新路径全链路验证正常**（baseline/smoke/31 探针全在 D:/30DAYS 下跑通，ACL 问题根治）；Day29 艾琳动画/F-32/F-33/F-34 已实装入库·**待真人回归**（U-1 待目视）；**Day 28 性能段（#4 域）挂账交 Owner 未决**（PROGRESS 建议按 B 降级 D30 兜底）；ART/.gdignore 防 JPG 段错误生效
+- **最近轮次 #42（08-10 18:40 · Day30 阶段F 技术债整改轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / action item 维持 1 项
+- **基线**：`BASELINE CLEAN` ｜ JSON **10/10** · **2313 字段零缺陷**（=2303+10 新增 stats.json F1-D 商店参数表 + .manifest.json 管线指纹；items 54）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
+- **探针回归**：**三十二件套 32/32 · 792 断言全绿首跑（34s）**（runner 已并入 day30_p0_fix 15 / day30_f1_scaling 10 / day30_f1d_shop 8）+ **day29_elin 14/14** + **day29_attack 20/20（单独运行）= 34 探针 · 826 断言全 CLEAN** ｜ HEAD=**640ce5f**（较 #41 +8 提交：F1.0 Excel 管线 `9c1440e` + F1-A/B `438295d` + F1-D `b6e0177` + F1-F `162fa52` + F1-G `112e6a9` + .manifest 指纹修复 `640ce5f` 等）
+- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**F1-G 接线生效实证**——day11_12 763→660B / day20 1044→941B / day23 496→367B 均系「无消费方」push_warning 减少（melee_damage/summon_count 已接线消费），正向信号非缺陷；day30 三新探针 stderr 首记录全定性
+- **在途 action item（1 项）**：**day29_elin(14)/day29_attack(20) 仍未入 `_regression_run.py` PROBES**（#5 已请求）→ 建议 #3 并入 = 34 件套 826 一键跑通；工作区在途仅 `docs/SOLUTION_PLAN.md` + `docs/TASKS.md`（文档）零代码
+- **观察**：**F1-C（护甲换算口径）执行阻塞待用户确认**（阶段 F 唯一挂起项）；F1-E（主窗口承接）排程未动；Day 28 性能段（#4 域）挂账交 Owner 未决；Day29 动画/F-32~F-34 待真人回归（U-1 待目视）
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3088,3 +3088,44 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 **action item（1 项，runner 配置）**：**day29_elin_anim_check(14) + day29_attack_check(20) 未入 `_regression_run.py` PROBES 表**（runner 仍 29 项 759；#5 已在 #58 请求纳入）——本轮单独运行实证 14/14、20/20；建议 #3 执行岗并入使下轮 31 件套 793 一键跑通（同 #32 day26 / #36 fb4 并入先例）。
 
 **观察项维持/更新**：Day 28 性能段（#4 域）挂账交 Owner 未决（PROGRESS 建议按 B 降级 D30 兜底）｜ Day29 艾琳动画/F-32/F-33/F-34 已实装入库·**待真人回归**（U-1 待目视，F-34 待真人验证）｜ ART/RAW idle1.jpg 待管线消费 ｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持
+
+---
+
+## §7.42 轮次 #42 · 2026-08-10 18:40（自动化 · **Day30 阶段F 技术债整改轮**：F1.0 Excel 管线 + F1-A~G 数据驱动收口）
+
+**验证快照 = HEAD=640ce5f（干净）** · 执行 18:41-18:46 · 运行器 32 件套 + day29 两探针单独
+
+### 快照与在途
+
+- HEAD 较 #41（fb1317d）**+8 提交**：`9c1440e` **F1.0 Excel 管线**（GameData.xlsx 唯一事实源 + export/validate/overview + .manifest 指纹）｜ `438295d` **F1-A/B**（enemies.scaling / waves.generation / routes.boss_wave 参数化）｜ `47e0519` docs 阶段F 纳入总日程｜ `b6e0177` **F1-D**（商店参数数据化 → stats.json shop 段 + day30_f1d_shop_check 8 断言）｜ `162fa52` **F1-F**（机制 id 常量收敛 + day26 锚点 31→32/784→792）｜ `112e6a9` **F1-G**（T-050 被动键 22/22 裁决：接线 5 键 + 13 键保留待 F2+ + 3 键删数据）｜ `caeb857` Day30 收尾 docs｜ `640ce5f` F1.0 fix .manifest 指纹 bug
+- 工作区在途：仅 `docs/SOLUTION_PLAN.md` + `docs/TASKS.md`（文档，无游戏代码改动）
+
+### 检查结果（全绿）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + --quit-after 4） | ✅ PASS · **BASELINE CLEAN**（err 242B=Day 24 音频 BENIGN 白名单） |
+| 600 帧深探 | ✅ EXIT 0 · deep_runtime_err.log 242B 良性 |
+| JSON **10/10** 解析 | ✅ characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20（**本轮新增 stats.json——F1-D 商店参数表；.manifest.json——F1.0 管线指纹**） |
+| 数值边界 | ✅ **2313 字段零缺陷**（=#41 2303 +10 stats shop 段；39 负值=惩罚/诅咒有意 + 0 非豁免零伤害 + 2 Boss 哨兵 -1 有意；crit 双口径合法） |
+| 跨引用完整性 | ✅ 0 硬悬空 · **DATA LAYER CLEAN**（chars→weapons 10/10；waves 前缀感知 0 悬空，池令牌放行） |
+| 场景 smoke | ✅ **17/17 全可实例化**（Main.tscn 置末方法学维持，临时文件 os.remove 清理无残留；退出 1 resources in use 良性） |
+| 探针回归（runner） | ✅ **三十二件套 32/32 · 792 断言全 CLEAN 首跑（34s）**（#41 后 #3 已并入 **day30_p0_fix 15 / day30_f1_scaling 10 / day30_f1d_shop 8** 三新探针，count=32/792 与 F1-G 提交记录一致） |
+| day29_elin_anim（单独） | ✅ **14/14**（与 #41 计数一致）stderr 242B 纯音频无探针泄漏 |
+| day29_attack（单独） | ✅ **20/20**（与 #41 计数一致）stderr 362B 泄漏 minor 同型维持 |
+
+**合计 34 探针 · 826 断言全 CLEAN 首跑。**
+
+### stderr 口径（与 #41 逐一比对）
+
+- **三处字节数变化，全部定性为 F1-F/F1-G 接线生效的正向信号（非缺陷）**：① **day11_12 763→660B**：主动「被动键无消费方」push_warning 由 3 条→**2 条**（`melee_damage` 已随 F1-G T-050 接线为分类伤害消费，不再登记；剩余 engineering/fire_damage_percent 属 13 键保留待 F2+，与裁决一致）；② **day20 1044→941B**：被动键 push_warning 由 3 条→2 条（`summon_count` 不再报无消费方）+ HUD 未知技能 1 条 + 泄漏 minor（2 Canvas+1 CanvasItem+ObjectDB+4 resources）维持；③ **day23 496→367B**：未知技能兜底 case 随 F1-F 机制 id 收敛不再触发（探针主动测试预期减 1），剩余未知特效 1 条 + ObjectDB + 3 resources 泄漏 minor 维持
+- **新探针首记录**：day30_f1_scaling 242B=纯音频无探针泄漏；day30_f1d_shop 358B=1 RID Canvas+ObjectDB+resources 泄漏 minor；day30_p0_fix 534B=2× 主动「[Player] 被动效果键无消费方 harvesting」push_warning（harvesting 属 13 键保留待 F2+，预期输出）+泄漏 minor
+- 维持项：day2~6/day8/day17_elite/day17_p0/day18_fb4 242B 纯音频；day7 366 / day10 374 / day14_15 372 / day16 533 / day18_19 359 / day24_audio 456 含 242B 叠加；day13 860 / day18_fb 626 / day18_fb2 571 / day18_fb3 362 / day18_fb5 621 / day18_fb6 362 / day21_22 564 / day24_f13 859 / day26 402 / day27_meta 496 / day28_f31 920 minor 维持
+
+### 结论
+
+**✅ 2026-08-10 18:40 自动化测试轮次 #42：PASS（0 阻断 / 0 功能缺陷，无新增 minor，action item 维持 1 项）。** HEAD=**640ce5f**（Day30 阶段F 技术债整改：F1.0 Excel 管线 + F1-A/B 参数化 + F1-D 商店数据化 + F1-F 机制 id 收敛 + F1-G 被动键裁决全量入库；`data/` 新增 stats.json 与 .manifest.json 两表）：工程可导入、可运行、数据完整且边界健康（**10 表 2313 字段零缺陷，items 54**）、**17 场景全可实例化**、**34 探针 826 断言全绿首跑**。**F1-G 接线生效实证**：day11_12/day20 探针「无消费方」push_warning 减少 = 被动键接线闭环的直接证据。**无新增功能缺陷、无需回退。**
+
+**action item（1 项，维持）**：**day29_elin_anim_check(14) + day29_attack_check(20) 仍未入 `_regression_run.py` PROBES 表**（runner 32 项 792，+34 即 826 一键跑通；#5 已在 #58 请求）——本轮继续单独运行实证 14/14、20/20；建议 #3 执行岗并入（同 day30 三探针并入先例）。
+
+**观察项维持/更新**：**F1-C（护甲换算口径）执行阻塞待用户确认**（PROGRESS 记录，阶段 F 唯一挂起项）｜ F1-E（主窗口承接）排程未动｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持
