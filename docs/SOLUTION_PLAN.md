@@ -129,3 +129,15 @@
 - **F1-E 🏠 主窗口承接**（未开工，标注不执行）。
 - **观察点**：#4 #42 已按 runner 现 **32 项/792 断言**口径正式纳入（day30_p0_fix 15 + day30_f1_scaling 10 + day30_f1d_shop 8），快照覆盖至 `112e6a9` 后 = TEST_REPORT #42（HEAD=`640ce5f`）已兑现 ✅。
 - 收尾：git add -A 全部提交推送（3 个 F1 收口 commit + 挂账 docs）。
+
+---
+
+## 执行结果（#3 第 44 轮登记 · 2026-08-11 08:3x · 阶段 F 收尾轮 · 部分完成：F1-C ✅ + F1-G-尾 ⛔ 阻塞 + runner 34 项）
+
+- **输入核验**：方案第 18 轮（F1-C 阻塞解除 + F1-G-尾 新拆 + F1-E 主窗口承接）；P0 检查 = 增量 #61 无新机器可验证 P0（F-35 机器侧双确认 + F1-G 接线 5 键主观面交 #5）。git HEAD=`39e08a5` → 检查点 `b2aad23`（挂账 docs 入库）。
+- **F1-C ✅ 收口（`486bbb1`）**：enemy.gd :761-763 百分比公式 → 平直减法 `actual_damage = max(amount - armor, 1.0)`（与 player.gd :466 完全同式；玩家零改动 = 玩家数值零漂移）；stats.formulas armor_reduction/armor_final 死公式在 TECH_DEBT_ISSUES T-006 登记作废；day30_f1_scaling_check **+§4 敌人护甲段**（armor=0 全伤 / armor=3 减 3 / 大 armor 保底 1.0 / player.gd 同式锚点，10→14 断言）；**执行登记**：方案「护甲数据仅 helmet_alien=3」验证 = 白盒直测 enemy.take_damage（armor=0/3/999 三档），非 DataLoader 字典断言。
+- **F1-G-尾 ⛔ 执行阻塞（WPS 占用 Excel，非方案问题）**：GameData.xlsx 被 WPS 表格进程（et.exe 23860）打开中（`~$GameData.xlsx` 锁在盘）→ openpyxl 删行 save 报 PermissionError（磁盘零改动，cmp 与备份一致）→ 按方案风险表第 5 条「改 Excel 前确认无打开实例」**不强行写入**，T-050 阻塞登记，**待用户关闭 WPS 后下轮执行**（3 键行号已定位：bait row 43 / anvil row 82 / mech_heart row 111；删行脚本已备好）。
+- **runner 34 项 ✅（`_regression_run.py` 本地，gitignore 不入库）**：PROBES +day29_elin_anim_check(14) + day29_attack_check(20) + day30_f1_scaling 期望 10→14 → **34 项/830 断言**（= #42 观察点 1「并入 day29_elin/day29_attack」兑现 + F1-C 新增 4 断言）；day26 §6 回归锚点同步（32→34/792→830）。
+- **F1-E 🏠 主窗口承接**（未开工，标注不执行）。
+- **回归**：**34/34 全绿（830 断言）**（含 day4/day18 玩家受击锚点零漂移实证）。
+- 收尾：选择性 git add（F1-C 相关 + TASKS/TECH_DEBT_ISSUES，**不 add 在途 tools 3 文件/perfect-pixels/Excel 锁文件**）→ commit `486bbb1` + 挂账 docs 检查点 `b2aad23` → push。
