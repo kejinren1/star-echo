@@ -87,17 +87,17 @@ func check_wave_clear() -> void:
 		_end_wave()
 
 ## F-30：生成是否未完成（spawn_queue 非空或生成中）——敌全灭判定必须等全部敌人生成完
+## F2-T5（T-042）：改走 spawner 显式接口（is_spawning/has_pending_spawns），
+## 消灭 get("_is_spawning")/get("spawn_queue") 私有字段动态访问的隐性耦合
 func _spawning_incomplete() -> bool:
 	if GameManager == null or GameManager.enemy_spawner == null:
 		return false
-	# Node.get() 只收 1 参（无默认值），先判存在
-	var spawning: bool = false
-	if "_is_spawning" in GameManager.enemy_spawner:
-		spawning = bool(GameManager.enemy_spawner.get("_is_spawning"))
-	if spawning:
+	var spawner: Node = GameManager.enemy_spawner
+	if spawner.has_method("is_spawning") and spawner.is_spawning():
 		return true
-	var queue: Array = GameManager.enemy_spawner.get("spawn_queue")
-	return queue != null and not queue.is_empty()
+	if spawner.has_method("has_pending_spawns") and spawner.has_pending_spawns():
+		return true
+	return false
 
 ## 敌人容器获取（enemy_spawner.enemies_container 优先，GameManager.enemies_container 兜底）
 func _enemy_container() -> Node:

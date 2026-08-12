@@ -177,3 +177,12 @@ func get_alive_count() -> int:
 	if not enemies_container:
 		return 0
 	return enemies_container.get_child_count()
+
+## F2-T5（T-042）：生成是否进行中（wave_manager 显式接口——此前 _spawning_incomplete 用
+## get("_is_spawning")/get("spawn_queue") 私有字段动态访问 = 隐性耦合，收口为显式方法）
+func is_spawning() -> bool:
+	return _is_spawning
+
+## F2-T5（T-042）：待生成队列是否非空（同上）
+func has_pending_spawns() -> bool:
+	return not spawn_queue.is_empty()

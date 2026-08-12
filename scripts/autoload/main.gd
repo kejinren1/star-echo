@@ -187,6 +187,10 @@ func _on_player_hit(_amount: float) -> void:
 func _on_enemy_spawned(enemy: Node) -> void:
 	if enemy.has_signal("died"):
 		enemy.died.connect(_on_enemy_died)
+	# F2-T5（T-045）：Boss 击杀信号 → GameManager 登记（boss_killed 计数 + route flags；
+	# 装配随 enemy_spawned 完成于 _ready 阶段，Boss 波在游戏开始后生成 → 不漏接）
+	if enemy.has_signal("boss_killed"):
+		enemy.boss_killed.connect(GameManager.register_boss_killed)
 
 ## 敌人死亡时通知波次管理器并播放死亡特效
 func _on_enemy_died(enemy: Node) -> void:

@@ -7,6 +7,9 @@ extends CharacterBody2D
 
 signal died(enemy: Node)
 signal health_changed(current_hp: float, max_hp: float)
+## F2-T5（T-045）：Boss 击杀信号（die 内 is_boss 时 emit；GM.register_boss_killed 由
+## main 装配订阅——F3 状态机信号底座；探针白盒需自行装配）
+signal boss_killed
 
 ## F-11（用户拍板 2026-08-06）：伤害数字飘字脚本。preload 而非依赖 class_name——
 ## 无头 --script 模式（探针）不注册全局类名（main.gd:20 同策略），静态方法经脚本引用调用
@@ -794,9 +797,11 @@ func die() -> void:
 	_is_dying = true
 	_drop_rewards()
 	died.emit(self)
-	# Day 18-19 · T1：Boss 击杀登记（GameManager.register_boss_killed；双守卫防纯数据探针异常）
-	if is_boss and GameManager and GameManager.has_method("register_boss_killed"):
-		GameManager.register_boss_killed()
+	# Day 18-19 · T1 + F2-T5（T-045）：Boss 击杀信号化——die 内不再直调
+	# GM.register_boss_killed（消灭实体→系统硬调用），由 main 装配 boss_killed → GM 订阅；
+	# 双守卫 is_boss + has_signal 防纯数据探针异常
+	if is_boss and has_signal("boss_killed"):
+		boss_killed.emit()
 	# F-28（2026-08-08 用户拍板）：击杀后触发通关判定——普通关敌全灭 / Boss 关 Boss 击杀
 	# （此前通关只由波次倒计时触发：Boss 没死超时也通 / Boss 死了要等倒计时）
 	if GameManager and GameManager.wave_manager and GameManager.wave_manager.has_method("check_wave_clear"):

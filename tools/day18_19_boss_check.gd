@@ -396,10 +396,14 @@ func _advance(sub: int) -> int:
 			return 8
 		8:
 			# boss 波击杀 → boss_killed 登记 + route flags boss_defeated（T4）
+			# F2-T5 适配：boss 击杀信号化——探针白盒无 main 装配，手动装配
+			# boss_killed → GM.register_boss_killed（原 die 内直调语义，回归同步）
 			_gm.call("reset")
 			_gm.set("route", {"flags": {}})
 			var inv6: Dictionary = _loader.call("get_scaled_enemy", "invoker", 10)
 			var b_kill: Node = _build_enemy(inv6)
+			if b_kill.has_signal("boss_killed"):
+				b_kill.boss_killed.connect(_gm.register_boss_killed)
 			_ok(int(_gm.get("boss_killed")) == 0, "回归/前置: reset 后 boss_killed == 0")
 			b_kill.call("die")
 			_ok(int(_gm.get("boss_killed")) == 1, "回归: boss 击杀 → boss_killed == 1（实得 %d）" % int(_gm.get("boss_killed")))
