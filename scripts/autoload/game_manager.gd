@@ -85,6 +85,35 @@ func get_world() -> Node:
 		return world
 	return null
 
+## F2-T2（T-037）：存活敌数查询（HUD 剩余怪计数收口——优先 wave_manager._alive_enemy_count
+## 方法（is_alive 语义，与 HUD 原判定一致）；spawner 容器遍历 is_alive 兜底
+## （⚠️ 执行偏差：方案原定 spawner.get_alive_count 兜底实测为 get_child_count 不判存活，
+## 死亡未销毁节点会误计数——day18_feedback F-06 递减断言暴露，改容器遍历替代）；
+## spawner.get_alive_count 仅作无容器时最后兜底）
+func get_alive_enemy_count() -> int:
+	if wave_manager and wave_manager.has_method("_alive_enemy_count"):
+		return int(wave_manager._alive_enemy_count())
+	var container: Node = enemies_container
+	if container == null and enemy_spawner and "enemies_container" in enemy_spawner:
+		container = enemy_spawner.get("enemies_container")
+	if container != null:
+		var alive: int = 0
+		for enemy in container.get_children():
+			if is_instance_valid(enemy) and enemy.get("is_alive") != false:
+				alive += 1
+		return alive
+	if enemy_spawner and enemy_spawner.has_method("get_alive_count"):
+		return int(enemy_spawner.get_alive_count())
+	return 0
+
+## F2-T2（T-040）：研究点余量查询（base_station 直读 meta_progress 收口）
+func get_research_points() -> int:
+	return int(meta_progress.get("research_points", 0))
+
+## F2-T2（T-040）：研究项等级查询（同上）
+func get_research_level(key: String) -> int:
+	return int(meta_progress.get("research", {}).get(key, 0))
+
 # UI 面板实例引用（防止连升多级/重复弹窗叠加）
 var _level_up_panel: Node = null
 var _game_over_panel: Node = null
@@ -99,6 +128,16 @@ var _event_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _current_event: Dictionary = {}       ## 当前事件（_start_event 随机取，resolve 后清空）
 
 # ========== 状态流转方法 ==========
+
+## F2-T1（T-031 铺路）：状态赋值统一入口——同值早退（幂等）→ 赋值 → emit state_changed。
+## 8 处散落 `current_state = X` + `state_changed.emit` 收口为本方法（F3 状态机规范前置）；
+## context 参数（F3 正交维度）暂不引入——现有 signal state_changed(new_state: GameState)
+## 单参签名已被 hud._on_state_changed 消费，改签名会破坏消费者（执行偏差登记）。
+func _set_state(next: int) -> void:
+	if current_state == next:
+		return
+	current_state = next
+	state_changed.emit(current_state)
 
 func _ready() -> void:
 	# D27-T1：首行加载局外存档（缺失/损坏容错默认零值不崩）
@@ -125,8 +164,7 @@ func start_game() -> void:
 		route = RouteGeneratorScript.generate(default_seed)
 	if route.is_empty():
 		# 旧波次制（路线生成失败/被禁用 → 完全旧行为）
-		current_state = GameState.BATTLE
-		state_changed.emit(current_state)
+		_set_state(GameState.BATTLE)
 		game_started.emit()
 		_start_next_wave()
 		return
@@ -151,8 +189,7 @@ func _start_next_wave(wave_number: int = -1) -> void:
 				break
 	if is_boss_wave:
 		AudioManager.play_sfx("boss")   # D24-T3-⑩：Boss 波 SFX（is_boss_wave 置位处）
-	current_state = GameState.BATTLE
-	state_changed.emit(current_state)
+	_set_state(GameState.BATTLE)
 	wave_started.emit(current_wave)
 	if wave_manager:
 		wave_manager.start_wave(current_wave)
@@ -172,8 +209,7 @@ func on_wave_cleared() -> void:
 	if current_wave >= max_waves:
 		end_game(true)
 		return
-	current_state = GameState.SHOP
-	state_changed.emit(current_state)
+	_set_state(GameState.SHOP)
 	shop_opened.emit()
 
 ## D4-T8：波次切换清理残敌（直接 queue_free，最简且无残留状态）
@@ -209,8 +245,7 @@ func close_shop() -> void:
 
 ## 进入第 current_layer 层路线选择：状态 + 面板（复用已有面板实例防叠加）
 func _start_route_select() -> void:
-	current_state = GameState.ROUTE_SELECT
-	state_changed.emit(current_state)
+	_set_state(GameState.ROUTE_SELECT)
 	if _route_select_panel == null or not is_instance_valid(_route_select_panel):
 		_route_select_panel = RouteSelectPanelScene.instantiate()
 		# 身份校验防误清：旧面板 tree_exited 时 _route_select_panel 可能已指向新面板
@@ -253,8 +288,7 @@ func _enter_node(node_type: String, wave_index: int) -> void:
 				route["flags"]["boss_encountered"] = true
 			_start_next_wave(wave_index)
 		"shop":
-			current_state = GameState.SHOP
-			state_changed.emit(current_state)
+			_set_state(GameState.SHOP)
 			shop_opened.emit()
 		"event":
 			# D16：事件节点 → 随机取事件 + 暂停式弹窗（交互逻辑本日实装，D14-15 占位已替换）
@@ -364,8 +398,7 @@ func _on_node_completed() -> void:
 	var prev_type: String = str(current_node.get("type", ""))
 	if prev_type == "battle" or prev_type == "elite":
 		_shop_from_battle = true
-		current_state = GameState.SHOP
-		state_changed.emit(current_state)
+		_set_state(GameState.SHOP)
 		shop_opened.emit()
 		return
 	_start_route_select()
@@ -581,8 +614,7 @@ func _build_event_item(item_id: String) -> Resource:
 
 ## 结束游戏
 func end_game(victory: bool) -> void:
-	current_state = GameState.GAME_OVER
-	state_changed.emit(current_state)
+	_set_state(GameState.GAME_OVER)
 	# D27-T1：胜利结算（wins+1 / 研究点+1 / 当前角色 xp+1 + 存档）——须在
 	# game_over.emit 前完成（防信号消费方读脏状态）；失败局不结算（出场已在 start_game 记）
 	if victory:
@@ -599,7 +631,7 @@ func end_game(victory: bool) -> void:
 ## 重置游戏状态
 func reset() -> void:
 	get_tree().paused = false
-	current_state = GameState.MENU
+	_set_state(GameState.MENU)
 	current_wave = 0
 	is_boss_wave = false
 	difficulty_delta = 0
@@ -617,7 +649,6 @@ func reset() -> void:
 		_event_panel.queue_free()
 	_event_panel = null
 	_current_event = {}
-	state_changed.emit(current_state)
 
 # ========== 升级面板（Day 4 · D4-T1/D4-T4） ==========
 

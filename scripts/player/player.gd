@@ -539,6 +539,11 @@ func get_xp_to_next_level() -> float:
 	var need: float = _eval_xp_curve()
 	return maxf(need, 1.0)
 
+## F2-T2（T-038）：武器控制器查询（shop UI 直读 get_node_or_null("WeaponController")
+## 收口为查询接口；未挂载返回 null）
+func get_weapon_controller() -> Node:
+	return get_node_or_null("WeaponController")
+
 ## 检查升级：while 循环，一次大量经验可连升多级
 func _check_level_up() -> void:
 	while exp >= get_xp_to_next_level():

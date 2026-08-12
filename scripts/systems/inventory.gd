@@ -149,6 +149,24 @@ func get_all_stat_bonuses() -> Dictionary:
 
 # ========== 查询 ==========
 
+## F2-T2（T-039）：武器列表浅拷贝查询（防外部改内部数组；HUD 直读 weapons 收口）
+func get_weapons() -> Array:
+	return weapons.duplicate()
+
+## F2-T2（T-039）：道具列表浅拷贝查询（同上）
+func get_items() -> Array:
+	return items.duplicate()
+
+## F2-T2（T-039）：移除最后一件武器（shop 购买回滚段收口——add_weapon 是 append，
+## 刚入库武器必为末位；空列表返回 false 不崩）。emit index = 新 size（= 被移除原索引，
+## 与 remove_weapon(size-1) 语义一致）
+func remove_last_weapon() -> bool:
+	if weapons.is_empty():
+		return false
+	weapons.pop_back()
+	weapon_removed.emit(weapons.size())
+	return true
+
 func get_weapon_count() -> int:
 	return weapons.size()
 

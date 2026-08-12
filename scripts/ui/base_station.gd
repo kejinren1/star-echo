@@ -138,10 +138,11 @@ func _on_back_pressed() -> void:
 # ========== 刷新（研究点余量 / 研究项状态 / 角色卡等级·XP·剧情按钮） ==========
 
 func _refresh_all() -> void:
-	_point_label.text = "研究点：%d" % int(GameManager.meta_progress.get("research_points", 0))
-	var points: int = int(GameManager.meta_progress.get("research_points", 0))
+	# F2-T2（T-040）：meta_progress 直读收口为 GM 查询接口
+	_point_label.text = "研究点：%d" % GameManager.get_research_points()
+	var points: int = GameManager.get_research_points()
 	for key in _research_status:
-		var upgraded: bool = int(GameManager.meta_progress.get("research", {}).get(key, 0)) > 0
+		var upgraded: bool = GameManager.get_research_level(key) > 0
 		(_research_status[key] as Label).text = "已升级" if upgraded else "未升级"
 		(_research_buttons[key] as Button).disabled = upgraded or points <= 0
 	for card in _char_cards:

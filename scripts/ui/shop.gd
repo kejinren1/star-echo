@@ -123,9 +123,9 @@ func _refresh_shop(force_blade_core: bool = false) -> void:
 		if core != null:
 			shop_items[shop_items.size() - 1] = core
 	_render_cards()
-	# 更新金币显示
+	# 更新金币显示（F2-T2：get_coins 查询接口收口，防 UI 直读 coins 字段）
 	if GameManager.economy:
-		coins_label.text = "%d" % GameManager.economy.coins
+		coins_label.text = "%d" % GameManager.economy.get_coins()
 
 ## F-21 群星回应：检测是否激活（第四关结算 + 已升级两次技能 + 本商店无星刃核心 + 本局未用过）
 func _check_star_grace() -> void:
@@ -352,21 +352,22 @@ func _purchase_item(index: int) -> void:
 	if not GameManager.economy or not GameManager.inventory:
 		return
 	var price: int = int(item.get("price")) if item.get("price") != null else 0
-	# 钱不够 → 前置拒绝（不 add 不扣费）
-	if GameManager.economy.coins < price:
+	# 钱不够 → 前置拒绝（不 add 不扣费；F2-T2：can_afford 查询接口收口）
+	if not GameManager.economy.can_afford(price):
 		var dn: Variant = item.get("item_name")
 		if dn == null or str(dn).is_empty():
 			dn = item.get("weapon_name")
 		if dn == null:
 			dn = "?"
-		push_warning("[Shop] 金币不足，无法购买: %s（%dG 需 %dG）" % [str(dn), GameManager.economy.coins, price])
+		push_warning("[Shop] 金币不足，无法购买: %s（%dG 需 %dG）" % [str(dn), GameManager.economy.get_coins(), price])
 		return
 
 	# 铁砧购买（F31-3 用户拍板）：服务商品（effects.shop_weapon_upgrade = anvil）→ 弹武器升级选择 UI
 	# anvil 无 weapon_type / 无 is_passive / 无 slot=="relic" → 只走本分支，不落入下方武器/被动逻辑
 	var sb: Variant = item.get("stat_bonuses")
 	if sb is Dictionary and bool(sb.get("shop_weapon_upgrade", false)):
-		var wc: Node = GameManager.player.get_node_or_null("WeaponController") if GameManager.player else null
+		# F2-T2：get_weapon_controller 查询接口收口（直读 get_node_or_null 消灭）
+		var wc: Node = GameManager.player.get_weapon_controller() if GameManager.player else null
 		var ups: Array = []
 		if wc:
 			for w in wc.get("equipped_weapons"):
@@ -387,13 +388,12 @@ func _purchase_item(index: int) -> void:
 		if not GameManager.inventory.add_weapon(item):
 			push_warning("[Shop] 武器槽已满，购买失败")
 			return
-		var wc: Node = GameManager.player.get_node_or_null("WeaponController") if GameManager.player else null
+		var wc: Node = GameManager.player.get_weapon_controller() if GameManager.player else null
 		if wc and wc.has_method("equip_weapon"):
 			if not wc.equip_weapon(item):
-				# 回滚：移除刚入库的武器（inventory 与 WeaponController 槽位不同步边界）
-				var inv_weapons: Array = GameManager.inventory.get("weapons")
-				if inv_weapons.size() > 0:
-					GameManager.inventory.call("remove_weapon", inv_weapons.size() - 1)
+				# 回滚：移除刚入库的武器（F2-T2：remove_last_weapon 接口收口，
+				# add_weapon 为 append → 刚入库武器必为末位，行为与原 remove_weapon(size-1) 等价）
+				GameManager.inventory.remove_last_weapon()
 				push_warning("[Shop] 装备失败，已回滚入库（武器槽已满）")
 				return
 		# 装备成功（或无 WeaponController 调试路径）→ 扣费

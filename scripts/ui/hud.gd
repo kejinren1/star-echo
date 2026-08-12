@@ -160,15 +160,12 @@ func _update_boss_bar() -> void:
 	boss_bar.visible = true
 
 func _refresh_enemy_count() -> void:
-	var alive: int = 0
-	var container: Node = _get_enemy_container()
-	if container == null:
+	# F2-T2：存活敌数查询接口收口（GM.get_alive_enemy_count 优先 wave_manager 方法，
+	# is_alive 语义与原容器遍历判定一致）；接口缺失兜底 0
+	if GameManager == null or not GameManager.has_method("get_alive_enemy_count"):
 		enemy_count_label.text = "剩余 0"
 		return
-	for enemy in container.get_children():
-		if is_instance_valid(enemy) and enemy.get("is_alive") != false:
-			alive += 1
-	enemy_count_label.text = "剩余 %d" % alive
+	enemy_count_label.text = "剩余 %d" % GameManager.get_alive_enemy_count()
 
 func _on_timer_tick(time: float) -> void:
 	timer_label.text = "%d" % ceil(time)
@@ -285,27 +282,29 @@ func _on_item_added(_item: Resource) -> void:
 func _on_item_removed(_item: Resource) -> void:
 	_refresh_item_slots()
 
-## 刷新武器槽位显示
+## 刷新武器槽位显示（F2-T2：get_weapons 浅拷贝查询接口收口，防 UI 直读内部数组）
 func _refresh_weapon_slots() -> void:
 	var inv := GameManager.inventory
-	if not inv:
+	if not inv or not inv.has_method("get_weapons"):
 		return
+	var weapons: Array = inv.get_weapons()
 	for i in weapon_icons.size():
-		if i < inv.weapons.size():
-			var weapon = inv.weapons[i]
+		if i < weapons.size():
+			var weapon = weapons[i]
 			var icon_index: int = weapon.get("icon_index") if weapon else 0
 			weapon_icons[i].texture = IconAtlas.get_icon("weapons", icon_index)
 		else:
 			weapon_icons[i].texture = null
 
-## 刷新道具槽位显示
+## 刷新道具槽位显示（F2-T2：get_items 浅拷贝查询接口收口，同上）
 func _refresh_item_slots() -> void:
 	var inv := GameManager.inventory
-	if not inv:
+	if not inv or not inv.has_method("get_items"):
 		return
+	var items: Array = inv.get_items()
 	for i in item_icons.size():
-		if i < inv.items.size():
-			var item = inv.items[i]
+		if i < items.size():
+			var item = items[i]
 			var icon_index: int = item.get("icon_index") if item else 0
 			item_icons[i].texture = IconAtlas.get_icon("items", icon_index)
 		else:

@@ -34,6 +34,15 @@ func spend_coins(amount: int) -> bool:
 	coins_spent.emit(amount)
 	return true
 
+## F2-T2（T-037）：能否支付（shop 购买前置拒绝查询接口，消灭 UI 直读 coins 字段）
+func can_afford(price: int) -> bool:
+	return price >= 0 and coins >= price
+
+## F2-T2（T-037）：金币余额查询（shop label 显示 / push_warning 文案读余额收口；
+## grep 口径禁止 UI 层 economy.coins 直读）
+func get_coins() -> int:
+	return coins
+
 ## 重置金币
 func reset() -> void:
 	coins = 0
