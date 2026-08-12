@@ -5,6 +5,7 @@ extends Node2D
 # ========== 节点路径 ==========
 
 @onready var ground: Node = $World/Ground
+@onready var world: Node = $World
 @onready var player: Node = $World/Player
 @onready var enemies_container: Node = $World/Enemies
 @onready var vfx_container: Node = $World/VfxContainer
@@ -66,6 +67,8 @@ func _ready() -> void:
 	GameManager.vfx_container = vfx_container
 	# Day 17 · D17-T2：敌人容器（mom 产卵 add_child 目标；缺失静默跳过不崩）
 	GameManager.enemies_container = enemies_container
+	# F2-T0：World 容器服务（弹丸/炮台/召唤物工厂 + 统一容器注册表）
+	GameManager.world = world
 
 	# D4-T1：升级 → 暂停 + 弹强化面板（GameManager 侧消费）
 	if player and player.has_signal("level_up") and not player.level_up.is_connected(GameManager._on_player_level_up):

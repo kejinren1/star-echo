@@ -74,6 +74,16 @@ var inventory: Node = null
 var vfx_container: Node = null             ## 特效容器节点
 ## Day 17 · D17-T2：敌人容器（mom 产卵 add_child 目标；main 接线，缺失静默跳过）
 var enemies_container: Node = null
+## F2-T0：World 容器服务（main._ready 注入；get_world() 是敌人等无 World 父级实体
+## 获取 world 的唯一途径——enemy 挂 Enemies 容器下 get_parent()≠World）
+var world: Node = null
+
+## F2-T0：取 World 容器服务节点（未注入/已释放 → null，调用方判空兜底；
+## 探针实例化 Main 场景后释放时 world 悬空，is_instance_valid 防 freed instance 调用）
+func get_world() -> Node:
+	if is_instance_valid(world):
+		return world
+	return null
 
 # UI 面板实例引用（防止连升多级/重复弹窗叠加）
 var _level_up_panel: Node = null

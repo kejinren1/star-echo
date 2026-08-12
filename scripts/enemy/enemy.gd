@@ -557,12 +557,13 @@ func _elite_spawn(delta: float) -> void:
 		var stats: Dictionary = DataLoader.get_scaled_enemy(minion, wave_number)
 		if stats.is_empty():
 			break
-		var minion_node: Node = scene.instantiate()
-		if minion_node.has_method("initialize"):
-			minion_node.initialize(stats)
+		var minion_node: Node = _spawn_minion_node(scene, stats)
+		if minion_node == null:
+			# 容器/工厂不可用（异常环境）→ 中止本次召唤（与原「容器 null → return」同语义）
+			_ability_timer = float(ability.get("interval", 1.0))
+			return
 		if GameManager and GameManager.player and minion_node.has_method("set_target"):
 			minion_node.set_target(GameManager.player)
-		container.add_child(minion_node)
 	_ability_timer = float(ability.get("interval", 1.0))
 
 # ========== Boss 阶段状态机与攻击执行器（Day 18-19 · T1/T2） ==========
@@ -677,13 +678,6 @@ func _boss_summon(count: int, elite: bool) -> void:
 	var pool: Array = DataLoader.get_enemy_ids_by_category("elite" if elite else "regular")
 	if pool.is_empty():
 		return
-	var container: Node = null
-	if GameManager and GameManager.enemies_container:
-		container = GameManager.enemies_container
-	elif GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
-		container = GameManager.enemy_spawner.enemies_container
-	if container == null:
-		return
 	var scene: PackedScene = null
 	if GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemy_scene:
 		scene = GameManager.enemy_spawner.enemy_scene
@@ -696,12 +690,34 @@ func _boss_summon(count: int, elite: bool) -> void:
 		var stats: Dictionary = DataLoader.get_scaled_enemy(enemy_id, wave_number)
 		if stats.is_empty():
 			continue
-		var minion_node: Node = scene.instantiate()
-		if minion_node.has_method("initialize"):
-			minion_node.initialize(stats)
+		var minion_node: Node = _spawn_minion_node(scene, stats)
+		if minion_node == null:
+			# 容器/工厂不可用（异常环境）→ 中止本次召唤（与原「容器 null → return」同语义）
+			return
 		if GameManager and GameManager.player and minion_node.has_method("set_target"):
 			minion_node.set_target(GameManager.player)
-		container.add_child(minion_node)
+
+## F2-T4：召唤物统一经 World.spawn_minion 工厂（instantiate + initialize 透传 + 挂 Enemies
+## 容器；initialize 必须先于 add_child —— _ready 用 max_health 初始化 health）。
+## World 缺失环境（探针白盒/非战斗场景）→ 兜底旧路径（instantiate + initialize + 容器 add_child）。
+## 容器/工厂均不可用 → 返回 null（调用方按原「容器 null → return」语义中止召唤）
+func _spawn_minion_node(scene: PackedScene, stats: Dictionary) -> Node:
+	var world: Node = GameManager.get_world() if GameManager else null
+	if world and world.has_method("spawn_minion"):
+		return world.spawn_minion(scene, stats)
+	# 兜底旧路径
+	var container: Node = null
+	if GameManager and GameManager.enemies_container:
+		container = GameManager.enemies_container
+	elif GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
+		container = GameManager.enemy_spawner.enemies_container
+	if container == null:
+		return null
+	var minion_node: Node = scene.instantiate()
+	if minion_node.has_method("initialize"):
+		minion_node.initialize(stats)
+	container.add_child(minion_node)
+	return minion_node
 
 ## 环形弹幕：count 向均匀分布，基准角朝玩家，单发伤害 damage × _attack_mult
 func _boss_spread(count: int) -> void:

@@ -33,17 +33,23 @@ var orbit_node: Node2D = null                 ## 环绕武器节点（D5-T4，�
 
 func _ready() -> void:
 	owner_node = get_parent() as Node2D
-	_projectile_container = _find_container()
+	_projectile_container = _resolve_projectile_container()
 	_equip_default_weapon()
 
-## 查找弹丸容器：优先 World/Projectiles，回退到父节点（World）
-func _find_container() -> Node2D:
-	var world := owner_node.get_parent()
-	if world:
-		var c := world.get_node_or_null("Projectiles")
+## F2-T3：容器访问统一走 World.get_container（消灭复制粘贴 _find_container）。
+## 回退链：GameManager.world（main._ready 注入）→ owner 父级 World（weapon_controller._ready
+## 早于 main._ready，此时 world 未注入；Projectiles 不存在时返回 World = 原 _find_container 语义）
+func _resolve_projectile_container() -> Node2D:
+	if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("get_container"):
+		var c: Node = GameManager.world.get_container("projectiles")
+		if c is Node2D:
+			return c
+	var world_node: Node = owner_node.get_parent() if owner_node else null
+	if world_node:
+		var c := world_node.get_node_or_null("Projectiles")
 		if c:
 			return c
-		return world
+		return world_node
 	return null
 
 ## 初版固定给玩家一把初始远程武器（武器/道具系统完善后由 Inventory 接管）
@@ -311,11 +317,11 @@ func _fire_weapon(weapon: Resource) -> void:
 	if owner_node and owner_node.has_method("_play_attack_anim"):
 		owner_node._play_attack_anim()
 
-## 生成弹丸
+## 生成弹丸（F2-T4：优先经 World.spawn_projectile 工厂统一挂载 Projectiles 容器；
+## World 缺失环境（探针白盒/直开场景早期）→ 兜底旧路径：initialize + 缓存容器 add_child）
 func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
-	if not _projectile_container:
+	if not _projectile_container and not (GameManager and is_instance_valid(GameManager.world)):
 		return
-	var proj := ProjectileScene.instantiate()
 	# 套用玩家伤害倍率（初版只有 damage_multiplier 这一项，后续扩展更多）
 	var dmg: float = weapon.base_damage
 	if owner_node and "damage_multiplier" in owner_node:
@@ -348,7 +354,7 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 		crit_mult = maxf(p_cmult, 1.0)
 	# 射程限制：弹丸存活时间 = 射程 / 弹速，保证子弹飞到半屏就消失
 	var travel_time: float = weapon.attack_range / max(weapon.projectile_speed, 1.0)
-	proj.initialize({
+	var props := {
 		"speed": weapon.projectile_speed,
 		"damage": dmg,
 		"lifetime": travel_time,
@@ -361,8 +367,17 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 		# D13-T1：暴击透传（projectile 缺省 0/1.0 = 不暴击，技能弹丸等未透传路径零回归）
 		"crit_chance": crit_chance,
 		"crit_mult": crit_mult,
-	})
-	_projectile_container.add_child(proj)
+	}
+	var proj: Node2D = null
+	if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("spawn_projectile"):
+		proj = GameManager.world.spawn_projectile(ProjectileScene, props)
+	else:
+		proj = ProjectileScene.instantiate() as Node2D
+		proj.initialize(props)
+		if _projectile_container:
+			_projectile_container.add_child(proj)
+	if proj == null:
+		return
 	proj.global_position = owner_node.global_position
 	proj.set_direction(aim_dir)
 	# Day 23-T4：弹丸携带武器来源标记（D13-T2 meta 范式）——projectile._explode

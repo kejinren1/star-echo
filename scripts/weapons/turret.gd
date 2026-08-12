@@ -100,10 +100,6 @@ func _find_target() -> Node2D:
 
 ## 向目标开火（弹速 400，寿命 = 射程/弹速，与 weapon_controller 同一口径）
 func _fire(target: Node2D) -> void:
-	var container: Node2D = _find_container()
-	if container == null:
-		return
-	var proj := ProjectileScene.instantiate()
 	var dmg: float = damage
 	if player and "damage_multiplier" in player:
 		dmg *= float(player.damage_multiplier)
@@ -111,14 +107,27 @@ func _fire(target: Node2D) -> void:
 	# 默认 1.0 零回归，顺带激活 mech_heart/se_mech_core 悬空 structure_damage_percent 词条）
 	if player and "structure_damage_mult" in player:
 		dmg *= float(player.structure_damage_mult)
-	proj.initialize({
+	var props := {
 		"speed": 400.0,
 		"damage": dmg,
 		"lifetime": attack_range / 400.0,
 		"pierce": 0,
 		"knockback": 0.0,
-	})
-	container.add_child(proj)
+	}
+	# F2-T4：优先经 World.spawn_projectile 工厂（统一挂 Projectiles 容器）；
+	# World 缺失环境（探针白盒）→ 兜底旧路径（initialize + 缓存容器 add_child）
+	var proj: Node2D = null
+	if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("spawn_projectile"):
+		proj = GameManager.world.spawn_projectile(ProjectileScene, props)
+	else:
+		var container: Node2D = _resolve_projectile_container()
+		if container == null:
+			return
+		proj = ProjectileScene.instantiate() as Node2D
+		proj.initialize(props)
+		container.add_child(proj)
+	if proj == null:
+		return
 	proj.global_position = global_position
 	proj.set_direction(global_position.direction_to(target.global_position))
 
@@ -142,12 +151,18 @@ func _update_life_bar(delta: float) -> void:
 		Vector2(-10, 13),
 	])
 
-## 弹丸容器：World/Projectiles 优先，回退 World（复用 WeaponController._find_container 策略）
-func _find_container() -> Node2D:
-	var world := get_parent()
-	if world:
-		var c: Node = world.get_node_or_null("Projectiles")
+## F2-T3：容器访问统一走 World.get_container（消灭复制粘贴 _find_container）。
+## 回退链：GameManager.world（main._ready 注入）→ 父级 World（turret 挂 World 下；
+## Projectiles 不存在时返回 World = 原 _find_container 语义）
+func _resolve_projectile_container() -> Node2D:
+	if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("get_container"):
+		var c: Node = GameManager.world.get_container("projectiles")
 		if c is Node2D:
 			return c
-		return world
+	var world_node := get_parent()
+	if world_node:
+		var c: Node = world_node.get_node_or_null("Projectiles")
+		if c is Node2D:
+			return c
+		return world_node
 	return null

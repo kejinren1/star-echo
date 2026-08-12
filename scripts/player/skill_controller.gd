@@ -107,16 +107,15 @@ func _cast_fireball() -> void:
 	if player and "debug_mult" in player:
 		dmg *= float(player.debug_mult)
 
-	var container: Node2D = _find_container()
-	if container == null:
+	var container: Node2D = _resolve_projectile_container()
+	if container == null and not (GameManager and is_instance_valid(GameManager.world)):
 		push_warning("[SkillController] 无弹丸容器，火球未生成")
 		return
 	var aim_dir: Vector2 = _get_aim_direction()
 	if aim_dir == Vector2.ZERO:
 		return
 
-	var proj := ProjectileScene.instantiate()
-	proj.initialize({
+	var props := {
 		"speed": 280.0,
 		"damage": dmg,
 		"lifetime": 1.4,
@@ -130,8 +129,19 @@ func _cast_fireball() -> void:
 		# 试玩反馈补强（2026-08-05）：火球须肉眼可辨（红色大弹体），否则与基础子弹混同
 		"bullet_color": Color(1.0, 0.35, 0.15),
 		"bullet_radius": 6.0,
-	})
-	container.add_child(proj)
+	}
+	# F2-T4：优先经 World.spawn_projectile 工厂（统一挂 Projectiles 容器）；
+	# World 缺失环境（探针白盒）→ 兜底旧路径（initialize + 缓存容器 add_child）
+	var proj: Node2D = null
+	if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("spawn_projectile"):
+		proj = GameManager.world.spawn_projectile(ProjectileScene, props)
+	else:
+		proj = ProjectileScene.instantiate() as Node2D
+		proj.initialize(props)
+		if container:
+			container.add_child(proj)
+	if proj == null:
+		return
 	proj.global_position = player.global_position
 	proj.set_direction(aim_dir)
 	# Day 23-T3：火球来源标记（D13-T2 meta 范式）——projectile._explode 据此
@@ -175,14 +185,26 @@ func _cast_deploy_turret() -> bool:
 				duration = -1.0
 				count += 2
 				break
-	var world: Node = player.get_parent()
+	# F2-T4：优先经 World.spawn_turret 工厂（统一挂 World 下）；World 缺失环境（探针白盒）
+	# → 兜底旧路径（instantiate + setup + world.add_child）
+	var world: Node = null
+	if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("spawn_turret"):
+		world = GameManager.world
+	else:
+		world = player.get_parent() if player else null
 	if world == null:
 		return false
 	for i in count:
-		var turret: Node2D = TurretScene.instantiate()
-		if turret.has_method("setup"):
-			turret.setup(weapon_data, duration, player)
-		world.add_child(turret)
+		var turret: Node2D = null
+		if world.has_method("spawn_turret"):
+			turret = world.spawn_turret(TurretScene, weapon_data, duration, player)
+		else:
+			turret = TurretScene.instantiate() as Node2D
+			if turret.has_method("setup"):
+				turret.setup(weapon_data, duration, player)
+			world.add_child(turret)
+		if turret == null:
+			continue
 		# 摆位：玩家为心、半径 40px 圆周均布（不挂 Player 子节点，炮台不随玩家移动）
 		var angle: float = TAU * float(i) / float(count)
 		turret.global_position = player.global_position + Vector2.from_angle(angle) * 40.0
@@ -251,14 +273,20 @@ func _run_holy_shield_heal(heal_per_sec: float, duration: float) -> void:
 
 # ========== 工具（与 weapon_controller 同一口径，避免两套瞄准/容器逻辑） ==========
 
-## 弹丸容器：World/Projectiles 优先，回退 World（复用 WeaponController._find_container 策略）
-func _find_container() -> Node2D:
-	var world = player.get_parent()
-	if world:
-		var c = world.get_node_or_null("Projectiles")
+## F2-T3：容器访问统一走 World.get_container（消灭复制粘贴 _find_container）。
+## 回退链：GameManager.world（main._ready 注入）→ 玩家父级 World（_ready 早于 main._ready；
+## Projectiles 不存在时返回 World = 原 _find_container 语义）
+func _resolve_projectile_container() -> Node2D:
+	if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("get_container"):
+		var c: Node = GameManager.world.get_container("projectiles")
+		if c is Node2D:
+			return c
+	var world_node: Node = player.get_parent() if player else null
+	if world_node:
+		var c = world_node.get_node_or_null("Projectiles")
 		if c:
 			return c
-		return world
+		return world_node
 	return null
 
 ## 最近敌人（鼠标贴身时回退瞄准）
