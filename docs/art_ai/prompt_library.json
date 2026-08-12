@@ -1,0 +1,284 @@
+{
+  "meta": {
+    "project": "《星骸回响》Star Echo - AI 美术资产库",
+    "version": "0.1.0",
+    "date": "2026-08-11",
+    "model": "SDXL 1.0",
+    "purpose": "预制「画风模板 x 要素字典」提示词母版，供云端 GPU 实例批量生成人物/怪物/物品/UI/场景/特效/道具素材",
+    "legal": "所有画风模板均为风格转译描述词，不含任何游戏品牌名、角色名、艺术家姓名，符合'风格不受版权保护'的通用法律共识",
+    "pipeline": "生成 → 筛选 → tools/img2sprite.py 后处理（抠底→降采样→量化）→ COLOR_DICT.json 调色板校验 → 实装"
+  },
+  "base": {
+    "quality": "masterpiece, best quality, highly detailed, sharp focus, clean lineart",
+    "negative": "blurry, jpeg artifacts, watermark, text, logo, signature, extra fingers, deformed hands, bad anatomy, mutated, duplicate, cropped, low quality, worst quality, oversaturated, photorealistic, 3d render",
+    "negative_pixel": "anti-aliasing, soft edges, gradient wash, color bleed, jpeg artifacts, watermark, text, logo, signature, extra fingers, deformed hands, bad anatomy, mutated, low quality, worst quality"
+  },
+  "styles": {
+    "style_military_cold": {
+      "id": "style_military_cold",
+      "name": "冷峻军武·末世",
+      "source": "明日方舟系（已转译，无品牌词）",
+      "dimensions": {
+        "color": "低饱和冷灰蓝、深墨灰，点缀高对比警告色/异质结晶紫",
+        "costume": "高领战术服、长风衣大衣、干练制服剪裁，金属与布料质感并存",
+        "texture": "工业末世质感、干净的几何轮廓、轻度磨损做旧",
+        "mood": "冷峻克制、末日压抑但坚毅",
+        "pose": "干员档案式挺拔站姿、专业职业感、微昂首"
+      },
+      "prompt_block": "military tactical uniform with high collar, long overcoat, cold desaturated color palette of gray blue and dark slate, subtle glowing crystal fragments, industrial post-apocalyptic atmosphere, clean geometric design, professional stoic pose, muted lighting"
+    },
+    "style_korean_heroic": {
+      "id": "style_korean_heroic",
+      "name": "韩系热血·暗黑奇幻",
+      "source": "地下城与勇士系（已转译，无品牌词）",
+      "dimensions": {
+        "color": "高饱和技能色（暖金、血红、暗紫），暗底亮光对比",
+        "costume": "华丽重甲、夸张肩甲、金边镶嵌，武器大而张扬",
+        "texture": "韩系厚涂、肌肉体积感、硬朗笔触",
+        "mood": "热血激昂、黑暗地下城压迫感、力量感",
+        "pose": "夸张动态剪影、战斗蓄力姿态、视角微仰"
+      },
+      "prompt_block": "korean semi-realistic fantasy painting style, heroic dynamic pose, ornate heavy armor with gold trim, dark dungeon atmosphere, dramatic glowing skill effects, bold saturated red and gold accents, dramatic rim lighting, high detail"
+    },
+    "style_heroic_cel": {
+      "id": "style_heroic_cel",
+      "name": "日系英灵·圣光华丽",
+      "source": "FGO系（已转译，无品牌词）",
+      "dimensions": {
+        "color": "白金、圣光暖黄、礼服深色底衬托华丽金属高光",
+        "costume": "华丽礼服与战甲混搭、金线浮雕、星纹/圣纹装饰",
+        "texture": "赛璐璐上色 + 厚涂收尾的高完成度立绘质感",
+        "mood": "高贵神圣、传说英灵气场、庄严",
+        "pose": "优雅挺立、微低首睥睨、宝具释放前的张力"
+      },
+      "prompt_block": "high quality anime illustration, cel shading with painterly finish, noble mythic hero, ornate ceremonial outfit with gold filigree and star motifs, radiant holy aura, elegant regal stance, luminous highlights, fantasy servant of legend"
+    },
+    "style_ming_chinese": {
+      "id": "style_ming_chinese",
+      "name": "明制东方·武侠墨意",
+      "source": "明制中国风（按明代题材理解；若指具体游戏《明末》请替换变体 B）",
+      "dimensions": {
+        "color": "朱红点缀墨黑、宣纸留白感、低饱和大地色",
+        "costume": "明制汉服/飞鱼服/棉甲与甲胄，束发冠、腰悬环首刀",
+        "texture": "水墨渲染质感、传统刺绣纹样、绸缎与皮革对比",
+        "mood": "东方武侠气韵、孤寂或肃杀（变体 B：明末暗黑+烟熏火燎）",
+        "pose": "武侠站姿、袖袍飘动、刀剑在侧"
+      },
+      "prompt_block": "chinese historical fantasy, ming dynasty style hanfu and armor, ink wash texture, vermilion red accents on ink black, traditional embroidery patterns, wuxia warrior atmosphere, dramatic dark lighting",
+      "variant_b": "dark chinese fantasy, ming dynasty armor, smoldering ash atmosphere, vermilion accents, eerie ink shadows, dying empire mood"
+    },
+    "style_cozy_atelier": {
+      "id": "style_cozy_atelier",
+      "name": "温馨炼金·田园治愈",
+      "source": "炼金工坊系（已转译，无品牌词）",
+      "dimensions": {
+        "color": "奶油白、浅蓝、樱粉的高亮暖色调",
+        "costume": "轻便法师裙装/围裙工装、蝴蝶结与荷叶边、炼金药剂瓶配饰",
+        "texture": "明亮赛璐璐、柔和干净线条、无粗犷笔触",
+        "mood": "治愈温馨、田园日常、阳光明媚",
+        "pose": "活泼自然、微笑亲和、日常劳作或施法微抬手的姿态"
+      },
+      "prompt_block": "bright soft anime cel shading, warm pastel palette of cream light blue and pink, cute wholesome fantasy girl, cozy alchemy workshop background, gentle golden sunlight, soft clean lineart, heartwarming pastoral mood"
+    }
+  },
+  "worlds": [
+    {"id": "world_wasteland", "zh": "末世废土", "en": "post-apocalyptic wasteland"},
+    {"id": "world_dungeon", "zh": "暗黑地下城", "en": "dark fantasy dungeon"},
+    {"id": "world_mythic", "zh": "英灵神话", "en": "mythic fantasy realm"},
+    {"id": "world_wuxia", "zh": "东方武侠", "en": "eastern wuxia world"},
+    {"id": "world_pastoral", "zh": "田园幻想", "en": "pastoral fantasy town"},
+    {"id": "world_scifi", "zh": "星际科幻", "en": "interstellar sci-fi colony"}
+  ],
+  "hairstyles": [
+    {"id": "hair_twin_tails", "zh": "双马尾", "en": "twin tails"},
+    {"id": "hair_side_pony", "zh": "单马尾", "en": "side ponytail"},
+    {"id": "hair_high_pony", "zh": "高马尾", "en": "high ponytail"},
+    {"id": "hair_low_pony", "zh": "低马尾", "en": "low ponytail"},
+    {"id": "hair_short_bob", "zh": "短发", "en": "short bob cut"},
+    {"id": "hair_long", "zh": "长发", "en": "long straight hair"},
+    {"id": "hair_braids", "zh": "麻花辫", "en": "braided pigtails"},
+    {"id": "hair_updo", "zh": "盘发", "en": "elegant updo bun"},
+    {"id": "hair_curly", "zh": "卷发", "en": "curly long hair"},
+    {"id": "hair_wolf", "zh": "狼尾", "en": "wolf cut"},
+    {"id": "hair_bun", "zh": "丸子头", "en": "topknot bun"},
+    {"id": "hair_hime", "zh": "公主切", "en": "hime cut"},
+    {"id": "hair_buzz", "zh": "寸头", "en": "buzz cut"},
+    {"id": "hair_loose", "zh": "散发", "en": "loose flowing hair"}
+  ],
+  "outfits": [
+    {"id": "outfit_bodysuit", "zh": "紧身战斗服", "en": "tactical bodysuit"},
+    {"id": "outfit_mage_robe", "zh": "法师长袍", "en": "flowing mage robe"},
+    {"id": "outfit_combat_suit", "zh": "战斗服", "en": "military combat suit"},
+    {"id": "outfit_plate", "zh": "板甲", "en": "full plate armor"},
+    {"id": "outfit_leather", "zh": "皮甲", "en": "studded leather armor"},
+    {"id": "outfit_gown", "zh": "礼服", "en": "elegant ceremonial gown"},
+    {"id": "outfit_trench", "zh": "风衣", "en": "long trench coat"},
+    {"id": "outfit_hanfu", "zh": "汉服", "en": "traditional hanfu"},
+    {"id": "outfit_feiyu", "zh": "飞鱼服", "en": "ming dynasty official robe"},
+    {"id": "outfit_jumpsuit", "zh": "工装", "en": "mechanic jumpsuit"},
+    {"id": "outfit_cloak", "zh": "斗篷", "en": "hooded cloak"},
+    {"id": "outfit_kimono", "zh": "和服", "en": "kimono"},
+    {"id": "outfit_chainmail", "zh": "锁子甲", "en": "chainmail"},
+    {"id": "outfit_heavy_armor", "zh": "重铠", "en": "heavy plate armor with pauldrons"}
+  ],
+  "classes": [
+    {"id": "cls_mage", "zh": "法师", "en": "mage"},
+    {"id": "cls_warrior", "zh": "战士", "en": "warrior"},
+    {"id": "cls_assassin", "zh": "刺客", "en": "assassin"},
+    {"id": "cls_archer", "zh": "射手", "en": "archer"},
+    {"id": "cls_summoner", "zh": "召唤师", "en": "summoner"},
+    {"id": "cls_cleric", "zh": "牧师", "en": "cleric"},
+    {"id": "cls_knight", "zh": "骑士", "en": "knight"},
+    {"id": "cls_rogue", "zh": "盗贼", "en": "rogue"},
+    {"id": "cls_alchemist", "zh": "炼金术士", "en": "alchemist"},
+    {"id": "cls_hunter", "zh": "猎手", "en": "hunter"},
+    {"id": "cls_gunner", "zh": "枪手", "en": "gunner"},
+    {"id": "cls_necromancer", "zh": "死灵法师", "en": "necromancer"}
+  ],
+  "colors": [
+    {"id": "col_gray_blue", "zh": "冷灰蓝", "en": "cold gray blue color palette"},
+    {"id": "col_vermilion", "zh": "朱红墨黑", "en": "vermilion red and ink black palette"},
+    {"id": "col_white_gold", "zh": "白金圣洁", "en": "white and gold holy palette"},
+    {"id": "col_warm_gold", "zh": "暖金血红", "en": "warm gold and crimson palette"},
+    {"id": "col_pastel", "zh": "奶油粉蓝", "en": "cream pink and light blue pastel palette"},
+    {"id": "col_emerald", "zh": "翡翠绿", "en": "emerald green palette"},
+    {"id": "col_violet", "zh": "暗紫", "en": "deep violet palette"},
+    {"id": "col_earth", "zh": "大地棕", "en": "earth brown palette"}
+  ],
+  "accessories": [
+    {"id": "acc_goggles", "zh": "护目镜", "en": "tactical goggles"},
+    {"id": "acc_mask", "zh": "面具", "en": "half face mask"},
+    {"id": "acc_cape", "zh": "披风", "en": "flowing cape"},
+    {"id": "acc_glasses", "zh": "眼镜", "en": "glasses"},
+    {"id": "acc_gem", "zh": "宝石吊坠", "en": "gem pendant"},
+    {"id": "acc_belt", "zh": "战术腰带", "en": "utility belt"},
+    {"id": "acc_emblem", "zh": "纹章", "en": "crest emblem"},
+    {"id": "acc_staff", "zh": "法杖", "en": "ornate staff"},
+    {"id": "acc_longsword", "zh": "长剑", "en": "longsword"},
+    {"id": "acc_greatsword", "zh": "巨剑", "en": "greatsword"},
+    {"id": "acc_shield", "zh": "盾牌", "en": "tower shield"},
+    {"id": "acc_daggers", "zh": "双刃匕首", "en": "twin daggers"},
+    {"id": "acc_longbow", "zh": "长弓", "en": "longbow"},
+    {"id": "acc_rifle", "zh": "枪械", "en": "tactical rifle"}
+  ],
+  "categories": {
+    "character": {
+      "zh": "角色（立绘轨）",
+      "extra": "full body character concept art, standing pose, clean silhouette",
+      "track": "portrait",
+      "note": "先立绘确定形象 → img2sprite 降采样 64px → 精灵"
+    },
+    "monster": {
+      "zh": "怪物（立绘轨）",
+      "extra": "fantasy monster creature, menacing, full body, clear silhouette",
+      "track": "portrait",
+      "note": "Boss/精英可走立绘轨；杂兵可像素直出"
+    },
+    "item": {
+      "zh": "物品（像素直出轨）",
+      "extra": "single game item, centered, floating, plain background, game asset",
+      "track": "pixel",
+      "note": "武器/道具/材料图标，32px 量级"
+    },
+    "ui_icon": {
+      "zh": "UI 图标（像素直出轨）",
+      "extra": "flat game ui icon, minimal, centered, plain background, crisp edges, single symbol",
+      "track": "pixel",
+      "note": "按钮/属性/技能图标"
+    },
+    "scene": {
+      "zh": "场景（立绘轨）",
+      "extra": "wide landscape background art, no characters, atmospheric depth, parallax layers",
+      "track": "portrait",
+      "note": "16:9 背景，后处理缩到 640x360"
+    },
+    "effect": {
+      "zh": "特效（像素直出轨）",
+      "extra": "magical effect burst, glowing particles, dynamic energy, no characters",
+      "track": "pixel",
+      "note": "攻击/技能光效，64px 量级，PNG 透明底"
+    },
+    "prop": {
+      "zh": "装饰物（像素直出轨）",
+      "extra": "game prop, single object, centered, plain background",
+      "track": "pixel",
+      "note": "场景内可交互物/家具"
+    }
+  },
+  "rules": {
+    "build_template": "{quality}, {style.prompt_block}, {world.en}, {class.en}, {outfit.en}, {hair.en}, {color.en}, {accessory.en}, {category.extra}",
+    "priority_order": ["style", "class", "outfit", "hair", "color", "accessory", "world"],
+    "max_attributes": 4,
+    "attribute_order_hint": "一次组合不超过 4 个要素（防串味）；要素优先级：发型 > 服装 > 配色 > 配件",
+    "consistency": {
+      "method": "角色形象固化：img2img 低 denoise(0.3-0.5) + 固定 base_seed + ControlNet(OpenPose) 控姿态",
+      "base_seed": 12345,
+      "variant_rule": "变体 seed = base_seed + 序号"
+    },
+    "verify": {
+      "mode": "每类要素先抽 5-8 张验证命中率，命中率 < 60% 则改词",
+      "accept": "≥ 60% 命中率才进组合库"
+    }
+  },
+  "params": {
+    "portrait": {
+      "track": "画风基因主轨",
+      "width": 768,
+      "height": 1024,
+      "steps": 28,
+      "cfg": 7.0,
+      "sampler": "dpmpp_2m_karras",
+      "note": "立绘/概念图：画风模板生效层，风格基因最完整，后处理降采样成精灵"
+    },
+    "pixel_direct": {
+      "track": "高吞吐直出轨",
+      "width": 512,
+      "height": 512,
+      "steps": 25,
+      "cfg": 6.5,
+      "sampler": "dpmpp_2m_karras",
+      "note": "像素直出：需挂 Pixel-Art-XL LoRA + No-AA LoRA，适合 UI/物品/特效等细节要求低类别"
+    },
+    "loras": {
+      "pixel_art_xl": {"name": "pixel_art_xl", "weight": 1.0, "note": "SDXL 像素画风 LoRA"},
+      "no_anti_aliasing": {"name": "no_anti_aliasing", "weight": 0.7, "note": "收紧边缘去渐晕，0.5-0.9 按输出微调"}
+    },
+    "batch": {
+      "size": 8,
+      "api_path": "/sdapi/v1/txt2img",
+      "host_placeholder": "http://<云主机IP>:7860"
+    },
+    "post": {
+      "downsample": "tools/img2sprite.py（floodfill 抠底→bbox→网格降采样→量化）",
+      "palette_check": "ART/COLOR_DICT.json 校验（ΔRGB≤12）",
+      "sprite_sizes": {"角色": 64, "杂兵": 48, "精英": 64, "Boss": 128, "图标": 32, "特效": 64}
+    }
+  },
+  "sample_prompts": [
+    {
+      "id": "demo_military_warrior",
+      "zh": "方舟系·冷峻军武战士（女）",
+      "prompt": "masterpiece, best quality, highly detailed, sharp focus, clean lineart, military tactical uniform with high collar, long overcoat, cold desaturated color palette of gray blue and dark slate, subtle glowing crystal fragments, industrial post-apocalyptic atmosphere, clean geometric design, professional stoic pose, muted lighting, post-apocalyptic wasteland, warrior, military combat suit, high ponytail, cold gray blue color palette, longsword, full body character concept art, standing pose, clean silhouette"
+    },
+    {
+      "id": "demo_atelier_mage",
+      "zh": "炼金系·温馨炼金术士（女）",
+      "prompt": "masterpiece, best quality, highly detailed, sharp focus, clean lineart, bright soft anime cel shading, warm pastel palette of cream light blue and pink, cute wholesome fantasy girl, cozy alchemy workshop background, gentle golden sunlight, soft clean lineart, heartwarming pastoral mood, pastoral fantasy town, alchemist, flowing mage robe, short bob cut, cream pink and light blue pastel palette, gem pendant, full body character concept art, standing pose, clean silhouette"
+    },
+    {
+      "id": "demo_ming_assassin",
+      "zh": "明系·武侠刺客（女）",
+      "prompt": "masterpiece, best quality, highly detailed, sharp focus, clean lineart, chinese historical fantasy, ming dynasty style hanfu and armor, ink wash texture, vermilion red accents on ink black, traditional embroidery patterns, wuxia warrior atmosphere, dramatic dark lighting, eastern wuxia world, assassin, ming dynasty official robe, side ponytail, vermilion red and ink black palette, twin daggers, full body character concept art, standing pose, clean silhouette"
+    },
+    {
+      "id": "demo_heroic_knight",
+      "zh": "FGO系·英灵骑士（女）",
+      "prompt": "masterpiece, best quality, highly detailed, sharp focus, clean lineart, high quality anime illustration, cel shading with painterly finish, noble mythic hero, ornate ceremonial outfit with gold filigree and star motifs, radiant holy aura, elegant regal stance, luminous highlights, fantasy servant of legend, mythic fantasy realm, knight, elegant ceremonial gown, elegant updo bun, white and gold holy palette, tower shield, full body character concept art, standing pose, clean silhouette"
+    },
+    {
+      "id": "demo_korean_berserker",
+      "zh": "DNF系·重装狂战（男）",
+      "prompt": "masterpiece, best quality, highly detailed, sharp focus, clean lineart, korean semi-realistic fantasy painting style, heroic dynamic pose, ornate heavy armor with gold trim, dark dungeon atmosphere, dramatic glowing skill effects, bold saturated red and gold accents, dramatic rim lighting, high detail, dark fantasy dungeon, warrior, heavy plate armor with pauldrons, wolf cut, warm gold and crimson palette, greatsword, full body character concept art, standing pose, clean silhouette"
+    }
+  ]
+}
