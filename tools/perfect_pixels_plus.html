@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfect Pixels Plus · Star Echo 像素编辑器</title>
+<style>
+:root{--bg:#1a1a28;--panel:#222234;--panel2:#2a2a3f;--border:#3a3a4f;--text:#ccc;--text2:#7a7a8f;--accent:#43f0d2;--danger:#f87171;--warn:#fbbf24;--info:#60a5fa;--btn-hover:#0e3d42}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+/* Header Toolbar */
+header{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:36px}
+header h1{font-size:13px;color:var(--accent);white-space:nowrap;margin-right:4px}
+.sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+.btn{background:var(--panel2);color:var(--text);border:1px solid var(--border);padding:3px 8px;cursor:pointer;font-family:inherit;font-size:11px;border-radius:3px;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.active{background:#0e3d42;border-color:var(--accent);color:#fff}
+.btn.danger{border-color:var(--danger);color:var(--danger)}
+.btn.danger:hover{background:#3e1e1e}
+.btn.primary{background:#0e3d42;border-color:var(--accent);color:#fff}
+.btn.sm{padding:2px 5px;font-size:10px}
+input[type=number],select{background:var(--panel2);color:var(--text);border:1px solid var(--border);padding:3px 6px;font-family:inherit;font-size:11px;border-radius:3px}
+input[type=number]{width:50px}
+input[type=file]{display:none}
+label.sm{color:var(--text2);font-size:10px;white-space:nowrap}
+/* Layout */
+main{flex:1;display:flex;overflow:hidden}
+#canvasWrap{flex:1;overflow:auto;background:#101018;display:flex;align-items:flex-start;justify-content:center;padding:16px;position:relative}
+#editorCanvas{image-rendering:pixelated;cursor:crosshair;box-shadow:0 0 0 1px var(--border);background:#0a0a10}
+/* Sidebar */
+#side{width:320px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;min-width:280px}
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{padding:6px 12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;font-size:11px;flex:1;text-align:center}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--panel2)}
+.tabContent{display:none;flex:1;overflow-y:auto;padding:8px}
+.tabContent.active{display:block}
+.tabContent h2{font-size:11px;color:var(--accent);margin:8px 0 4px}
+.tabContent h2:first-child{margin-top:0}
+/* Frames */
+.frameList{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.frameItem{width:56px;border:1px solid var(--border);cursor:pointer;text-align:center;padding:3px;background:var(--panel2);border-radius:3px}
+.frameItem canvas{image-rendering:pixelated;display:block;margin:0 auto 2px;background:#0a0a10}
+.frameItem .fn{font-size:9px;color:var(--text2)}
+.frameItem.active{border-color:var(--accent)}
+.frameItem.playing{border-color:#39ff14}
+.frameItem.dragging{opacity:.5}
+/* Layers */
+.layerList{gap:3px;display:flex;flex-direction:column}
+.layerRow{display:flex;align-items:center;gap:4px;padding:4px 6px;background:var(--panel2);border:1px solid var(--border);border-radius:3px;cursor:pointer}
+.layerRow.active{border-color:var(--accent)}
+.layerRow input[type=text]{flex:1;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:11px;outline:none;min-width:0}
+.layerRow input[type=text]:focus{border-bottom:1px solid var(--accent)}
+/* Palette */
+.paletteSelect{margin-bottom:6px;width:100%}
+.paletteGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin:4px 0}
+.swatch{position:relative;height:32px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:flex-end;padding:1px 2px;font-size:9px;overflow:hidden;border-radius:2px}
+.swatch.selected{outline:2px solid var(--accent);outline-offset:-2px}
+.swatch .code{background:rgba(0,0,0,.55);color:#fff;padding:0 2px;border-radius:1px}
+.swatch .anchor{position:absolute;top:1px;right:2px;color:#ffd700;font-size:8px}
+/* Rough Processing Panel */
+.dropZone{border:2px dashed var(--border);border-radius:6px;padding:20px;text-align:center;color:var(--text2);cursor:pointer;margin:6px 0;transition:border-color .2s}
+.dropZone:hover,.dropZone.dragover{border-color:var(--accent);color:var(--accent)}
+.row{display:flex;gap:4px;align-items:center;margin:4px 0;flex-wrap:wrap}
+.row label{color:var(--text2);font-size:11px;white-space:nowrap}
+/* Status bar */
+#statusBar{display:flex;align-items:center;gap:12px;padding:4px 10px;background:var(--panel);border-top:1px solid var(--border);font-size:10px;color:var(--text2);flex-shrink:0}
+#statusBar span{margin-right:8px}
+/* Zoom indicator overlay */
+#zoomIndicator{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);color:var(--text2);padding:2px 6px;border-radius:3px;font-size:10px;pointer-events:none}
+#toolIndicator{position:absolute;top:6px;left:8px;color:var(--text2);font-size:10px;pointer-events:none}
+.hidden{display:none!important}
+input[type=color]{width:34px;height:22px;border:1px solid var(--border);background:var(--panel2);padding:0;cursor:pointer;border-radius:3px}
+/* Color quantization preview */
+.colorPreview{display:flex;flex-wrap:wrap;gap:2px;margin:4px 0;max-height:80px;overflow-y:auto}
+.colorPreview span{width:16px;height:16px;border-radius:2px;border:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 Perfect Pixels Plus</h1>
+  <span class="sep"></span>
+  <span id="projectLabel" style="color:var(--text2);font-size:10px">未命名工程</span>
+  <span class="sep"></span>
+  <button class="btn sm" onclick="newProject()" title="新建空白工程">📄 新建</button>
+  <button class="btn sm" onclick="document.getElementById('openProjectInput').click()">📂 打开</button>
+  <button class="btn sm primary" onclick="saveProject()" title="保存工程">💾 保存</button>
+  <input type="file" id="openProjectInput" accept=".json,application/json,*/*" onchange="openProject(event)">
+  <span class="sep"></span>
+  <span id="dirtyIndicator" style="font-size:10px;color:var(--text2)"></span>
+  <div style="flex:1"></div>
+  <button class="btn sm" onclick="undo()" title="Ctrl+Z">↩ 撤销</button>
+  <span class="sep"></span>
+  <button class="btn sm" onclick="togglePlay()" id="playBtn">▶ 播放</button>
+  <button class="btn sm active" onclick="toggleGrid()" id="gridBtn">▦ 网格</button>
+  <button class="btn sm active" onclick="toggleGuides()" id="guidesBtn">⏉ 辅助线</button>
+  <button class="btn sm active" onclick="toggleOnion()" id="onionBtn">🧅 洋葱皮</button>
+  <span class="sep"></span>
+  <label class="sm">FPS</label>
+  <input type="number" id="fpsInput" value="8" min="1" max="30" onchange="setFps(this.value)">
+  <label class="sm">缩放</label>
+  <input type="number" id="zoomInput" value="12" min="2" max="64" onchange="setZoom(this.value)">
+</header>
+
+<main>
+  <div id="canvasWrap">
+    <span id="toolIndicator">画笔 | 点击编辑</span>
+    <canvas id="editorCanvas"></canvas>
+    <span id="zoomIndicator">12x</span>
+  </div>
+
+  <div id="side">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tools')">🔧 工具</div>
+      <div class="tab" onclick="switchTab('frames')">🎞️ 帧</div>
+      <div class="tab" onclick="switchTab('layers')">🧅 图层</div>
+      <div class="tab" onclick="switchTab('palette')">🎨 色板</div>
+      <div class="tab" onclick="switchTab('rough')">🔮 粗加工</div>
+      <div class="tab" onclick="switchTab('export')">📦 导出</div>
+    </div>
+
+    <!-- Tools Tab -->
+    <div class="tabContent active" id="tab-tools">
+      <h2>工具</h2>
+      <div class="row" id="toolButtons"></div>
+      <h2>画笔大小</h2>
+      <div class="row">
+        <input type="range" min="1" max="8" value="1" oninput="setBrushSize(this.value)" style="flex:1">
+        <span id="brushSizeLabel">1px</span>
+      </div>
+      <div id="rectModeRow" class="row hidden">
+        <label>矩形模式</label>
+        <select onchange="setRectMode(this.value)" id="rectModeSelect">
+          <option value="fill">填充</option>
+          <option value="outline">描边</option>
+          <option value="erase">擦除</option>
+        </select>
+      </div>
+      <h2>颜色</h2>
+      <div class="row">
+        <input type="color" id="colorPicker" value="#43f0d2" onchange="setColor(this.value)">
+        <span id="colorHex" style="color:var(--text2)">#43f0d2</span>
+      </div>
+      <h2>帧尺寸</h2>
+      <div class="row">
+        <label>W</label><input type="number" id="frameWidthInput" value="48" onchange="resizeCanvas(parseInt(this.value),parseInt(document.getElementById('frameHeightInput').value))">
+        <label>H</label><input type="number" id="frameHeightInput" value="48" onchange="resizeCanvas(parseInt(document.getElementById('frameWidthInput').value),parseInt(this.value))">
+      </div>
+      <h2>网格</h2>
+      <div class="row">
+        <label>间距</label>
+        <select onchange="setGridSize(parseInt(this.value))" id="gridSizeSelect">
+          <option value="1">1px</option><option value="2">2px</option><option value="4">4px</option>
+          <option value="8">8px</option><option value="12">12px</option><option value="16">16px</option>
+          <option value="24">24px</option><option value="32">32px</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Frames Tab -->
+    <div class="tabContent" id="tab-frames">
+      <h2>帧列表 <span id="frameCount" style="color:var(--text2)">(1)</span></h2>
+      <div class="frameList" id="frameList"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn sm" onclick="addFrame()">+ 新建帧</button>
+        <button class="btn sm" onclick="duplicateFrame()">📋 复制</button>
+        <button class="btn sm danger" onclick="deleteFrame()">🗑 删除</button>
+        <button class="btn sm" onclick="mirrorFrame()">↔ 镜像</button>
+      </div>
+      <h2>导入Sprite Sheet</h2>
+      <div class="row">
+        <button class="btn sm" onclick="document.getElementById('sheetImportInput').click()">📥 导入逐帧图</button>
+        <input type="file" id="sheetImportInput" accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg" onchange="importSpriteSheet(event)">
+      </div>
+    </div>
+
+    <!-- Layers Tab -->
+    <div class="tabContent" id="tab-layers">
+      <h2>图层</h2>
+      <div class="layerList" id="layerList"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn sm" onclick="addLayer()">+ 新建图层</button>
+        <button class="btn sm danger" onclick="deleteLayer()">🗑 删除</button>
+        <button class="btn sm" onclick="mergeDown()">↓ 向下合并</button>
+        <button class="btn sm" onclick="flattenLayers()">📎 合并全部</button>
+      </div>
+    </div>
+
+    <!-- Palette Tab -->
+    <div class="tabContent" id="tab-palette">
+      <h2>调色盘</h2>
+      <select class="paletteSelect" onchange="setActivePalette(this.value)" id="paletteSelect"></select>
+      <div class="paletteGrid" id="paletteGrid"></div>
+      <div class="row" style="margin-top:8px">
+        <input type="text" id="newPaletteName" value="自定义色板" style="flex:1" placeholder="色板名称">
+        <button class="btn sm" onclick="createPalette()">+ 新建</button>
+      </div>
+      <div class="row">
+        <button class="btn sm danger" onclick="deletePalette()" id="deletePaletteBtn">🗑 删除此色板</button>
+        <button class="btn sm" onclick="loadColorDict()" title="加载项目 COLOR_DICT.json">📥 Star Echo色板</button>
+      </div>
+      <div class="row">
+        <label class="sm"><input type="checkbox" id="autoAddColor" checked> 自动加入吸管色</label>
+      </div>
+    </div>
+
+    <!-- Rough Processing Tab -->
+    <div class="tabContent" id="tab-rough">
+      <h2>🔮 AI粗加工</h2>
+      <div class="dropZone" id="dropZone" onclick="document.getElementById('roughFileInput').click()">
+        <div style="font-size:24px;margin-bottom:4px">📥</div>
+        <div>拖放或点击上传图片</div>
+        <div style="font-size:10px;margin-top:2px">支持 PNG / JPG / WebP</div>
+      </div>
+      <input type="file" id="roughFileInput" accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg" onchange="loadRoughImage(event)" style="display:none">
+
+      <div id="roughOptions" class="hidden">
+        <h2>降采样</h2>
+        <div class="row">
+          <label>目标W</label><input type="number" id="roughTargetW" value="64" min="8" max="512">
+          <label>H</label><input type="number" id="roughTargetH" value="96" min="8" max="512">
+          <button class="btn sm primary" onclick="applyDownsample()">应用</button>
+        </div>
+        <div class="row">
+          <select id="downsampleAlgo" style="width:100%">
+            <option value="nearest">最邻近 (Nearest)</option>
+            <option value="bilinear">双线性 (Bilinear)</option>
+            <option value="grid">网格平均 (Grid Avg)</option>
+          </select>
+        </div>
+
+        <h2>智能抠底</h2>
+        <div class="row">
+          <label>容差</label><input type="number" id="roughBgTol" value="60" min="0" max="255">
+          <button class="btn sm" onclick="applyFloodfillBg()">抠底</button>
+        </div>
+        <div class="row">
+          <label class="sm">抠底色</label><input type="color" id="roughBgColor" value="#ffffff">
+          <span class="sm">（点击左上角色）</span>
+        </div>
+
+        <h2>色板量化</h2>
+        <div class="row">
+          <select id="quantPalette" style="flex:1">
+            <option value="builtin">当前选中色板</option>
+            <option value="colorDict">COLOR_DICT.json (ΔRGB≤12)</option>
+          </select>
+          <button class="btn sm primary" onclick="applyQuantize()">量化</button>
+        </div>
+
+        <h2>预览</h2>
+        <canvas id="roughPreview" style="image-rendering:pixelated;max-width:100%;background:#0a0a10;border:1px solid var(--border)"></canvas>
+        <div class="row" style="margin-top:6px">
+          <button class="btn sm primary" onclick="roughToFrames()">✅ 导入为帧</button>
+          <button class="btn sm" onclick="clearRough()">🗑 清除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Tab -->
+    <div class="tabContent" id="tab-export">
+      <h2>导出</h2>
+      <div class="row" style="flex-direction:column;gap:6px">
+        <button class="btn primary" onclick="exportCurrentFrame()" style="width:100%">🖼️ 当前帧 PNG</button>
+        <button class="btn primary" onclick="exportSpriteSheet('horizontal')" style="width:100%">📐 横向 Sprite Sheet</button>
+        <button class="btn primary" onclick="exportSpriteSheet('vertical')" style="width:100%">📏 纵向 Sprite Sheet</button>
+        <button class="btn primary" onclick="exportGif()" style="width:100%">🎞️ GIF 预览</button>
+        <button class="btn primary" onclick="exportFramesZip()" style="width:100%">📦 每帧独立 PNG (Zip)</button>
+        <button class="btn primary" onclick="exportPindouJson()" style="width:100%">📋 Pindou JSON</button>
+      </div>
+      <div id="exportStatus" style="margin-top:8px;color:var(--text2);font-size:10px"></div>
+    </div>
+  </div>
+</main>
+
+<div id="statusBar">
+  <span id="cursorPos">x:0 y:0</span>
+  <span id="frameInfo">帧1/1</span>
+  <span id="layerInfo">图层1/1</span>
+  <span id="canvasInfo">48×48</span>
+</div>
+
+<script>
+// ========== STATE ==========
+const DEFAULT_SIZE = 48;
+const MAX_HISTORY = 32;
+
+let state = {
+  frames: [],
+  activeFrameIdx: 0,
+  layers: [],
+  activeLayerIdx: 0,
+  zoom: 12,
+  tool: 'pencil',
+  color: '#43f0d2',
+  brushSize: 1,
+  rectMode: 'fill',
+  showGrid: true,
+  gridSize: 1,
+  showGuides: true,
+  showOnion: true,
+  fps: 8,
+  isPlaying: false,
+  playTimer: null,
+  history: [],
+  customPalettes: [],
+  activePaletteId: 'project-basic',
+  projectFileName: null,
+  lastSavedSnapshot: null,
+  // Rough processing
+  roughImage: null,
+  roughCanvas: null,
+  isPainting: false,
+  isPanning: false,
+  panStart: { x: 0, y: 0, scrollLeft: 0, scrollTop: 0 },
+  rectStart: null,
+  lineStart: null,
+  lineEnd: null,
+  cursorPoint: null,
+  rectEnd: null,
+  soloLayerIdx: null,
+  colorDictColors: null,
+};
+
+const DEFAULT_PALETTES = [
+  { id: 'project-basic', name: '基础色板', locked: true, colors: ['#000000','#1b1f2a','#2f3748','#596070','#ffffff','#c7d0dd','#8d96a8','#5a463d','#2b1d1b','#6d2d2d','#a9473b','#d48658','#e8c170','#7b8f42','#3f6f52','#24545f','#43f0d2','#24a7b5','#3662a3','#6f4bb3','#ff00ff','#f2e6c9','#9b6b43','#59351f'] },
+  { id: 'anime-jp', name: '日式二次元', locked: true, colors: ['#1f1f2e','#3a2d4f','#684b8f','#9a6fd8','#f2d7ee','#fff4fb','#f6b7d2','#e86fa3','#f76f8e','#ffb3a7','#ffe2c6','#fff0dc','#f7d56e','#b6e37a','#67c77f','#3c9d8f','#7fe4ff','#4aa3ff','#3763d8','#2b3a8f','#f5f7ff','#d9e2ff','#9da8c7','#5e647a'] },
+  { id: 'classic-game', name: '经典像素游戏', locked: true, colors: ['#0f0f1b','#222034','#45283c','#663931','#8f563b','#df7126','#d9a066','#eec39a','#fbf236','#99e550','#6abe30','#37946e','#4b692f','#524b24','#323c39','#3f3f74','#306082','#5b6ee1','#639bff','#5fcde4','#cbdbfc','#ffffff','#9badb7','#696a6a'] },
+];
+
+const TOOLS = [
+  { id: 'pencil', icon: '✎', label: '画笔', key: 'b' },
+  { id: 'eraser', icon: '⌫', label: '橡皮', key: 'e' },
+  { id: 'eyedropper', icon: '◉', label: '吸管', key: 'i' },
+  { id: 'bucket', icon: '▣', label: '填充', key: 'g' },
+  { id: 'rectangle', icon: '□', label: '矩形', key: 'r' },
+  { id: 'line', icon: '／', label: '直线', key: 'l' },
+  { id: 'replace', icon: '⇄', label: '替换', key: 'x' },
+  { id: 'lighten', icon: '☼', label: '提亮', key: 'o' },
+  { id: 'darken', icon: '◐', label: '压暗', key: 'p' },
+];
+
+// ========== HELPERS ==========
+function makeId() { return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8); }
+function hexToRgb(hex) {
+  const c = hex.replace('#', ''); const full = c.length === 3 ? c.split('').map(x => x + x).join('') : c;
+  const v = parseInt(full, 16);
+  return isNaN(v) ? { r: 67, g: 240, b: 210, a: 255 } : { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255, a: 255 };
+}
+function rgbToHex(r, g, b) { return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join(''); }
+function normalizeHex(h) { const c = hexToRgb(h); return rgbToHex(c.r, c.g, c.b); }
+
+function blankImageData(w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  return c.getContext('2d').createImageData(w, h);
+}
+function cloneImageData(d) { return new ImageData(new Uint8ClampedArray(d.data), d.width, d.height); }
+function imageDataToCanvas(d) {
+  const c = document.createElement('canvas'); c.width = d.width; c.height = d.height;
+  c.getContext('2d').putImageData(d, 0, 0); return c;
+}
+function getPixel(d, x, y) {
+  if (x < 0 || y < 0 || x >= d.width || y >= d.height) return { r: 0, g: 0, b: 0, a: 0 };
+  const i = (y * d.width + x) * 4;
+  return { r: d.data[i], g: d.data[i + 1], b: d.data[i + 2], a: d.data[i + 3] };
+}
+function setPixel(d, x, y, c) {
+  if (x < 0 || y < 0 || x >= d.width || y >= d.height) return;
+  const i = (y * d.width + x) * 4;
+  d.data[i] = c.r; d.data[i + 1] = c.g; d.data[i + 2] = c.b; d.data[i + 3] = c.a;
+}
+function sameColor(a, b) { return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a; }
+
+function compositeFrame(frame, layers, soloIdx = null) {
+  const w = frame.layers[0].width, h = frame.layers[0].height;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  frame.layers.forEach((ld, i) => {
+    if ((soloIdx === null && layers[i]?.visible !== false) || soloIdx === i) {
+      ctx.drawImage(imageDataToCanvas(ld), 0, 0);
+    }
+  });
+  return ctx.getImageData(0, 0, w, h);
+}
+
+function makeBlankFrame(w, h, layerCount = 1) {
+  return { id: makeId(), layers: Array.from({ length: layerCount }, () => blankImageData(w, h)) };
+}
+
+function cloneFrame(f) { return { id: f.id, layers: f.layers.map(cloneImageData) }; }
+
+function cloneState() { return state.frames.map(cloneFrame); }
+
+function pushHistory() {
+  state.history.push(cloneState());
+  if (state.history.length > MAX_HISTORY) state.history.shift();
+}
+
+// ========== INIT ==========
+state.layers = [{ id: 'layer-1', name: '图层 1', visible: true, locked: false }];
+state.frames = [makeBlankFrame(DEFAULT_SIZE, DEFAULT_SIZE)];
+// Load custom palettes from localStorage
+try {
+  const raw = localStorage.getItem('ppp-custom-palettes');
+  if (raw) state.customPalettes = JSON.parse(raw);
+} catch(e) {}
+// Load shortcuts
+try {
+  const raw = localStorage.getItem('ppp-shortcuts');
+  if (!raw) {
+    const s = {}; TOOLS.forEach(t => s[t.id] = t.key);
+    localStorage.setItem('ppp-shortcuts', JSON.stringify(s));
+  }
+} catch(e) {}
+
+function getShortcuts() {
+  try { const r = localStorage.getItem('ppp-shortcuts'); return r ? JSON.parse(r) : {}; }
+  catch(e) { return {}; }
+}
+
+// ========== CANVAS RENDERING ==========
+function drawEditor() {
+  const canvas = document.getElementById('editorCanvas');
+  const frame = state.frames[state.activeFrameIdx];
+  if (!canvas || !frame) return;
+  const composited = compositeFrame(frame, state.layers, state.soloLayerIdx);
+  const w = composited.width, h = composited.height;
+  canvas.width = w * state.zoom; canvas.height = h * state.zoom;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  // Checkerboard
+  const cell = Math.max(4, state.zoom);
+  ctx.fillStyle = '#f7f8fa'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#d7dbe2';
+  for (let y = 0; y < canvas.height; y += cell)
+    for (let x = 0; x < canvas.width; x += cell)
+      if ((x / cell + y / cell) % 2 === 0) ctx.fillRect(x, y, cell, cell);
+
+  // Onion skin
+  if (state.showOnion && state.activeFrameIdx > 0) {
+    ctx.globalAlpha = 0.28;
+    ctx.drawImage(imageDataToCanvas(compositeFrame(state.frames[state.activeFrameIdx - 1], state.layers, state.soloLayerIdx)), 0, 0, w * state.zoom, h * state.zoom);
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.drawImage(imageDataToCanvas(composited), 0, 0, w * state.zoom, h * state.zoom);
+
+  // Guides
+  if (state.showGuides) {
+    ctx.strokeStyle = 'rgba(30,90,160,0.85)'; ctx.lineWidth = 1; ctx.beginPath();
+    ctx.moveTo(Math.floor(w / 2) * state.zoom + 0.5, 0);
+    ctx.lineTo(Math.floor(w / 2) * state.zoom + 0.5, canvas.height);
+    ctx.moveTo(0, Math.max(0, h - 12) * state.zoom + 0.5);
+    ctx.lineTo(canvas.width, Math.max(0, h - 12) * state.zoom + 0.5);
+    ctx.stroke();
+  }
+
+  // Grid
+  if (state.showGrid && state.zoom >= 6) {
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= w; x++) {
+      ctx.strokeStyle = x % state.gridSize === 0 ? 'rgba(29,37,50,0.32)' : 'rgba(29,37,50,0.12)';
+      ctx.beginPath(); ctx.moveTo(x * state.zoom + 0.5, 0); ctx.lineTo(x * state.zoom + 0.5, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y <= h; y++) {
+      ctx.strokeStyle = y % state.gridSize === 0 ? 'rgba(29,37,50,0.32)' : 'rgba(29,37,50,0.12)';
+      ctx.beginPath(); ctx.moveTo(0, y * state.zoom + 0.5); ctx.lineTo(canvas.width, y * state.zoom + 0.5); ctx.stroke();
+    }
+  }
+
+  // Cursor brush preview
+  if (state.cursorPoint && (state.tool === 'pencil' || state.tool === 'eraser')) {
+    const sx = (state.cursorPoint.x - Math.floor(state.brushSize / 2)) * state.zoom;
+    const sy = (state.cursorPoint.y - Math.floor(state.brushSize / 2)) * state.zoom;
+    const sz = state.brushSize * state.zoom;
+    ctx.fillStyle = state.tool === 'eraser' ? 'rgba(239,68,68,0.18)' : 'rgba(31,111,235,0.16)';
+    ctx.strokeStyle = state.tool === 'eraser' ? 'rgba(185,28,28,0.95)' : 'rgba(31,111,235,0.95)';
+    ctx.lineWidth = 2; ctx.fillRect(sx, sy, sz, sz); ctx.strokeRect(sx + 1, sy + 1, Math.max(1, sz - 2), Math.max(1, sz - 2));
+  }
+
+  // Rect preview
+  if (state.tool === 'rectangle' && state.rectStart && state.rectEnd) {
+    const mx = Math.min(state.rectStart.x, state.rectEnd.x) * state.zoom;
+    const my = Math.min(state.rectStart.y, state.rectEnd.y) * state.zoom;
+    const mw = (Math.abs(state.rectEnd.x - state.rectStart.x) + 1) * state.zoom;
+    const mh = (Math.abs(state.rectEnd.y - state.rectStart.y) + 1) * state.zoom;
+    ctx.fillStyle = state.rectMode === 'erase' ? 'rgba(239,68,68,0.16)' : 'rgba(67,240,210,0.16)';
+    ctx.strokeStyle = state.rectMode === 'erase' ? 'rgba(185,28,28,0.95)' : 'rgba(21,128,118,0.95)';
+    ctx.lineWidth = 2;
+    if (state.rectMode !== 'outline') ctx.fillRect(mx, my, mw, mh);
+    ctx.strokeRect(mx + 1, my + 1, Math.max(1, mw - 2), Math.max(1, mh - 2));
+  }
+
+  // Line preview
+  if (state.tool === 'line' && state.lineStart && state.lineEnd) {
+    ctx.strokeStyle = 'rgba(31,111,235,0.95)'; ctx.lineWidth = Math.max(2, state.brushSize * state.zoom);
+    ctx.lineCap = 'square'; ctx.beginPath();
+    ctx.moveTo(state.lineStart.x * state.zoom + state.zoom / 2, state.lineStart.y * state.zoom + state.zoom / 2);
+    ctx.lineTo(state.lineEnd.x * state.zoom + state.zoom / 2, state.lineEnd.y * state.zoom + state.zoom / 2);
+    ctx.stroke();
+  }
+
+  // Update status bars
+  document.getElementById('zoomIndicator').textContent = state.zoom + 'x';
+  const toolDef = TOOLS.find(t => t.id === state.tool);
+  document.getElementById('toolIndicator').textContent = (toolDef ? toolDef.label : state.tool) + ' | 点击编辑';
+  const curFrame = state.frames[state.activeFrameIdx];
+  const w2 = curFrame ? curFrame.layers[0].width : 0;
+  const h2 = curFrame ? curFrame.layers[0].height : 0;
+  document.getElementById('canvasInfo').textContent = w2 + '×' + h2;
+  document.getElementById('frameInfo').textContent = '帧' + (state.activeFrameIdx + 1) + '/' + state.frames.length;
+  document.getElementById('layerInfo').textContent = '图层' + (state.activeLayerIdx + 1) + '/' + state.layers.length;
+}
+
+function canvasPos(e) {
+  const canvas = document.getElementById('editorCanvas');
+  const rect = canvas.getBoundingClientRect();
+  return { x: Math.floor((e.clientX - rect.left) / state.zoom), y: Math.floor((e.clientY - rect.top) / state.zoom) };
+}
+
+// ========== DRAWING OPERATIONS ==========
+function activeLayerData() {
+  const f = state.frames[state.activeFrameIdx];
+  if (!f || !f.layers[state.activeLayerIdx]) return null;
+  return f.layers[state.activeLayerIdx];
+}
+
+function applyBrush(d, x, y, sz, color) {
+  const sx = x - Math.floor(sz / 2), sy = y - Math.floor(sz / 2);
+  for (let py = sy; py < sy + sz; py++)
+    for (let px = sx; px < sx + sz; px++)
+      setPixel(d, px, py, color);
+}
+
+function drawLine(d, start, end, color, sz) {
+  let x0 = start.x, y0 = start.y, x1 = end.x, y1 = end.y;
+  const dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+  const dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy;
+  while (true) {
+    applyBrush(d, x0, y0, sz, color);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+}
+
+function applyRect(d, start, end, mode, color) {
+  const minX = Math.max(0, Math.min(start.x, end.x));
+  const maxX = Math.min(d.width - 1, Math.max(start.x, end.x));
+  const minY = Math.max(0, Math.min(start.y, end.y));
+  const maxY = Math.min(d.height - 1, Math.max(start.y, end.y));
+  const pc = mode === 'erase' ? { r: 0, g: 0, b: 0, a: 0 } : color;
+  for (let y = minY; y <= maxY; y++)
+    for (let x = minX; x <= maxX; x++) {
+      const isBorder = x === minX || x === maxX || y === minY || y === maxY;
+      if (mode !== 'outline' || isBorder) setPixel(d, x, y, pc);
+    }
+}
+
+function floodFill(d, x, y, targetColor, fillColor) {
+  if (x < 0 || y < 0 || x >= d.width || y >= d.height) return;
+  const p = getPixel(d, x, y);
+  if (sameColor(p, fillColor)) return;
+  if (!sameColor(p, targetColor)) return;
+  setPixel(d, x, y, fillColor);
+  floodFill(d, x + 1, y, targetColor, fillColor);
+  floodFill(d, x - 1, y, targetColor, fillColor);
+  floodFill(d, x, y + 1, targetColor, fillColor);
+  floodFill(d, x, y - 1, targetColor, fillColor);
+}
+
+// Non-recursive floodfill (for larger areas)
+function floodFillIter(d, sx, sy, targetColor, fillColor) {
+  if (sx < 0 || sy < 0 || sx >= d.width || sy >= d.height) return;
+  const p = getPixel(d, sx, sy);
+  if (sameColor(p, fillColor)) return;
+  if (!sameColor(p, targetColor)) return;
+  const stack = [[sx, sy]];
+  while (stack.length > 0) {
+    const [x, y] = stack.pop();
+    if (x < 0 || y < 0 || x >= d.width || y >= d.height) continue;
+    if (!sameColor(getPixel(d, x, y), targetColor)) continue;
+    setPixel(d, x, y, fillColor);
+    stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+  }
+}
+
+function adjustColor(d, x, y, sz, amount) {
+  const sx = x - Math.floor(sz / 2), sy = y - Math.floor(sz / 2);
+  for (let py = sy; py < sy + sz; py++)
+    for (let px = sx; px < sx + sz; px++) {
+      const p = getPixel(d, px, py);
+      if (p.a === 0) continue;
+      setPixel(d, px, py, {
+        r: Math.max(0, Math.min(255, p.r + amount)),
+        g: Math.max(0, Math.min(255, p.g + amount)),
+        b: Math.max(0, Math.min(255, p.b + amount)),
+        a: p.a,
+      });
+    }
+}
+
+function replaceColor(d, x, y, tol) {
+  const target = getPixel(d, x, y);
+  if (target.a === 0) return;
+  const newColor = hexToRgb(state.color);
+  for (let i = 0; i < d.data.length; i += 4) {
+    if (d.data[i + 3] === 0) continue;
+    const dr = Math.abs(d.data[i] - target.r);
+    const dg = Math.abs(d.data[i + 1] - target.g);
+    const db = Math.abs(d.data[i + 2] - target.b);
+    if (dr <= tol && dg <= tol && db <= tol) {
+      d.data[i] = newColor.r;
+      d.data[i + 1] = newColor.g;
+      d.data[i + 2] = newColor.b;
+    }
+  }
+}
+
+// ========== CANVAS EVENT HANDLERS ==========
+const canvas = document.getElementById('editorCanvas');
+
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 1 || (e.button === 0 && state.isPanning)) {
+    // Middle click or space+left = pan
+    state.isPanning = true;
+    state.panStart = { x: e.clientX, y: e.clientY, scrollLeft: document.getElementById('canvasWrap').scrollLeft, scrollTop: document.getElementById('canvasWrap').scrollTop };
+    return;
+  }
+  if (e.button === 2) { e.preventDefault(); return; } // right click = eyedropper
+  if (e.button !== 0) return;
+  if (state.layers[state.activeLayerIdx]?.locked) return;
+
+  const pos = canvasPos(e);
+  if (state.tool === 'eyedropper') {
+    const p = getPixel(activeLayerData(), pos.x, pos.y);
+    state.color = rgbToHex(p.r, p.g, p.b);
+    document.getElementById('colorPicker').value = state.color;
+    document.getElementById('colorHex').textContent = state.color;
+    if (document.getElementById('autoAddColor').checked) addColorToActivePalette(state.color);
+    return;
+  }
+
+  pushHistory();
+  state.isPainting = true;
+  const d = activeLayerData();
+  const color = state.tool === 'eraser' ? { r: 0, g: 0, b: 0, a: 0 } : hexToRgb(state.color);
+
+  if (state.tool === 'pencil' || state.tool === 'eraser') {
+    applyBrush(d, pos.x, pos.y, state.brushSize, color);
+  } else if (state.tool === 'bucket') {
+    const target = getPixel(d, pos.x, pos.y);
+    if (!sameColor(target, color)) floodFillIter(d, pos.x, pos.y, target, color);
+  } else if (state.tool === 'rectangle') {
+    state.rectStart = pos;
+    state.rectEnd = pos;
+  } else if (state.tool === 'line') {
+    state.lineStart = pos;
+    state.lineEnd = pos;
+  } else if (state.tool === 'replace') {
+    replaceColor(d, pos.x, pos.y, 32);
+  } else if (state.tool === 'lighten') {
+    adjustColor(d, pos.x, pos.y, state.brushSize, 20);
+  } else if (state.tool === 'darken') {
+    adjustColor(d, pos.x, pos.y, state.brushSize, -20);
+  }
+  state.cursorPoint = pos;
+  refreshUI();
+  drawEditor();
+});
+
+canvas.addEventListener('mousemove', e => {
+  const pos = canvasPos(e);
+  state.cursorPoint = pos;
+  document.getElementById('cursorPos').textContent = 'x:' + pos.x + ' y:' + pos.y;
+
+  if (state.isPanning) {
+    const wrap = document.getElementById('canvasWrap');
+    wrap.scrollLeft = state.panStart.scrollLeft - (e.clientX - state.panStart.x);
+    wrap.scrollTop = state.panStart.scrollTop - (e.clientY - state.panStart.y);
+    return;
+  }
+
+  if (!state.isPainting) { drawEditor(); return; }
+
+  const d = activeLayerData();
+  const color = state.tool === 'eraser' ? { r: 0, g: 0, b: 0, a: 0 } : hexToRgb(state.color);
+
+  if (state.tool === 'pencil' || state.tool === 'eraser') {
+    drawLine(d, state.cursorPoint, pos, color, state.brushSize);
+    state.cursorPoint = pos;
+  } else if (state.tool === 'rectangle') {
+    state.rectEnd = pos;
+  } else if (state.tool === 'line') {
+    state.lineEnd = pos;
+  } else if (state.tool === 'lighten' || state.tool === 'darken') {
+    const amount = state.tool === 'lighten' ? 20 : -20;
+    adjustColor(d, pos.x, pos.y, state.brushSize, amount);
+    state.cursorPoint = pos;
+  }
+  drawEditor();
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (state.isPainting && (state.tool === 'rectangle' || state.tool === 'line')) {
+    const d = activeLayerData();
+    const color = state.tool === 'eraser' ? { r: 0, g: 0, b: 0, a: 0 } : hexToRgb(state.color);
+    if (state.tool === 'rectangle' && state.rectStart && state.rectEnd) {
+      // Undo the preview then apply properly
+      state.history.pop();
+      pushHistory();
+      applyRect(d, state.rectStart, state.rectEnd, state.rectMode, color);
+      state.rectStart = state.rectEnd = null;
+    } else if (state.tool === 'line' && state.lineStart && state.lineEnd) {
+      state.history.pop();
+      pushHistory();
+      drawLine(d, state.lineStart, state.lineEnd, color, state.brushSize);
+      state.lineStart = state.lineEnd = null;
+    }
+  }
+  state.isPainting = false;
+  if (state.isPanning) state.isPanning = false;
+  drawEditor();
+  saveAutosave();
+});
+
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const pos = canvasPos(e);
+  const d = activeLayerData();
+  if (!d) return;
+  const p = getPixel(d, pos.x, pos.y);
+  state.color = rgbToHex(p.r, p.g, p.b);
+  document.getElementById('colorPicker').value = state.color;
+  document.getElementById('colorHex').textContent = state.color;
+  if (document.getElementById('autoAddColor').checked) addColorToActivePalette(state.color);
+});
+
+canvas.addEventListener('mouseleave', () => {
+  state.cursorPoint = null;
+  state.isPainting = false;
+  drawEditor();
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -1 : 1;
+  const newZoom = Math.max(2, Math.min(64, state.zoom + delta));
+  setZoom(newZoom);
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
+  if (e.key === ' ') { e.preventDefault(); state.isPanning = true; document.body.style.cursor = 'grab'; return; }
+  if (e.key === '[') { setBrushSize(Math.max(1, state.brushSize - 1)); return; }
+  if (e.key === ']') { setBrushSize(Math.min(8, state.brushSize + 1)); return; }
+  if (e.ctrlKey && e.shiftKey && e.key === 'N') { addFrame(); return; }
+  if (e.ctrlKey && e.key === 'd') { duplicateFrame(); return; }
+  if (e.key === 'Delete') { deleteFrame(); return; }
+
+  const shortcuts = getShortcuts();
+  const key = e.key.toLowerCase();
+  for (const t of TOOLS) {
+    if ((shortcuts[t.id] || t.key) === key) { setTool(t.id); break; }
+  }
+});
+
+document.addEventListener('keyup', e => {
+  if (e.key === ' ') { state.isPanning = false; document.body.style.cursor = ''; }
+});
+
+// ========== ACTIONS ==========
+function execOnActiveLayer(fn) {
+  if (state.layers[state.activeLayerIdx]?.locked) return;
+  pushHistory();
+  state.frames = state.frames.map((f, i) => {
+    if (i !== state.activeFrameIdx) return f;
+    return { ...f, layers: f.layers.map((ld, li) => li === state.activeLayerIdx ? fn(cloneImageData(ld)) : ld) };
+  });
+  refreshUI();
+  drawEditor();
+  saveAutosave();
+}
+
+// ========== FRAME OPS ==========
+function addFrame() {
+  const f = state.frames[0];
+  const w = f ? f.layers[0].width : DEFAULT_SIZE;
+  const h = f ? f.layers[0].height : DEFAULT_SIZE;
+  const newFrame = makeBlankFrame(w, h, state.layers.length);
+  state.frames.push(newFrame);
+  state.activeFrameIdx = state.frames.length - 1;
+  refreshUI();
+  drawEditor();
+}
+
+function duplicateFrame() {
+  const f = state.frames[state.activeFrameIdx];
+  if (!f) return;
+  state.frames.push(cloneFrame(f));
+  state.activeFrameIdx = state.frames.length - 1;
+  refreshUI();
+  drawEditor();
+}
+
+function deleteFrame() {
+  if (state.frames.length <= 1) return;
+  state.frames.splice(state.activeFrameIdx, 1);
+  state.activeFrameIdx = Math.min(state.activeFrameIdx, state.frames.length - 1);
+  refreshUI();
+  drawEditor();
+}
+
+function mirrorFrame() {
+  const f = state.frames[state.activeFrameIdx];
+  if (!f) return;
+  pushHistory();
+  state.frames = state.frames.map((fr, i) => {
+    if (i !== state.activeFrameIdx) return fr;
+    return { ...fr, layers: fr.layers.map(ld => {
+      const m = blankImageData(ld.width, ld.height);
+      for (let y = 0; y < ld.height; y++)
+        for (let x = 0; x < ld.width; x++) {
+          const si = (y * ld.width + x) * 4;
+          const ti = (y * ld.width + (ld.width - 1 - x)) * 4;
+          m.data[ti] = ld.data[si]; m.data[ti + 1] = ld.data[si + 1];
+          m.data[ti + 2] = ld.data[si + 2]; m.data[ti + 3] = ld.data[si + 3];
+        }
+      return m;
+    }) };
+  });
+  refreshUI();
+  drawEditor();
+  saveAutosave();
+}
+
+// ========== LAYER OPS ==========
+function addLayer() {
+  const f = state.frames[0];
+  const w = f ? f.layers[0].width : DEFAULT_SIZE;
+  const h = f ? f.layers[0].height : DEFAULT_SIZE;
+  const newLayer = { id: makeId(), name: '图层 ' + (state.layers.length + 1), visible: true, locked: false };
+  state.layers.push(newLayer);
+  state.frames = state.frames.map(f => ({ ...f, layers: [...f.layers, blankImageData(w, h)] }));
+  state.activeLayerIdx = state.layers.length - 1;
+  refreshUI();
+  drawEditor();
+}
+
+function deleteLayer() {
+  if (state.layers.length <= 1) return;
+  const idx = state.activeLayerIdx;
+  state.layers.splice(idx, 1);
+  state.frames = state.frames.map(f => ({ ...f, layers: f.layers.filter((_, i) => i !== idx) }));
+  state.activeLayerIdx = Math.min(idx, state.layers.length - 1);
+  refreshUI();
+  drawEditor();
+}
+
+function mergeDown() {
+  if (state.activeLayerIdx <= 0) return;
+  pushHistory();
+  const upper = state.activeLayerIdx;
+  const lower = upper - 1;
+  state.frames = state.frames.map(f => {
+    const c = document.createElement('canvas');
+    c.width = f.layers[0].width; c.height = f.layers[0].height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(imageDataToCanvas(f.layers[lower]), 0, 0);
+    ctx.drawImage(imageDataToCanvas(f.layers[upper]), 0, 0);
+    const merged = ctx.getImageData(0, 0, c.width, c.height);
+    const newLayers = f.layers.filter((_, i) => i !== upper);
+    newLayers[lower] = merged;
+    return { ...f, layers: newLayers };
+  });
+  state.layers.splice(upper, 1);
+  state.activeLayerIdx = Math.min(state.activeLayerIdx, state.layers.length - 1);
+  refreshUI();
+  drawEditor();
+  saveAutosave();
+}
+
+function flattenLayers() {
+  if (state.layers.length <= 1) return;
+  pushHistory();
+  state.frames = state.frames.map(f => {
+    const c = document.createElement('canvas');
+    c.width = f.layers[0].width; c.height = f.layers[0].height;
+    const ctx = c.getContext('2d');
+    f.layers.forEach((ld, i) => { if (state.layers[i]?.visible !== false) ctx.drawImage(imageDataToCanvas(ld), 0, 0); });
+    return { ...f, layers: [ctx.getImageData(0, 0, c.width, c.height)] };
+  });
+  state.layers = [{ id: makeId(), name: '图层 1', visible: true, locked: false }];
+  state.activeLayerIdx = 0;
+  refreshUI();
+  drawEditor();
+  saveAutosave();
+}
+
+// ========== PALETTE OPS ==========
+function getActivePalette() {
+  const allPalettes = [...DEFAULT_PALETTES, ...state.customPalettes];
+  return allPalettes.find(p => p.id === state.activePaletteId) || allPalettes[0];
+}
+
+function setActivePalette(id) {
+  state.activePaletteId = id;
+  refreshUI();
+}
+
+function addColorToActivePalette(hex) {
+  const palette = getActivePalette();
+  if (!palette || palette.locked) return;
+  const normalized = normalizeHex(hex);
+  state.customPalettes = state.customPalettes.map(p => {
+    if (p.id !== palette.id) return p;
+    if (p.colors.includes(normalized)) return p;
+    return { ...p, colors: [...p.colors, normalized] };
+  });
+  localStorage.setItem('ppp-custom-palettes', JSON.stringify(state.customPalettes));
+  refreshUI();
+}
+
+function createPalette() {
+  const name = document.getElementById('newPaletteName').value.trim() || '自定义色板';
+  const p = { id: makeId(), name, colors: [state.color], locked: false };
+  state.customPalettes = [...state.customPalettes, p];
+  state.activePaletteId = p.id;
+  localStorage.setItem('ppp-custom-palettes', JSON.stringify(state.customPalettes));
+  refreshUI();
+}
+
+function deletePalette() {
+  const palette = getActivePalette();
+  if (!palette || palette.locked) return;
+  state.customPalettes = state.customPalettes.filter(p => p.id !== palette.id);
+  state.activePaletteId = 'project-basic';
+  localStorage.setItem('ppp-custom-palettes', JSON.stringify(state.customPalettes));
+  refreshUI();
+}
+
+async function loadColorDict() {
+  try {
+    // Try loading from ../ART/COLOR_DICT.json
+    const resp = await fetch('../ART/COLOR_DICT.json');
+    if (!resp.ok) throw new Error('Not found');
+    const dict = await resp.json();
+    state.colorDictColors = Object.entries(dict.colors).map(([code, info]) => ({
+      code, hex: info.hex, name: info.name || code, anchor: info.anchor || false
+    }));
+    // Create a palette from it
+    const colors = state.colorDictColors.map(c => c.hex);
+    const p = { id: 'star-echo-dict', name: 'Star Echo 色板 (' + colors.length + '色)', colors, locked: true };
+    // Remove existing dict palette
+    state.customPalettes = state.customPalettes.filter(p => p.id !== 'star-echo-dict');
+    state.customPalettes.push(p);
+    state.activePaletteId = 'star-echo-dict';
+    localStorage.setItem('ppp-custom-palettes', JSON.stringify(state.customPalettes));
+    refreshUI();
+    document.getElementById('exportStatus').textContent = '已加载 COLOR_DICT.json: ' + colors.length + ' 色';
+  } catch(e) {
+    document.getElementById('exportStatus').textContent = '加载失败: ' + e.message;
+  }
+}
+
+// ========== HISTORY ==========
+function undo() {
+  if (state.history.length === 0) return;
+  state.frames = state.history.pop();
+  refreshUI();
+  drawEditor();
+}
+
+// ========== SETTERS ==========
+function setTool(id) {
+  state.tool = id;
+  state.rectStart = state.rectEnd = null;
+  state.lineStart = state.lineEnd = null;
+  document.getElementById('rectModeRow').classList.toggle('hidden', id !== 'rectangle');
+  refreshUI();
+}
+
+function setBrushSize(sz) {
+  state.brushSize = sz;
+  document.getElementById('brushSizeLabel').textContent = sz + 'px';
+  drawEditor();
+}
+
+function setRectMode(mode) { state.rectMode = mode; }
+function setColor(c) { state.color = c; document.getElementById('colorHex').textContent = c; }
+function setFps(v) { state.fps = Math.max(1, Math.min(30, parseInt(v))); document.getElementById('fpsInput').value = state.fps; }
+function setZoom(v) {
+  state.zoom = Math.max(2, Math.min(64, typeof v === 'number' ? v : parseInt(v)));
+  document.getElementById('zoomInput').value = state.zoom;
+  drawEditor();
+}
+function setGridSize(sz) { state.gridSize = sz; drawEditor(); }
+
+function togglePlay() {
+  state.isPlaying = !state.isPlaying;
+  document.getElementById('playBtn').classList.toggle('active', state.isPlaying);
+  if (state.isPlaying && state.frames.length > 1) {
+    const step = () => {
+      if (!state.isPlaying) return;
+      state.activeFrameIdx = (state.activeFrameIdx + 1) % state.frames.length;
+      refreshUI();
+      drawEditor();
+      state.playTimer = setTimeout(step, Math.max(20, Math.round(1000 / state.fps)));
+    };
+    step();
+  } else {
+    clearTimeout(state.playTimer);
+  }
+}
+function toggleGrid() {
+  state.showGrid = !state.showGrid;
+  document.getElementById('gridBtn').classList.toggle('active', state.showGrid);
+  drawEditor();
+}
+function toggleGuides() {
+  state.showGuides = !state.showGuides;
+  document.getElementById('guidesBtn').classList.toggle('active', state.showGuides);
+  drawEditor();
+}
+function toggleOnion() {
+  state.showOnion = !state.showOnion;
+  document.getElementById('onionBtn').classList.toggle('active', state.showOnion);
+  drawEditor();
+}
+
+function resizeCanvas(w, h) {
+  if (w <= 0 || h <= 0) return;
+  pushHistory();
+  state.frames = state.frames.map(f => ({
+    ...f,
+    layers: f.layers.map(ld => {
+      const n = blankImageData(w, h);
+      const cw = Math.min(ld.width, w), ch = Math.min(ld.height, h);
+      for (let y = 0; y < ch; y++)
+        for (let x = 0; x < cw; x++) {
+          const si = (y * ld.width + x) * 4, ti = (y * w + x) * 4;
+          n.data[ti] = ld.data[si]; n.data[ti + 1] = ld.data[si + 1];
+          n.data[ti + 2] = ld.data[si + 2]; n.data[ti + 3] = ld.data[si + 3];
+        }
+      return n;
+    }),
+  }));
+  document.getElementById('frameWidthInput').value = w;
+  document.getElementById('frameHeightInput').value = h;
+  refreshUI();
+  drawEditor();
+  saveAutosave();
+}
+
+// ========== SPRITE SHEET IMPORT ==========
+function importSpriteSheet(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(img.src);
+
+    // Guess frame size
+    let fw = DEFAULT_SIZE, fh = DEFAULT_SIZE;
+    if (img.naturalWidth % DEFAULT_SIZE === 0 && img.naturalHeight % DEFAULT_SIZE === 0) {
+      fw = fh = DEFAULT_SIZE;
+    } else if (img.naturalWidth > img.naturalHeight && img.naturalWidth % img.naturalHeight === 0) {
+      fw = fh = img.naturalHeight;
+    }
+
+    const cols = Math.max(1, Math.floor(img.naturalWidth / fw));
+    const rows = Math.max(1, Math.floor(img.naturalHeight / fh));
+    sliceSheet(ctx.getImageData(0, 0, c.width, c.height), fw, fh, cols, rows, file.name.replace(/\.[^.]+$/, ''));
+  };
+  img.src = URL.createObjectURL(file);
+}
+
+function sliceSheet(sheetData, fw, fh, cols, rows, name) {
+  const newFrames = [];
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++) {
+      const fd = blankImageData(fw, fh);
+      for (let y = 0; y < fh; y++)
+        for (let x = 0; x < fw; x++) {
+          const si = ((r * fh + y) * sheetData.width + (c * fw + x)) * 4;
+          const ti = (y * fw + x) * 4;
+          fd.data[ti] = sheetData.data[si];
+          fd.data[ti + 1] = sheetData.data[si + 1];
+          fd.data[ti + 2] = sheetData.data[si + 2];
+          fd.data[ti + 3] = sheetData.data[si + 3];
+        }
+      newFrames.push({ id: makeId(), layers: [fd] });
+    }
+
+  if (newFrames.length === 0) return;
+  state.frames = newFrames;
+  state.activeFrameIdx = 0;
+  state.layers = [{ id: 'layer-1', name: '图层 1', visible: true, locked: false }];
+  state.activeLayerIdx = 0;
+  document.getElementById('frameWidthInput').value = fw;
+  document.getElementById('frameHeightInput').value = fh;
+  document.getElementById('exportStatus').textContent = '已导入 ' + newFrames.length + ' 帧 (' + fw + '×' + fh + ')';
+  refreshUI();
+  drawEditor();
+}
+
+// ========== ROUGH PROCESSING ==========
+function loadRoughImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      state.roughImage = img;
+      document.getElementById('roughOptions').classList.remove('hidden');
+      document.getElementById('roughTargetW').value = Math.round(img.naturalWidth / 4);
+      document.getElementById('roughTargetH').value = Math.round(img.naturalHeight / 4);
+      showRoughPreview(img);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showRoughPreview(img) {
+  const canvas = document.getElementById('roughPreview');
+  const tw = parseInt(document.getElementById('roughTargetW').value);
+  const th = parseInt(document.getElementById('roughTargetH').value);
+  const algo = document.getElementById('downsampleAlgo').value;
+
+  canvas.width = tw; canvas.height = th;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = algo === 'bilinear';
+
+  // Use offscreen canvas for the source
+  const src = document.createElement('canvas');
+  src.width = img.naturalWidth; src.height = img.naturalHeight;
+  const sctx = src.getContext('2d');
+  sctx.drawImage(img, 0, 0);
+
+  if (algo === 'grid') {
+    // Custom grid averaging
+    const ratioX = img.naturalWidth / tw, ratioY = img.naturalHeight / th;
+    const srcData = sctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data;
+    const dst = ctx.createImageData(tw, th);
+    for (let y = 0; y < th; y++) {
+      for (let x = 0; x < tw; x++) {
+        let r = 0, g = 0, b = 0, count = 0;
+        const sxe = Math.min(Math.round((x + 1) * ratioX), img.naturalWidth);
+        const sye = Math.min(Math.round((y + 1) * ratioY), img.naturalHeight);
+        for (let sy = Math.round(y * ratioY); sy < sye; sy++)
+          for (let sx = Math.round(x * ratioX); sx < sxe; sx++) {
+            const i = (sy * img.naturalWidth + sx) * 4;
+            r += srcData[i]; g += srcData[i + 1]; b += srcData[i + 2]; count++;
+          }
+        const di = (y * tw + x) * 4;
+        dst.data[di] = count ? Math.round(r / count) : 0;
+        dst.data[di + 1] = count ? Math.round(g / count) : 0;
+        dst.data[di + 2] = count ? Math.round(b / count) : 0;
+        dst.data[di + 3] = 255;
+      }
+    }
+    ctx.putImageData(dst, 0, 0);
+  } else {
+    ctx.drawImage(img, 0, 0, tw, th);
+  }
+  // Store result
+  state.roughCanvas = canvas;
+}
+
+function applyDownsample() {
+  if (!state.roughImage) return;
+  showRoughPreview(state.roughImage);
+  document.getElementById('exportStatus').textContent = '降采样完成';
+}
+
+function applyFloodfillBg() {
+  if (!state.roughCanvas) return;
+  const tol = parseInt(document.getElementById('roughBgTol').value);
+  const bgColorHex = document.getElementById('roughBgColor').value;
+  const bgColor = hexToRgb(bgColorHex);
+  const canvas = state.roughCanvas;
+  const ctx = canvas.getContext('2d');
+  const d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  // Use top-left corner as background color reference if not picking a specific color
+  const refColor = getPixel(d, 0, 0);
+
+  // Floodfill with tolerance from (0,0)
+  const transparent = { r: 0, g: 0, b: 0, a: 0 };
+  const stack = [[0, 0]];
+  const visited = new Set();
+  while (stack.length > 0) {
+    const [x, y] = stack.pop();
+    if (x < 0 || y < 0 || x >= d.width || y >= d.height) continue;
+    const key = x + ',' + y;
+    if (visited.has(key)) continue;
+    visited.add(key);
+    const p = getPixel(d, x, y);
+    const dr = Math.abs(p.r - refColor.r), dg = Math.abs(p.g - refColor.g), db = Math.abs(p.b - refColor.b);
+    if (dr <= tol && dg <= tol && db <= tol && p.a > 0) {
+      setPixel(d, x, y, transparent);
+      stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    }
+  }
+  ctx.putImageData(d, 0, 0);
+  document.getElementById('exportStatus').textContent = '抠底完成';
+}
+
+function applyQuantize() {
+  if (!state.roughCanvas) return;
+  const canvas = state.roughCanvas;
+  const ctx = canvas.getContext('2d');
+  const d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  let paletteColors = [];
+  const quantMode = document.getElementById('quantPalette').value;
+
+  if (quantMode === 'colorDict' && state.colorDictColors) {
+    paletteColors = state.colorDictColors.map(c => hexToRgb(c.hex));
+  } else {
+    const palette = getActivePalette();
+    paletteColors = palette.colors.map(c => hexToRgb(c));
+  }
+
+  const tol = 12; // ΔRGB ≤ 12
+
+  for (let i = 0; i < d.data.length; i += 4) {
+    if (d.data[i + 3] === 0) continue;
+    let bestIdx = 0, bestDist = Infinity;
+    for (let j = 0; j < paletteColors.length; j++) {
+      const pc = paletteColors[j];
+      const dist = Math.abs(d.data[i] - pc.r) + Math.abs(d.data[i + 1] - pc.g) + Math.abs(d.data[i + 2] - pc.b);
+      if (dist < bestDist) { bestDist = dist; bestIdx = j; }
+    }
+    if (bestDist <= tol * 3) { // Manhattan tolerance
+      const pc = paletteColors[bestIdx];
+      d.data[i] = pc.r; d.data[i + 1] = pc.g; d.data[i + 2] = pc.b;
+    }
+  }
+  ctx.putImageData(d, 0, 0);
+  document.getElementById('exportStatus').textContent = '色板量化完成 (ΔRGB≤' + tol + ')';
+}
+
+function roughToFrames() {
+  if (!state.roughCanvas) return;
+  const canvas = state.roughCanvas;
+  const w = canvas.width, h = canvas.height;
+  pushHistory();
+  state.frames = [{
+    id: makeId(),
+    layers: [canvas.getContext('2d').getImageData(0, 0, w, h)],
+  }];
+  state.activeFrameIdx = 0;
+  state.layers = [{ id: 'layer-1', name: '图层 1', visible: true, locked: false }];
+  state.activeLayerIdx = 0;
+  document.getElementById('frameWidthInput').value = w;
+  document.getElementById('frameHeightInput').value = h;
+  document.getElementById('roughOptions').classList.add('hidden');
+  refreshUI();
+  drawEditor();
+  document.getElementById('exportStatus').textContent = '粗加工结果已导入为帧';
+}
+
+function clearRough() {
+  state.roughImage = null;
+  state.roughCanvas = null;
+  document.getElementById('roughOptions').classList.add('hidden');
+  document.getElementById('roughPreview').width = 0;
+  document.getElementById('roughPreview').height = 0;
+}
+
+// ========== EXPORT ==========
+function exportCurrentFrame() {
+  const f = state.frames[state.activeFrameIdx];
+  if (!f) return;
+  const composited = compositeFrame(f, state.layers, state.soloLayerIdx);
+  downloadCanvas(imageDataToCanvas(composited), 'frame_' + state.activeFrameIdx + '.png');
+}
+
+function exportSpriteSheet(direction) {
+  const w = state.frames[0].layers[0].width;
+  const h = state.frames[0].layers[0].height;
+  const total = state.frames.length;
+  const cols = direction === 'horizontal' ? total : 1;
+  const rows = direction === 'vertical' ? total : 1;
+  const cw = direction === 'horizontal' ? w * total : w;
+  const ch = direction === 'vertical' ? h * total : h;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = cw; canvas.height = ch;
+  const ctx = canvas.getContext('2d');
+
+  state.frames.forEach((f, i) => {
+    const cx = direction === 'horizontal' ? i * w : 0;
+    const cy = direction === 'vertical' ? i * h : 0;
+    ctx.drawImage(imageDataToCanvas(compositeFrame(f, state.layers, state.soloLayerIdx)), cx, cy);
+  });
+  downloadCanvas(canvas, 'sprite_sheet.png');
+  document.getElementById('exportStatus').textContent = '已导出: ' + cw + '×' + ch + ', ' + total + '帧';
+}
+
+async function exportGif() {
+  // Use gifenc library via dynamic import
+  const { GIFEncoder, quantize, applyPalette } = await import('https://esm.sh/gifenc@1.0.3');
+  const w = state.frames[0].layers[0].width;
+  const h = state.frames[0].layers[0].height;
+  const gif = GIFEncoder();
+  const delay = Math.round(1000 / state.fps);
+
+  for (const frame of state.frames) {
+    const composited = compositeFrame(frame, state.layers, state.soloLayerIdx);
+    const palette = quantize(composited.data, 256);
+    const indexed = applyPalette(composited.data, palette);
+    gif.writeFrame(indexed, w, h, { palette, delay });
+  }
+  gif.finish();
+  const blob = new Blob([gif.bytes()], { type: 'image/gif' });
+  downloadBlob(blob, 'animation.gif');
+  document.getElementById('exportStatus').textContent = '已导出 GIF: ' + state.frames.length + '帧 @ ' + state.fps + 'fps';
+}
+
+async function exportFramesZip() {
+  // Build simple zip
+  const files = [];
+  for (let i = 0; i < state.frames.length; i++) {
+    const composited = compositeFrame(state.frames[i], state.layers, state.soloLayerIdx);
+    const canvas = imageDataToCanvas(composited);
+    const blob = await canvasToBlob(canvas);
+    const buf = await blob.arrayBuffer();
+    files.push({ name: 'frame_' + String(i).padStart(3, '0') + '.png', bytes: new Uint8Array(buf) });
+  }
+  const zipBlob = makeZipBlob(files);
+  downloadBlob(zipBlob, 'frames.zip');
+  document.getElementById('exportStatus').textContent = '已导出 Zip: ' + files.length + ' 帧';
+}
+
+function exportPindouJson() {
+  const colors = [];
+  const colorMap = new Map();
+  const w = state.frames[0].layers[0].width;
+  const h = state.frames[0].layers[0].height;
+
+  const frames2d = state.frames.map(frame => {
+    const composited = compositeFrame(frame, state.layers, state.soloLayerIdx);
+    const rows = [];
+    for (let y = 0; y < h; y++) {
+      const row = [];
+      for (let x = 0; x < w; x++) {
+        const p = getPixel(composited, x, y);
+        if (p.a === 0) { row.push(0); continue; }
+        const hex = rgbToHex(p.r, p.g, p.b);
+        if (!colorMap.has(hex)) {
+          colorMap.set(hex, colors.length + 1);
+          colors.push(hex);
+        }
+        row.push(colorMap.get(hex));
+      }
+      rows.push(row);
+    }
+    return rows;
+  });
+
+  const json = {
+    version: 1,
+    width: w,
+    height: h,
+    frameCount: state.frames.length,
+    fps: state.fps,
+    palette: colors,
+    frames: frames2d,
+  };
+
+  const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+  downloadBlob(blob, 'sprite.pindou.json');
+  document.getElementById('exportStatus').textContent = '已导出 Pindou JSON: ' + w + '×' + h + ', ' + state.frames.length + '帧, ' + colors.length + '色';
+}
+
+// ========== PROJECT SAVE/LOAD ==========
+function saveProject() {
+  const project = {
+    version: 1,
+    app: 'Perfect Pixels Plus',
+    frameWidth: state.frames[0]?.layers[0]?.width || DEFAULT_SIZE,
+    frameHeight: state.frames[0]?.layers[0]?.height || DEFAULT_SIZE,
+    fps: state.fps,
+    activeFrameIdx: state.activeFrameIdx,
+    activeLayerIdx: state.activeLayerIdx,
+    customPalettes: state.customPalettes,
+    activePaletteId: state.activePaletteId,
+    layers: state.layers,
+    frames: state.frames.map(f => ({
+      id: f.id,
+      layers: f.layers.map(ld => imageDataToCanvas(ld).toDataURL('image/png')),
+    })),
+  };
+  state.lastSavedSnapshot = JSON.stringify(project);
+  const blob = new Blob([JSON.stringify(project)], { type: 'application/json' });
+  const name = (state.projectFileName || 'project') + '.ppp.json';
+  state.projectFileName = state.projectFileName || 'project';
+  downloadBlob(blob, name);
+  document.getElementById('projectLabel').textContent = state.projectFileName;
+  document.getElementById('dirtyIndicator').textContent = '';
+  document.getElementById('exportStatus').textContent = '工程已保存';
+}
+
+async function openProject(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const project = JSON.parse(text);
+    // Load frames
+    state.frames = [];
+    for (const fd of project.frames) {
+      const layers = [];
+      for (const layerUrl of fd.layers) {
+        layers.push(await dataUrlToImageData(layerUrl));
+      }
+      state.frames.push({ id: fd.id || makeId(), layers });
+    }
+    state.activeFrameIdx = project.activeFrameIdx || 0;
+    state.activeLayerIdx = project.activeLayerIdx || 0;
+    state.layers = project.layers || [{ id: 'layer-1', name: '图层 1', visible: true, locked: false }];
+    state.customPalettes = project.customPalettes || [];
+    state.activePaletteId = project.activePaletteId || 'project-basic';
+    state.fps = project.fps || 8;
+    state.projectFileName = file.name.replace(/\.ppp\.json$/, '').replace(/\.json$/, '');
+    state.lastSavedSnapshot = JSON.stringify(project);
+
+    document.getElementById('frameWidthInput').value = project.frameWidth || DEFAULT_SIZE;
+    document.getElementById('frameHeightInput').value = project.frameHeight || DEFAULT_SIZE;
+    document.getElementById('fpsInput').value = state.fps;
+    document.getElementById('projectLabel').textContent = state.projectFileName;
+    document.getElementById('dirtyIndicator').textContent = '';
+    localStorage.setItem('ppp-custom-palettes', JSON.stringify(state.customPalettes));
+    refreshUI();
+    drawEditor();
+    document.getElementById('exportStatus').textContent = '已打开: ' + file.name;
+  } catch(err) {
+    document.getElementById('exportStatus').textContent = '打开失败: ' + err.message;
+  }
+}
+
+function newProject() {
+  state.frames = [makeBlankFrame(DEFAULT_SIZE, DEFAULT_SIZE)];
+  state.activeFrameIdx = 0;
+  state.layers = [{ id: 'layer-1', name: '图层 1', visible: true, locked: false }];
+  state.activeLayerIdx = 0;
+  state.history = [];
+  state.projectFileName = null;
+  state.lastSavedSnapshot = null;
+  document.getElementById('frameWidthInput').value = DEFAULT_SIZE;
+  document.getElementById('frameHeightInput').value = DEFAULT_SIZE;
+  document.getElementById('projectLabel').textContent = '未命名工程';
+  document.getElementById('dirtyIndicator').textContent = '';
+  refreshUI();
+  drawEditor();
+}
+
+function dataUrlToImageData(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      resolve(ctx.getImageData(0, 0, c.width, c.height));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+// ========== AUTOSAVE ==========
+function saveAutosave() {
+  try {
+    const data = JSON.stringify({
+      frames: state.frames.map(f => ({
+        id: f.id,
+        layers: f.layers.map(ld => imageDataToCanvas(ld).toDataURL('image/png')),
+      })),
+      activeFrameIdx: state.activeFrameIdx,
+      layers: state.layers,
+      activeLayerIdx: state.activeLayerIdx,
+      fps: state.fps,
+      customPalettes: state.customPalettes,
+      timestamp: Date.now(),
+    });
+    localStorage.setItem('ppp-autosave', data);
+    document.getElementById('dirtyIndicator').textContent = '● 已自动备份';
+    setTimeout(() => { if (document.getElementById('dirtyIndicator').textContent === '● 已自动备份') document.getElementById('dirtyIndicator').textContent = ''; }, 2000);
+  } catch(e) {}
+}
+
+// ========== UI HELPERS ==========
+function canvasToBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Export failed')), 'image/png');
+  });
+}
+
+function downloadCanvas(canvas, name) {
+  canvasToBlob(canvas).then(b => downloadBlob(b, name));
+}
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Simple ZIP maker
+function makeZipBlob(files) {
+  const out = [];
+  const cd = [];
+  const encoder = new TextEncoder();
+  let offset = 0;
+
+  function w16(v) { out.push(v & 255, (v >>> 8) & 255); }
+  function w32(v) { out.push(v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255); }
+  function crc32(bytes) {
+    let crc = 0xffffffff;
+    for (const b of bytes) { crc ^= b; for (let i = 0; i < 8; i++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1)); }
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  files.forEach(f => {
+    const nameBytes = encoder.encode(f.name);
+    const checksum = crc32(f.bytes);
+    offset = out.length;
+    w32(0x04034b50); w16(20); w16(0x0800); w16(0); w16(0); w16(0);
+    w32(checksum); w32(f.bytes.length); w32(f.bytes.length);
+    w16(nameBytes.length); w16(0);
+    out.push(...nameBytes, ...f.bytes);
+
+    w32(0x02014b50); w16(20); w16(20); w16(0x0800); w16(0); w16(0); w16(0);
+    w32(checksum); w32(f.bytes.length); w32(f.bytes.length);
+    w16(nameBytes.length); w16(0); w16(0); w16(0); w16(0); w32(0); w32(offset);
+    cd.push(...nameBytes);
+  });
+
+  const cdOffset = out.length;
+  out.push(...cd);
+  w32(0x06054b50); w16(0); w16(0); w16(files.length); w16(files.length);
+  w32(cd.length); w32(cdOffset); w16(0);
+  return new Blob([new Uint8Array(out)], { type: 'application/zip' });
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent.includes({tools:'工具',frames:'帧',layers:'图层',palette:'色板',rough:'粗加工',export:'导出'}[name])));
+  document.querySelectorAll('.tabContent').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function refreshUI() {
+  // Frames
+  const fl = document.getElementById('frameList');
+  fl.innerHTML = '';
+  state.frames.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'frameItem' + (i === state.activeFrameIdx ? ' active' : '') + (state.isPlaying && i === state.activeFrameIdx ? ' playing' : '');
+    const c = document.createElement('canvas');
+    const composited = compositeFrame(f, state.layers, state.soloLayerIdx);
+    c.width = composited.width; c.height = composited.height;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(imageDataToCanvas(composited), 0, 0);
+    c.style.width = '36px'; c.style.height = (composited.height / composited.width * 36) + 'px';
+    div.appendChild(c);
+    const span = document.createElement('span');
+    span.className = 'fn'; span.textContent = (i + 1);
+    div.appendChild(span);
+    div.onclick = () => { if (!state.isPlaying) { state.activeFrameIdx = i; refreshUI(); drawEditor(); } };
+    // Drag
+    div.draggable = true;
+    div.ondragstart = e => { e.dataTransfer.setData('text/plain', String(i)); };
+    div.ondragover = e => e.preventDefault();
+    div.ondrop = e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      if (isNaN(from)) return;
+      const item = state.frames.splice(from, 1)[0];
+      state.frames.splice(i, 0, item);
+      state.activeFrameIdx = i;
+      refreshUI();
+      drawEditor();
+    };
+    fl.appendChild(div);
+  });
+  document.getElementById('frameCount').textContent = '(' + state.frames.length + ')';
+
+  // Layers
+  const ll = document.getElementById('layerList');
+  ll.innerHTML = '';
+  state.layers.forEach((l, i) => {
+    const row = document.createElement('div');
+    row.className = 'layerRow' + (i === state.activeLayerIdx ? ' active' : '');
+    const visBtn = document.createElement('button');
+    visBtn.className = 'btn sm';
+    visBtn.textContent = l.visible ? '👁' : '–';
+    visBtn.title = l.visible ? '隐藏' : '显示';
+    visBtn.onclick = e => { e.stopPropagation(); state.layers[i].visible = !state.layers[i].visible; refreshUI(); drawEditor(); saveAutosave(); };
+    row.appendChild(visBtn);
+
+    const lockBtn = document.createElement('button');
+    lockBtn.className = 'btn sm';
+    lockBtn.textContent = l.locked ? '🔒' : '🔓';
+    lockBtn.title = l.locked ? '解锁' : '锁定';
+    lockBtn.onclick = e => { e.stopPropagation(); state.layers[i].locked = !state.layers[i].locked; refreshUI(); };
+    row.appendChild(lockBtn);
+
+    const input = document.createElement('input');
+    input.type = 'text'; input.value = l.name;
+    input.onchange = () => { state.layers[i].name = input.value; saveAutosave(); };
+    input.onclick = e => e.stopPropagation();
+    row.appendChild(input);
+
+    const soloBtn = document.createElement('button');
+    soloBtn.className = 'btn sm' + (state.soloLayerIdx === i ? ' active' : '');
+    soloBtn.textContent = 'S';
+    soloBtn.title = '独显';
+    soloBtn.onclick = e => { e.stopPropagation(); state.soloLayerIdx = state.soloLayerIdx === i ? null : i; refreshUI(); drawEditor(); };
+    row.appendChild(soloBtn);
+
+    row.onclick = () => { state.activeLayerIdx = i; refreshUI(); drawEditor(); };
+    row.draggable = true;
+    row.ondragstart = e => { e.dataTransfer.setData('text/layer', String(i)); };
+    row.ondragover = e => e.preventDefault();
+    row.ondrop = e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/layer'));
+      if (isNaN(from)) return;
+      // Swap layers in all frames
+      pushHistory();
+      const lr = state.layers.splice(from, 1)[0];
+      state.layers.splice(i, 0, lr);
+      state.frames = state.frames.map(f => {
+        const layers = [...f.layers];
+        const ld = layers.splice(from, 1)[0];
+        layers.splice(i, 0, ld);
+        return { ...f, layers };
+      });
+      state.activeLayerIdx = i;
+      refreshUI();
+      drawEditor();
+      saveAutosave();
+    };
+    ll.appendChild(row);
+  });
+
+  // Palette
+  const ps = document.getElementById('paletteSelect');
+  const allPalettes = [...DEFAULT_PALETTES, ...state.customPalettes];
+  ps.innerHTML = '';
+  allPalettes.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.name + (p.locked ? ' [内置]' : '');
+    if (p.id === state.activePaletteId) opt.selected = true;
+    ps.appendChild(opt);
+  });
+  document.getElementById('deletePaletteBtn').style.display = getActivePalette()?.locked ? 'none' : '';
+
+  const pg = document.getElementById('paletteGrid');
+  pg.innerHTML = '';
+  const activePalette = getActivePalette();
+  if (activePalette) {
+    activePalette.colors.forEach(hex => {
+      const div = document.createElement('div');
+      div.className = 'swatch' + (hex === state.color ? ' selected' : '');
+      div.style.background = hex;
+      div.title = hex;
+      div.innerHTML = '<span class="code">' + hex + '</span>';
+      div.onclick = () => { setColor(hex); document.getElementById('colorPicker').value = hex; document.getElementById('colorHex').textContent = hex; refreshUI(); };
+      pg.appendChild(div);
+    });
+  }
+
+  // Tools
+  const tb = document.getElementById('toolButtons');
+  tb.innerHTML = '';
+  TOOLS.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'btn sm' + (state.tool === t.id ? ' active' : '');
+    btn.textContent = t.icon + ' ' + t.label;
+    btn.title = t.label + ' (' + (getShortcuts()[t.id] || t.key) + ')';
+    btn.onclick = () => setTool(t.id);
+    tb.appendChild(btn);
+  });
+  document.getElementById('rectModeRow').classList.toggle('hidden', state.tool !== 'rectangle');
+
+  // Set current states on UI elements
+  document.getElementById('gridBtn').classList.toggle('active', state.showGrid);
+  document.getElementById('guidesBtn').classList.toggle('active', state.showGuides);
+  document.getElementById('onionBtn').classList.toggle('active', state.showOnion);
+  document.getElementById('playBtn').classList.toggle('active', state.isPlaying);
+
+  // Restore rough preview
+  if (state.roughCanvas) {
+    const rp = document.getElementById('roughPreview');
+    rp.width = state.roughCanvas.width;
+    rp.height = state.roughCanvas.height;
+    rp.getContext('2d').drawImage(state.roughCanvas, 0, 0);
+  }
+}
+
+// ========== DROP ZONE ==========
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) loadRoughImage({ target: { files: [file] } });
+});
+
+// Whole-page drag & drop fallback: dropping an image anywhere on the page goes to rough pipeline
+window.addEventListener('dragover', e => { e.preventDefault(); });
+window.addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer?.files?.[0];
+  if (!file) return;
+  const type = (file.type || '').toLowerCase();
+  if (type.startsWith('image/')) {
+    switchTab('rough');
+    loadRoughImage({ target: { files: [file] } });
+  } else if (type.includes('json') || file.name.toLowerCase().endsWith('.json')) {
+    openProject({ target: { files: [file] } });
+  }
+});
+
+// Clipboard paste: Ctrl+V pastes an image straight into the rough pipeline
+window.addEventListener('paste', e => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      if (file) {
+        e.preventDefault();
+        switchTab('rough');
+        loadRoughImage({ target: { files: [file] } });
+        return;
+      }
+    }
+  }
+});
+
+// ========== RESTORE AUTOSAVE ==========
+try {
+  const raw = localStorage.getItem('ppp-autosave');
+  if (raw) {
+    const data = JSON.parse(raw);
+    const age = Date.now() - (data.timestamp || 0);
+    if (age < 7 * 24 * 3600 * 1000 && confirm('发现上次的自动备份 (' + new Date(data.timestamp).toLocaleString() + ')，是否恢复？')) {
+      restoreAutosave(data);
+    }
+  }
+} catch(e) {}
+
+async function restoreAutosave(data) {
+  state.frames = [];
+  for (const fd of data.frames) {
+    const layers = [];
+    for (const layerUrl of fd.layers) {
+      layers.push(await dataUrlToImageData(layerUrl));
+    }
+    state.frames.push({ id: fd.id || makeId(), layers });
+  }
+  state.activeFrameIdx = data.activeFrameIdx || 0;
+  state.layers = data.layers || [{ id: 'layer-1', name: '图层 1', visible: true, locked: false }];
+  state.activeLayerIdx = data.activeLayerIdx || 0;
+  state.fps = data.fps || 8;
+  state.customPalettes = data.customPalettes || [];
+  document.getElementById('fpsInput').value = state.fps;
+  document.getElementById('frameWidthInput').value = state.frames[0]?.layers[0]?.width || DEFAULT_SIZE;
+  document.getElementById('frameHeightInput').value = state.frames[0]?.layers[0]?.height || DEFAULT_SIZE;
+  document.getElementById('projectLabel').textContent = '自动恢复工程';
+  refreshUI();
+  drawEditor();
+  document.getElementById('exportStatus').textContent = '已恢复自动备份';
+}
+
+// ========== BOOT ==========
+refreshUI();
+drawEditor();
+
+// Set initial button states
+document.getElementById('gridBtn').classList.add('active');
+document.getElementById('guidesBtn').classList.add('active');
+document.getElementById('onionBtn').classList.add('active');
+document.getElementById('brushSizeLabel').textContent = '1px';
+
+// Periodic autosave
+setInterval(saveAutosave, 10000);
+</script>
+</body>
+</html>

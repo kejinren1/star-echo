@@ -1,6 +1,6 @@
 # 数据分布总览（DATA_OVERVIEW）
 
-- 生成时间：2026-08-10 08:35
+- 生成时间：2026-08-12 13:20
 - 来源：docs/GameData.xlsx（tools/excel_export.py 导出时自动刷新）
 
 ## weapons（36 行）
@@ -12,7 +12,7 @@
 
 ## items（54 行）
 - 稀有度分布：{'common': 15, 'uncommon': 12, 'rare': 12, 'legendary': 13, 'epic': 2}
-- 效果键 Top（共 39 种）：damage_percent×14, max_hp×8, attack_speed_percent×7, armor×7, speed_percent×7, dodge_percent×6, elemental_damage×6, melee_damage×6
+- 效果键 Top（共 36 种）：damage_percent×14, max_hp×8, attack_speed_percent×7, armor×7, speed_percent×7, dodge_percent×6, elemental_damage×6, melee_damage×6
 - price：min 0.0 / max 120.0 / 均值 57.2
 
 ## enemies（23 行）
