@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #42（08-10 18:40 · Day30 阶段F 技术债整改轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / action item 维持 1 项
-- **基线**：`BASELINE CLEAN` ｜ JSON **10/10** · **2313 字段零缺陷**（=2303+10 新增 stats.json F1-D 商店参数表 + .manifest.json 管线指纹；items 54）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：**三十二件套 32/32 · 792 断言全绿首跑（34s）**（runner 已并入 day30_p0_fix 15 / day30_f1_scaling 10 / day30_f1d_shop 8）+ **day29_elin 14/14** + **day29_attack 20/20（单独运行）= 34 探针 · 826 断言全 CLEAN** ｜ HEAD=**640ce5f**（较 #41 +8 提交：F1.0 Excel 管线 `9c1440e` + F1-A/B `438295d` + F1-D `b6e0177` + F1-F `162fa52` + F1-G `112e6a9` + .manifest 指纹修复 `640ce5f` 等）
-- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**F1-G 接线生效实证**——day11_12 763→660B / day20 1044→941B / day23 496→367B 均系「无消费方」push_warning 减少（melee_damage/summon_count 已接线消费），正向信号非缺陷；day30 三新探针 stderr 首记录全定性
-- **在途 action item（1 项）**：**day29_elin(14)/day29_attack(20) 仍未入 `_regression_run.py` PROBES**（#5 已请求）→ 建议 #3 并入 = 34 件套 826 一键跑通；工作区在途仅 `docs/SOLUTION_PLAN.md` + `docs/TASKS.md`（文档）零代码
-- **观察**：**F1-C（护甲换算口径）执行阻塞待用户确认**（阶段 F 唯一挂起项）；F1-E（主窗口承接）排程未动；Day 28 性能段（#4 域）挂账交 Owner 未决；Day29 动画/F-32~F-34 待真人回归（U-1 待目视）
+- **最近轮次 #43（08-10 18:42 · Day30 阶段F F1-C 收口轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / action item 1 项（新增观察）
+- **基线**：`BASELINE CLEAN` ｜ JSON **10/10** · **2313 字段零缺陷**（与 #42 持平零变更；items 54）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
+- **探针回归**：**三十四件套 34/34 · 830 断言全绿首跑**（runner 已并入 day29_elin 14 + day29_attack 20 + day30_f1_scaling **14**）｜ HEAD=**5ffb694**（较 #42 +3：`486bbb1` **F1-C 护甲收口**（用户拍板「伤害-护甲=最终伤害」，断言 10→14）+ `b2aad23` docs + `5ffb694` 收尾）
+- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**F1-G 接线生效实证维持**——day11_12 660B / day20 941B / day23 367B（「无消费方」push_warning 减少态稳定）；**F1-C 护甲段并入实证**：day30_f1_scaling 242B 纯音频无新增
+- **在途 action item（1 项）**：**F1-G-尾 WPS 占用阻塞持续**（`docs/~$GameData.xlsx` 锁文件在场）+ **tools/ Excel 管线三文件在途未入库**（data_schema.py / excel_export.py / json_to_excel.py）→ 建议 #3 关闭 WPS 占用后连同在途改动 commit 入库；工作区无游戏运行时代码改动
+- **观察**：**F1-C 挂起项已关闭**（阶段 F 子项收口完毕）；F1-E（主窗口承接）排程未动；Day 28 性能段（#4 域）挂账交 Owner 未决；Day29 动画/F-32~F-34 待真人回归（U-1 待目视）
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3129,3 +3129,42 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 **action item（1 项，维持）**：**day29_elin_anim_check(14) + day29_attack_check(20) 仍未入 `_regression_run.py` PROBES 表**（runner 32 项 792，+34 即 826 一键跑通；#5 已在 #58 请求）——本轮继续单独运行实证 14/14、20/20；建议 #3 执行岗并入（同 day30 三探针并入先例）。
 
 **观察项维持/更新**：**F1-C（护甲换算口径）执行阻塞待用户确认**（PROGRESS 记录，阶段 F 唯一挂起项）｜ F1-E（主窗口承接）排程未动｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持
+
+---
+
+## §7.43 轮次 #43 · 2026-08-10 18:42（自动化 · **Day30 阶段F F1-C 收口轮**：护甲公式统一 + runner 34 项 830）
+
+**验证快照 = HEAD=5ffb694（+ 在途 Excel 管线工具改动，无游戏运行时代码）** · 执行 18:40-18:47
+
+### 快照与在途
+
+- HEAD 较 #42（640ce5f）**+3 提交**：`486bbb1` **F1-C 收口**——护甲公式统一：enemy.gd 百分比改平直减 `max(amount-armor, 1.0)` 对齐 player（**用户 08-10 拍板「伤害-护甲=最终伤害」**，玩家零改动零漂移）+ day30_f1_scaling_check §4 护甲段 **10→14 断言**（armor0 全伤 / armor3 减 3 / 大 armor 保底 1.0 / player 锚点）+ day26 §6 回归锚点同步 **32→34 项 / 792→830**（**并入 day29_elin 14 + day29_attack 20**）｜ `b2aad23` docs 检查点｜ `5ffb694` Day30 阶段F #3 第 44 轮收尾（F1-C 收口 + **F1-G-尾阻塞登记：WPS 占用 GameData.xlsx** + runner 34 项 830 回归全绿）
+- 工作区在途（无游戏运行时代码改动）：**tools/ Excel 管线三文件**（`data_schema.py` +114 / `excel_export.py` / `json_to_excel.py`——F1-G-尾相关在途改动未入库）；`docs/~$GameData.xlsx`（**WPS 锁文件 = F1-G-尾阻塞根因**）；`tools/perfect-pixels-source/` + `tools/perfect_pixels_plus.html`（美术工具未跟踪）
+
+### 检查结果（全绿）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + --quit-after 4） | ✅ PASS · **BASELINE CLEAN**（err 242B=Day 24 音频 BENIGN 白名单） |
+| 600 帧深探 | ✅ EXIT 0 · deep_runtime_err.log 242B 良性 |
+| JSON **10/10** 解析 | ✅ characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20（与 #42 持平零变更——本轮纯代码/工具改动） |
+| 数值边界 | ✅ **2313 字段零缺陷**（与 #42 持平；39 负值=惩罚/诅咒有意 + 0 非豁免零伤害 + 2 Boss 哨兵 -1 有意；crit 双口径合法） |
+| 跨引用完整性 | ✅ 0 硬悬空 · **DATA LAYER CLEAN**（chars→weapons 10/10；waves 前缀感知 0 悬空，池令牌放行） |
+| 场景 smoke | ✅ **17/17 全可实例化**（Main.tscn 置末方法学维持，临时文件 os.remove 清理无残留；退出 1 resources in use 良性） |
+| 探针回归（runner） | ✅ **三十四件套 34/34 · 830 断言全 CLEAN 首跑**（runner PROBES 已含 **day29_elin 14 / day29_attack 20 / day30_f1_scaling 14**——**#42 action item 关闭实证**；day30_f1_scaling 10→14 护甲段并入实证） |
+
+**合计 34 探针 · 830 断言全 CLEAN 首跑。**
+
+### stderr 口径（与 #42 逐一比对，无新增异常）
+
+- **F1-G 接线生效实证维持**：day11_12 660B / day20 941B / day23 367B（「无消费方」push_warning 减少态稳定）
+- **F1-C 护甲段并入实证**：day30_f1_scaling 242B=纯音频无探针泄漏（§4 护甲段 14 断言并入后 stderr 无新增）
+- 维持项：day2~6/day8/day17_elite/day17_p0/day18_fb4 242B 纯音频；day7 366 / day10 374 / day14_15 372 / day16 533 / day18_19 359 / day24_audio 456 含 242B 叠加；day13 860 / day18_fb 626 / day18_fb2 571 / day18_fb3 362 / day18_fb5 621 / day18_fb6 362 / day21_22 564 / day24_f13 859 / day26 402 / day27_meta 496 / day28_f31 920 / day30_p0_fix 534 / day30_f1d_shop 358 minor 维持；day6 0B / day4~5 242B 波动正常
+
+### 结论
+
+**✅ 2026-08-10 18:42 自动化测试轮次 #43：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**5ffb694**：**F1-C（护甲换算口径，阶段 F 唯一挂起项）已收口**——用户 08-10 拍板后 enemy.gd 统一平直减口径，护甲段断言 10→14 行为级实证；**上轮 action item 关闭**：day29_elin(14) + day29_attack(20) 已并入 runner = **34 件套 830 断言一键跑通全绿**。工程可导入、可运行、数据完整（10 表 2313 字段零缺陷）、**17 场景全可实例化**、**34 探针 830 断言全绿首跑**。**无新增功能缺陷、无需回退。**
+
+**action item（1 项，新增观察）**：**F1-G-尾 WPS 占用阻塞持续**（`docs/~$GameData.xlsx` 锁文件在场）+ **tools/ Excel 管线三文件在途未入库**（data_schema.py / excel_export.py / json_to_excel.py）——建议 #3 关闭 WPS 占用后连同在途改动一并 commit 入库（阻塞解除即 F1-G 全链闭合）。
+
+**观察项维持/更新**：**F1-C 挂起项已关闭**（阶段 F 子项收口完毕，仅剩 F1-G-尾 WPS 阻塞 + F1-E 排程未动）｜ F1-E（主窗口承接）排程未动｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持

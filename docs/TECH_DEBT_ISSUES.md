@@ -65,16 +65,16 @@
 
 | 编号 | 位置 | 问题 | 状态 | 阶段 |
 |---|---|---|---|---|
-| T-037 | shop.gd:346 | UI 直读 economy.coins | 待处理 | F2 |
-| T-038 | shop.gd:359,380 | UI 直读 player.get_node_or_null("WeaponController") | 待处理 | F2 |
-| T-039 | shop.gd:384-386 | UI 手动回滚 inventory（remove_weapon 直调） | 待处理 | F2 |
-| T-040 | hud.gd:294,307,129-136 | UI 直读 inv.weapons/items + 轮询敌人容器 | 待处理 | F2 |
-| T-041 | base_station.gd:141-144 | UI 直读 meta_progress 内部字典 | 待处理 | F2 |
-| T-042 | player.gd:470 / enemy.gd:784-802 | 实体直调核心系统（end_game/register_boss_killed/add_coins/gain_exp） | 待处理 | F2 |
-| T-043 | skill_controller.gd:176 / turret.gd:147 / weapon_controller.gd:41 | 跨层节点树访问三份复制（get_parent→Projectiles） | 待处理 | F2 |
-| T-044 | enemy.gd:735 / weapon_controller.gd:376 / skill_controller.gd:180 | 实体直接 new 实体（弹丸/环绕刃/炮台） | 待处理 | F2 |
-| T-045 | wave_manager.gd:61-62,96-100 | 系统直调 spawner 私有字段（_is_spawning/spawn_queue） | 待处理 | F2 |
-| T-046 | game_manager.gd（754 行） | 上帝脚本：状态机+存档+面板工厂+事件系统四合一 | 待处理 | F2/F4 |
+| T-037 | shop.gd:346 | UI 直读 economy.coins | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-038 | shop.gd:359,380 | UI 直读 player.get_node_or_null("WeaponController") | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-039 | shop.gd:384-386 | UI 手动回滚 inventory（remove_weapon 直调） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-040 | hud.gd:294,307,129-136 | UI 直读 inv.weapons/items + 轮询敌人容器 | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-041 | base_station.gd:141-144 | UI 直读 meta_progress 内部字典 | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-042 | player.gd:470 / enemy.gd:784-802 | 实体直调核心系统（end_game/register_boss_killed/add_coins/gain_exp） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-043 | skill_controller.gd:176 / turret.gd:147 / weapon_controller.gd:41 | 跨层节点树访问三份复制（get_parent→Projectiles） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-044 | enemy.gd:735 / weapon_controller.gd:376 / skill_controller.gd:180 | 实体直接 new 实体（弹丸/环绕刃/炮台） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-045 | wave_manager.gd:61-62,96-100 | 系统直调 spawner 私有字段（_is_spawning/spawn_queue） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
+| T-046 | game_manager.gd（754 行） | 上帝脚本：状态机+存档+面板工厂+事件系统四合一 | 已收口 | F2/F4 |
 | T-047 | enemy.gd（882 行） | 上帝脚本：行为+元素+阶段机+受伤掉落+动画八合一 | 待处理 | F4 |
 | T-048 | player.gd（610 行） | 上帝脚本：移动+属性+被动+经验+动画五职责 | 待处理 | F4 |
 
