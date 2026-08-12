@@ -24,6 +24,120 @@ XLSX_PATH = ROOT / "docs" / "GameData.xlsx"
 MANIFEST_PATH = DATA_DIR / ".manifest.json"
 OVERVIEW_PATH = ROOT / "docs" / "DATA_OVERVIEW.md"
 
+# ========== 双行表头约定（F1.0 增强 2026-08-10） ==========
+# 每张数据表：第 1 行 = 英文列名（程序解析依据，外部工具兼容），
+#              第 2 行 = 中文注释（策划阅读用，导出时整行忽略），数据从第 3 行开始。
+HEADER_ROWS = 2
+DATA_START_ROW = HEADER_ROWS + 1  # 3
+
+
+# ========== 列名中英映射（策划可读层；未收录列名回显英文） ==========
+# key = 英文列名（含点号列全名），value = 中文注释。新增列无映射时显示英文原名。
+COLUMN_ZH = {
+    # ---- 通用列 ----
+    "id": "ID", "name": "名称", "name_en": "英文名", "description": "描述",
+    "level": "等级", "price": "价格", "tier": "阶数", "slot": "槽位",
+    "category": "分类", "icon_index": "图标序号", "star_echo": "星骸词条(JSON)",
+    "key": "效果键", "value": "数值", "unit": "单位", "wave": "波次",
+    "type": "类型", "text": "文本", "title": "标题", "theme": "主题",
+    "max": "上限", "base": "基础值", "index": "序号", "special": "特殊说明",
+    "_xlsx_category": "分类(导出归组用)",
+    # ---- weapons / weapons_levels ----
+    "damage": "伤害", "cooldown": "冷却(秒)", "range": "射程",
+    "crit_chance": "暴击率", "crit_damage": "暴击伤害", "knockback": "击退",
+    "life_steal": "吸血", "max_level": "最大等级", "upgrade": "升级描述",
+    "duration": "持续(秒)", "projectiles": "弹幕数", "blade_count": "剑刃数",
+    "orbit_radius": "环绕半径", "orbit_speed": "环绕速度", "summon_count": "召唤数",
+    "explosion_radius": "爆炸半径", "element_type": "元素类型", "signature_of": "专属来源",
+    "evolution": "进化链(JSON)", "evolution_result": "进化结果(JSON)",
+    "scaling.melee_damage": "成长系数.近战伤害", "scaling.ranged_damage": "成长系数.远程伤害",
+    "scaling.elemental_damage": "成长系数.元素伤害", "scaling.engineering": "成长系数.工程伤害",
+    "weapon_id": "武器ID",
+    # ---- items / items_effects ----
+    "rarity": "稀有度", "tags": "标签(JSON)", "is_passive": "是否被动",
+    "item_id": "道具ID",
+    "evolution.weapon_id": "进化.武器ID", "evolution.requires_level": "进化.需求等级",
+    "evolution.result_id": "进化.结果ID", "evolution.result_name": "进化.结果名",
+    "evolution.description": "进化.描述",
+    "trigger.type": "触发.类型", "trigger.radius": "触发.半径", "trigger.ratio": "触发.比例",
+    "trigger.heal": "触发.治疗", "trigger.threshold": "触发.阈值",
+    "trigger.attack_mult": "触发.攻击倍率", "trigger.speed_mult": "触发.速度倍率",
+    # ---- enemies / enemy_scaling ----
+    "hp": "生命值", "hp_growth": "生命成长", "speed": "速度", "drop": "掉落",
+    "behavior": "行为", "exp_value": "经验值", "coin_value": "金币值", "armor": "护甲",
+    "phases": "阶段(JSON)", "damage_growth": "伤害成长",
+    "ability.type": "技能.类型", "ability.radius": "技能.半径", "ability.interval": "技能.间隔",
+    "ability.damage_mult": "技能.伤害倍率", "ability.threshold": "技能.阈值",
+    "ability.heal_percent": "技能.治疗%", "ability.minion": "技能.召唤物", "ability.count": "技能.数量",
+    "speed_growth_per_wave": "速度每波成长", "speed_growth_cap": "速度成长上限",
+    "speed_reduction": "速度削减", "elite_hp_mult_per_wave": "精英生命每波倍率",
+    "elite_dmg_mult_per_wave": "精英伤害每波倍率",
+    # ---- characters ----
+    "sprite": "精灵", "starting_weapon": "起始武器", "weapon_restrictions": "武器限制(JSON)",
+    "unlock_condition": "解锁条件", "story": "背景故事", "story_unlock_level": "解锁等级",
+    "class": "职业", "char_id": "角色ID",
+    "skill.id": "技能.ID", "skill.name": "技能.名称", "skill.name_en": "技能.英文名",
+    "skill.type": "技能.类型", "skill.cooldown": "技能.冷却", "skill.damage": "技能.伤害",
+    "skill.radius": "技能.范围", "skill.element_type": "技能.元素类型",
+    "skill.burn_duration": "技能.灼烧时长", "skill.description": "技能.描述",
+    "skill.summon_id": "技能.召唤物ID", "skill.summon_count": "技能.召唤数",
+    "skill.duration": "技能.持续",
+    "skill.effects.orbit_blade_count": "技能.效果.环绕剑刃数",
+    "skill.effects.attack_speed_percent": "技能.效果.攻速%",
+    "skill.effects.shield": "技能.效果.护盾", "skill.effects.heal": "技能.效果.治疗",
+    "growth.type": "成长.类型", "growth.description": "成长.描述",
+    "growth.per_level.elemental_damage": "成长.每级.元素伤害",
+    "growth.per_level.fire_damage_percent": "成长.每级.火焰伤害%",
+    "growth.per_level.engineering": "成长.每级.工程伤害",
+    "growth.per_level.crit_chance_percent": "成长.每级.暴击率%",
+    "growth.per_level.life_steal_percent": "成长.每级.吸血%",
+    "growth.per_level.hp_regen": "成长.每级.回血", "growth.per_level.luck": "成长.每级.幸运",
+    "growth.per_5_levels.summon_count": "成长.每5级.召唤数",
+    # ---- waves / wave_generation / wave_rewards ----
+    "total_enemies": "敌人数", "composition": "组成(JSON)", "special_note": "特殊备注",
+    "spawn_interval_min": "生成间隔下限", "spawn_interval_decay": "生成间隔衰减",
+    "wave_complete_base": "波次完成基础奖励", "harvesting_bonus": "收割加成",
+    "kill_bonus": "击杀奖励",
+    # ---- events ----
+    "choiceA.text": "选项A.文本", "choiceA.reward.type": "选项A.奖励.类型",
+    "choiceA.reward.value": "选项A.奖励.数值", "choiceA.reward.label": "选项A.奖励.标签",
+    "choiceB.text": "选项B.文本", "choiceB.effect_on_route.type": "选项B.路线效果.类型",
+    "choiceB.effect_on_route.value": "选项B.路线效果.数值",
+    "choiceB.effect_on_route.label": "选项B.路线效果.标签",
+    # ---- stats / stats_formulas / stats_leveling / stats_shop ----
+    "crit_check": "暴击判定", "armor_reduction": "护甲减伤", "armor_final": "最终护甲",
+    "attack_speed": "攻速公式", "attack_speed_min": "攻速下限", "dodge": "闪避",
+    "harvesting": "收割", "luck_shop": "幸运(商店)", "luck_chest": "幸运(宝箱)",
+    "curse_hp": "诅咒-生命", "curse_damage": "诅咒-伤害", "curse_speed": "诅咒-速度",
+    "curse_drop": "诅咒-掉落",
+    "xp_per_level": "每级经验", "choices_per_level": "每级选项数",
+    "upgrade_options": "升级选项(JSON)", "reroll_cost": "重铸费用",
+    "core_grace_wave": "核心武器宽限波",
+    # ---- elements / element_reactions / reaction_rules ----
+    "effect": "效果", "dot": "持续伤害", "dot_scaling": "持续伤害成长",
+    "slow_percent": "减速%", "stun": "眩晕",
+    "combination": "组合(JSON)", "damage_scaling": "伤害成长", "aoe_radius": "范围半径",
+    "extra_effect": "附加效果", "chain_count": "连锁数", "chain_falloff": "连锁衰减",
+    "element_id": "元素ID",
+    "trigger_condition": "触发条件", "post_reaction": "反应后", "damage_type": "伤害类型",
+    "scales_with": "成长属性",
+    # ---- routes ----
+    "layers": "层数", "nodes_per_layer": "每层节点数", "boss_layers": "Boss层(JSON)",
+    "default_seed": "默认种子", "boss_wave": "Boss波次",
+    "weights.battle": "权重.战斗", "weights.event": "权重.事件",
+    "weights.elite": "权重.精英", "weights.shop": "权重.商店",
+    "constraints.first_layer_has_battle": "约束.首层必有战斗",
+    "constraints.final_layer_boss": "约束.末层Boss",
+    "constraints.max_battle_nodes": "约束.最大战斗节点",
+}
+
+
+def col_zh(name: str | None) -> str:
+    """英文列名 → 中文注释；无映射或空列名回显英文原样（新列自动兜底）。"""
+    if name is None:
+        return ""
+    return COLUMN_ZH.get(name, str(name))
+
 # ========== 表定义 ==========
 
 # 每张 sheet：{sheet, file(来源 JSON 文件名), root(JSON 内根键), key(实体 id 列名),

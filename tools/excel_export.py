@@ -19,8 +19,9 @@ from pathlib import Path
 from openpyxl import load_workbook
 from openpyxl.styles import Font, PatternFill
 
-from data_schema import (DATA_DIR, MANIFEST_PATH, OVERVIEW_PATH, SHEETS,
-                         XLSX_PATH, dumps_json, loads_json, unflatten)
+from data_schema import (DATA_DIR, DATA_START_ROW, MANIFEST_PATH,
+                         OVERVIEW_PATH, SHEETS, XLSX_PATH, dumps_json,
+                         loads_json, unflatten)
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -79,12 +80,12 @@ class Report:
 # ========== 读取 ==========
 
 def read_sheet(ws, rep: Report) -> list[dict]:
-    """sheet → 行字典列表（第一行表头；空行跳过）"""
+    """sheet → 行字典列表（第 1 行英文表头 + 第 2 行中文注释；数据从第 3 行；空行跳过）"""
     rows: list[dict] = []
     headers = [c.value for c in ws[1]]
     if not headers or not any(headers):
         return rows
-    for row in ws.iter_rows(min_row=2, values_only=True):
+    for row in ws.iter_rows(min_row=DATA_START_ROW, values_only=True):
         if all(v is None or str(v).strip() == "" for v in row):
             continue
         rec: dict = {}
@@ -142,7 +143,7 @@ def validate(wb, rep: Report) -> dict[str, list[dict]]:
             continue
         uniq2 = spec.get("unique_with")
         seen: dict = {}
-        for i, row in enumerate(tables.get(spec["sheet"], []), 2):
+        for i, row in enumerate(tables.get(spec["sheet"], []), 3):
             v = row.get(key)
             if v is None:
                 rep.err(f"{spec['sheet']} 第 {i} 行缺少主键 {key}")
@@ -162,43 +163,43 @@ def validate(wb, rep: Report) -> dict[str, list[dict]]:
             continue
         parent_spec = SHEETS[spec["parent_sheet"]]
         parent_keys = {str(r.get(parent_spec["key"])) for r in tables.get(parent_spec["sheet"], [])}
-        for i, row in enumerate(tables.get(spec["sheet"], []), 2):
+        for i, row in enumerate(tables.get(spec["sheet"], []), 3):
             fk = str(row.get(spec["key"], ""))
             if fk and fk not in parent_keys:
                 rep.err(f"{spec['sheet']} 第 {i} 行引用了不存在的 {parent_spec['sheet']}: {fk}")
 
     # ---- 枚举 ----
-    for i, row in enumerate(tables.get("items", []), 2):
+    for i, row in enumerate(tables.get("items", []), 3):
         if row.get("rarity") not in VALID_RARITY:
             rep.err(f"items 第 {i} 行 rarity 非法: {row.get('rarity')}（合法: {sorted(VALID_RARITY)}）")
         if row.get("slot") and row.get("slot") not in VALID_SLOT:
             rep.err(f"items 第 {i} 行 slot 非法: {row.get('slot')}")
         if row.get("category") and row.get("category") not in VALID_ITEM_CATEGORY:
             rep.err(f"items 第 {i} 行 category 非法: {row.get('category')}")
-    for i, row in enumerate(tables.get("enemies", []), 2):
+    for i, row in enumerate(tables.get("enemies", []), 3):
         if row.get("behavior") and row.get("behavior") not in VALID_BEHAVIOR:
             rep.err(f"enemies 第 {i} 行 behavior 非法: {row.get('behavior')}")
         if row.get("_xlsx_category") and row.get("_xlsx_category") not in VALID_ENEMY_CATEGORY:
             rep.err(f"enemies 第 {i} 行 _xlsx_category 非法: {row.get('_xlsx_category')}")
-    for i, row in enumerate(tables.get("weapons", []), 2):
+    for i, row in enumerate(tables.get("weapons", []), 3):
         if row.get("_xlsx_category") and row.get("_xlsx_category") not in VALID_WEAPON_CATEGORY:
             rep.err(f"weapons 第 {i} 行 _xlsx_category 非法: {row.get('_xlsx_category')}")
 
     # ---- 引用完整性 ----
     weapon_ids = {str(r.get("id")) for r in tables.get("weapons", []) if r.get("id")}
-    for i, row in enumerate(tables.get("characters", []), 2):
+    for i, row in enumerate(tables.get("characters", []), 3):
         sw = row.get("starting_weapon")
         if sw and str(sw) not in weapon_ids:
             rep.err(f"characters 第 {i} 行 starting_weapon 不存在: {sw}")
 
     # ---- items_effects 键白名单 ----
-    for i, row in enumerate(tables.get("items_effects", []), 2):
+    for i, row in enumerate(tables.get("items_effects", []), 3):
         k = row.get("key")
         if k and str(k) not in KNOWN_EFFECT_KEYS:
             rep.warn(f"items_effects 第 {i} 行新效果键（未登记，请补 code 映射）: {k}")
 
     # ---- 事件奖励类型 ----
-    for i, row in enumerate(tables.get("events", []), 2):
+    for i, row in enumerate(tables.get("events", []), 3):
         for col in ("choiceA.reward.type", "choiceB.effect_on_route.type"):
             v = row.get(col)
             if v is not None:
@@ -212,7 +213,7 @@ def validate(wb, rep: Report) -> dict[str, list[dict]]:
         jcols = spec["json_cols"]
         if not jcols:
             continue
-        for i, row in enumerate(tables.get(spec["sheet"], []), 2):
+        for i, row in enumerate(tables.get(spec["sheet"], []), 3):
             for col in jcols:
                 if col in DUAL_FORM_COLS:
                     continue

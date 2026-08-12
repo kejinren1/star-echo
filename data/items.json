@@ -347,8 +347,7 @@
         "damage"
       ],
       "effects": {
-        "damage_percent": 8,
-        "special_enemies_next_wave": true
+        "damage_percent": 8
       }
     },
     {
@@ -570,8 +569,7 @@
       "price": 120,
       "tags": [],
       "effects": {
-        "shop_weapon_upgrade": true,
-        "no_weapon_armor_bonus": 2
+        "shop_weapon_upgrade": true
       }
     },
     {
@@ -679,8 +677,7 @@
       ],
       "effects": {
         "engineering": 10,
-        "structure_damage_percent": 50,
-        "auto_turret_per_wave": 1
+        "structure_damage_percent": 50
       }
     },
     {

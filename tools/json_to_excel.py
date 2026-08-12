@@ -17,7 +17,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from data_schema import SHEETS, XLSX_PATH, dumps_json, flatten
+from data_schema import (SHEETS, XLSX_PATH, DATA_START_ROW, col_zh,
+                         dumps_json, flatten)
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
@@ -25,6 +26,25 @@ DATA_DIR = ROOT / "data"
 HEADER_FILL = PatternFill("solid", fgColor="DDEBF7")
 KEY_FILL = PatternFill("solid", fgColor="FFF2CC")
 NOTE_FONT = Font(size=10, color="555555")
+
+
+def write_header(ws, cols: list[str], key_col: str) -> None:
+    """双行表头：第 1 行英文列名（程序解析依据），第 2 行中文注释（策划阅读），数据从第 3 行。"""
+    for ci, col in enumerate(cols, 1):
+        cell = ws.cell(row=1, column=ci, value=col)
+        cell.fill = KEY_FILL if col == key_col else HEADER_FILL
+        cell.font = Font(bold=True, size=10)
+        zh = col_zh(col)
+        if zh:
+            zcell = ws.cell(row=2, column=ci, value=zh)
+            zcell.font = NOTE_FONT
+
+
+def fit_width(col: str) -> int:
+    """列宽：取英文与中文注释（按 2 字符宽折算）的较宽者，8–40 区间。"""
+    zh = col_zh(col)
+    zh_w = len(zh) * 2 if (zh and zh != col) else 0
+    return min(max(len(str(col)) + 2, zh_w + 2, 8), 40)
 
 
 def load_json(name: str):
@@ -60,6 +80,7 @@ def main() -> int:
         "【点号列】形如 scaling.melee_damage / skill.effects.shield 的列 = 嵌套对象字段，直接改数值即可",
         "【JSON 列】evolution / composition / phases 等列内容为 JSON 文本，仅进阶调整时编辑",
         "【分类列】weapons / enemies / stats 表带 _xlsx_category 列（导出时用于归组，勿改）",
+        "【中文注释行】每张数据表第 2 行为列名中文注释（策划阅读用）；程序按第 1 行英文表头解析，新增列暂显英文可反馈补译",
         "【校验】导出前自动检查：必填/唯一/类型/枚举/引用完整性；失败即中断，按提示修改后重跑",
         "【总览】导出时刷新『总览』sheet 与 docs/DATA_OVERVIEW.md，可随时查看数据分布",
         "【铁律】数值/描述/条件参数进表；行为逻辑永远在代码（不要把 if 逻辑写进表格）",
@@ -148,21 +169,17 @@ def main() -> int:
 
         # ---- 写主表 ----
         cols = collect_columns(rows, json_cols)
-        for ci, col in enumerate(cols, 1):
-            cell = ws.cell(row=1, column=ci, value=col)
-            cell.fill = KEY_FILL if col == spec["key"] else HEADER_FILL
-            cell.font = Font(bold=True, size=10)
-        for ri, row in enumerate(rows, 2):
+        write_header(ws, cols, spec["key"])
+        for ri, row in enumerate(rows, DATA_START_ROW):
             for ci, col in enumerate(cols, 1):
                 v = row.get(col)
                 if isinstance(v, (dict, list)):
                     v = dumps_json(v)
                 ws.cell(row=ri, column=ci, value=v)
-        ws.freeze_panes = "A2"
+        ws.freeze_panes = "A3"
         ws.auto_filter.ref = f"A1:{get_column_letter(len(cols))}1"
         for ci, col in enumerate(cols, 1):
-            width = min(max(len(str(col)) + 2, 8), 40)
-            ws.column_dimensions[get_column_letter(ci)].width = width
+            ws.column_dimensions[get_column_letter(ci)].width = fit_width(col)
         print(f"[import] {sheet_name}: {len(rows)} 行 × {len(cols)} 列")
 
         # ---- 写子表 ----
@@ -170,20 +187,17 @@ def main() -> int:
             crows = child_rows[cspec["sheet"]]
             cws = wb.create_sheet(cspec["sheet"])
             ccols = collect_columns(crows, set(cspec["json_cols"]))
-            for ci, col in enumerate(ccols, 1):
-                cell = cws.cell(row=1, column=ci, value=col)
-                cell.fill = KEY_FILL if col == cspec["key"] else HEADER_FILL
-                cell.font = Font(bold=True, size=10)
-            for ri, row in enumerate(crows, 2):
+            write_header(cws, ccols, cspec["key"])
+            for ri, row in enumerate(crows, DATA_START_ROW):
                 for ci, col in enumerate(ccols, 1):
                     v = row.get(col)
                     if isinstance(v, (dict, list)):
                         v = dumps_json(v)
                     cws.cell(row=ri, column=ci, value=v)
-            cws.freeze_panes = "A2"
+            cws.freeze_panes = "A3"
             cws.auto_filter.ref = f"A1:{get_column_letter(len(ccols))}1"
             for ci, col in enumerate(ccols, 1):
-                cws.column_dimensions[get_column_letter(ci)].width = min(max(len(str(col)) + 2, 8), 30)
+                cws.column_dimensions[get_column_letter(ci)].width = fit_width(col)
             print(f"[import] {cspec['sheet']}: {len(crows)} 行 × {len(ccols)} 列")
 
     wb.save(XLSX_PATH)
