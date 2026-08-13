@@ -18,9 +18,9 @@ const BOOL_WHITELIST: Dictionary = {
 	"scripts/autoload/data_loader.gd": ["_loaded"],
 	"scripts/autoload/game_manager.gd": ["_shop_from_battle", "debug_cheat", "is_boss_wave", "route_enabled"],
 	"scripts/autoload/main.gd": ["_debug_keys_prev"],
-	"scripts/enemy/enemy.gd": ["_boss_charge", "_is_charging", "is_alive"],
+	"scripts/enemy/enemy.gd": ["_boss_charge", "_is_charging", "is_alive", "stunned"],
 	"scripts/enemy/enemy_spawner.gd": ["_is_spawning"],
-	"scripts/player/player.gd": ["_facing_left", "_last_stand_active", "is_alive"],
+	"scripts/player/player.gd": ["_facing_left", "_last_stand_active", "is_alive", "stunned"],
 	"scripts/player/skill_controller.gd": ["_warned_not_impl"],
 	"scripts/systems/wave_manager.gd": ["is_active"],
 	"scripts/ui/shop.gd": ["star_grace_available", "star_grace_used"],
@@ -153,7 +153,7 @@ func _part_bool_whitelist() -> void:
 			var name: String = ln.substr(4, ln.find(": bool") - 4).strip_edges()
 			if not allowed.has(name):
 				violations.append("%s:%s" % [f, name])
-	_ok(violations.is_empty(), "§4 无新增 bool 行为标志（白名单 20 个外零新增；违规=%s）" % str(violations))
+	_ok(violations.is_empty(), "§4 无新增 bool 行为标志（白名单 22 个外零新增；违规=%s）" % str(violations))
 
 # ========== §5 CODE_STYLE.md ==========
 

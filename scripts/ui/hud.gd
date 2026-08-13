@@ -84,6 +84,14 @@ func _ready() -> void:
 	# D4-T6：延迟一帧连接 SkillController（Main._ready 装载英雄数据需先完成）
 	_connect_skill_controller()
 
+	# BS-A4（O4 · 2026-08-13）：玩家状态栏——实时显示 StatusComponent 剩余秒数/层数
+	# （可读性原则，仿 Boss 血条挂 UI 先例；640×360 视口左下角，2 行血条/经验条之下）
+	_player_status_bar = VBoxContainer.new()
+	_player_status_bar.name = "PlayerStatusBar"
+	_player_status_bar.position = Vector2(4, 120)
+	_player_status_bar.add_theme_constant_override("separation", 2)
+	add_child(_player_status_bar)
+
 # ========== 信号处理 ==========
 
 func _on_wave_started(wave_number: int) -> void:
@@ -104,6 +112,9 @@ func _on_state_changed(new_state) -> void:
 ## F-06（用户拍板 2026-08-06）：剩余怪计数 —— 0.25s 低频轮询 enemies_container 存活敌数
 ## （杀敌/精英产卵/清残敌都会即时反映；不用 total-kill 差值，天然免疫产卵与生成批次偏差）
 var _enemy_count_timer: float = 0.0
+## BS-A4（2026-08-13）：玩家状态栏节点 + 0.25s 刷新节流
+var _player_status_bar: VBoxContainer = null
+var _player_status_timer: float = 0.0
 
 func _process(delta: float) -> void:
 	# Boss 血条：血量每帧刷新（单目标开销可忽略），目标扫描 0.25s 节流
@@ -117,6 +128,36 @@ func _process(delta: float) -> void:
 		return
 	_enemy_count_timer = 0.25
 	_refresh_enemy_count()
+	# BS-A4：玩家状态栏随 0.25s 节流同刷（效果剩余秒数/层数）
+	_player_status_timer -= delta
+	if _player_status_timer <= 0.0:
+		_player_status_timer = 0.25
+		_update_player_status_bar()
+
+## BS-A4（O4 · 2026-08-13）：玩家状态栏刷新——每活动效果一行「名 剩余s ×层数」
+## 效果 id 列表数据驱动（DataLoader.get_all_element_ids）；无玩家/无组件/全空 → 清空
+func _update_player_status_bar() -> void:
+	if _player_status_bar == null:
+		return
+	for ch in _player_status_bar.get_children():
+		ch.queue_free()
+	var player: Node = GameManager.player if GameManager != null else null
+	if player == null or not is_instance_valid(player):
+		return
+	var comp: Node = player.get_node_or_null("StatusComponent")
+	if comp == null:
+		return
+	for eid in DataLoader.get_all_element_ids():
+		var remaining: float = float(comp.call("get_remaining", str(eid)))
+		if remaining <= 0.0:
+			continue
+		var def: Dictionary = DataLoader.get_element(str(eid))
+		var stacks: int = int(comp.call("get_stacks", str(eid)))
+		var label := Label.new()
+		label.text = "%s %.1fs ×%d" % [str(def.get("name", str(eid))), remaining, stacks]
+		label.add_theme_font_size_override("font_size", 10)
+		label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7))
+		_player_status_bar.add_child(label)
 
 ## 敌人容器获取（Boss 扫描 / 剩余怪计数共用；GameManager.enemies_container 优先）
 func _get_enemy_container() -> Node:

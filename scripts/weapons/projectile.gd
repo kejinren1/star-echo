@@ -135,8 +135,11 @@ func _do_explosion() -> void:
 				# D24-F13-2（F-13 on_crit）：AOE 暴击命中 → 连锁伤害（overload_capacitor）
 				if _is_crit_hit():
 					_trigger_on_crit_chain(enemy.global_position, final_damage)
-			if not status_type.is_empty() and enemy.has_method("apply_status"):
-				enemy.apply_status(status_type, status_duration, status_dps)
+			# BS-A2（2026-08-13）：状态附着 → 统一效果组件（apply_effect 带 source_id——
+			# 武器/技能经 meta source_id 透传（D13-T2 meta 范式）；O1 同源刷新/异源独立）
+			if not status_type.is_empty() and enemy.has_method("apply_effect"):
+				enemy.apply_effect(str(get_meta(&"source_id", "weapon")), status_type,
+					{"duration": status_duration, "dps": status_dps})
 
 	# Day 23-T3/T4：专属爆炸 VFX —— 按 source_id 分派（D13-T2 meta 范式；
 	# weapon_controller._spawn_projectile 已统一打 meta，技能弹丸由 skill_controller 打）。

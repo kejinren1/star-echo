@@ -129,6 +129,9 @@ COLUMN_ZH = {
     # ---- elements / element_reactions / reaction_rules ----
     "effect": "效果", "dot": "持续伤害", "dot_scaling": "持续伤害成长",
     "slow_percent": "减速%", "stun": "眩晕",
+    # BS-A1（2026-08-13 · BOSS_SKILL_SPEC §4.3）：effect 表统一字段
+    "tick_interval": "跳间隔(秒)", "scaling_attr": "缩放属性", "scaling_ratio": "缩放比例",
+    "target_attr": "作用属性", "max_stacks": "叠加上限", "icon": "图标", "vfx": "特效", "sfx": "音效",
     "combination": "组合(JSON)", "damage_scaling": "伤害成长", "aoe_radius": "范围半径",
     "extra_effect": "附加效果", "chain_count": "连锁数", "chain_falloff": "连锁衰减",
     "element_id": "元素ID",

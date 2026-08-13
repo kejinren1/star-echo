@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-13T08:27:08",
-  "fingerprint": "8078a5ce3ee0cfc1",
+  "generated_at": "2026-08-13T09:31:50",
+  "fingerprint": "dbed94b710caf337",
   "files": {
     "characters.json": "184f2bebcf26",
-    "elements.json": "d99c78df73f6",
+    "elements.json": "c06892a4732d",
     "enemies.json": "ee96d9efc979",
     "events.json": "9cb6b6b5389f",
     "items.json": "6a327602afb6",

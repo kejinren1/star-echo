@@ -5,37 +5,62 @@
       "name_en": "Burning",
       "duration": 3,
       "effect": "每秒造成 3 + (元素伤害×0.2) 点伤害",
-      "dot": 3,
-      "dot_scaling": 0.2
+      "type": "dot",
+      "tick_interval": 1,
+      "value": 3,
+      "scaling_attr": "elemental_damage",
+      "scaling_ratio": 0.2,
+      "target_attr": "hp",
+      "max_stacks": 1
     },
     "ice": {
       "name": "减速",
       "name_en": "Chilled",
       "duration": 2,
       "effect": "移动速度-40%",
-      "slow_percent": 40
+      "type": "slow",
+      "tick_interval": 1,
+      "value": 40,
+      "scaling_ratio": 0,
+      "target_attr": "move_speed",
+      "max_stacks": 1
     },
     "lightning": {
       "name": "麻痹",
       "name_en": "Paralyzed",
       "duration": 0.5,
       "effect": "无法行动",
-      "stun": true
+      "type": "stun",
+      "tick_interval": 1,
+      "value": 1,
+      "scaling_ratio": 0,
+      "target_attr": "action",
+      "max_stacks": 1
     },
     "poison": {
       "name": "中毒",
       "name_en": "Poisoned",
       "duration": 5,
       "effect": "每秒造成 2 + (元素伤害×0.15) 点伤害",
-      "dot": 2,
-      "dot_scaling": 0.15
+      "type": "dot",
+      "tick_interval": 1,
+      "value": 2,
+      "scaling_attr": "elemental_damage",
+      "scaling_ratio": 0.15,
+      "target_attr": "hp",
+      "max_stacks": 2
     },
     "plasma": {
       "name": "灼烧",
       "name_en": "Sear",
       "duration": 3,
       "effect": "防御-5",
-      "armor_reduction": 5
+      "type": "armor",
+      "tick_interval": 1,
+      "value": 5,
+      "scaling_ratio": 0,
+      "target_attr": "defense",
+      "max_stacks": 1
     }
   },
   "element_reactions": [

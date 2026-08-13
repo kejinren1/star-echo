@@ -10,12 +10,16 @@ signal health_changed(current_hp: float, max_hp: float)
 ## F2-T5（T-045）：Boss 击杀信号（die 内 is_boss 时 emit；GM.register_boss_killed 由
 ## main 装配订阅——F3 状态机信号底座；探针白盒需自行装配）
 signal boss_killed
+## BS-A2（2026-08-13）：持续效果变化（HUD 状态栏/探针订阅）
+signal status_changed
 
 ## F-11（用户拍板 2026-08-06）：伤害数字飘字脚本。preload 而非依赖 class_name——
 ## 无头 --script 模式（探针）不注册全局类名（main.gd:20 同策略），静态方法经脚本引用调用
 const DamageNumberScript: GDScript = preload("res://scripts/effects/damage_number.gd")
 ## D18-19-T3：敌人弹丸脚本。同策略 preload（决策 D1：弹丸挂 Boss 节点自身，非 Enemies 容器）
 const EnemyProjectileScript: GDScript = preload("res://scripts/enemy/enemy_projectile.gd")
+## BS-A2（2026-08-13）：通用持续效果组件（无 class_name，preload 范式——探针 --script 兼容）
+const StatusComponentScript: GDScript = preload("res://scripts/systems/status_component.gd")
 
 # ========== 行为枚举 ==========
 
@@ -145,8 +149,12 @@ var _contact_cooldown: float = 0.5    ## 接触伤害冷却秒（原 _try_contac
 ## 受击击退（H-01 升级体验反馈 2026-08-07：升级冲击波等外部施加，每帧衰减）
 var _knockback: Vector2 = Vector2.ZERO
 
-# 元素状态机（Day 3 · D3-T2b）：status_type -> {"time_left": float, "dps": float}
-var _status: Dictionary = {}
+# 持续效果（BS-A2 · 2026-08-13）：通用 StatusComponent 组件（enemy._ready 挂载，
+# O1 叠加规则：同源刷新/异源独立 + max_stacks；dot/slow/stun/armor 四类型统一）
+var _status_component: Node = null
+## O2 软控运行时（BS-A3 · 2026-08-13）：麻痹标志（StatusComponent stun 效果置位；
+## 禁行动——_physics_process 跳过行为 + _try_contact_damage 跳过；玩家侧 _handle_movement 跳过）
+var stunned: bool = false
 
 # 精英能力（Day 17 · D17-T2）：由 enemies.json 精英 ability 字段数据驱动
 # {type: "aoe"/"self_heal"/"spawn", ...参数}；缺省 = 无特殊能力（零行为回归）
@@ -185,13 +193,23 @@ func _ready() -> void:
 	health = max_health
 	health_changed.emit(health, max_health)
 	_setup_animation()
+	# BS-A2：挂载通用持续效果组件（StatusComponentScript preload 引用，探针 --script 兼容）
+	_status_component = StatusComponentScript.new()
+	_status_component.name = "StatusComponent"
+	add_child(_status_component)
+	_status_component.setup(self)
 
 func _physics_process(delta: float) -> void:
 	if not is_alive:
 		return
-	_update_status(delta)
+	# BS-A2：持续效果由 StatusComponent._process 自 tick（原 _update_status 迁入组件）
 	# 持续伤害可能直接击杀，后续行为逻辑不应再跑
 	if not is_alive:
+		return
+	# O2 软控（BS-A3）：麻痹禁行动（跳过行为/接触伤害；击退仍结算）
+	if stunned:
+		velocity = Vector2.ZERO
+		_process_knockback()
 		return
 	_update_behavior(delta)
 	# 接触伤害（带冷却）
@@ -273,54 +291,45 @@ func _resize_collision_shape() -> void:
 	shape.size = col_size
 	col.shape = shape
 
-# ========== 元素状态机（Day 3 · D3-T2b） ==========
-# 承载「燃烧/冰冻/中毒…」一类持续状态。本日只落地最小可用形态：
-#   · 单一状态不叠层，重复附着取「更长剩余时间 + 更高 dps」，避免无上限滚雪球
-#   · DoT 伤害不走 take_damage()：一是元素持续伤害按设计无视护甲，
-#     二是 take_damage() 每次都 create_tween() 播受击闪烁，逐帧调用会爆 tween
+# ========== 持续效果（BS-A2 · 2026-08-13：元素状态机迁入 StatusComponent） ==========
+# 通用效果组件承载「燃烧/冰冻/中毒/减速/麻痹/减防…」：O1 叠加规则（用户 2026-08-12 拍板）
+#   · 同源（同 source_id+effect_id）→ 刷新计时不叠层；异源 → 独立实例各自 tick；max_stacks 上限
+#   · DoT 伤害不走 take_damage()：一是无视护甲，二是避免逐帧 tween 受击闪烁爆量
+# 旧行为变化登记（交 #5）：原「取更长剩余时间 + 更高 dps」→ 拍板 O1 新规则
 
-## 附着一个元素状态（由弹丸/技能调用）
+## 统一施加入口（BS-A3）：source_id = 来源标识（武器 id / 技能 id / "legacy:" 兜底）
+func apply_effect(source_id: String, effect_id: String, params: Dictionary = {}) -> void:
+	if not is_alive:
+		return
+	if effect_id.is_empty():
+		return
+	if _status_component:
+		_status_component.apply_effect(source_id, effect_id, params)
+
+## 旧接口兼容（D3-T2b 时代调用方：projectile/skill 已迁移 apply_effect 带真实 source_id；
+## 兜底 source = "legacy:"+effect_id → 同源刷新语义）
 func apply_status(status_type: String, duration: float, dps: float) -> void:
 	if not is_alive:
 		return
 	if status_type.is_empty() or duration <= 0.0:
 		return
-	var existing: Dictionary = _status.get(status_type, {})
-	_status[status_type] = {
-		"time_left": maxf(float(existing.get("time_left", 0.0)), duration),
-		"dps": maxf(float(existing.get("dps", 0.0)), dps),
-	}
+	if _status_component:
+		_status_component.apply_effect("legacy:" + status_type, status_type, {"duration": duration, "dps": dps})
 
-## 查询是否处于某状态（供 UI / 测试断言）
+## 查询是否处于某状态（供 UI / 测试断言；day3 探针 has_status("fire") 兼容）
 func has_status(status_type: String) -> bool:
-	return _status.has(status_type)
+	if _status_component:
+		return _status_component.has_effect(status_type)
+	return false
 
 ## 查询某状态剩余时间，未附着返回 0
 func get_status_time_left(status_type: String) -> float:
-	if not _status.has(status_type):
-		return 0.0
-	return float(_status[status_type].get("time_left", 0.0))
+	if _status_component:
+		return _status_component.get_remaining(status_type)
+	return 0.0
 
-## 逐帧结算所有状态的持续伤害与剩余时间
-func _update_status(delta: float) -> void:
-	if _status.is_empty():
-		return
-	var expired: Array[String] = []
-	for status_type: String in _status:
-		var entry: Dictionary = _status[status_type]
-		var dps: float = float(entry.get("dps", 0.0))
-		if dps > 0.0:
-			_apply_status_damage(dps * delta)
-		entry["time_left"] = float(entry.get("time_left", 0.0)) - delta
-		if entry["time_left"] <= 0.0:
-			expired.append(status_type)
-		if not is_alive:
-			break
-	for status_type in expired:
-		_status.erase(status_type)
-
-## 持续伤害入口：无视护甲、不播受击闪烁，仅在致死时走正常死亡流程
-func _apply_status_damage(amount: float) -> void:
+## 持续伤害入口（StatusComponent dot 调用）：无视护甲、不播受击闪烁，致死走正常死亡流程
+func take_status_damage(amount: float) -> void:
 	if not is_alive or amount <= 0.0:
 		return
 	health -= amount

@@ -10,6 +10,8 @@ signal stats_changed
 signal took_damage(amount: float)
 signal level_up(new_level: int)                 ## 升级（D4-T1：经验满触发）
 signal xp_changed(current: float, need: float)  ## 经验变化（D4-T1：HUD 刷新用）
+## BS-A2（2026-08-13）：持续效果变化（HUD 状态栏订阅；StatusComponent 统一 emit）
+signal status_changed
 
 # ========== 导出属性 ==========
 
@@ -50,6 +52,8 @@ var structure_damage_mult: float = 1.0    ## 结构伤害倍率（turret 弹药�
 
 ## 英雄精灵目录（配合 characters.json 的 `sprite` 前缀字段拼装）
 const SPRITE_DIR: String = "res://assets/sprites/characters/"
+## BS-A2（2026-08-13）：通用持续效果组件（无 class_name，preload 范式——探针 --script 兼容）
+const StatusComponentScript: GDScript = preload("res://scripts/systems/status_component.gd")
 
 ## characters.json 的 passive/penalty 键 → apply_stat_modifier 的合法 stat 名
 ## mode: "add" 直接加 / "percent" 百分数转倍率乘算 / "ratio" 百分数转 0~1 后加
@@ -127,6 +131,10 @@ var _state: PlayerState = PlayerState.IDLE
 var _facing_left: bool = true
 ## D21-22-T3：角色精灵前缀（_apply_character_sprite 写入；空 = 默认 fighter 无 attack/skill）
 var _sprite_prefix: String = ""
+## BS-A2/A3（2026-08-13）：持续效果组件 + 麻痹标志（StatusComponent stun 效果置位；
+## 禁行动——_handle_movement 跳过输入；Boss 技能软控消费点，BS-D 接入）
+var _status_component: Node = null
+var stunned: bool = false
 
 # ========== 生命周期 ==========
 
@@ -134,6 +142,11 @@ func _ready() -> void:
 	health = max_health
 	health_changed.emit(health, max_health)
 	_setup_animation()
+	# BS-A2：挂载通用持续效果组件（玩家/Boss/怪物同一组件；preload 范式探针兼容）
+	_status_component = StatusComponentScript.new()
+	_status_component.name = "StatusComponent"
+	add_child(_status_component)
+	_status_component.setup(self)
 	# D21-22-T3：连接技能释放信号 → 播技能动画（SkillController 为子节点，_ready 先于本节点执行）
 	var sc: Node = get_node_or_null("SkillController")
 	if sc and sc.has_signal("skill_cast"):
@@ -424,6 +437,11 @@ func _physics_process(delta: float) -> void:
 # ========== 移动 ==========
 
 func _handle_movement() -> void:
+	# O2 软控（BS-A3）：麻痹禁行动——跳过输入（velocity 归零），受击/技能仍可用
+	if stunned:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 	var input_vector := Vector2.ZERO
 	input_vector.x = Input.get_axis("move_left", "move_right")
 	input_vector.y = Input.get_axis("move_up", "move_down")
@@ -520,6 +538,14 @@ func take_damage(amount: float) -> void:
 
 	if health <= 0.0:
 		die()
+
+## BS-A3（2026-08-13）：统一效果施加入口（玩家侧——武器/被动/技能/Boss 技能全走它；
+## StatusComponent 承接 O1 叠加规则与 dot/slow/stun/armor 四类型）
+func apply_effect(source_id: String, effect_id: String, params: Dictionary = {}) -> void:
+	if not is_alive or effect_id.is_empty():
+		return
+	if _status_component:
+		_status_component.apply_effect(source_id, effect_id, params)
 
 ## 治疗
 func heal(amount: float) -> void:

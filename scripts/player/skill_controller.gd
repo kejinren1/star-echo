@@ -152,12 +152,13 @@ func _cast_fireball() -> void:
 	# spawn 专属 "fireball" VFX 替换通用 crit；含 F-07 穿透全分支都覆盖
 	proj.set_meta(&"source_id", DataLoader.SKILL_FIREBALL)
 
-## 燃烧 dps 唯一口径（D3-T7b）：dot / dot_scaling 只从 elements.json 读，
+## 燃烧 dps 唯一口径（D3-T7b + BS-A1 2026-08-13）：value / scaling_ratio 只从 elements.json 读
+## （effect 表统一字段：value = 基础跳伤，scaling_ratio = 元素伤害缩放比例），
 ## 禁止在技能数据里另写一份 —— 艾琳 passive elemental_damage:8 → dps = 3 + 8*0.2 = 4.6
 func _calc_burn_dps() -> float:
 	var fire: Dictionary = DataLoader.get_element("fire")
-	var dot: float = float(fire.get("dot", 3.0))
-	var dot_scaling: float = float(fire.get("dot_scaling", 0.2))
+	var dot: float = float(fire.get("value", 3.0))
+	var dot_scaling: float = float(fire.get("scaling_ratio", 0.2))
 	var elemental_damage: float = 0.0
 	if player and "bonus_stats" in player:
 		elemental_damage = float(player.bonus_stats.get("elemental_damage", 0.0))
