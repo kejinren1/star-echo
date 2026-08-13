@@ -6,8 +6,8 @@
 ## 四段（≥18 断言）：
 ##   §1 静态 grep：get_parent().get_node_or_null 零残留 / world.gd 工厂三入口（含 instantiate
 ##      主路径）/ shop·hud·base_station 无 economy.coins·inventory.get("weapons")·meta_progress.get
-##      直读 / current_state = 仅 _set_state 内 / 原 5 处直接 instantiate 已收口为兜底路径
-##   §2 行为：_set_state 同值早退 + 状态变化 emit 值/次数 / can_afford·get_coins 边界 /
+##      直读 / current_state = 仅 _transition 内 / 原 5 处直接 instantiate 已收口为兜底路径
+##   §2 行为：_transition 同值早退 + 状态变化 emit 值/次数 / can_afford·get_coins 边界 /
 ##      inventory get_weapons 浅拷贝 + remove_last_weapon / get_research_points·get_research_level /
 ##      player.get_weapon_controller
 ##   §3 容器/工厂：world.get_container("projectiles") 真实节点（_ready 预创建）/
@@ -100,13 +100,14 @@ func _static_grep() -> void:
 				meta_direct += 1
 	_ok(meta_direct == 0, "§1e: UI 层无 meta_progress.get 直读（实得 %d）" % meta_direct)
 
-	# f. current_state = 赋值仅 _set_state 内（GM 文件：注释行豁免）
+	# f. current_state = 赋值仅 _transition 内（GM 文件：注释行豁免）
+	#    F3 同步（2026-08-13）：_set_state 升级 _transition，断言口径同步
 	var gm_src: String = FileAccess.get_file_as_string("res://scripts/autoload/game_manager.gd")
 	var assign_count: int = 0
 	for ln in gm_src.split("\n"):
 		if ln.contains("current_state = ") and not ln.strip_edges().begins_with("#") and not ln.strip_edges().begins_with("##"):
 			assign_count += 1
-	_ok(assign_count == 1, "§1f: current_state = 赋值仅 _set_state 内 1 处（实得 %d）" % assign_count)
+	_ok(assign_count == 1, "§1f: current_state = 赋值仅 _transition 内 1 处（实得 %d）" % assign_count)
 
 	# g. 原 5 处直接 instantiate 散点已收口：weapon_controller(1)/skill_controller(2)/turret(1)/enemy(1)
 	#    均出现在兜底路径（文件含「兜底」注释标记），主路径走 world 工厂（world.gd 3 处 instantiate）
@@ -125,14 +126,15 @@ func _static_grep() -> void:
 
 func _behavior() -> void:
 	print("-- §2 行为 --")
-	# a. _set_state 同值早退：MENU→MENU 不 emit（数组引用捕获——lambda 值捕获不更新
+	# a. _transition 同值早退：MENU→MENU 不 emit（数组引用捕获——lambda 值捕获不更新
 	#    int 局部变量，GDScript 已知特性）
+	#    F3 同步（2026-08-13）：_set_state 升级 _transition，调用点同步
 	var state_emits: Array = [0]
 	_gm.state_changed.connect(func(_s): state_emits[0] += 1)
-	_gm.call("_set_state", _gm.GameState.MENU)
-	_ok(state_emits[0] == 0, "§2a: _set_state 同值(MENU→MENU) 早退零 emit（实得 %d）" % state_emits[0])
+	_gm.call("_transition", _gm.GameState.MENU)
+	_ok(state_emits[0] == 0, "§2a: _transition 同值(MENU→MENU) 早退零 emit（实得 %d）" % state_emits[0])
 	# b. MENU→BATTLE emit 1 次 + 值正确
-	_gm.call("_set_state", _gm.GameState.BATTLE)
+	_gm.call("_transition", _gm.GameState.BATTLE)
 	_ok(state_emits[0] == 1 and int(_gm.get("current_state")) == _gm.GameState.BATTLE,
 		"§2a: MENU→BATTLE emit 1 次 + current_state==BATTLE（emits=%d）" % state_emits[0])
 

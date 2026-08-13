@@ -38,9 +38,22 @@ enum GameState {
 	GAME_OVER,  ## 游戏结束（胜利或失败）
 }
 
+## F3-T3（T-036 之 GM 侧 · 2026-08-13）：路线节点类型枚举（routes.json 字符串→枚举单点转换）。
+## 未知值 UNKNOWN = 原默认分支语义（push_warning + 按已完成处理，不崩）。
+enum RouteNodeType {
+	BATTLE,
+	ELITE,
+	BOSS,
+	SHOP,
+	EVENT,
+	UNKNOWN,
+}
+
 # ========== 属性 ==========
 
 var current_state: GameState = GameState.MENU
+## F3-T1（2026-08-13）：最近一次状态转移的 context（正交维度数据，get_state_context 查询）
+var _state_context: Dictionary = {}
 var current_wave: int = 0          ## 当前波次 (从 1 开始)
 ## T-008（F1-散 2026-08-13）：max_waves 声明兜底参数化（主源维持 DataLoader.get_max_waves()
 ## waves 键推导；本字段仅作启动兜底字面量，start_game/_ready 时从 combat 表读）
@@ -141,15 +154,46 @@ var _ui_panel_factory: Node = null
 
 # ========== 状态流转方法 ==========
 
-## F2-T1（T-031 铺路）：状态赋值统一入口——同值早退（幂等）→ 赋值 → emit state_changed。
-## 8 处散落 `current_state = X` + `state_changed.emit` 收口为本方法（F3 状态机规范前置）；
-## context 参数（F3 正交维度）暂不引入——现有 signal state_changed(new_state: GameState)
-## 单参签名已被 hud._on_state_changed 消费，改签名会破坏消费者（执行偏差登记）。
-func _set_state(next: int) -> void:
+## F3-T1（T-031 收口 2026-08-13）：状态转移统一入口——同值早退（幂等）→ 赋值 →
+## context 存储 → emit state_changed（F2-T1 单参 _set_state 升级）。
+## context 承载正交维度数据（F3-T2：is_boss_wave/_shop_from_battle 在转移点置位，
+## context 仅存储供查询，不改变现有赋值时序——行为零改动）；get_state_context() 读取。
+## ⚠️ signal state_changed 保留单参签名（hud._on_state_changed 已消费，改签名破坏消费者）。
+## ⚠️ 不做非法序列硬拒绝：引入合法性转移矩阵属行为变化，违反行为零改动硬约束——
+## _transition 保持任意态可切（现状语义），矩阵正式启用留 BS-C 决策点。
+func _transition(next: GameState, context: Dictionary = {}) -> void:
 	if current_state == next:
 		return
 	current_state = next
+	_state_context = context
 	state_changed.emit(current_state)
+
+## F3-T1：最近一次转移的 context（正交维度数据查询接口；未转移/空 context 返回 {}）
+func get_state_context() -> Dictionary:
+	return _state_context
+
+## F3-T2（T-032 · 2026-08-13）：路线模式派生查询（route 空 = 旧波次制；非空 = 随机节点地图）。
+## 替代 6 处裸 `route.is_empty()` 判断（:182/:223/:252/:298/:368/:486，含拆解漏 :298 难度系数段）。
+func _is_route_mode() -> bool:
+	return not route.is_empty()
+
+## F3-T3（T-036 · 2026-08-13）：路线节点类型字符串→枚举单点转换（routes.json 数据零改动，
+## 仅代码侧收敛；未知值 UNKNOWN + push_warning，保留原默认分支「按已完成处理」语义）
+func route_type_from_string(s: String) -> RouteNodeType:
+	match s:
+		"battle":
+			return RouteNodeType.BATTLE
+		"elite":
+			return RouteNodeType.ELITE
+		"boss":
+			return RouteNodeType.BOSS
+		"shop":
+			return RouteNodeType.SHOP
+		"event":
+			return RouteNodeType.EVENT
+		_:
+			push_warning("[Route] 未知节点类型: %s" % s)
+			return RouteNodeType.UNKNOWN
 
 func _ready() -> void:
 	# D27-T1：首行加载局外存档（缺失/损坏容错默认零值不崩）
@@ -181,9 +225,9 @@ func start_game() -> void:
 	if route_enabled:
 		var default_seed: int = int(DataLoader.get_routes().get("default_seed", -1))
 		route = RouteGeneratorScript.generate(default_seed)
-	if route.is_empty():
+	if _is_route_mode():
 		# 旧波次制（路线生成失败/被禁用 → 完全旧行为）
-		_set_state(GameState.BATTLE)
+		_transition(GameState.BATTLE)
 		game_started.emit()
 		_start_next_wave()
 		return
@@ -208,7 +252,7 @@ func _start_next_wave(wave_number: int = -1) -> void:
 				break
 	if is_boss_wave:
 		AudioManager.play_sfx("boss")   # D24-T3-⑩：Boss 波 SFX（is_boss_wave 置位处）
-	_set_state(GameState.BATTLE)
+	_transition(GameState.BATTLE)
 	wave_started.emit(current_wave)
 	if wave_manager:
 		wave_manager.start_wave(current_wave)
@@ -222,13 +266,13 @@ func on_wave_cleared() -> void:
 	# 防 P1-1 商店弹出前玩家已带伤进场）
 	_apply_wave_heal()
 	wave_cleared.emit(current_wave)
-	if not route.is_empty():
+	if _is_route_mode():
 		_on_node_completed()
 		return
 	if current_wave >= max_waves:
 		end_game(true)
 		return
-	_set_state(GameState.SHOP)
+	_transition(GameState.SHOP, {"from_battle": _shop_from_battle})
 	shop_opened.emit()
 
 ## D4-T8：波次切换清理残敌（直接 queue_free，最简且无残留状态）
@@ -253,7 +297,7 @@ func _apply_wave_heal() -> void:
 ## 关闭商店（P1 Fix-1：战后商店 → 路线选择；shop节点商店 → 节点完成推进；旧模式 → 下一波）
 func close_shop() -> void:
 	shop_closed.emit()
-	if not route.is_empty():
+	if _is_route_mode():
 		if _shop_from_battle:
 			_shop_from_battle = false
 			_start_route_select()
@@ -266,7 +310,7 @@ func close_shop() -> void:
 
 ## 进入第 current_layer 层路线选择：状态 + 面板（复用已有面板实例防叠加）
 func _start_route_select() -> void:
-	_set_state(GameState.ROUTE_SELECT)
+	_transition(GameState.ROUTE_SELECT)
 	if _route_select_panel == null or not is_instance_valid(_route_select_panel):
 		_route_select_panel = RouteSelectPanelScene.instantiate()
 		# 身份校验防误清：旧面板 tree_exited 时 _route_select_panel 可能已指向新面板
@@ -294,28 +338,30 @@ func select_route_node(row: int) -> void:
 	_enter_node(str(current_node.get("type", "")), int(current_node.get("wave_index", 0)))
 
 ## 按节点类型进入：战斗类 → 波次；shop → 商店段；event → Day 16 事件流程
+## F3-T3（2026-08-13）：字符串 match → RouteNodeType 枚举（route_type_from_string 单点转换）
 func _enter_node(node_type: String, wave_index: int) -> void:
-	match node_type:
-		"battle", "elite", "boss":
+	var ntype: RouteNodeType = route_type_from_string(node_type)
+	match ntype:
+		RouteNodeType.BATTLE, RouteNodeType.ELITE, RouteNodeType.BOSS:
 			# Day 17 · D17-T4：difficulty_delta 消费（Day 16 事件登记 → 本波敌人 ±10%/档；
 			# 空 route / 无 flags → 0 零影响）
-			difficulty_delta = int(route.get("flags", {}).get("difficulty_delta", 0)) if not route.is_empty() else 0
+			difficulty_delta = int(route.get("flags", {}).get("difficulty_delta", 0)) if _is_route_mode() else 0
 			# Day 17 · D17-T4：精英节点进入提示横幅（不暂停，与选层/商店同范式）
-			if node_type == "elite":
+			if ntype == RouteNodeType.ELITE:
 				_show_elite_banner()
 			# Day 18-19 · T4：Boss 节点进入提示横幅 + flags 登记（route 空旧制零影响）
-			if node_type == "boss":
+			if ntype == RouteNodeType.BOSS:
 				_show_boss_banner()
 				route["flags"] = route.get("flags", {})
 				route["flags"]["boss_encountered"] = true
 			_start_next_wave(wave_index)
-		"shop":
-			_set_state(GameState.SHOP)
+		RouteNodeType.SHOP:
+			_transition(GameState.SHOP, {"from_battle": _shop_from_battle})
 			shop_opened.emit()
-		"event":
+		RouteNodeType.EVENT:
 			# D16：事件节点 → 随机取事件 + 暂停式弹窗（交互逻辑本日实装，D14-15 占位已替换）
 			_start_event()
-		_:
+		RouteNodeType.UNKNOWN:
 			push_warning("[Route] 未知节点类型: %s，按已完成处理" % node_type)
 			_on_node_completed()
 
@@ -369,7 +415,7 @@ func _show_boss_banner() -> void:
 ## route 空（旧波次制）仅计数零影响；boss_defeated 由 Day 27 end_game(victory) 统一消费）
 func register_boss_killed() -> void:
 	boss_killed += 1
-	if not route.is_empty():
+	if _is_route_mode():
 		route["flags"] = route.get("flags", {})
 		route["flags"]["boss_defeated"] = true
 
@@ -417,10 +463,11 @@ func _on_node_completed() -> void:
 		end_game(true)
 		return
 	# 战斗类节点完成后自动弹商店（Brotato 式每波后购物）
-	var prev_type: String = str(current_node.get("type", ""))
-	if prev_type == "battle" or prev_type == "elite":
+	# F3-T3（2026-08-13）：prev_type 字符串比较 → RouteNodeType 枚举
+	var prev_ntype: RouteNodeType = route_type_from_string(str(current_node.get("type", "")))
+	if prev_ntype == RouteNodeType.BATTLE or prev_ntype == RouteNodeType.ELITE:
 		_shop_from_battle = true
-		_set_state(GameState.SHOP)
+		_transition(GameState.SHOP, {"from_battle": true})
 		shop_opened.emit()
 		return
 	_start_route_select()
@@ -473,7 +520,7 @@ func _build_event_item(item_id: String) -> Resource:
 
 ## 结束游戏
 func end_game(victory: bool) -> void:
-	_set_state(GameState.GAME_OVER)
+	_transition(GameState.GAME_OVER)
 	# D27-T1：胜利结算（wins+1 / 研究点+1 / 当前角色 xp+1 + 存档）——须在
 	# game_over.emit 前完成（防信号消费方读脏状态）；失败局不结算（出场已在 start_game 记）
 	if victory:
@@ -487,7 +534,7 @@ func end_game(victory: bool) -> void:
 	# F2-T6：GameOver 面板经 UIPanelFactory（stage/reason 计算保留 GM——依赖
 	# current_wave/current_layer/route 状态，工厂不依赖 GM 保持职责单一）
 	var stage: int = current_wave
-	if not route.is_empty():
+	if _is_route_mode():
 		stage = current_layer + 1
 	var reason: String = "你在第 %d 关阵亡了" % stage if not victory else "你击败了星骸的异变！"
 	if _ui_panel_factory:
@@ -498,7 +545,7 @@ func end_game(victory: bool) -> void:
 ## 重置游戏状态
 func reset() -> void:
 	get_tree().paused = false
-	_set_state(GameState.MENU)
+	_transition(GameState.MENU)
 	current_wave = 0
 	is_boss_wave = false
 	difficulty_delta = 0
