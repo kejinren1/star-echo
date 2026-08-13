@@ -192,7 +192,8 @@ func _advance(sub: int) -> int:
 			var boss: Node = _build_enemy(inv_stats)
 			_ok(boss.get("is_boss") == true, "状态机: invoker is_boss == true")
 			_ok(boss.get("scale") == Vector2(1.0, 1.0), "状态机: scale 复位 ×1（D17·128px 真精灵，实得 %s）" % str(boss.get("scale")))
-			_ok(int(boss.get("_current_phase_idx")) == 0, "状态机: 初始 phase 0")
+			# F3-T4 同步（2026-08-13）：字段 _current_phase_idx → _phase（枚举本质 int，断言语义不变）
+			_ok(int(boss.get("_phase")) == 0, "状态机: 初始 phase 0")
 			var timers: Dictionary = boss.get("_attack_timers")
 			_ok(timers.size() == 2, "状态机: _attack_timers 键数 == P1 attacks 数 2（实得 %d）" % timers.size())
 			_ok(timers.has("summon_2_enemies_every_5s") and timers.has("3_projectile_spread"), "状态机: P1 指令键已缓存")
@@ -203,7 +204,8 @@ func _advance(sub: int) -> int:
 				"move_speed": 120.0, "behavior": "chase", "armor": 0,
 			})
 			_ok(plain.get("is_boss") == false and plain.get("phases").is_empty(), "状态机: 非 boss phases 空 → 零新行为")
-			_ok(int(plain.get("_current_phase_idx")) == 0 and plain.get("_attack_timers").is_empty(), "状态机: 非 boss _attack_timers 空")
+			# F3-T4 同步（2026-08-13）：_phase → _phase
+			_ok(int(plain.get("_phase")) == 0 and plain.get("_attack_timers").is_empty(), "状态机: 非 boss _attack_timers 空")
 			plain.queue_free()
 			boss.queue_free()
 			return 2
@@ -214,7 +216,7 @@ func _advance(sub: int) -> int:
 			var hp0: float = float(boss2.get("max_health"))   # wave10: 8000
 			var speed0: float = float(boss2.get("move_speed")) # wave10: 200*1.1*0.5 = 110
 			boss2.call("take_damage", hp0 * 0.41)  # 8000-3280 = 4720 ≤ 4800 → 切 P2
-			_ok(int(boss2.get("_current_phase_idx")) == 1, "状态机: 压过 60%% 阈值 → phase 1（实得 %d）" % int(boss2.get("_current_phase_idx")))
+			_ok(int(boss2.get("_phase")) == 1, "状态机: 压过 60%% 阈值 → phase 1（实得 %d）" % int(boss2.get("_phase")))
 			var timers2: Dictionary = boss2.get("_attack_timers")
 			_ok(timers2.size() == 2 and timers2.has("summon_4_enemies_every_2.5s") and timers2.has("6_projectile_spread"),
 				"状态机: P2 指令键更新（summon_4/6_spread）")
@@ -224,7 +226,7 @@ func _advance(sub: int) -> int:
 			# 全阶段走完不再切（压到 0 → die 先行 D6，不触发相位检查）
 			boss2.call("take_damage", hp0 * 0.59)
 			_ok(boss2.get("is_alive") == false, "状态机: 血量归零 → die（D6 先行）")
-			_ok(int(boss2.get("_current_phase_idx")) == 1, "状态机: 死亡不触发额外相位切换（保持 1）")
+			_ok(int(boss2.get("_phase")) == 1, "状态机: 死亡不触发额外相位切换（保持 1）")
 			boss2.queue_free()
 			return 3
 		# ---------- §3 指令执行（固定 _rng.seed） ----------

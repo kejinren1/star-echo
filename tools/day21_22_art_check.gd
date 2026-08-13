@@ -333,7 +333,7 @@ func _part_characters() -> void:
 	sc.skill_cast.emit("se_skill_fireball")
 	_ok(anim.animation == "skill", "§3 接线: skill_cast 信号 → animation == \"skill\"（实得 %s）" % anim.animation)
 	_player.call("_on_anim_finished")
-	_ok(anim.animation == "idle" and _player.get("_is_walking") == false, "§3 接线: 播完 → 回 idle 且 _is_walking 复位")
+	_ok(anim.animation == "idle" and int(_player.get("_state")) == 0, "§3 接线: 播完 → 回 idle 且状态复位 IDLE（F3-T6 同步）")
 	_player.call("_play_attack_anim")
 	_ok(anim.animation == "attack", "§3 接线: _play_attack_anim → animation == \"attack\"（实得 %s）" % anim.animation)
 	_player.call("_on_anim_finished")

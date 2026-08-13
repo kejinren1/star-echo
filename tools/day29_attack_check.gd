@@ -166,8 +166,9 @@ func _part_skill_guard() -> void:
 		return
 	_player.call("_play_attack_anim")
 	_ok(anim.animation == "skill", "§2 skill 播放中 _play_attack_anim 不抢占（实得 %s，SKILL 6 帧可完整播放）" % anim.animation)
-	# skill 播完回 idle 后 attack 正常
-	anim.play("idle")
+	# skill 播完回 idle 后 attack 正常（F3-T6 同步：_on_anim_finished 模拟播完，
+	# 直连 anim.play 会绕过状态机导致 _state 失步）
+	_player.call("_on_anim_finished")
 	_player.call("_play_attack_anim")
 	_ok(anim.animation == "attack", "§2 skill 结束后 attack 正常播放（实得 %s）" % anim.animation)
 	# attack 播放中重复调用不重播（原守卫保留）
@@ -188,7 +189,7 @@ func _part_regression() -> void:
 	_ok(wc_txt.contains("_has_enemy_in_range"), "§3 文本: weapon_controller 含 _has_enemy_in_range")
 	_ok(wc_txt.contains("if not _has_enemy_in_range(weapon.attack_range)"), "§3 文本: _process 索敌门控行在位（can_fire 之后）")
 	var pl_txt: String = FileAccess.get_file_as_string("res://scripts/player/player.gd")
-	_ok(pl_txt.contains('if _anim.animation in ["attack", "skill"]:'), "§3 文本: player _play_attack_anim 含 skill 守卫")
+	_ok(pl_txt.contains('if _state == PlayerState.ATTACK or _state == PlayerState.SKILL:'), "§3 文本: player _transition_state 含 skill 守卫（F3-T6 守卫内聚同步）")
 	_ok(pl_txt.contains("func _play_skill_anim"), "§3 文本: _play_skill_anim 保留")
 
 

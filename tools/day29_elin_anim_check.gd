@@ -226,10 +226,10 @@ func _part_hit_state() -> void:
 	# 静止受击 → hit 动画
 	_player.call("_play_hit_anim")
 	_ok(anim.animation == "hit", "§3 hit: 静止受击 → animation == \"hit\"（实得 %s）" % anim.animation)
-	# 播完 → 回 idle 且 _is_walking 复位
+	# 播完 → 回 idle 且状态复位 IDLE（F3-T6：_is_walking 归并 _state）
 	_player.call("_on_anim_finished")
-	_ok(anim.animation == "idle" and _player.get("_is_walking") == false,
-		"§3 hit: hit 播完 → 回 idle 且 _is_walking 复位")
+	_ok(anim.animation == "idle" and int(_player.get("_state")) == 0,
+		"§3 hit: hit 播完 → 回 idle 且状态复位 IDLE（F3-T6 同步）")
 	# 再受击 → 重新播 hit（重复受击不卡死）
 	_player.call("_play_hit_anim")
 	_ok(anim.animation == "hit", "§3 hit: 重复受击可重播 hit（实得 %s）" % anim.animation)

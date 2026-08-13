@@ -123,7 +123,6 @@ var behavior: Behavior = Behavior.CHASE     ## 行为模式
 
 # 动画
 var _anim: AnimatedSprite2D
-var _is_dying: bool = false
 
 # 行为状态
 var _zigzag_timer: float = 0.0
@@ -156,11 +155,21 @@ var ability: Dictionary = {}
 var wave_number: int = 1
 var _ability_timer: float = 0.0
 
-# ========== Boss 阶段（Day 18-19 · T1/T2） ==========
+# ========== Boss 阶段（Day 18-19 · T1/T2 + F3-T4 枚举化） ==========
 ## enemies.json phases 状态机：take_damage 阈值切换 + attacks 指令执行
 ## 全部行为以 `is_boss and not phases.is_empty()` 双条件守卫——普通/精英敌人零新行为
+## F3-T4（T-033 · 2026-08-13）：int 下标 → BossPhase 枚举 + PHASE_TABLE 状态表
+## （per CODE_STYLE §2.6 形态 B；PHASE_TABLE 只维护 枚举→phases 索引 映射，
+##  行为参数 attacks/speed_multiplier 仍读 enemies.json phases 数据，禁硬编码重复数据；
+##  phases.size()==1 → 仅 P1；==2 → P1/P2；≥3 → P1/P2/P3）
 var phases: Array = []                       ## Boss 阶段定义（get_scaled_enemy 恒返回 phases 键透传）
-var _current_phase_idx: int = 0              ## 当前阶段索引（0 起）
+enum BossPhase { P1, P2, P3 }
+const PHASE_TABLE: Dictionary = {
+	BossPhase.P1: 0,
+	BossPhase.P2: 1,
+	BossPhase.P3: 2,
+}
+var _phase: BossPhase = BossPhase.P1         ## 当前阶段（P1 起；_transition_phase 统一推进）
 var _attack_timers: Dictionary = {}          ## 攻击计时器: cmd -> {parsed: Dictionary, timer: float}
 var _attack_mult: float = 1.0                ## 阶段修饰符（决策 D3：all_attacks_2x → ×2.0，仅伤害类生效）
 var _boss_charge: bool = false               ## 冲锋置位（决策 D2：charge 型指令置位后 _move_charge 自动生效）
@@ -178,11 +187,11 @@ func _ready() -> void:
 	_setup_animation()
 
 func _physics_process(delta: float) -> void:
-	if not is_alive or _is_dying:
+	if not is_alive:
 		return
 	_update_status(delta)
 	# 持续伤害可能直接击杀，后续行为逻辑不应再跑
-	if not is_alive or _is_dying:
+	if not is_alive:
 		return
 	_update_behavior(delta)
 	# 接触伤害（带冷却）
@@ -205,7 +214,7 @@ func _process_knockback() -> void:
 
 ## 受击击退接口（升级冲击波等外部施加）：dir 为方向（无需归一化）、force 为初速
 func apply_knockback(dir: Vector2, force: float) -> void:
-	if not is_alive or _is_dying:
+	if not is_alive:
 		return
 	if dir.length_squared() <= 0.0001 or force <= 0.0:
 		return
@@ -272,7 +281,7 @@ func _resize_collision_shape() -> void:
 
 ## 附着一个元素状态（由弹丸/技能调用）
 func apply_status(status_type: String, duration: float, dps: float) -> void:
-	if not is_alive or _is_dying:
+	if not is_alive:
 		return
 	if status_type.is_empty() or duration <= 0.0:
 		return
@@ -586,16 +595,31 @@ func _elite_spawn(delta: float) -> void:
 ## 全部以 is_boss + phases 双守卫，普通/精英敌人零新行为
 
 ## 血量阈值相位切换：从下一阶段起找第一个命中阈值的阶段；无更低阈值 → 保持
+## F3-T4（2026-08-13）：枚举推进（_phase 单调递增语义与旧 _current_phase_idx+1 一致；
+## ⚠️ Godot 4 禁 int(枚举) 转换——枚举本质 int，先赋 int 变量再运算）
 func _check_phase_transition() -> void:
-	for i in range(_current_phase_idx + 1, phases.size()):
+	var cur_idx: int = _phase
+	for i in range(cur_idx + 1, phases.size()):
 		var threshold: float = float(phases[i].get("hp_threshold_percent", 0.0)) / 100.0
 		if health / max_health <= threshold:
-			_reset_boss_phase(i)
+			_transition_phase(i)
 			return
 
+## F3-T4（T-033 · 2026-08-13）：阶段转移统一入口（per CODE_STYLE §2.6 形态 B）——
+## 同值早退 + phases 边界断言（防跳转至数据未定义阶段）+ 进入钩子（_reset_boss_phase）
+func _transition_phase(next: BossPhase) -> void:
+	if _phase == next:
+		return
+	var next_idx: int = PHASE_TABLE[next]
+	if not PHASE_TABLE.has(next) or next_idx >= phases.size():
+		push_warning("[Boss] 阶段越界: %d ≥ phases %d（跳过）" % [next_idx, phases.size()])
+		return
+	_reset_boss_phase(next_idx)
+
 ## 激活指定阶段：清计时器 → 解析 attacks 缓存 → 修饰符/冲锋置位 → 移速 → 阶段横幅
+## 形参保留 int（initialize 直调 _reset_boss_phase(0) 兼容防漂移）；_phase 同步枚举
 func _reset_boss_phase(idx: int) -> void:
-	_current_phase_idx = idx
+	_phase = clampi(idx, 0, 2)
 	_attack_timers.clear()
 	var phase: Dictionary = phases[idx]
 	var attacks: Array = phase.get("attacks", [])
@@ -805,7 +829,6 @@ func take_damage(amount: float, is_crit: bool = false) -> void:
 func die() -> void:
 	is_alive = false
 	health = 0.0
-	_is_dying = true
 	_drop_rewards()
 	died.emit(self)
 	# Day 18-19 · T1 + F2-T5（T-045）：Boss 击杀信号化——die 内不再直调

@@ -111,7 +111,18 @@ var _xp_curve_cache: Expression = null       ## 经验曲线表达式缓存（�
 
 # 动画
 var _anim: AnimatedSprite2D
-var _is_walking: bool = false
+## F3-T6（T-034 · 2026-08-13）：行为态枚举（per CODE_STYLE §2.6 形态 A）——
+## _transition_state 统一入口；_is_walking 布尔归并。保留项（不进状态机）：
+## _last_stand_active（F-13 机制标志）/ _facing_left（F-33 朝向）
+enum PlayerState { IDLE, WALK, ATTACK, SKILL, HIT, DEAD }
+const ANIM_MAP := {
+	PlayerState.ATTACK: "attack",
+	PlayerState.SKILL: "skill",
+	PlayerState.HIT: "hit",
+	PlayerState.WALK: "walk",
+	PlayerState.IDLE: "idle",
+}
+var _state: PlayerState = PlayerState.IDLE
 ## F-33（08-09 用户反馈）：朝向 —— true=朝左（原图默认），false=朝右（flip_h 镜像）
 var _facing_left: bool = true
 ## D21-22-T3：角色精灵前缀（_apply_character_sprite 写入；空 = 默认 fighter 无 attack/skill）
@@ -231,7 +242,9 @@ func _apply_character_sprite(prefix: String) -> void:
 	idle_texture = idle_res as Texture2D
 	walk_texture = walk_res as Texture2D
 	_sprite_prefix = prefix
-	_is_walking = false
+	# F3-T6（T-034）：_is_walking 布尔归并 → 复位行走态 = 状态机回 IDLE（换皮前复位，
+	# 语义与原 `_is_walking = false` 一致——下次移动自动 walk）
+	_state = PlayerState.IDLE
 	_setup_animation()
 
 # ========== 动画 ==========
@@ -311,6 +324,8 @@ func _setup_animation() -> void:
 					atlas.region = Rect2(i * h_meta.size.x, 0, h_meta.size.x, h_meta.size.y)
 					sf.add_frame("hit", atlas)
 	_anim.sprite_frames = sf
+	# F3-T6（T-034）：初始播放同步状态（换皮重建 sprite_frames 后回 IDLE，防状态漂移）
+	_state = PlayerState.IDLE
 	_anim.play("idle")
 	# D19③：attack/skill 播完回 idle（命名方法，_ready 前已连一次即可；此处守卫防重复连接）
 	if not _anim.animation_finished.is_connected(_on_anim_finished):
@@ -324,48 +339,68 @@ func _update_animation() -> void:
 	if _anim.animation in ["attack", "skill", "hit"]:
 		return
 	var moving := velocity.length() > 10.0
-	if moving and not _is_walking:
-		_is_walking = true
-		_anim.play("walk")
-	elif not moving and _is_walking:
-		_is_walking = false
-		_anim.play("idle")
+	_transition_state(PlayerState.WALK if moving else PlayerState.IDLE)
+
+## F3-T6（T-034 · 2026-08-13）：行为态转移统一入口——同值早退（HIT 同值重入例外：
+## 受击连续触发须从头重播，保留原 _play_hit_anim stop+play 语义）→ 转移守卫 →
+## 赋值 → ANIM_MAP 播放。守卫逐条保留原播放函数内语义（行为零改动）。
+func _transition_state(next: PlayerState) -> void:
+	if next == PlayerState.HIT and _state == PlayerState.HIT:
+		if _anim and _anim.sprite_frames and _anim.sprite_frames.has_animation("hit"):
+			_anim.stop()
+			_anim.play("hit")
+		return
+	if _state == next:
+		return
+	match next:
+		PlayerState.ATTACK:
+			if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("attack"):
+				return
+			if _state == PlayerState.ATTACK or _state == PlayerState.SKILL:
+				return
+		PlayerState.SKILL:
+			if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("skill"):
+				return
+			if _state == PlayerState.SKILL:
+				return
+		PlayerState.HIT:
+			if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("hit"):
+				return
+			if _state == PlayerState.ATTACK or _state == PlayerState.SKILL:
+				return
+		PlayerState.WALK, PlayerState.IDLE:
+			if not _anim:
+				return
+		PlayerState.DEAD:
+			return
+	_state = next
+	if _anim:
+		_anim.play(str(ANIM_MAP.get(next, "")))
 
 ## D21-22-T3（D19②/③）：开火 → 播 attack（武器控制器调用；动画缺失静默降级）
 ## F-32（08-09 用户反馈）：skill 播放中禁止 attack 抢占 —— 空格技能 6 帧可完整播放
+## F3-T6：转 _transition_state 统一入口（守卫内聚）
 func _play_attack_anim() -> void:
-	if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("attack"):
-		return
-	if _anim.animation in ["attack", "skill"]:
-		return
-	_anim.play("attack")
+	_transition_state(PlayerState.ATTACK)
 
 ## D21-22-T3：技能释放 → 播 skill（skill_cast 信号连接；动画缺失静默降级）
+## F3-T6：转 _transition_state 统一入口
 func _play_skill_anim(_skill_id: String = "") -> void:
-	if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("skill"):
-		return
-	if _anim.animation == "skill":
-		return
-	_anim.play("skill")
+	_transition_state(PlayerState.SKILL)
 
 ## D21-22-T3（D19③）：attack/skill 播完 → 回 idle 且复位行走态（下次移动自动 walk）
 ## D29：hit 播完同规则（受击 2 帧播完自动回 idle/walk）
+## F3-T6：_is_walking 布尔已归并 → _transition_state(IDLE)
 func _on_anim_finished() -> void:
 	if not _anim:
 		return
 	if _anim.animation in ["attack", "skill", "hit"]:
-		_is_walking = false
-		_anim.play("idle")
+		_transition_state(PlayerState.IDLE)
 
 ## D29：受击动画（elin_hit 2 帧）；无 hit 动画/正在播攻击技能 → 静默降级仅红闪
+## F3-T6：转 _transition_state 统一入口
 func _play_hit_anim() -> void:
-	if not _anim or not _anim.sprite_frames or not _anim.sprite_frames.has_animation("hit"):
-		return
-	if _anim.animation in ["attack", "skill"]:
-		return
-	if _anim.animation == "hit":
-		_anim.stop()
-	_anim.play("hit")
+	_transition_state(PlayerState.HIT)
 
 ## 受击闪烁特效
 func _play_hit_flash() -> void:
