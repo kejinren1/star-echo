@@ -2438,8 +2438,8 @@
 - [x] **BS-C-EXIT【W5】回归**：35 件套 + 双探针 + baseline **BASELINE CLEAN**
 
 ### BS 批 D · 难度缩放 + 扩展技能 + 免疫 UI（§7-4/5/6 · 依赖批 C）
-- [ ] **BS-D1【W1】难度缩放层（§5）**：基础难度（关卡/波次，已有）× 动态难度（build 强度——装备越好系数越高）→ 难度系数合成（0.5~2.0）→ 参数倍率（预警↓伤害↑半径↑）→ **公平底线钳制**（BS-B3）；表里恒存基准值
-- [ ] **BS-D2【W1】fan / beam / charge / 打断 QTE 扩展（§2.3/2.4）**：同骨架换参数（exec_fan / exec_beam / exec_charge）；**QTE = 行为条件**（§2.4：打断窗口内玩家攻击命中 → 中断 resolve）；均为批 B circle 同接口实现
-- [ ] **BS-D3【W1】免疫表 UI 收尾（O3/O5）**：Boss 血条下挂免疫图标（BS-C1 resist 列消费，硬控免疫软控保留；Boss 免疫可视化，避免无效 build 打到一半才发现）
-- [ ] **BS-D4【W1】探针扩展 + §11 验收全项核销**：day30_boss_skill +§5 难度段（系数合成/钳制生效）+ §6 免疫 UI 段；**§11 验收 1-5 全项机器侧清单核销**
-- [ ] **BS-D-EXIT【W5】收口**：全量回归 + baseline **BASELINE CLEAN** + TECH_DEBT_ISSUES 登记新债或关单 + PLAYTEST 主观项登记（Boss 战体感交 #5）
+- [x] **BS-D1【W1】难度缩放层（§5）**：基础难度（关卡/波次，已有）× 动态难度（build 强度——装备越好系数越高）→ 难度系数合成（0.5~2.0）→ 参数倍率（预警↓伤害↑半径↑）→ **公平底线钳制**（BS-B3）；表里恒存基准值【✅ 收口 2026-08-13：难度系数合成 compose_difficulty（基础波次曲线 × 动态 build 强度，clamp 0.5~2.0）+ scale_params_by_difficulty（伤害↑/预警↓/半径↑ + fair_telegraph 公平底线钳制）+ enemy._compose_difficulty_coeff 接入 cast 前】
+- [x] **BS-D2【W1】fan / beam / charge / 打断 QTE 扩展（§2.3/2.4）**：同骨架换参数（exec_fan / exec_beam / exec_charge）；**QTE = 行为条件**（§2.4：打断窗口内玩家攻击命中 → 中断 resolve）；均为批 B circle 同接口实现【✅ 收口 2026-08-13：exec_fan（arc 角度判定）/ exec_beam（点到线段距离 ≤ width）/ exec_charge（冲锋路径判距）三执行器 + QTE 打断（interrupt()，resolve 窗口内玩家命中 → 中断豁免，enemy.take_damage 钩子）；🕳️ 时序修正：伤害在 resolve_delay 后落地（RESOLVE 相位 = QTE 窗口），非进入即结算】
+- [x] **BS-D3【W1】免疫表 UI 收尾（O3/O5）**：Boss 血条下挂免疫图标（BS-C1 resist 列消费，硬控免疫软控保留；Boss 免疫可视化，避免无效 build 打到一半才发现）【✅ 收口 2026-08-13：HUD Boss 免疫标签（boss_bar 下 BossImmunityLabel，resist 列消费 + IMMUNITY_CN 映射 + effect 表 name 兜底，硬控免疫软控保留可读化）】
+- [x] **BS-D4【W1】探针扩展 + §11 验收全项核销**：day30_boss_skill +§5 难度段（系数合成/钳制生效）+ §6 免疫 UI 段；**§11 验收 1-5 全项机器侧清单核销**【✅ 收口 2026-08-13：day30_boss_skill_check 16→**49/49**——+§5 难度合成/钳制/底线/接入 + §5b fan/beam/charge 走四拍子+QTE 打断豁免 + §6 免疫数据+HUD 锚点 + §11 验收 1-7 清单核销】
+- [x] **BS-D-EXIT【W5】收口**：全量回归 + baseline **BASELINE CLEAN** + TECH_DEBT_ISSUES 登记新债或关单 + PLAYTEST 主观项登记（Boss 战体感交 #5）【✅ 收口 2026-08-13：全量回归 **40/40 · 985 断言** + baseline **BASELINE CLEAN** + 主观项登记（Boss 战圈/扇形/QTE 交互手感、难度节奏、免疫可视化 → PLAYTEST #5）；阶段 F 主体完成（F1-散/F3/BS-A~D 全收口，剩 F1-E 主窗口承接 + F4/F5）】

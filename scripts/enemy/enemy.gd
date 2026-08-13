@@ -22,6 +22,8 @@ const EnemyProjectileScript: GDScript = preload("res://scripts/enemy/enemy_proje
 const StatusComponentScript: GDScript = preload("res://scripts/systems/status_component.gd")
 ## BS-C2（2026-08-13）：Boss 技能执行器工厂（无 class_name，preload 范式）
 const BossSkillFactoryScript: GDScript = preload("res://scripts/boss/boss_skill_factory.gd")
+## BS-D1（2026-08-13）：技能执行器基类（难度合成/参数倍率静态方法）
+const SkillExecutorBaseScript: GDScript = preload("res://scripts/boss/skill_executor.gd")
 
 # ========== 行为枚举 ==========
 
@@ -768,6 +770,13 @@ func _pick_and_cast() -> void:
 	var params: Dictionary = _compose_skill_params(picked)
 	if params.is_empty():
 		return
+	# BS-D1（§5）：难度系数合成（基础 = 波次曲线 × 动态 = build 强度）→ 参数倍率 → 公平底线钳制
+	var coeff: float = _compose_difficulty_coeff()
+	if absf(coeff - 1.0) > 0.001:
+		var player_speed: float = 300.0
+		if target != null and "move_speed" in target:
+			player_speed = float(target.move_speed)
+		SkillExecutorBaseScript.scale_params_by_difficulty(params, coeff, player_speed)
 	var exec: Node = BossSkillFactoryScript.make(str(params.get("type", "")))
 	if exec == null:
 		return  # 未知 type → 跳过本轮（工厂已 push_warning），冷却由上层兜底
@@ -809,6 +818,25 @@ func _compose_skill_params(pattern: Dictionary) -> Dictionary:
 		for k in override:
 			params[k] = override[k]
 	return params
+
+## BS-D1（§5 · 2026-08-13）：难度系数合成——基础难度（波次曲线）× 动态难度（build 强度）
+## 最小可验证口径：基础 = 1.0 + (wave-1)×0.02；动态 = 1.0 + 0.05×已装备武器/道具数
+## （GameManager.inventory 缺失环境兜底 1.0）；compose_difficulty clamp 0.5~2.0
+func _compose_difficulty_coeff() -> float:
+	var base: float = 1.0 + float(maxi(wave_number, 1) - 1) * 0.02
+	var build: float = 1.0
+	if GameManager and GameManager.inventory:
+		var n: int = int(GameManager.inventory.get_weapons().size()) \
+			+ int(GameManager.inventory.get_items().size())
+		build = 1.0 + 0.05 * n
+	return SkillExecutorBaseScript.compose_difficulty(base, build)
+
+## BS-D2（§2.4 · 2026-08-13）：QTE 打断钩子——resolve 窗口内玩家攻击命中（take_damage）
+## → 当前执行器 interrupt()（中断即豁免，失败不致命）
+func _interrupt_active_executor() -> void:
+	if _active_executor != null and is_instance_valid(_active_executor) \
+			and _active_executor.has_method("interrupt"):
+		_active_executor.call("interrupt")
 
 ## 按 kind 分派执行器（全距离/容器遍历，禁物理查询，决策 D8）
 func _execute_attack(kind: String, parsed: Dictionary) -> void:
@@ -940,6 +968,8 @@ func take_damage(amount: float, is_crit: bool = false) -> void:
 	# Day 18-19 · T1：存活命中 → 相位阈值检查（决策 D6：击杀瞬间不触发切换/残留横幅）
 	if is_boss and not phases.is_empty():
 		_check_phase_transition()
+	# BS-D2（§2.4）：QTE 打断钩子——存活命中时若当前技能处于打断窗口 → interrupt（中断即豁免）
+	_interrupt_active_executor()
 
 ## 死亡处理：播放死亡动画，掉落金币/经验，发射信号
 func die() -> void:

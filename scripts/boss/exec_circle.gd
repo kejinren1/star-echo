@@ -29,9 +29,9 @@ func _spawn_telegraph() -> void:
 	container.add_child(ring)
 	set_meta("_telegraph_ring", ring)
 
+## 进入 RESOLVE：移除预警环（伤害在 _do_resolve——resolve_delay 后落地，QTE 窗口）
 func _resolve() -> void:
-	phase = Phase.RESOLVE
-	_do_resolve()
+	_remove_telegraph()
 
 func _do_resolve() -> void:
 	if _resolved:

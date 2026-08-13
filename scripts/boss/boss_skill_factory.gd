@@ -5,11 +5,21 @@
 extends Node
 
 const CircleExecutorScript: GDScript = preload("res://scripts/boss/exec_circle.gd")
+## BS-D2（2026-08-13）：fan/beam/charge 扩展执行器（同骨架换参数）
+const FanExecutorScript: GDScript = preload("res://scripts/boss/exec_fan.gd")
+const BeamExecutorScript: GDScript = preload("res://scripts/boss/exec_beam.gd")
+const ChargeExecutorScript: GDScript = preload("res://scripts/boss/exec_charge.gd")
 
 static func make(type: String) -> Node:
 	match type:
 		"circle":
 			return CircleExecutorScript.new()
+		"fan":
+			return FanExecutorScript.new()
+		"beam":
+			return BeamExecutorScript.new()
+		"charge":
+			return ChargeExecutorScript.new()
 		_:
 			push_warning("[BossSkillFactory] 未知技能类型: %s" % type)
 			return null

@@ -302,3 +302,26 @@
 3. BS-D EXIT：全量回归 + §11 验收 1-7 核销 + TECH_DEBT 关单/登记
 4. F1-E 仍主窗口承接（阶段 F 唯一外部项）；F4/F5 待 F3/BS 收口后按 TECH_DEBT_PLAN §4 拆解
 5. baseline 全程 **BASELINE CLEAN**；存档兼容（meta_progress 无破坏性改动——BS-A2 挂组件不改存档结构）
+
+---
+
+## 执行结果（第 46 轮 · #3 执行者 · 2026-08-13 08:30 窗口）
+
+**【完成】批次 0~7 全量收口（F1-散 + F3-A/B/C + BS-A/B/C/D = 8 批 12 commit）**
+
+| 批次 | 收口 commit | 要点 | 回归 |
+|---|---|---|---|
+| 0 F1-散 | `734f79e` | stats.combat/physics/skills 三表 + enemy_scaling 冲锋 3 列；DataLoader 三接口+兜底；8 消费点替换（armor_cap 无消费点登记 T-054）；探针 19/19 双跑实证（0.6→0.5 改回强制） | 36/36 · 885 |
+| 1 F3-A | `9981ca2` | CODE_STYLE.md + GM `_transition(next,context)`+get_state_context + `_is_route_mode` 6 处 + RouteNodeType 枚举化 | 36/36 |
+| 2 F3-B | `1cead61` | enemy BossPhase 枚举+PHASE_TABLE+`_transition_phase`；`_is_dying` 删；player PlayerState+ANIM_MAP+`_transition_state` | 38/38 · 918 |
+| 3 F3-C | `1696295` | audio GameState 枚举（Autoload 实例名）；合规 12/12 + 流 21/21；**修复 F3-A start_game 条件反转 bug** | 38/38 |
+| 4 BS-A | `743a953` | effect 表升级（poison max_stacks=2）+ StatusComponent（O1 同源刷新/异源独立）+ apply_effect + O2 软控三类型 + HUD 状态栏；探针 18/18 | 39/39 · 936 |
+| 5 BS-B | `8fa5d0f` | SkillExecutor 三接口 + 工厂 + exec_circle 四拍子 + fair_telegraph；探针 16/16 | 40/40 · 952 |
+| 6 BS-C | `ad1bb87` | boss_skill/boss_pattern 表 + resist 列（O5）+ Boss pattern 状态机（数据门控降级）+ override 合成；探针 26/26（+§4） | 40/40 · 962 |
+| 7 BS-D | 本轮 | 难度合成+钳制+公平底线 + fan/beam/charge/QTE + 免疫 UI；探针 49/49（+§5/§5b/§6/§11 验收核销） | **40/40 · 985** |
+
+- **验证**：全量回归 **40/40 · 985 断言全绿**（runner 36→40 项）+ baseline 全程 **BASELINE CLEAN** + 每批次独立 commit 带 T 编号。
+- **执行登记（偏差/修正）**：① F3-A start_game 条件反转（`_is_route_mode()` 应为 `not`）→ F3-C 修复 + 流探针固化；② audio GameState 枚举经 Autoload 实例名（方案「编译期可见」假设修正）；③ 方案「class_name SkillExecutor/StatusComponent」改无 class_name preload 范式（探针 --script 约束）；④ BS-A3 weapons.json:1756 中毒文本已随数据重生成消失 → 子项无对象；⑤ day18_19 探针适配（pattern 数据已入库 → 白盒清 `_patterns` 走旧路径断言，48/48 语义零变化）；⑥ T-033 描述修正登记（无并行 bool）。
+- **行为变化（拍板口径，交 #5 真人回归）**：O1 叠加规则（同源刷新/异源独立+max_stacks，原「取更长+更高」废止）；poison max_stacks=2（异源双毒可叠）；Boss 技能伤害在 resolve_delay 后落地（QTE 窗口语义）。
+- **主观项登记（#5 域）**：Boss 战圈/扇形/QTE 交互手感、难度节奏（0.5~2.0 系数）、免疫可视化标签、玩家状态栏观感、异源双 dot 并存体感——交 PLAYTEST。
+- **阶段 F 状态**：F0/F1.0/F1-A~G/F2/F1-散/F3/BS-A~D 全 [x]；**F1-E 维持主窗口承接（未动）**；F4/F5 未开始（按 TECH_DEBT_PLAN §4 待拆）。G 系列框架拓展动工窗口 = 今日 18:00 后（#2 拆解）。

@@ -92,6 +92,16 @@ func _ready() -> void:
 	_player_status_bar.add_theme_constant_override("separation", 2)
 	add_child(_player_status_bar)
 
+	# BS-D3（O3/O5 · 2026-08-13）：Boss 免疫可视化——Boss 血条下挂免疫标签
+	# （resist 列消费：硬控免疫软控保留；图标占位 = 文本标签，豁免色号编码）
+	_boss_immunity_label = Label.new()
+	_boss_immunity_label.name = "BossImmunityLabel"
+	_boss_immunity_label.add_theme_font_size_override("font_size", 10)
+	_boss_immunity_label.add_theme_color_override("font_color", Color(0.95, 0.55, 0.35))
+	_boss_immunity_label.position = Vector2(4, 22)
+	_boss_immunity_label.visible = false
+	boss_bar.add_child(_boss_immunity_label)
+
 # ========== 信号处理 ==========
 
 func _on_wave_started(wave_number: int) -> void:
@@ -115,6 +125,12 @@ var _enemy_count_timer: float = 0.0
 ## BS-A4（2026-08-13）：玩家状态栏节点 + 0.25s 刷新节流
 var _player_status_bar: VBoxContainer = null
 var _player_status_timer: float = 0.0
+## BS-D3（2026-08-13）：Boss 免疫标签（resist 列消费；硬控免疫软控保留的可读化）
+var _boss_immunity_label: Label = null
+## 免疫类型 → 中文名（resist 列值映射；元素 id 走 effect 表 name 兜底）
+const IMMUNITY_CN: Dictionary = {
+	"stun": "眩晕", "knockback": "击退", "slow": "减速", "paralyze": "麻痹",
+}
 
 func _process(delta: float) -> void:
 	# Boss 血条：血量每帧刷新（单目标开销可忽略），目标扫描 0.25s 节流
@@ -181,11 +197,15 @@ func _scan_boss_target() -> void:
 func _update_boss_bar() -> void:
 	if _boss_target == null or not is_instance_valid(_boss_target):
 		boss_bar.visible = false
+		if _boss_immunity_label:
+			_boss_immunity_label.visible = false
 		return
 	var max_hp: float = float(_boss_target.get("max_health"))
 	var hp: float = float(_boss_target.get("health"))
 	if max_hp <= 0.0:
 		boss_bar.visible = false
+		if _boss_immunity_label:
+			_boss_immunity_label.visible = false
 		return
 	var nm: String = "BOSS"
 	var eid: Variant = _boss_target.get("enemy_id")
@@ -199,6 +219,19 @@ func _update_boss_bar() -> void:
 	boss_health_bar.max_value = max_hp
 	boss_health_bar.value = hp
 	boss_bar.visible = true
+	# BS-D3（O3/O5）：免疫可视化——resist 列表 → 免疫标签（可读性：避免玩家带无效 build 打到一半才发现）
+	if _boss_immunity_label:
+		# ⚠️ Node.get() 只收 1 参（Object.get 无默认值重载——历史教训）
+		var resist: Variant = _boss_target.get("resist") if "resist" in _boss_target else null
+		if resist is Array and not (resist as Array).is_empty():
+			var parts: Array[String] = []
+			for r in resist:
+				var rn: String = str(r)
+				parts.append(str(IMMUNITY_CN.get(rn, DataLoader.get_element(rn).get("name", rn))))
+			_boss_immunity_label.text = "免疫: %s" % "、".join(parts)
+			_boss_immunity_label.visible = true
+		else:
+			_boss_immunity_label.visible = false
 
 func _refresh_enemy_count() -> void:
 	# F2-T2：存活敌数查询接口收口（GM.get_alive_enemy_count 优先 wave_manager 方法，

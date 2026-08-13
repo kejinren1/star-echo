@@ -27,6 +27,9 @@ const BOOL_WHITELIST: Dictionary = {
 	"scripts/weapons/projectile.gd": ["_exploded", "_last_crit"],
 	"scripts/weapons/turret.gd": ["permanent"],
 	"scripts/boss/exec_circle.gd": ["_resolved"],
+	"scripts/boss/exec_fan.gd": ["_resolved"],
+	"scripts/boss/exec_beam.gd": ["_resolved"],
+	"scripts/boss/exec_charge.gd": ["_resolved"],
 }
 
 var _sub: int = 0
@@ -154,7 +157,7 @@ func _part_bool_whitelist() -> void:
 			var name: String = ln.substr(4, ln.find(": bool") - 4).strip_edges()
 			if not allowed.has(name):
 				violations.append("%s:%s" % [f, name])
-	_ok(violations.is_empty(), "§4 无新增 bool 行为标志（白名单 23 个外零新增；违规=%s）" % str(violations))
+	_ok(violations.is_empty(), "§4 无新增 bool 行为标志（白名单 26 个外零新增；违规=%s）" % str(violations))
 
 # ========== §5 CODE_STYLE.md ==========
 
