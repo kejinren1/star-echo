@@ -20,6 +20,7 @@ var _checked: int = 0
 var _failures: int = 0
 var _factory: GDScript = null
 var _exec_script: GDScript = null
+var _loader: Node = null
 
 ## 圈内 mock 玩家（Node2D + take_damage/apply_effect 追踪）
 class MockPlayer:
@@ -54,10 +55,15 @@ func _advance(sub: int) -> int:
 	if _factory == null or _exec_script == null:
 		_fail("执行器脚本加载失败")
 		return 1
+	_loader = root.get_node_or_null("DataLoader")
+	if _loader == null:
+		_fail("DataLoader autoload 缺失")
+		return 1
 	_part_circle_phases()
 	_part_ring_hit()
 	_part_fair_telegraph()
 	_part_override()
+	_part_pattern()
 	return 1
 
 func _mk_player(pos: Vector2) -> Node:
@@ -184,6 +190,81 @@ func _part_override() -> void:
 	_ok(unknown == null, "§4 工厂未知 type → null（调用方判空降级）")
 	e1.queue_free()
 	e2.queue_free()
+	p.queue_free()
+
+# ========== §4 pattern 状态机（BS-C2/C3 · 2026-08-13 扩展） ==========
+
+func _part_pattern() -> void:
+	print("-- §4 pattern --")
+	# 真实 Boss（invoker）+ 玩家 mock + 容器
+	var p: Node = _mk_player(Vector2(0, 0))
+	var fx := Node2D.new()
+	fx.name = "FxBox"
+	root.add_child(fx)
+	var stats: Dictionary = _loader.call("get_scaled_enemy", "invoker", 10)
+	var scene: PackedScene = load("res://scenes/Enemy.tscn")
+	var boss: Node = scene.instantiate()
+	root.add_child(boss)
+	boss.call("initialize", stats)
+	boss.call("set_target", p)
+	# 数据加载：invoker pattern 2 行（circle_aoe phase100 + circle_eruption phase66）
+	var patterns: Array = boss.get("_patterns")
+	_ok(patterns.size() == 2, "§4 invoker _patterns 从表加载 2 行（实得 %d）" % patterns.size())
+	# phase 解锁：P1 池 = 仅 phase-100；推进 P2 → 加入 phase-66
+	var pool_p1: Array = boss.call("_active_pattern_pool")
+	_ok(pool_p1.size() == 1 and str(pool_p1[0].get("skill_id")) == "circle_aoe",
+		"§4 P1 池仅 phase-100（circle_aoe）")
+	boss.call("_transition_phase", 1)  # P2（66 阈值）
+	var pool_p2: Array = boss.call("_active_pattern_pool")
+	_ok(pool_p2.size() == 2, "§4 P2 池解锁 phase-66（circle_eruption，实得 %d）" % pool_p2.size())
+	# override 合成（C3）：circle_eruption override radius=160 覆盖模板 150
+	var erup: Dictionary = {}
+	for pat in boss.get("_patterns"):
+		if str(pat.get("skill_id")) == "circle_eruption":
+			erup = pat
+	var composed: Dictionary = boss.call("_compose_skill_params", erup)
+	_ok(absf(float(composed.get("radius", 0.0)) - 160.0) < EPSILON,
+		"§4 override 合成 radius 150→160（实得 %s）" % str(composed.get("radius")))
+	_ok(str(composed.get("type", "")) == "circle", "§4 override 合成模板字段保留（type=circle）")
+	# 权重随机 + 保底不连续：种子固定，连续 pick 2 次 → 技能不同（2 技能池保底换）
+	boss.set("_rng", RandomNumberGenerator.new())
+	boss._rng.seed = 20260813
+	boss.call("_pick_and_cast")
+	var first_skill: String = str(boss.get("_last_pattern_skill"))
+	_ok(boss.get("_active_executor") != null and is_instance_valid(boss.get("_active_executor")),
+		"§4 pick 后执行器已创建（%s）" % first_skill)
+	# 四拍子推进：驱动 tick 直至 resolve → 圈内玩家受伤
+	var hp0: float = p.hp
+	var exec: Variant = boss.get("_active_executor")
+	for i in range(30):
+		if exec == null or not is_instance_valid(exec):
+			break
+		exec.call("tick", 0.2, {"player": p})
+		if bool(exec.call("is_done")):
+			break
+	_ok(p.hp < hp0, "§4 pattern 技能 resolve 圈内伤害生效（hp %.0f→%.0f）" % [hp0, p.hp])
+	# 保底不连续：手动置位上一技能 → 再 pick 时换技能（2 技能池）
+	boss.set("_last_pattern_skill", "circle_aoe")
+	boss.set("_active_executor", null)
+	boss.set("_pattern_cooldown", 0.0)
+	boss.call("_pick_and_cast")
+	_ok(str(boss.get("_last_pattern_skill")) != "circle_aoe",
+		"§4 保底不连续（上一=circle_aoe → 本次≠circle_aoe，实得 %s）" % str(boss.get("_last_pattern_skill")))
+	# 冷却门禁：施放后 cooldown 内不再 pick
+	var exec_after: Variant = boss.get("_active_executor")
+	boss.call("_process_boss_patterns", 0.1)
+	boss.call("_process_boss_patterns", 0.1)
+	_ok(boss.get("_active_executor") == exec_after, "§4 冷却中不重复 pick")
+	# 数据门控：清空 _patterns → 旧 attacks 降级路径（无 executor 创建，零崩溃）
+	if is_instance_valid(boss.get("_active_executor")):
+		boss.get("_active_executor").queue_free()
+	boss.set("_active_executor", null)
+	boss.set("_pattern_cooldown", 0.0)
+	boss.set("_patterns", [])
+	boss.call("_process_boss_patterns", 0.1)
+	_ok(boss.get("_active_executor") == null, "§4 无 pattern 数据 → 降级不施放（零崩溃）")
+	boss.queue_free()
+	fx.queue_free()
 	p.queue_free()
 
 # ========== 断言 ==========

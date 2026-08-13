@@ -1,0 +1,35 @@
+{
+  "skills": {
+    "circle_aoe": {
+      "type": "circle",
+      "telegraph": 1.2,
+      "radius": 120,
+      "arc": 0,
+      "effects": [],
+      "resolve_delay": 0.5,
+      "damage": 30,
+      "cooldown": 8,
+      "sfx": "boss_skill",
+      "warn_style": "ring"
+    },
+    "circle_eruption": {
+      "type": "circle",
+      "telegraph": 1.5,
+      "radius": 150,
+      "arc": 0,
+      "effects": [
+        {
+          "source": "boss",
+          "id": "fire",
+          "duration": 3,
+          "dps": 5
+        }
+      ],
+      "resolve_delay": 0.6,
+      "damage": 40,
+      "cooldown": 12,
+      "sfx": "boss_skill",
+      "warn_style": "ring"
+    }
+  }
+}

@@ -130,6 +130,11 @@ func _build_enemy(stats: Dictionary) -> Node:
 	var enemy: Node = scene.instantiate()
 	if enemy.has_method("initialize"):
 		enemy.initialize(stats)
+	# BS-C2 适配（2026-08-13）：invoker/predator 已带 boss_patterns 数据 → 本探针断言的是
+	# 旧 attacks 指令路径（_attack_timers/summon 等），白盒清空 _patterns 走降级路径
+	# （新 pattern 循环行为由 day30_boss_skill §4 覆盖；48/48 断言语义零变化）
+	if enemy.get("_patterns") != null:
+		enemy.set("_patterns", [])
 	if enemy.has_method("set_target"):
 		enemy.set_target(_player)
 	root.add_child(enemy)

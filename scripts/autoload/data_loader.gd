@@ -40,6 +40,9 @@ var _physics: Dictionary = {}           ## 弹丸物理参数（碰撞层/半径
 var _skills: Dictionary = {}            ## 技能参数（火球 speed/lifetime/pierce/radius）
 var _routes: Dictionary = {}            ## 随机节点路线参数（routes.json）
 var _events: Array = []                 ## 事件列表（events.json，Day 16：GameManager 随机取）
+## BS-C1（2026-08-13）：Boss 技能表 + pattern 引用表（boss_skills.json / boss_patterns.json）
+var _boss_skills: Dictionary = {}       ## { skill_id → 技能定义 }
+var _boss_patterns: Array = []          ## [{boss_id, skill_id, weight, phase, override, min_interval}]
 
 # ========== F1-散 参数段兜底（缺段时接口返回的默认值 = 现硬编码值，防 Excel 未导出行为漂移） ==========
 const COMBAT_DEFAULTS: Dictionary = {
@@ -85,6 +88,7 @@ func load_all() -> void:
 	_load_stats()
 	_load_routes()
 	_load_events()
+	_load_boss_tables()
 	_loaded = true
 
 ## 加载敌人数据
@@ -182,6 +186,15 @@ func _load_events() -> void:
 	var data = _load_json("res://data/events.json")
 	if data:
 		_events = data.get("events", [])
+
+## BS-C1（2026-08-13）：Boss 技能/pattern 表（缺失 → 空表，Boss 走旧 attacks 指令降级路径）
+func _load_boss_tables() -> void:
+	var data = _load_json("res://data/boss_skills.json")
+	if data:
+		_boss_skills = data.get("skills", {})
+	var data2 = _load_json("res://data/boss_patterns.json")
+	if data2:
+		_boss_patterns = data2.get("patterns", [])
 
 # ========== JSON 工具 ==========
 
@@ -462,3 +475,17 @@ func get_routes() -> Dictionary:
 ## 获取全部事件（事件节点随机取用；缺失返回 []）
 func get_events() -> Array:
 	return _events
+
+# ========== Boss 技能接口（BS-C1 · 2026-08-13） ==========
+
+## 获取 Boss 技能定义（boss_skills.json；缺失返回 {}）
+func get_boss_skill(skill_id: String) -> Dictionary:
+	return _boss_skills.get(skill_id, {})
+
+## 获取某 Boss 的 pattern 行（boss_patterns.json 按 boss_id 过滤；缺失返回 [] → 旧 attacks 降级）
+func get_boss_patterns(boss_id: String) -> Array:
+	var out: Array = []
+	for p in _boss_patterns:
+		if str(p.get("boss_id", "")) == boss_id:
+			out.append(p)
+	return out

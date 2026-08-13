@@ -66,6 +66,7 @@ COLUMN_ZH = {
     "hp": "生命值", "hp_growth": "生命成长", "speed": "速度", "drop": "掉落",
     "behavior": "行为", "exp_value": "经验值", "coin_value": "金币值", "armor": "护甲",
     "phases": "阶段(JSON)", "damage_growth": "伤害成长",
+    "resist": "免疫列表(JSON)",
     "ability.type": "技能.类型", "ability.radius": "技能.半径", "ability.interval": "技能.间隔",
     "ability.damage_mult": "技能.伤害倍率", "ability.threshold": "技能.阈值",
     "ability.heal_percent": "技能.治疗%", "ability.minion": "技能.召唤物", "ability.count": "技能.数量",
@@ -186,7 +187,7 @@ SHEETS = {
     "enemies": {
         "sheet": "enemies", "file": "enemies.json", "root": "enemies",
         "key": "id", "category": "_xlsx_category", "kind": "category_map",
-        "json_cols": ["phases"], "child": None,
+        "json_cols": ["phases", "resist"], "child": None,
     },
     "enemy_scaling": {
         "sheet": "enemy_scaling", "file": "enemies.json", "root": "scaling",
@@ -289,6 +290,17 @@ SHEETS = {
         "sheet": "routes", "file": "routes.json", "root": None,
         "key": None, "category": None, "kind": "flat_dict",
         "json_cols": ["boss_layers"], "child": None,
+    },
+    # BS-C1（2026-08-13 · BOSS_SKILL_SPEC §4.1/4.2）：Boss 技能表 + pattern 引用表
+    "boss_skills": {
+        "sheet": "boss_skill", "file": "boss_skills.json", "root": "skills",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": ["effects"], "child": None,
+    },
+    "boss_patterns": {
+        "sheet": "boss_pattern", "file": "boss_patterns.json", "root": "patterns",
+        "key": None, "category": None, "kind": "list",
+        "json_cols": ["override"], "child": None,
     },
 }
 

@@ -317,6 +317,9 @@
             ],
             "speed_multiplier": 1.2
           }
+        ],
+        "resist": [
+          "stun"
         ]
       },
       {
@@ -354,6 +357,9 @@
             ],
             "speed_multiplier": 1.3
           }
+        ],
+        "resist": [
+          "stun"
         ]
       }
     ]

@@ -1,0 +1,32 @@
+{
+  "patterns": [
+    {
+      "boss_id": "invoker",
+      "skill_id": "circle_aoe",
+      "weight": 1,
+      "phase": 100,
+      "override": {},
+      "min_interval": 4
+    },
+    {
+      "boss_id": "invoker",
+      "skill_id": "circle_eruption",
+      "weight": 1,
+      "phase": 66,
+      "override": {
+        "radius": 160
+      },
+      "min_interval": 6
+    },
+    {
+      "boss_id": "predator",
+      "skill_id": "circle_aoe",
+      "weight": 1,
+      "phase": 100,
+      "override": {
+        "damage": 25
+      },
+      "min_interval": 4
+    }
+  ]
+}

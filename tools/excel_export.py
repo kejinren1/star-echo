@@ -363,6 +363,22 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
 
     # routes（flat_dict 单行）
     files["routes.json"] = flat_sheet("routes")
+
+    # boss_skills（BS-C1 · dict 形如 {skills: {id: {...}}}）
+    bs_rows = tables.get("boss_skill", [])
+    skills: dict = {}
+    for r in bs_rows:
+        sid = str(r.get("id"))
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
+        skills[sid] = unflatten(rec, set(SHEETS["boss_skills"]["json_cols"]))
+    files["boss_skills.json"] = {"skills": skills}
+
+    # boss_patterns（BS-C1 · list 形如 {patterns: [...]}）
+    bp_rows = []
+    for r in tables.get("boss_pattern", []):
+        rec = {k: coerce_num(v) for k, v in r.items() if not k.startswith("_")}
+        bp_rows.append(unflatten(rec, set(SHEETS["boss_patterns"]["json_cols"])))
+    files["boss_patterns.json"] = {"patterns": bp_rows}
     return files
 
 

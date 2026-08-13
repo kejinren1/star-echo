@@ -20,6 +20,8 @@ const DamageNumberScript: GDScript = preload("res://scripts/effects/damage_numbe
 const EnemyProjectileScript: GDScript = preload("res://scripts/enemy/enemy_projectile.gd")
 ## BS-A2（2026-08-13）：通用持续效果组件（无 class_name，preload 范式——探针 --script 兼容）
 const StatusComponentScript: GDScript = preload("res://scripts/systems/status_component.gd")
+## BS-C2（2026-08-13）：Boss 技能执行器工厂（无 class_name，preload 范式）
+const BossSkillFactoryScript: GDScript = preload("res://scripts/boss/boss_skill_factory.gd")
 
 # ========== 行为枚举 ==========
 
@@ -186,6 +188,14 @@ var _base_speed: float = 120.0               ## 基础移速（阶段 speed_mult
 var _rng := RandomNumberGenerator.new()      ## 攻击随机源（探针可注 _rng.seed；禁 Array.shuffle/pick_random 全局 RNG）
 var _barrage_wave: int = 0                   ## barrage 剩余波次（决策 D4：8 向 × 3 波）
 var _barrage_timer: float = 0.0              ## barrage 波间隔计时（0.25s）
+## BS-C2（BOSS_SKILL_SPEC §7-3 · 2026-08-13）：Boss pattern 技能循环——新 pattern 优先接管
+## Boss 技能释放，旧 attacks 指令执行器（_process_boss_attacks）保留为降级路径
+## （Boss 无 pattern 数据 → 行为完全等价，day18_19 回归兜底）
+var _patterns: Array = []                    ## 本 Boss pattern 行（initialize 按 enemy_id 取）
+var _pattern_cooldown: float = 0.0           ## pattern 释放冷却（min_interval/技能 cooldown 最大值）
+var _pattern_cooldown_total: float = 0.0     ## 本次冷却总量（探针观测用）
+var _last_pattern_skill: String = ""         ## 保底：同技能不连续 2 次
+var _active_executor: Node = null            ## 当前四拍子执行器（boss_skill_factory 创建）
 
 # ========== 生命周期 ==========
 
@@ -406,8 +416,13 @@ func _update_behavior(delta: float) -> void:
 	if not is_target_valid():
 		return
 	# Day 18-19 · T1/T2：Boss 阶段模式（优先于行为枚举；普通/精英零影响——双条件守卫）
+	# BS-C2（2026-08-13）：新 pattern 循环优先接管技能释放；旧 attacks 指令保留为降级
+	# （无 pattern 数据 → 完全旧行为，day18_19 回归兜底）
 	if is_boss and not phases.is_empty():
-		_process_boss_attacks(delta)
+		if not _patterns.is_empty():
+			_process_boss_patterns(delta)
+		else:
+			_process_boss_attacks(delta)
 		if _boss_charge:
 			_move_charge(delta)
 		else:
@@ -703,6 +718,98 @@ func _process_boss_attacks(delta: float) -> void:
 	for key in remove_keys:
 		_attack_timers.erase(key)
 
+# ========== Boss pattern 技能循环（BS-C2/C3 · 2026-08-13） ==========
+## 权重随机 + 保底（同技能不连续 2 次）+ phase 解锁（100/66/33 阈值）+ 四拍子执行器复用
+## 数据门控：_patterns 空 → 完全旧路径（_process_boss_attacks）
+
+## pattern 主循环：执行器运行 → 推进；冷却 → 递减；就绪 → 挑技能施放
+func _process_boss_patterns(delta: float) -> void:
+	if _active_executor != null and is_instance_valid(_active_executor):
+		_active_executor.call("tick", delta, {"player": target})
+		if bool(_active_executor.call("is_done")):
+			_active_executor.queue_free()
+			_active_executor = null
+			_pattern_cooldown = _pattern_cooldown_total
+		return
+	if _pattern_cooldown > 0.0:
+		_pattern_cooldown -= delta
+		return
+	_pick_and_cast()
+
+## 权重随机挑 pattern（_rng 实例禁全局 RNG）+ 保底不连续 + 阶段解锁
+func _pick_and_cast() -> void:
+	var pool: Array = _active_pattern_pool()
+	if pool.is_empty() or target == null:
+		return
+	var total: float = 0.0
+	for p in pool:
+		total += maxf(float(p.get("weight", 1.0)), 0.0)
+	if total <= 0.0:
+		return
+	var roll: float = _rng.randf_range(0.0, total)
+	var picked: Dictionary = {}
+	var acc: float = 0.0
+	for p in pool:
+		acc += maxf(float(p.get("weight", 1.0)), 0.0)
+		if roll <= acc:
+			picked = p
+			break
+	if picked.is_empty():
+		return
+	# 保底：同技能不连续 2 次（仅一个技能时跳过）
+	if str(picked.get("skill_id", "")) == _last_pattern_skill and pool.size() > 1:
+		var alt: Array = []
+		for p in pool:
+			if str(p.get("skill_id", "")) != _last_pattern_skill:
+				alt.append(p)
+		if not alt.is_empty():
+			picked = alt[_rng.randi_range(0, alt.size() - 1)]
+	# C3：override 合成（技能模板 + pattern override 覆盖）
+	var params: Dictionary = _compose_skill_params(picked)
+	if params.is_empty():
+		return
+	var exec: Node = BossSkillFactoryScript.make(str(params.get("type", "")))
+	if exec == null:
+		return  # 未知 type → 跳过本轮（工厂已 push_warning），冷却由上层兜底
+	exec.name = "PatternExecutor"
+	add_child(exec)
+	params["player"] = target
+	params["fx_container"] = _resolve_fx_container()
+	exec.call("enter", {"params": params})
+	_active_executor = exec
+	_last_pattern_skill = str(picked.get("skill_id", ""))
+	# 冷却 = max(技能 cooldown, pattern min_interval)（大招冷却 + 最短间隔双约束）
+	var cd: float = maxf(float(params.get("cooldown", 4.0)),
+		float(picked.get("min_interval", 0.0)))
+	_pattern_cooldown_total = cd
+	_pattern_cooldown = 0.0
+
+## 阶段解锁池：pattern.phase ≥ 当前阶段阈值（P1=100 / P2=66 / P3=33）
+func _active_pattern_pool() -> Array:
+	var threshold: int = 100
+	match _phase:
+		BossPhase.P2:
+			threshold = 66
+		BossPhase.P3:
+			threshold = 33
+	var pool: Array = []
+	for p in _patterns:
+		if int(p.get("phase", 100)) >= threshold:
+			pool.append(p)
+	return pool
+
+## C3：override 合成（skill 模板 → pattern override 覆盖；merge 顺序 = 模板 → override）
+func _compose_skill_params(pattern: Dictionary) -> Dictionary:
+	var skill: Dictionary = DataLoader.get_boss_skill(str(pattern.get("skill_id", "")))
+	if skill.is_empty():
+		return {}
+	var params: Dictionary = skill.duplicate(true)
+	var override: Variant = pattern.get("override", {})
+	if override is Dictionary:
+		for k in override:
+			params[k] = override[k]
+	return params
+
 ## 按 kind 分派执行器（全距离/容器遍历，禁物理查询，决策 D8）
 func _execute_attack(kind: String, parsed: Dictionary) -> void:
 	match kind:
@@ -945,6 +1052,9 @@ func initialize(stats: Dictionary) -> void:
 	# D21-22-T1（决策 D17）：128px 真精灵 → scale 复位 ×1（旧 skeleton 32px ×2 视觉过渡废弃）
 	if stats.has("phases"):
 		phases = stats["phases"]
+	# BS-C2：Boss pattern 行加载（enemy_id 匹配 boss_patterns.json；无 → 旧 attacks 降级）
+	if is_boss:
+		_patterns = DataLoader.get_boss_patterns(enemy_id)
 	_base_speed = move_speed
 	if is_boss and not phases.is_empty():
 		_reset_boss_phase(0)

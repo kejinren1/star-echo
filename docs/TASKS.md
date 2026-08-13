@@ -2431,11 +2431,11 @@
 - [x] **BS-B-EXIT【W5】回归**：35 件套 + day30_effect + day30_boss_skill + baseline **BASELINE CLEAN**
 
 ### BS 批 C · boss_skill/boss_pattern 表 + Boss pattern 状态机（§7-3 · 依赖批 B + F3-T4 状态机模式）
-- [ ] **BS-C1【W2】boss_skill / boss_pattern 表（§4.1/4.2）**：docs/GameData.xlsx 新增 `boss_skill` sheet（id/type/telegraph/radius/arc/effects/resolve_delay/cooldown/vfx/sfx/warn_style）+ `boss_pattern` sheet（boss_id/skill_id/weight/phase 100/66/33/override/min_interval）+ **boss 表加 `resist` 列（O5 拍板：免疫表放 boss 表，pattern 只管循环）**；data_schema.py 注册；excel_export.py 生成 data/boss_skills.json + data/boss_patterns.json
-- [ ] **BS-C2【W1】Boss pattern 状态机（§7-3 · 接 F3 模式）**：enemy.gd Boss 新增 pattern 循环（`_pick_and_cast` 权重随机 + **保底规则**：同技能不连续 2 次 / 大招有冷却）+ **phase 解锁**（phase 100/66/33 按 F3-T4 BossPhase 阈值表）；四拍子态（idle→telegraph→resolve→recover）复用 exec_* 执行器（F3 BossPhase 状态表扩展）
-- [ ] **BS-C3【W1】变种 override 合成（§3.1）**：params = DataLoader.get_boss_skill(row.id) + row.override 合并（同技能不同 Boss 微调，如精英放大半径）+ 难度缩放占位（批 D 接入，先恒 1.0）
-- [ ] **BS-C4【W1】探针扩展**：day30_boss_skill_check +§4 pattern 段（权重随机边界 / 保底不连续 / phase 解锁 / override 合成 ≥10 断言）
-- [ ] **BS-C-EXIT【W5】回归**：35 件套 + 双探针 + baseline **BASELINE CLEAN**
+- [x] **BS-C1【W2】boss_skill / boss_pattern 表（§4.1/4.2）**：docs/GameData.xlsx 新增 `boss_skill` sheet（id/type/telegraph/radius/arc/effects/resolve_delay/cooldown/vfx/sfx/warn_style）+ `boss_pattern` sheet（boss_id/skill_id/weight/phase 100/66/33/override/min_interval）+ **boss 表加 `resist` 列（O5 拍板：免疫表放 boss 表，pattern 只管循环）**；data_schema.py 注册；excel_export.py 生成 data/boss_skills.json + data/boss_patterns.json【✅ 收口 2026-08-13：boss_skill sheet（circle_aoe damage30 + circle_eruption damage40/fire效果变种）+ boss_pattern sheet（invoker×2 + predator×1，phase 100/66 解锁 + override）+ enemies resist 列（invoker/predator ["stun"]，O5 免疫表放 boss 表）；data_schema 注册 + excel_export 生成 boss_skills.json/boss_patterns.json；🕳️ 表键 = sheet 名（boss_skill 非 boss_skills）】
+- [x] **BS-C2【W1】Boss pattern 状态机（§7-3 · 接 F3 模式）**：enemy.gd Boss 新增 pattern 循环（`_pick_and_cast` 权重随机 + **保底规则**：同技能不连续 2 次 / 大招有冷却）+ **phase 解锁**（phase 100/66/33 按 F3-T4 BossPhase 阈值表）；四拍子态（idle→telegraph→resolve→recover）复用 exec_* 执行器（F3 BossPhase 状态表扩展）【✅ 收口 2026-08-13：Boss pattern 状态机（_process_boss_patterns 主循环 + _pick_and_cast 权重随机+保底不连续 + _active_pattern_pool phase 解锁 100/66/33 + 四拍子 executor 复用；数据门控：_patterns 空 → 旧 attacks 降级路径完全等价）；day18_19 探针适配（invoker/predator 已带 pattern 数据 → 白盒清 _patterns 走旧路径断言，48/48 语义零变化）】
+- [x] **BS-C3【W1】变种 override 合成（§3.1）**：params = DataLoader.get_boss_skill(row.id) + row.override 合并（同技能不同 Boss 微调，如精英放大半径）+ 难度缩放占位（批 D 接入，先恒 1.0）【✅ 收口 2026-08-13：_compose_skill_params 模板+override 合并（merge 顺序：技能模板 → pattern override 覆盖）；探针断言 radius 150→160 生效】
+- [x] **BS-C4【W1】探针扩展**：day30_boss_skill_check +§4 pattern 段（权重随机边界 / 保底不连续 / phase 解锁 / override 合成 ≥10 断言）【✅ 收口 2026-08-13：day30_boss_skill_check +§4（10 断言）→ **26/26**——pattern 表加载/phase 解锁池/P1→P2 扩池/override 合成/权重 pick 创建执行器/四拍子 resolve 伤害/保底不连续/冷却门禁/无 pattern 降级】
+- [x] **BS-C-EXIT【W5】回归**：35 件套 + 双探针 + baseline **BASELINE CLEAN**
 
 ### BS 批 D · 难度缩放 + 扩展技能 + 免疫 UI（§7-4/5/6 · 依赖批 C）
 - [ ] **BS-D1【W1】难度缩放层（§5）**：基础难度（关卡/波次，已有）× 动态难度（build 强度——装备越好系数越高）→ 难度系数合成（0.5~2.0）→ 参数倍率（预警↓伤害↑半径↑）→ **公平底线钳制**（BS-B3）；表里恒存基准值

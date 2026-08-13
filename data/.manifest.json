@@ -1,10 +1,12 @@
 {
-  "generated_at": "2026-08-13T09:31:50",
-  "fingerprint": "dbed94b710caf337",
+  "generated_at": "2026-08-13T09:42:40",
+  "fingerprint": "4008707242da6130",
   "files": {
+    "boss_patterns.json": "5abf9172db00",
+    "boss_skills.json": "2615d0b1a757",
     "characters.json": "184f2bebcf26",
     "elements.json": "c06892a4732d",
-    "enemies.json": "ee96d9efc979",
+    "enemies.json": "94dd2b9fdf40",
     "events.json": "9cb6b6b5389f",
     "items.json": "6a327602afb6",
     "routes.json": "c080ab39b564",
