@@ -363,6 +363,9 @@
     "speed_growth_cap": 0.2,
     "speed_reduction": 0.5,
     "elite_hp_mult_per_wave": 0.15,
-    "elite_dmg_mult_per_wave": 0.08
+    "elite_dmg_mult_per_wave": 0.08,
+    "charge_speed_mult": 1.5,
+    "charge_windup": 2,
+    "charge_duration": 0.8
   }
 }

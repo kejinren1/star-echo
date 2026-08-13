@@ -44,7 +44,9 @@ var _last_crit: bool = false                  ## F-11：最近一次 _roll_crit 
 func _ready() -> void:
 	# F-02（用户拍板 2026-08-06 · P0）：敌人移入 collision_layer 2（玩家层 1 不检测敌人层 →
 	# 人物穿过怪物不围杀）；弹丸 Area2D mask 须指向敌人层 2 才能收到 body_entered
-	collision_mask = 2
+	# T-011（F1-散 2026-08-13）：mask/半径参数化 = stats.physics（缺表兜底 2 / 4.0）
+	var physics: Dictionary = DataLoader.get_stats_physics()
+	collision_mask = int(physics.get("projectile_mask", 2))
 	# 运行时生成子弹精灵（初版不依赖外部美术资源）
 	var sprite := Sprite2D.new()
 	sprite.texture = _make_bullet_texture()
@@ -53,7 +55,7 @@ func _ready() -> void:
 	# 碰撞形状
 	var col_shape := CollisionShape2D.new()
 	var col := CircleShape2D.new()
-	col.radius = 4.0
+	col.radius = float(physics.get("projectile_radius", 4.0))
 	col_shape.shape = col
 	add_child(col_shape)
 	# 碰撞信号

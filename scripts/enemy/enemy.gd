@@ -131,9 +131,17 @@ var _zigzag_dir: float = 1.0
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
 var _charge_dir: Vector2 = Vector2.ZERO
+## T-009（F1-散 2026-08-13）：冲锋参数（initialize 从 get_scaled_enemy 透传，
+## 默认值 = 现硬编码值 1.5/2.0/0.8，行为零改动；enemies.json scaling 扩展键）
+var _charge_speed_mult: float = 1.5   ## 冲锋速度倍率（原 _move_charge :424 字面量 1.5）
+var _charge_windup: float = 2.0       ## 蓄力间隔秒（原 :428 字面量 2.0）
+var _charge_duration: float = 0.8     ## 冲锋持续秒（原 :437 字面量 0.8）
 
 # 接触伤害冷却（避免每帧对玩家造成伤害）
 var _contact_cd: float = 0.0
+## T-015（F1-散 2026-08-13）：战斗参数（initialize 取表缓存一次；默认 = 现硬编码值）
+var _knockback_decay: float = 0.5     ## 击退每帧衰减（原 _process_knockback 字面量 0.5）
+var _contact_cooldown: float = 0.5    ## 接触伤害冷却秒（原 _try_contact_damage 字面量 0.5）
 
 ## 受击击退（H-01 升级体验反馈 2026-08-07：升级冲击波等外部施加，每帧衰减）
 var _knockback: Vector2 = Vector2.ZERO
@@ -190,7 +198,8 @@ func _process_knockback() -> void:
 		return
 	velocity = _knockback
 	move_and_slide()
-	_knockback = _knockback * 0.5
+	# T-015（F1-散 2026-08-13）：衰减率参数化 = stats.combat.knockback_decay
+	_knockback = _knockback * _knockback_decay
 	if _knockback.length() < 8.0:
 		_knockback = Vector2.ZERO
 
@@ -212,7 +221,8 @@ func _try_contact_damage() -> void:
 	if dist <= contact_range and target.has_method("take_damage"):
 		# D18-19-T2（决策 D2）：Boss 冲锋命中伤害 × _boss_charge_mult（普通敌人恒 ×1.0）
 		target.take_damage(damage * (_boss_charge_mult if (is_boss and _boss_charge) else 1.0))
-		_contact_cd = 0.5
+		# T-015（F1-散 2026-08-13）：接触冷却参数化 = stats.combat.contact_cooldown
+		_contact_cd = _contact_cooldown
 
 # ========== 动画 ==========
 
@@ -421,11 +431,12 @@ func _move_charge(delta: float) -> void:
 	if _is_charging:
 		# F-15（用户拍板 2026-08-06 · P0）：冲锋倍率 ×2.5 → ×1.5（配合 F-01 移速×0.5，
 		# 冲速 425×1.5×0.5≈319，恢复可反应区间，消除「被冲脸瞬秒」围杀体验）
-		velocity = _charge_dir * move_speed * 1.5
+		# T-009（F1-散 2026-08-13）：倍率参数化 = scaling.charge_speed_mult
+		velocity = _charge_dir * move_speed * _charge_speed_mult
 		move_and_slide()
 		if _charge_timer <= 0.0:
 			_is_charging = false
-			_charge_timer = 2.0  # 蓄力间隔
+			_charge_timer = _charge_windup  # 蓄力间隔（T-009）
 	else:
 		# 蓄力期间缓慢移动
 		var direction := global_position.direction_to(target.global_position)
@@ -434,7 +445,7 @@ func _move_charge(delta: float) -> void:
 		if _charge_timer <= 0.0:
 			_is_charging = true
 			_charge_dir = global_position.direction_to(target.global_position)
-			_charge_timer = 0.8  # 冲锋持续
+			_charge_timer = _charge_duration  # 冲锋持续（T-009）
 
 ## Z 形移动
 func _move_zigzag(delta: float) -> void:
@@ -880,6 +891,18 @@ func initialize(stats: Dictionary) -> void:
 		ability = stats["ability"]
 	if stats.has("wave_number"):
 		wave_number = int(stats["wave_number"])
+	# T-009（F1-散 2026-08-13）：冲锋参数透传（get_scaled_enemy 返回键；缺键保持默认）
+	if stats.has("charge_speed_mult"):
+		_charge_speed_mult = float(stats["charge_speed_mult"])
+	if stats.has("charge_windup"):
+		_charge_windup = float(stats["charge_windup"])
+	if stats.has("charge_duration"):
+		_charge_duration = float(stats["charge_duration"])
+	# T-015（F1-散 2026-08-13）：战斗参数取表缓存（击退衰减/接触冷却；
+	# 缺表兜底 = 现硬编码值；armor_cap 为保留参数无消费点——F1-C 平直减公式无钳制语义）
+	var combat: Dictionary = DataLoader.get_stats_combat()
+	_knockback_decay = float(combat.get("knockback_decay", 0.5))
+	_contact_cooldown = float(combat.get("contact_cooldown", 0.5))
 	# 根据 category 设置标记
 	match enemy_category:
 		"elite":

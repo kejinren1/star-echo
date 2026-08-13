@@ -42,6 +42,8 @@ enum GameState {
 
 var current_state: GameState = GameState.MENU
 var current_wave: int = 0          ## 当前波次 (从 1 开始)
+## T-008（F1-散 2026-08-13）：max_waves 声明兜底参数化（主源维持 DataLoader.get_max_waves()
+## waves 键推导；本字段仅作启动兜底字面量，start_game/_ready 时从 combat 表读）
 var max_waves: int = 20            ## 总波次数 (启动时从 DataLoader 加载)
 var is_boss_wave: bool = false     ## 当前是否为 Boss 波
 var current_character_id: String = ""      ## 本局英雄 id（Main._ready 写入，供 Day 3 主动技能系统读取）
@@ -169,10 +171,10 @@ func start_game() -> void:
 	if current_character_id != "":
 		add_char_xp(current_character_id)
 	current_wave = 0
-	# 从 DataLoader 加载总波次数
+	# 从 DataLoader 加载总波次数（T-008：兜底字面量参数化 = combat 表 max_waves）
 	max_waves = DataLoader.get_max_waves()
 	if max_waves <= 0:
-		max_waves = 20
+		max_waves = int(DataLoader.get_stats_combat().get("max_waves", 20))
 	current_layer = 0
 	current_node = {}
 	route = {}
@@ -239,12 +241,14 @@ func _clear_remaining_enemies() -> void:
 
 ## F-05（用户拍板 2026-08-06）：通关回血 50% 最大生命
 ## 独立方法便于探针白盒直调；玩家未绑定/已死时静默跳过不崩
+## T-007（F1-散 2026-08-13）：回血比例参数化 = stats.combat.wave_clear_heal_ratio（0.5）
 func _apply_wave_heal() -> void:
 	if player == null or not is_instance_valid(player):
 		return
 	if not player.has_method("heal") or not ("max_health" in player):
 		return
-	player.heal(float(player.max_health) * 0.5)
+	var heal_ratio: float = float(DataLoader.get_stats_combat().get("wave_clear_heal_ratio", 0.5))
+	player.heal(float(player.max_health) * heal_ratio)
 
 ## 关闭商店（P1 Fix-1：战后商店 → 路线选择；shop节点商店 → 节点完成推进；旧模式 → 下一波）
 func close_shop() -> void:

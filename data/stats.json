@@ -262,5 +262,25 @@
   "shop": {
     "reroll_cost": 10,
     "core_grace_wave": 4
+  },
+  "combat": {
+    "wave_clear_heal_ratio": 0.5,
+    "max_waves": 20,
+    "i_frames": 0.4,
+    "dodge_cap": 0.9,
+    "debug_damage_mult": 0.001,
+    "knockback_decay": 0.5,
+    "contact_cooldown": 0.5,
+    "armor_cap": 0.75
+  },
+  "physics": {
+    "projectile_mask": 2,
+    "projectile_radius": 4
+  },
+  "skills": {
+    "fireball_speed": 280,
+    "fireball_lifetime": 1.4,
+    "fireball_pierce": 3,
+    "fireball_radius": 90
   }
 }

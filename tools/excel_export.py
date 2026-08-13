@@ -339,6 +339,10 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         "formulas": flat_sheet("stats_formulas"),
         "leveling": flat_sheet("stats_leveling"),
         "shop": flat_sheet("stats_shop"),
+        # F1-散（2026-08-13）：combat/physics/skills 三参数段（flat_dict 单行表）
+        "combat": flat_sheet("stats_combat"),
+        "physics": flat_sheet("stats_physics"),
+        "skills": flat_sheet("stats_skills"),
     }
 
     # elements（dict + reactions + reaction_rules）

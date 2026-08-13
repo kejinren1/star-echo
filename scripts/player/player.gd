@@ -447,6 +447,8 @@ func add_shield(amount: float, duration: float) -> void:
 func take_damage(amount: float) -> void:
 	if not is_alive or _invulnerable_timer > 0.0:
 		return
+	# T-013（F1-散 2026-08-13）：无敌帧/金手指受伤倍率参数化（单次取表，缺表兜底现值）
+	var combat: Dictionary = DataLoader.get_stats_combat()
 
 	# 护盾吸收（P0-Bug1 修复）：护盾优先于闪避/护甲；全吸收时仅受击反馈 + 无敌帧
 	if shield > 0.0:
@@ -455,7 +457,7 @@ func take_damage(amount: float) -> void:
 		amount -= absorbed
 		if amount <= 0.0:
 			_play_hit_flash()
-			_invulnerable_timer = 0.4
+			_invulnerable_timer = float(combat.get("i_frames", 0.4))
 			return
 
 	# 闪避判定
@@ -467,8 +469,9 @@ func take_damage(amount: float) -> void:
 	# D20-T2（破碎王冠）：受伤倍率（armor 平直减伤先减后乘；默认 1.0 零回归）
 	actual_damage *= damage_taken_mult
 	# F-04（金手指）：受伤 0.1%（≈无敌，试玩效率工具；关闭时恒 1 零回归）
+	# T-013（F1-散 2026-08-13）：倍率参数化 = stats.combat.debug_damage_mult
 	if GameManager and GameManager.debug_cheat:
-		actual_damage *= 0.001
+		actual_damage *= float(combat.get("debug_damage_mult", 0.001))
 	health -= actual_damage
 	health_changed.emit(health, max_health)
 	took_damage.emit(actual_damage)
@@ -476,7 +479,7 @@ func take_damage(amount: float) -> void:
 	_play_hit_anim()   # D29：受击动画（无 hit 帧时静默降级仅红闪）
 	AudioManager.play_sfx("hit")   # D24-T3-④：受击 SFX
 	# 短无敌帧，避免被群体敌人每帧叠伤
-	_invulnerable_timer = 0.4
+	_invulnerable_timer = float(combat.get("i_frames", 0.4))
 	# D24-F13-2（F-13 low_health · last_stand 背水一战）：受击后统一刷新低血状态（乘算开/关 + 逆运算回滚）
 	_update_last_stand()
 
@@ -646,7 +649,9 @@ func apply_stat_modifier(stat_name: String, value: float, is_multiplicative: boo
 		"crit_damage":
 			crit_damage = apply_value(crit_damage, value, is_multiplicative)
 		"dodge":
-			dodge = clampf(apply_value(dodge, value, is_multiplicative), 0.0, 0.9)
+			# T-013（F1-散 2026-08-13）：闪避上限参数化 = stats.combat.dodge_cap（缺表兜底 0.9）
+			dodge = clampf(apply_value(dodge, value, is_multiplicative), 0.0,
+				float(DataLoader.get_stats_combat().get("dodge_cap", 0.9)))
 		"luck":
 			luck = apply_value(luck, value, is_multiplicative)
 		"life_steal":

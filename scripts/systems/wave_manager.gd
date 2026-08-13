@@ -20,6 +20,7 @@ var current_wave: int = 0
 var is_active: bool = false
 var time_remaining: float = 0.0
 var kill_count: int = 0
+## T-008（F1-散 2026-08-13）：max_waves 兜底参数化（主源 = get_max_waves waves 键推导）
 var max_waves: int = 20
 
 # ========== 生命周期 ==========
@@ -27,7 +28,7 @@ var max_waves: int = 20
 func _ready() -> void:
 	max_waves = DataLoader.get_max_waves()
 	if max_waves <= 0:
-		max_waves = 20
+		max_waves = int(DataLoader.get_stats_combat().get("max_waves", 20))
 
 func _process(delta: float) -> void:
 	if not is_active:

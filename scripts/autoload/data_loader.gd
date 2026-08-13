@@ -34,8 +34,34 @@ var _stats: Dictionary = {}             ## 属性定义
 var _formulas: Dictionary = {}          ## 公式定义
 var _leveling: Dictionary = {}          ## 升级定义
 var _shop: Dictionary = {}              ## 商店参数（stats.json shop 段，F1-D T-010）
+## F1-散（2026-08-13 T-007/008/013/015/011/012）：战斗/物理/技能参数段（stats.json 顶层键）
+var _combat: Dictionary = {}            ## 战斗参数（通关回血/无敌帧/闪避上限等）
+var _physics: Dictionary = {}           ## 弹丸物理参数（碰撞层/半径）
+var _skills: Dictionary = {}            ## 技能参数（火球 speed/lifetime/pierce/radius）
 var _routes: Dictionary = {}            ## 随机节点路线参数（routes.json）
 var _events: Array = []                 ## 事件列表（events.json，Day 16：GameManager 随机取）
+
+# ========== F1-散 参数段兜底（缺段时接口返回的默认值 = 现硬编码值，防 Excel 未导出行为漂移） ==========
+const COMBAT_DEFAULTS: Dictionary = {
+	"wave_clear_heal_ratio": 0.5,    # T-007 game_manager._apply_wave_heal
+	"max_waves": 20,                 # T-008 game_manager/wave_manager 兜底字面量
+	"i_frames": 0.4,                 # T-013 player.take_damage 无敌帧
+	"dodge_cap": 0.9,                # T-013 player 闪避 clamp 上限
+	"debug_damage_mult": 0.001,      # T-013 F-04 金手指受伤倍率
+	"knockback_decay": 0.5,          # T-015 enemy._process_knockback 每帧衰减
+	"contact_cooldown": 0.5,         # T-015 enemy._try_contact_damage 冷却
+	"armor_cap": 0.75,               # T-015 保留参数（F1-C 平直减公式无钳制语义，无消费点）
+}
+const PHYSICS_DEFAULTS: Dictionary = {
+	"projectile_mask": 2,            # T-011 projectile.collision_mask
+	"projectile_radius": 4.0,        # T-011 projectile 碰撞圆半径
+}
+const SKILLS_DEFAULTS: Dictionary = {
+	"fireball_speed": 280.0,         # T-012 skill_controller 火球速度
+	"fireball_lifetime": 1.4,        # T-012 火球寿命
+	"fireball_pierce": 3,            # T-012 火球穿透（F-07）
+	"fireball_radius": 90.0,         # T-012 火球爆炸半径兜底
+}
 
 var _loaded: bool = false               ## 是否已加载
 
@@ -141,6 +167,9 @@ func _load_stats() -> void:
 	_formulas = data.get("formulas", {})
 	_leveling = data.get("leveling", {})
 	_shop = data.get("shop", {})
+	_combat = data.get("combat", {})
+	_physics = data.get("physics", {})
+	_skills = data.get("skills", {})
 
 ## 加载路线参数（routes.json；缺失返回空字典 → 生成器走默认参数）
 func _load_routes() -> void:
@@ -223,6 +252,12 @@ func get_scaled_enemy(enemy_id: String, wave: int) -> Dictionary:
 		final_hp *= elite_hp_mult
 		final_damage *= elite_dmg_mult
 
+	# T-009（F1-散 2026-08-13）：冲锋参数透传（enemy._move_charge 消费；
+	# 默认值 = 现硬编码值 1.5/2.0/0.8，行为零改动）
+	var charge_speed_mult: float = float(_enemy_scaling.get("charge_speed_mult", 1.5))
+	var charge_windup: float = float(_enemy_scaling.get("charge_windup", 2.0))
+	var charge_duration: float = float(_enemy_scaling.get("charge_duration", 0.8))
+
 	return {
 		"id": data.get("id", enemy_id),
 		"name": data.get("name", enemy_id),
@@ -236,6 +271,14 @@ func get_scaled_enemy(enemy_id: String, wave: int) -> Dictionary:
 		"phases": data.get("phases", []),
 		# D6-T2：经验值透传（T-A 收口；缺字段兜底 1 = 历史行为，不崩）
 		"exp_value": int(data.get("exp_value", 1)),
+		# T-053（F1-散 2026-08-13）：wave_number 补键——Boss 召唤物路径
+		# （enemy.gd _boss_summon/_elite_spawn → get_scaled_enemy(minion, wave)）
+		# 直接可读；enemy_spawner 手动补键 :130 变为冗余但同值（零改动）
+		"wave_number": wave,
+		# T-009：冲锋参数（enemy.initialize 透传存储，_move_charge 消费）
+		"charge_speed_mult": charge_speed_mult,
+		"charge_windup": charge_windup,
+		"charge_duration": charge_duration,
 	}
 
 ## 获取所有敌人 ID
@@ -385,6 +428,28 @@ func get_leveling() -> Dictionary:
 ## 获取商店参数（stats.json shop 段；缺段返回 {} → 消费方 get(key, 默认) 兜底）
 func get_stats_shop() -> Dictionary:
 	return _shop
+
+## F1-散（2026-08-13 T-007/008/013/015）：战斗参数（stats.json combat 段）
+## 缺段/缺键 → 兜底默认值 = 现硬编码值（防 Excel 未导出时行为漂移）
+func get_stats_combat() -> Dictionary:
+	var out: Dictionary = COMBAT_DEFAULTS.duplicate()
+	for k in _combat:
+		out[k] = _combat[k]
+	return out
+
+## F1-散（2026-08-13 T-011）：弹丸物理参数（stats.json physics 段）
+func get_stats_physics() -> Dictionary:
+	var out: Dictionary = PHYSICS_DEFAULTS.duplicate()
+	for k in _physics:
+		out[k] = _physics[k]
+	return out
+
+## F1-散（2026-08-13 T-012）：技能参数（stats.json skills 段）
+func get_stats_skills() -> Dictionary:
+	var out: Dictionary = SKILLS_DEFAULTS.duplicate()
+	for k in _skills:
+		out[k] = _skills[k]
+	return out
 
 # ========== 路线接口（Day 14-15 · D14-15-T3） ==========
 

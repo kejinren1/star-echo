@@ -93,7 +93,10 @@ func try_cast() -> bool:
 ## 艾琳「炽星火球」（D3-T3）：朝瞄准方向抛射巨型火球，命中爆炸 + 燃烧
 func _cast_fireball() -> void:
 	var base_damage: float = float(skill_data.get("damage", 30.0))
-	var radius: float = float(skill_data.get("radius", 90.0))
+	# T-012（F1-散 2026-08-13）：火球爆炸半径兜底参数化 = stats.skills.fireball_radius
+	# （skill_data.radius 仍优先——技能级数据 > 全局兜底）
+	var stats_skills: Dictionary = DataLoader.get_stats_skills()
+	var radius: float = float(skill_data.get("radius", stats_skills.get("fireball_radius", 90.0)))
 	# 技能覆写通用 3s 基准（elements.json.fire.duration=3），见 TASKS D3-T7b 方案 A：
 	# 英雄技能 4 秒属特权加成；通用元素武器后续仍按 elements.json 的 3 秒读
 	var burn_duration: float = float(skill_data.get("burn_duration", 4.0))
@@ -115,12 +118,13 @@ func _cast_fireball() -> void:
 	if aim_dir == Vector2.ZERO:
 		return
 
+	# T-012（F1-散 2026-08-13）：speed/lifetime/pierce 参数化 = stats.skills（缺表兜底现值）
 	var props := {
-		"speed": 280.0,
+		"speed": float(stats_skills.get("fireball_speed", 280.0)),
 		"damage": dmg,
-		"lifetime": 1.4,
+		"lifetime": float(stats_skills.get("fireball_lifetime", 1.4)),
 		# F-07（用户拍板 2026-08-06）：火球改为可穿透怪物（pierce 0→3，可穿过 3 个敌人）
-		"pierce": 3,
+		"pierce": int(stats_skills.get("fireball_pierce", 3)),
 		"explosion_radius": radius,
 		"explosion_damage": dmg,
 		"status_type": str(skill_data.get("element_type", "fire")),

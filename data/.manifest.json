@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-08-12T13:20:45",
-  "fingerprint": "b203a7042c9ffa1a",
+  "generated_at": "2026-08-13T08:27:08",
+  "fingerprint": "8078a5ce3ee0cfc1",
   "files": {
     "characters.json": "184f2bebcf26",
     "elements.json": "d99c78df73f6",
-    "enemies.json": "259bcfc1927c",
+    "enemies.json": "ee96d9efc979",
     "events.json": "9cb6b6b5389f",
     "items.json": "6a327602afb6",
     "routes.json": "c080ab39b564",
-    "stats.json": "c62c87283758",
+    "stats.json": "569ddefe8a64",
     "waves.json": "edb17bc94f05",
     "weapons.json": "97a1f492f78f"
   }

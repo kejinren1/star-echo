@@ -113,6 +113,19 @@ COLUMN_ZH = {
     "xp_per_level": "每级经验", "choices_per_level": "每级选项数",
     "upgrade_options": "升级选项(JSON)", "reroll_cost": "重铸费用",
     "core_grace_wave": "核心武器宽限波",
+    # ---- stats_combat（F1-散 T-007/008/013/015 战斗参数） ----
+    "wave_clear_heal_ratio": "通关回血比例", "max_waves": "最大波次(兜底)",
+    "i_frames": "受击无敌帧(秒)", "dodge_cap": "闪避上限", "debug_damage_mult": "金手指受伤倍率",
+    "knockback_decay": "击退衰减(每帧)", "contact_cooldown": "接触伤害冷却(秒)",
+    "armor_cap": "护甲减伤上限(保留参数)",
+    # ---- stats_physics（F1-散 T-011 弹丸物理参数） ----
+    "projectile_mask": "弹丸碰撞层", "projectile_radius": "弹丸碰撞半径",
+    # ---- stats_skills（F1-散 T-012 火球参数） ----
+    "fireball_speed": "火球速度", "fireball_lifetime": "火球寿命(秒)",
+    "fireball_pierce": "火球穿透数", "fireball_radius": "火球爆炸半径",
+    # ---- enemy_scaling 扩展（F1-散 T-009 冲锋参数） ----
+    "charge_speed_mult": "冲锋倍率", "charge_windup": "蓄力间隔(秒)",
+    "charge_duration": "冲锋持续(秒)",
     # ---- elements / element_reactions / reaction_rules ----
     "effect": "效果", "dot": "持续伤害", "dot_scaling": "持续伤害成长",
     "slow_percent": "减速%", "stun": "眩晕",
@@ -233,6 +246,24 @@ SHEETS = {
     },
     "stats_shop": {
         "sheet": "stats_shop", "file": "stats.json", "root": "shop",
+        "key": None, "category": None, "kind": "flat_dict",
+        "json_cols": [], "child": None,
+    },
+    # F1-散（2026-08-13 T-007/008/013/015/011/012）：战斗/物理/技能参数表（flat_dict 单行，
+    # 仿 stats_shop F1-D 先例；stats.json 顶层新增 combat/physics/skills 三键，消费点
+    # DataLoader.get_stats_combat/physics/skills 读，缺段兜底 = 现硬编码值防行为漂移）
+    "stats_combat": {
+        "sheet": "stats_combat", "file": "stats.json", "root": "combat",
+        "key": None, "category": None, "kind": "flat_dict",
+        "json_cols": [], "child": None,
+    },
+    "stats_physics": {
+        "sheet": "stats_physics", "file": "stats.json", "root": "physics",
+        "key": None, "category": None, "kind": "flat_dict",
+        "json_cols": [], "child": None,
+    },
+    "stats_skills": {
+        "sheet": "stats_skills", "file": "stats.json", "root": "skills",
         "key": None, "category": None, "kind": "flat_dict",
         "json_cols": [], "child": None,
     },
