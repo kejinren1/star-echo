@@ -2424,11 +2424,11 @@
 - [x] **BS-A-EXIT【W5】回归**：35 件套 ≥866 + day30_effect ≥16 + baseline **BASELINE CLEAN**（StatusComponent 抽取不动行为，回归前序探针零改动预期）
 
 ### BS 批 B · 技能执行器框架 + circle 最小闭环（§7-2 · 依赖批 A）
-- [ ] **BS-B1【W1】SkillExecutor 接口框架（§3.1）**：新建 `scripts/boss/skill_executor.gd`（`class_name SkillExecutor extends Node`：enter(p: Dictionary)/tick(delta, p)/exit(p) 三接口）+ `scripts/boss/boss_skill_factory.gd`（`make(type: String) -> SkillExecutor` 工厂，未知 type push_warning 返回 null）
-- [ ] **BS-B2【W1】circle 类型执行器（§2.1 四拍子最小闭环）**：新建 `scripts/boss/exec_circle.gd`——telegraph（预警收缩环，warn_style 数据驱动）→ resolve（resolve_delay 结算：圈内伤害圈外无伤，effects 列表消费）→ recover（后摇）；参数全来自 params（radius/telegraph/resolve_delay/effects/cooldown），Boss 不认识技能
-- [ ] **BS-B3【W1】公平底线公式（§2.2）**：`func fair_telegraph(radius: float, player_speed: float) -> float`（t_w ≥ 2r/v + 0.4s）——难度缩放缩短 t_w 时钳制不得低于底线；探针内白盒单测
-- [ ] **BS-B4【W1】探针 `tools/day30_boss_skill_check.gd`（≥14 断言三段 · §11 验收 1/2）**：圈技能走完 预警→结算→后摇 / 圈内伤害圈外无伤 / t_w ≥ 底线断言 / override 变种参数生效 / 数据驱动（改 Excel 数值→导出→行为变化）
-- [ ] **BS-B-EXIT【W5】回归**：35 件套 + day30_effect + day30_boss_skill + baseline **BASELINE CLEAN**
+- [x] **BS-B1【W1】SkillExecutor 接口框架（§3.1）**：新建 `scripts/boss/skill_executor.gd`（`class_name SkillExecutor extends Node`：enter(p: Dictionary)/tick(delta, p)/exit(p) 三接口）+ `scripts/boss/boss_skill_factory.gd`（`make(type: String) -> SkillExecutor` 工厂，未知 type push_warning 返回 null）【✅ 收口 2026-08-13：scripts/boss/skill_executor.gd（enter/tick/exit 三接口 + Phase 枚举 + fair_telegraph 静态底线公式）+ boss_skill_factory.gd（make 未知 type push_warning+null）；⚠️ 方案「class_name SkillExecutor」改无 class_name preload 范式（探针 --script 不注册全局类名，StatusComponent 先例）】
+- [x] **BS-B2【W1】circle 类型执行器（§2.1 四拍子最小闭环）**：新建 `scripts/boss/exec_circle.gd`——telegraph（预警收缩环，warn_style 数据驱动）→ resolve（resolve_delay 结算：圈内伤害圈外无伤，effects 列表消费）→ recover（后摇）；参数全来自 params（radius/telegraph/resolve_delay/effects/cooldown），Boss 不认识技能【✅ 收口 2026-08-13：scripts/boss/exec_circle.gd 四拍子（telegraph 预警环占位 → resolve 圈内结算圈外无伤 + effects 列表 apply_effect 消费 → recover 后摇）；距离判定禁物理；🕳️ get_meta_or_null 4.3 不存在 → has_meta/get_meta】
+- [x] **BS-B3【W1】公平底线公式（§2.2）**：`func fair_telegraph(radius: float, player_speed: float) -> float`（t_w ≥ 2r/v + 0.4s）——难度缩放缩短 t_w 时钳制不得低于底线；探针内白盒单测【✅ 收口 2026-08-13：fair_telegraph(radius, player_speed) = 2r/v + 0.4 静态函数（skill_executor.gd）；探针白盒单测（120/300 → 1.2s 锚点 + 单调性）】
+- [x] **BS-B4【W1】探针 `tools/day30_boss_skill_check.gd`（≥14 断言三段 · §11 验收 1/2）**：圈技能走完 预警→结算→后摇 / 圈内伤害圈外无伤 / t_w ≥ 底线断言 / override 变种参数生效 / 数据驱动（改 Excel 数值→导出→行为变化）【✅ 收口 2026-08-13：day30_boss_skill_check **16/16 四段**——§1 四拍子相位序列+telegraph 不结算+圈内伤害+effects 消费 / §2 圈内 99 命中圈外 300 无伤 / §3 公平底线锚点+单调性 / §4 override 变种参数生效+工厂未知 type null；数据驱动改表测试登记随 BS-C boss_skill 表落地】
+- [x] **BS-B-EXIT【W5】回归**：35 件套 + day30_effect + day30_boss_skill + baseline **BASELINE CLEAN**
 
 ### BS 批 C · boss_skill/boss_pattern 表 + Boss pattern 状态机（§7-3 · 依赖批 B + F3-T4 状态机模式）
 - [ ] **BS-C1【W2】boss_skill / boss_pattern 表（§4.1/4.2）**：docs/GameData.xlsx 新增 `boss_skill` sheet（id/type/telegraph/radius/arc/effects/resolve_delay/cooldown/vfx/sfx/warn_style）+ `boss_pattern` sheet（boss_id/skill_id/weight/phase 100/66/33/override/min_interval）+ **boss 表加 `resist` 列（O5 拍板：免疫表放 boss 表，pattern 只管循环）**；data_schema.py 注册；excel_export.py 生成 data/boss_skills.json + data/boss_patterns.json
