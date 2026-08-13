@@ -532,14 +532,15 @@ func _part_regression() -> void:
 	# F1-C 同步（2026-08-11）：runner +day29_elin(14)+day29_attack(20) → 34 项 / 期望 830（792 + 14 + 20 + f1_scaling 10→14）
 	# F2 同步（2026-08-12）：runner +day30_f2_boundary(36) → 35 项 / 期望 866（830 + 36）
 	# F1-散 同步（2026-08-13）：runner +day30_f1_scatter(19) → 36 项 / 期望 885（866 + 19）
-	if probe_count == 36:
-		_pass("回归 / _regression_run.py PROBES 36 项（… + day29 14+20 + f1 14 + f1d 8 + f2 36 + f1_scatter 19）")
+	# F3 同步（2026-08-13）：runner +day30_f3_compliance(12)+day30_f3_flow(19→21 含 start_game 双路径) → 38 项 / 期望 918（885 + 12 + 21）
+	if probe_count == 38:
+		_pass("回归 / _regression_run.py PROBES 38 项（… + f1_scatter 19 + f3_compliance 12 + f3_flow 21）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 36" % probe_count)
-	if expect_sum == 885:
-		_pass("回归 / 期望断言合计 885（866 + day30_f1_scatter 19）")
+		_fail("回归: PROBES 项数 %d ≠ 38" % probe_count)
+	if expect_sum == 918:
+		_pass("回归 / 期望断言合计 918（885 + f3_compliance 12 + f3_flow 21）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 885" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 918" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

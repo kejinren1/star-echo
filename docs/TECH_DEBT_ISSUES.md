@@ -13,7 +13,7 @@
 | T-002 | data_loader.gd:191,194 | 移速公式 + F-01 减速 0.5 → scaling 参数化（speed_growth_per_wave/cap/reduction），验证改 0.5→0.4 移速 176→140.8 生效 | 已收口(F1) | F1 |
 | T-003 | enemy_spawner.gd:45 | 生成间隔公式 → generation 参数化（spawn_interval_min/decay）接入 spawner | 已收口(F1) | F1 |
 | T-004 | weapon_controller.gd:50-62 | 初始枪内联配置，不在 weapons.json | F1-E 主窗口承接 | F1 |
-| T-005 | audio_manager.gd:89-96 | int 字面量匹配 GameState，枚举增删即静默错乱 | 已拆解(F3) | F3 |
+| T-005 | audio_manager.gd:89-96 | int 字面量匹配 GameState，枚举增删即静默错乱 | ✅ 已收口(F3 2026-08-13) | F3 |
 | T-006 | player.gd:417 / enemy.gd:762 | 护甲两套算法并存（平直减 vs 百分比），stats.json.formulas 零消费 | 已收口(F1) | F1 |
 | T-007 | game_manager.gd:184 | F-05 通关回血 50% 硬编码 | 已收口(F1-散) | F1 |
 | T-008 | game_manager.gd:109 / wave_manager.gd:30 | max_waves=20 双处重复 | 已收口(F1-散) | F1 |
@@ -54,12 +54,12 @@
 
 | 编号 | 位置 | 问题 | 状态 | 阶段 |
 |---|---|---|---|---|
-| T-031 | game_manager.gd:118,144,165,202,246,357,574,592 | current_state= 8 处散赋，各自内联副作用，无统一 transition（F2-T1 已收口为 _set_state，F3 升级 _transition+context） | 已拆解(F3) | F3 |
-| T-032 | game_manager.gd | 局状态四维正交：current_state × route.is_empty × _shop_from_battle × is_boss_wave | 已拆解(F3) | F3 |
-| T-033 | enemy.gd:152-159,378-384 | Boss 阶段机 int 下标 + 4 个并行 bool（⚠️ 2026-08-13 实测描述过时：实际 = `_current_phase_idx: int` + `phases: Array` 数据，无并行 bool） | 已拆解(F3) | F3 |
-| T-034 | player.gd:87-100,300,315,332 | 5 bool + 字符串动画态（attack/skill/hit）无状态机（实测：_is_walking + 动画函数 _play_*_anim） | 已拆解(F3) | F3 |
-| T-035 | enemy.gd:116,123,170,777 | is_alive + _is_dying 双标志冗余 | 已拆解(F3) | F3 |
-| T-036 | game_manager.gd:231 / audio_manager.gd:90 | 状态类型混乱：route 节点字符串 match + audio int 字面量 | 已拆解(F3) | F3 |
+| T-031 | game_manager.gd:118,144,165,202,246,357,574,592 | current_state= 8 处散赋，各自内联副作用，无统一 transition（F2-T1 已收口为 _set_state，F3 升级 _transition+context） | ✅ 已收口(F3 2026-08-13) | F3 |
+| T-032 | game_manager.gd | 局状态四维正交：current_state × route.is_empty × _shop_from_battle × is_boss_wave | ✅ 已收口(F3 2026-08-13) | F3 |
+| T-033 | enemy.gd:152-159,378-384 | Boss 阶段机 int 下标 + 4 个并行 bool（⚠️ 2026-08-13 实测描述过时：实际 = `_current_phase_idx: int` + `phases: Array` 数据，无并行 bool） | ✅ 已收口(F3 2026-08-13)：BossPhase 枚举 + PHASE_TABLE + _transition_phase；描述修正登记——「4 个并行 bool」过时，实测 int 下标 + phases 数据 | F3 |
+| T-034 | player.gd:87-100,300,315,332 | 5 bool + 字符串动画态（attack/skill/hit）无状态机（实测：_is_walking + 动画函数 _play_*_anim） | ✅ 已收口(F3 2026-08-13) | F3 |
+| T-035 | enemy.gd:116,123,170,777 | is_alive + _is_dying 双标志冗余 | ✅ 已收口(F3 2026-08-13) | F3 |
+| T-036 | game_manager.gd:231 / audio_manager.gd:90 | 状态类型混乱：route 节点字符串 match + audio int 字面量 | ✅ 已收口(F3 2026-08-13) | F3 |
 
 ## 边界与职责
 

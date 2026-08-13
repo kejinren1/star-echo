@@ -225,8 +225,9 @@ func start_game() -> void:
 	if route_enabled:
 		var default_seed: int = int(DataLoader.get_routes().get("default_seed", -1))
 		route = RouteGeneratorScript.generate(default_seed)
-	if _is_route_mode():
-		# 旧波次制（路线生成失败/被禁用 → 完全旧行为）
+	# 旧波次制：route 空（生成失败/被禁用）→ 完全旧行为（F3-A 2026-08-13 修正：条件为
+	# not _is_route_mode()——初版误写 _is_route_mode() 反转，day14_15 §5 回归暴露）
+	if not _is_route_mode():
 		_transition(GameState.BATTLE)
 		game_started.emit()
 		_start_next_wave()

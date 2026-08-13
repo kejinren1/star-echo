@@ -86,13 +86,16 @@ func _process(_delta: float) -> void:
 	var gm: Node = get_node_or_null("/root/GameManager")
 	if gm == null or not ("current_state" in gm):
 		return
+	# F3-T7（T-005/T-036 · 2026-08-13）：int 字面量 → GameState 枚举
+	# ⚠️ 枚举经 Autoload 实例名访问（GameManager.GameState.X，hud.gd:102 先例）——
+	# 独立编译的 Autoload 脚本无法直接引用他脚本内嵌枚举（方案「编译期可见」假设修正登记）
 	var state: int = int(gm.current_state)
 	match state:
-		0:  # MENU
+		GameManager.GameState.MENU:  # MENU
 			_play_bgm_if_needed("menu")
-		1, 2, 3:  # BATTLE / SHOP / ROUTE_SELECT
+		GameManager.GameState.BATTLE, GameManager.GameState.SHOP, GameManager.GameState.ROUTE_SELECT:  # BATTLE / SHOP / ROUTE_SELECT
 			_play_bgm_if_needed("battle")
-		4:  # GAME_OVER
+		GameManager.GameState.GAME_OVER:  # GAME_OVER
 			_stop_bgm()
 		_:
 			pass
