@@ -13,13 +13,13 @@ const ARCHIVE_SCENE: String = "res://scenes/ArchivePanel.tscn"
 const SKILL_TREE_SCENE: String = "res://scenes/SkillTreePanel.tscn"
 
 # ========== 入口定义（探针可读：名称/目标场景） ==========
-## 图鉴/回廊 G-C 就绪已接线；技能树 G-E 批次接线
+## 全部入口 G 系列批次就绪已接线
 var entries: Array = [
 	{"label": "⚔ 开始游戏", "scene": CHARACTER_SELECT_SCENE, "ready": true},
 	{"label": "🏛 方舟基地", "scene": BASE_STATION_SCENE, "ready": true},
 	{"label": "📖 图鉴", "scene": CODEX_SCENE, "ready": true},
 	{"label": "🏺 回廊", "scene": ARCHIVE_SCENE, "ready": true},
-	{"label": "🌳 技能树", "scene": SKILL_TREE_SCENE, "ready": false},
+	{"label": "🌳 技能树", "scene": SKILL_TREE_SCENE, "ready": true},
 ]
 
 var buttons: Array[Button] = []  ## 探针可读

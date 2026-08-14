@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "points_per_level": 1,
+  "nodes": [
+    {
+      "id": "atk_1",
+      "name": "利刃",
+      "desc": "攻击 +5%",
+      "prereq": "",
+      "cost": 1,
+      "effect": {
+        "stat": "damage",
+        "value": 1.05,
+        "mult": true
+      }
+    },
+    {
+      "id": "atk_2",
+      "name": "锐锋",
+      "desc": "攻击 +8%",
+      "prereq": "atk_1",
+      "cost": 1,
+      "effect": {
+        "stat": "damage",
+        "value": 1.08,
+        "mult": true
+      }
+    },
+    {
+      "id": "hp_1",
+      "name": "体魄",
+      "desc": "最大生命 +10%",
+      "prereq": "",
+      "cost": 1,
+      "effect": {
+        "stat": "max_health",
+        "value": 1.1,
+        "mult": true
+      }
+    },
+    {
+      "id": "hp_2",
+      "name": "坚韧",
+      "desc": "护甲 +3",
+      "prereq": "hp_1",
+      "cost": 1,
+      "effect": {
+        "stat": "armor",
+        "value": 3.0,
+        "mult": false
+      }
+    },
+    {
+      "id": "lck_1",
+      "name": "鸿运",
+      "desc": "幸运 +0.05",
+      "prereq": "",
+      "cost": 1,
+      "effect": {
+        "stat": "luck",
+        "value": 0.05,
+        "mult": false
+      }
+    },
+    {
+      "id": "lck_2",
+      "name": "财源",
+      "desc": "金币获取 +5%",
+      "prereq": "lck_1",
+      "cost": 1,
+      "effect": {
+        "stat": "coin_bonus",
+        "value": 0.05,
+        "mult": false
+      }
+    }
+  ]
+}

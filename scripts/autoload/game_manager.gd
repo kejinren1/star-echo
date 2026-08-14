@@ -648,3 +648,19 @@ func get_skill_tree() -> Dictionary:
 func set_skill_tree(data: Dictionary) -> void:
 	if _save_system:
 		_save_system.set_skill_tree(data)
+
+## G-E：技能点余额 / 解锁 / 已解锁列表（经 SaveSystem）
+func get_skill_points() -> int:
+	if _save_system:
+		return _save_system.get_skill_points()
+	return 0
+
+func unlock_skill(node_id: String) -> bool:
+	if _save_system:
+		return _save_system.unlock_skill(node_id)
+	return false
+
+func get_unlocked_skills() -> Array:
+	if _save_system:
+		return _save_system.get_unlocked_skills()
+	return []

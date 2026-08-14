@@ -110,13 +110,21 @@ func add_research_point(amount: int = 1) -> void:
 	_gm.meta_progress["research_points"] = int(_gm.meta_progress.get("research_points", 0)) + maxi(amount, 0)
 
 ## 角色 XP 累计（出场/胜场各 +1；id 空判空跳过）
+## G-E（R6 技能树 · O1 用户拍板 2026-08-12）：等级跃迁发放技能点——
+## old vs new 差值 = n 点（D4 定案防连升少计/多计；skill_tree 缺省空兼容旧档）
 func add_char_xp(id: String, amount: int = 1) -> void:
 	if id.is_empty():
 		return
+	var old_level: int = get_char_level(id)
 	var chars: Dictionary = _gm.meta_progress.get("chars", {})
 	var cdata: Dictionary = chars.get(id, {})
 	chars[id] = {"xp": int(cdata.get("xp", 0)) + maxi(amount, 0)}
 	_gm.meta_progress["chars"] = chars
+	var new_level: int = get_char_level(id)
+	if new_level > old_level:
+		var st: Dictionary = _gm.meta_progress.get("skill_tree", {})
+		st["points"] = int(st.get("points", 0)) + (new_level - old_level)
+		_gm.meta_progress["skill_tree"] = st
 
 func get_char_xp(id: String) -> int:
 	return int(_gm.meta_progress.get("chars", {}).get(id, {}).get("xp", 0))
@@ -148,3 +156,39 @@ func get_skill_tree() -> Dictionary:
 
 func set_skill_tree(data: Dictionary) -> void:
 	_gm.meta_progress["skill_tree"] = data
+
+## 技能点余额（缺省 0）
+func get_skill_points() -> int:
+	return int(_gm.meta_progress.get("skill_tree", {}).get("points", 0))
+
+## 解锁技能节点：前置满足 + 点数足够 → 扣点持久化返回 true；否则 false 不扣
+func unlock_skill(node_id: String) -> bool:
+	var st: Dictionary = _gm.meta_progress.get("skill_tree", {})
+	var unlocked: Array = st.get("unlocked", [])
+	if unlocked.has(node_id):
+		return false
+	var nodes: Array = DataLoader.get_skill_tree().get("nodes", []) if DataLoader else []
+	var node: Dictionary = {}
+	for n in nodes:
+		if str(n.get("id", "")) == node_id:
+			node = n
+			break
+	if node.is_empty():
+		return false
+	# 前置校验（prereq 空 = 根节点免前置）
+	var prereq: String = str(node.get("prereq", ""))
+	if prereq != "" and not unlocked.has(prereq):
+		return false
+	var cost: int = int(node.get("cost", 1))
+	var points: int = int(st.get("points", 0))
+	if points < cost:
+		return false
+	unlocked.append(node_id)
+	st["unlocked"] = unlocked
+	st["points"] = points - cost
+	_gm.meta_progress["skill_tree"] = st
+	return true
+
+## 已解锁节点列表
+func get_unlocked_skills() -> Array:
+	return _gm.meta_progress.get("skill_tree", {}).get("unlocked", [])

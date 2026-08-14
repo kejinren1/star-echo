@@ -157,6 +157,24 @@ func _apply_meta_bonus(player_node: Node) -> void:
 		player_node.apply_stat_modifier("max_health", float(bonus["hp_mult"]), true)
 	if float(bonus.get("luck_add", 0.0)) > 0.0:
 		player_node.apply_stat_modifier("luck", float(bonus["luck_add"]), false)
+	# G-E（R6 技能树 · O2 独立并存 research）：已解锁节点效果全量注入（与 research 同链路）
+	_apply_skill_tree_bonus(player_node)
+
+## G-E：技能树已解锁节点效果注入（meta_progress.skill_tree.unlocked → 节点 effect → apply_stat_modifier）
+func _apply_skill_tree_bonus(player_node: Node) -> void:
+	var unlocked: Array = GameManager.get_unlocked_skills()
+	if unlocked.is_empty():
+		return
+	var nodes: Array = DataLoader.get_skill_tree().get("nodes", []) if DataLoader else []
+	for nid in unlocked:
+		for n in nodes:
+			if str(n.get("id", "")) != str(nid):
+				continue
+			var effect: Dictionary = n.get("effect", {})
+			var stat: String = str(effect.get("stat", ""))
+			if stat != "":
+				player_node.apply_stat_modifier(stat, float(effect.get("value", 0.0)), bool(effect.get("mult", false)))
+			break
 
 ## 把角色 skill 数据注入 SkillController（节点缺失只告警，不阻断开局）
 func _setup_skill(char_data: Dictionary) -> void:

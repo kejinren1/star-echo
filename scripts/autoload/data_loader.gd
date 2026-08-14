@@ -43,6 +43,8 @@ var _events: Array = []                 ## 事件列表（events.json，Day 16�
 ## BS-C1（2026-08-13）：Boss 技能表 + pattern 引用表（boss_skills.json / boss_patterns.json）
 var _boss_skills: Dictionary = {}       ## { skill_id → 技能定义 }
 var _boss_patterns: Array = []          ## [{boss_id, skill_id, weight, phase, override, min_interval}]
+## G-E（2026-08-14）：技能树表（data/skill_tree.json；gen_skill_tree.py 生成）
+var _skill_tree: Dictionary = {}
 
 # ========== F1-散 参数段兜底（缺段时接口返回的默认值 = 现硬编码值，防 Excel 未导出行为漂移） ==========
 const COMBAT_DEFAULTS: Dictionary = {
@@ -89,6 +91,7 @@ func load_all() -> void:
 	_load_routes()
 	_load_events()
 	_load_boss_tables()
+	_load_skill_tree()
 	_loaded = true
 
 ## 加载敌人数据
@@ -195,6 +198,13 @@ func _load_boss_tables() -> void:
 	var data2 = _load_json("res://data/boss_patterns.json")
 	if data2:
 		_boss_patterns = data2.get("patterns", [])
+
+## G-E（2026-08-14）：技能树表（data/skill_tree.json，tools/gen_skill_tree.py 生成；
+## 缺失 → 空表，SkillTreePanel 空态零崩）
+func _load_skill_tree() -> void:
+	var data = _load_json("res://data/skill_tree.json")
+	if data:
+		_skill_tree = data
 
 # ========== JSON 工具 ==========
 
@@ -489,3 +499,9 @@ func get_boss_patterns(boss_id: String) -> Array:
 		if str(p.get("boss_id", "")) == boss_id:
 			out.append(p)
 	return out
+
+# ========== 技能树接口（G-E · 2026-08-14） ==========
+
+## 技能树全表（缺失 → {} → SkillTreePanel 空态零崩）
+func get_skill_tree() -> Dictionary:
+	return _skill_tree
