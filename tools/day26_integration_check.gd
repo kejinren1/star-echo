@@ -273,20 +273,22 @@ func _part_fx() -> void:
 	else:
 		_fail("T2: 四消费点键缺失")
 	# T2 GameManager.hud 抽查：方案假设 GameManager.hud.show_damage_number 接口——
-	# 实测 F-11 经 enemy.gd _spawn_damage_number 直接 spawn（无 hud 字段/方法）→ 语义替代断言 + 偏差登记
+	# 实测 F-11 经 enemy_damage.gd（F4-A 拆分，原 enemy.gd）_spawn_damage_number 直接 spawn
+	# （无 hud 字段/方法）→ 语义替代断言 + 偏差登记
 	var gm_txt: String = FileAccess.get_file_as_string("res://scripts/autoload/game_manager.gd")
 	var hud_txt: String = FileAccess.get_file_as_string("res://scripts/ui/hud.gd")
 	var has_gm_hud: bool = gm_txt.find("var hud") >= 0
 	var has_show_dn: bool = hud_txt.find("show_damage_number") >= 0
 	var enemy_txt: String = FileAccess.get_file_as_string("res://scripts/enemy/enemy.gd")
+	var enemy_dmg_txt: String = FileAccess.get_file_as_string("res://scripts/enemy/enemy_damage.gd")
 	var dn_script: GDScript = load("res://scripts/effects/damage_number.gd")
 	var dn_spawn: bool = dn_script != null and dn_script.get("spawn") != null
 	if not has_gm_hud or not has_show_dn:
 		_deferred.append("F-11 接线接口偏差（T2 抽查登记）：GameManager.hud / hud.show_damage_number 接口不存在；"
-			+ "实际实现 = enemy.gd _spawn_damage_number → damage_number.gd spawn 直接飘字"
+			+ "实际实现 = enemy_damage.gd _spawn_damage_number → damage_number.gd spawn 直接飘字"
 			+ "（F-11 已由 day18_feedback_check 16/16 行为收口）——按语义断言，非缺陷")
-	if enemy_txt.find("_spawn_damage_number") >= 0 and dn_spawn:
-		_pass("T2 / F-11 伤害数字语义链路（enemy._spawn_damage_number + damage_number.spawn）")
+	if (enemy_txt.find("_spawn_damage_number") >= 0 or enemy_dmg_txt.find("_spawn_damage_number") >= 0) and dn_spawn:
+		_pass("T2 / F-11 伤害数字语义链路（enemy_damage._spawn_damage_number + damage_number.spawn）")
 	else:
 		_fail("T2: F-11 伤害数字链路异常")
 	# T2 VfxPlayer 消费点行为抽查：GameManager.vfx_container 存在性（hit 消费依赖）

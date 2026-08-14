@@ -1,56 +1,23 @@
-## 敌人基类脚本
-## 所有敌人类型（普通/精英/Boss）继承此类
-## 数据由 DataLoader.get_scaled_enemy() 提供并传入 initialize()
+## 敌人基类脚本（所有敌人类型继承；数据由 DataLoader.get_scaled_enemy() 提供并传入 initialize()）
+## F4-A（2026-08-14 · T-047）：移动/Boss/受伤掉落三域拆分（enemy_movement/enemy_boss/enemy_damage）
 extends CharacterBody2D
 
 # ========== 信号 ==========
 
 signal died(enemy: Node)
 signal health_changed(current_hp: float, max_hp: float)
-## F2-T5（T-045）：Boss 击杀信号（die 内 is_boss 时 emit；GM.register_boss_killed 由
-## main 装配订阅——F3 状态机信号底座；探针白盒需自行装配）
+## F2-T5（T-045）：Boss 击杀信号（die 内 is_boss 时 emit；main 装配订阅 GM.register_boss_killed）
 signal boss_killed
 ## BS-A2（2026-08-13）：持续效果变化（HUD 状态栏/探针订阅）
 signal status_changed
 
-## F-11（用户拍板 2026-08-06）：伤害数字飘字脚本。preload 而非依赖 class_name——
-## 无头 --script 模式（探针）不注册全局类名（main.gd:20 同策略），静态方法经脚本引用调用
-const DamageNumberScript: GDScript = preload("res://scripts/effects/damage_number.gd")
-## D18-19-T3：敌人弹丸脚本。同策略 preload（决策 D1：弹丸挂 Boss 节点自身，非 Enemies 容器）
-const EnemyProjectileScript: GDScript = preload("res://scripts/enemy/enemy_projectile.gd")
 ## BS-A2（2026-08-13）：通用持续效果组件（无 class_name，preload 范式——探针 --script 兼容）
 const StatusComponentScript: GDScript = preload("res://scripts/systems/status_component.gd")
-## BS-C2（2026-08-13）：Boss 技能执行器工厂（无 class_name，preload 范式）
-const BossSkillFactoryScript: GDScript = preload("res://scripts/boss/boss_skill_factory.gd")
-## BS-D1（2026-08-13）：技能执行器基类（难度合成/参数倍率静态方法）
-const SkillExecutorBaseScript: GDScript = preload("res://scripts/boss/skill_executor.gd")
+## F4-A（2026-08-14）：共享枚举/常量（纯枚举文件零 Autoload 引用——组件经此引用，探针可编译）
+const EnemyEnums: GDScript = preload("res://scripts/enemy/enemy_enums.gd")
 
-# ========== 行为枚举 ==========
-
-enum Behavior {
-	CHASE,       ## 直追玩家
-	CHARGE,      ## 冲锋：蓄力后高速冲向玩家
-	ZIGZAG,      ## Z 形移动
-	RANGED,      ## 远程：保持距离射击
-	HEAL,        ## 治疗：治疗附近友军
-	SPAWN,       ## 产卵：定期生成小怪
-	STATIONARY,  ## 静止：不移动
-	AOE_ATTACK,  ## AOE 攻击 (精英)
-	SELF_HEAL,   ## 自愈 (精英)
-}
-
-## 行为字符串 → 枚举映射
-const BEHAVIOR_MAP: Dictionary = {
-	"chase": Behavior.CHASE,
-	"charge": Behavior.CHARGE,
-	"zigzag": Behavior.ZIGZAG,
-	"ranged": Behavior.RANGED,
-	"heal": Behavior.HEAL,
-	"spawn": Behavior.SPAWN,
-	"stationary": Behavior.STATIONARY,
-	"aoe_attack": Behavior.AOE_ATTACK,
-	"self_heal": Behavior.SELF_HEAL,
-}
+## 行为字符串 → 枚举映射（定义见 enemy_enums.gd，F4-A 迁出）
+const BEHAVIOR_MAP: Dictionary = EnemyEnums.BEHAVIOR_MAP
 
 # ========== 导出属性 ==========
 
@@ -71,54 +38,16 @@ const BEHAVIOR_MAP: Dictionary = {
 @export var move_texture: Texture2D           ## 移动动画 sprite sheet
 @export var death_texture: Texture2D          ## 死亡动画 sprite sheet
 @export var frame_size: Vector2i = Vector2i(32, 32)  ## 单帧尺寸
-## D21-22-T1（决策 D16）：接触判定半径（换皮解耦——视觉帧大 ≠ 判定凶）。
-## 由 _setup_animation 按 SPRITE_MAP/FALLBACK 的 hit_radius 覆盖；缺省 -1 兜底为旧公式。
+## D21-22-T1（决策 D16）：接触判定半径（换皮解耦；_setup_animation 按 SPRITE_MAP/FALLBACK 覆盖）
 @export var hit_radius: float = -1.0          ## 接触伤害判定半径（缺省 = frame_size.x*0.5+12.0）
 @export var move_fps: float = 6.0             ## 移动动画 FPS
 @export var death_fps: float = 8.0            ## 死亡动画 FPS
 @export var move_frame_count: int = 4         ## 移动动画帧数
 @export var death_frame_count: int = 4        ## 死亡动画帧数
 
-# ========== 精灵类型映射 ==========
-## 敌人 ID → 精灵配置
-## 未命中时按 category 回退: regular→slime, elite→elite, boss→invoker
-## D21-22-T1：全敌换皮（slime/skeleton 48px · elite 64px · invoker/predator 128px），
-## 各条目带可选 hit_radius（缺省 = 旧公式 frame_size.x*0.5+12.0 零回归）
-const SPRITE_MAP: Dictionary = {
-	# 普通敌人 → slime 精灵（48px 4+4）
-	"chaser":           {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"charger":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"fly":              {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"bruiser":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"spitter":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"healer":           {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"spawner":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 4.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"horned_charger":   {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"pursuer":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"slasher":          {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"helmet_alien":     {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"horned_fly":       {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"corrupted_tree":   {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 2.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"mad_slasher":      {"move": "res://assets/sprites/enemies/skeleton_move.png", "death": "res://assets/sprites/enemies/skeleton_death.png", "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"lamprey":          {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 8.0, "death_fps": 8.0, "hit_radius": 28.0},
-	# 精英敌人 → elite 精灵（64px 4+4，红甲特征色）
-	"butcher":          {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
-	"colossus":         {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 36.0},
-	"rhino":            {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
-	"monk":             {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
-	"croc":             {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 7.0, "death_fps": 8.0, "hit_radius": 36.0},
-	"mom":              {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 5.0, "death_fps": 8.0, "hit_radius": 36.0},
-	# Boss → 专属精灵（128px 4+4；D17：scale 复位 ×1）
-	"invoker":          {"move": "res://assets/sprites/enemies/invoker_move.png",   "death": "res://assets/sprites/enemies/invoker_death.png",   "size": Vector2i(128, 128), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 56.0},
-	"predator":         {"move": "res://assets/sprites/enemies/predator_move.png", "death": "res://assets/sprites/enemies/predator_death.png", "size": Vector2i(128, 128), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 56.0},
-}
-
-## 分类回退精灵: regular→slime, elite→elite, boss→invoker（D21-22-T1：同步换皮 + hit_radius）
-const FALLBACK_SPRITES: Dictionary = {
-	"regular": {"move": "res://assets/sprites/enemies/slime_move.png",   "death": "res://assets/sprites/enemies/slime_death.png",   "size": Vector2i(48, 48), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 28.0},
-	"elite":   {"move": "res://assets/sprites/enemies/elite_move.png",   "death": "res://assets/sprites/enemies/elite_death.png",   "size": Vector2i(64, 64), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 36.0},
-	"boss":    {"move": "res://assets/sprites/enemies/invoker_move.png", "death": "res://assets/sprites/enemies/invoker_death.png", "size": Vector2i(128, 128), "move_frames": 4, "death_frames": 4, "move_fps": 6.0, "death_fps": 8.0, "hit_radius": 56.0},
-}
+# ========== 精灵类型映射（定义见 enemy_enums.gd，F4-A 迁出；外部引用兼容别名） ==========
+const SPRITE_MAP: Dictionary = EnemyEnums.SPRITE_MAP
+const FALLBACK_SPRITES: Dictionary = EnemyEnums.FALLBACK_SPRITES
 
 # ========== 内部状态 ==========
 
@@ -127,7 +56,7 @@ var target: Node2D                           ## 追踪目标（玩家）
 var is_alive: bool = true
 var enemy_id: String = "chaser"             ## 敌人 ID (对应 DataLoader)
 var enemy_category: String = "regular"      ## 敌人分类: regular/elite/boss
-var behavior: Behavior = Behavior.CHASE     ## 行为模式
+var behavior: EnemyEnums.Behavior = EnemyEnums.Behavior.CHASE     ## 行为模式
 
 # 动画
 var _anim: AnimatedSprite2D
@@ -168,20 +97,11 @@ var wave_number: int = 1
 var _ability_timer: float = 0.0
 
 # ========== Boss 阶段（Day 18-19 · T1/T2 + F3-T4 枚举化） ==========
-## enemies.json phases 状态机：take_damage 阈值切换 + attacks 指令执行
-## 全部行为以 `is_boss and not phases.is_empty()` 双条件守卫——普通/精英敌人零新行为
-## F3-T4（T-033 · 2026-08-13）：int 下标 → BossPhase 枚举 + PHASE_TABLE 状态表
-## （per CODE_STYLE §2.6 形态 B；PHASE_TABLE 只维护 枚举→phases 索引 映射，
-##  行为参数 attacks/speed_multiplier 仍读 enemies.json phases 数据，禁硬编码重复数据；
-##  phases.size()==1 → 仅 P1；==2 → P1/P2；≥3 → P1/P2/P3）
+## phases 状态机（take_damage 阈值切换 + attacks 指令执行）；`is_boss and not phases.is_empty()`
+## 双条件守卫——普通/精英零新行为；BossPhase/PHASE_TABLE 定义见 enemy_enums.gd（F3-T4 枚举化）
 var phases: Array = []                       ## Boss 阶段定义（get_scaled_enemy 恒返回 phases 键透传）
-enum BossPhase { P1, P2, P3 }
-const PHASE_TABLE: Dictionary = {
-	BossPhase.P1: 0,
-	BossPhase.P2: 1,
-	BossPhase.P3: 2,
-}
-var _phase: BossPhase = BossPhase.P1         ## 当前阶段（P1 起；_transition_phase 统一推进）
+const PHASE_TABLE: Dictionary = EnemyEnums.PHASE_TABLE
+var _phase: EnemyEnums.BossPhase = EnemyEnums.BossPhase.P1   ## 当前阶段（P1 起；_transition_phase 统一推进）
 var _attack_timers: Dictionary = {}          ## 攻击计时器: cmd -> {parsed: Dictionary, timer: float}
 var _attack_mult: float = 1.0                ## 阶段修饰符（决策 D3：all_attacks_2x → ×2.0，仅伤害类生效）
 var _boss_charge: bool = false               ## 冲锋置位（决策 D2：charge 型指令置位后 _move_charge 自动生效）
@@ -190,14 +110,20 @@ var _base_speed: float = 120.0               ## 基础移速（阶段 speed_mult
 var _rng := RandomNumberGenerator.new()      ## 攻击随机源（探针可注 _rng.seed；禁 Array.shuffle/pick_random 全局 RNG）
 var _barrage_wave: int = 0                   ## barrage 剩余波次（决策 D4：8 向 × 3 波）
 var _barrage_timer: float = 0.0              ## barrage 波间隔计时（0.25s）
-## BS-C2（BOSS_SKILL_SPEC §7-3 · 2026-08-13）：Boss pattern 技能循环——新 pattern 优先接管
-## Boss 技能释放，旧 attacks 指令执行器（_process_boss_attacks）保留为降级路径
-## （Boss 无 pattern 数据 → 行为完全等价，day18_19 回归兜底）
+## BS-C2（BOSS_SKILL_SPEC §7-3）：Boss pattern 技能循环优先接管，旧 attacks 降级
+## （无 pattern 数据 → 行为完全等价，day18_19 回归兜底）
 var _patterns: Array = []                    ## 本 Boss pattern 行（initialize 按 enemy_id 取）
 var _pattern_cooldown: float = 0.0           ## pattern 释放冷却（min_interval/技能 cooldown 最大值）
 var _pattern_cooldown_total: float = 0.0     ## 本次冷却总量（探针观测用）
 var _last_pattern_skill: String = ""         ## 保底：同技能不连续 2 次
 var _active_executor: Node = null            ## 当前四拍子执行器（boss_skill_factory 创建）
+
+# ========== F4-A 拆分组件（2026-08-14 · T-047） ==========
+## 三域组件（movement/boss/damage）_ensure_components 挂载；宿主 load() 创建
+## （组件 preload enemy_enums.gd 取枚举——enemy.gd 引用 Autoload 不可被组件 preload）
+var _movement: Node = null
+var _boss_ctrl: Node = null
+var _damage: Node = null
 
 # ========== 生命周期 ==========
 
@@ -205,63 +131,40 @@ func _ready() -> void:
 	health = max_health
 	health_changed.emit(health, max_health)
 	_setup_animation()
-	# BS-A2：挂载通用持续效果组件（StatusComponentScript preload 引用，探针 --script 兼容）
+	_ensure_components()
+	# BS-A2：挂载通用持续效果组件
 	_status_component = StatusComponentScript.new()
 	_status_component.name = "StatusComponent"
 	add_child(_status_component)
 	_status_component.setup(self)
 
+## F4-A：组件懒挂载（initialize 先于 _ready → 此处保证组件就绪；幂等）
+func _ensure_components() -> void:
+	if _movement == null:
+		_movement = (load("res://scripts/enemy/enemy_movement.gd") as GDScript).new()
+		_movement.name = "MovementController"
+		add_child(_movement)
+		_movement.setup(self)
+	if _boss_ctrl == null:
+		_boss_ctrl = (load("res://scripts/enemy/enemy_boss.gd") as GDScript).new()
+		_boss_ctrl.name = "BossController"
+		add_child(_boss_ctrl)
+		_boss_ctrl.setup(self)
+	if _damage == null:
+		_damage = (load("res://scripts/enemy/enemy_damage.gd") as GDScript).new()
+		_damage.name = "DamageController"
+		add_child(_damage)
+		_damage.setup(self)
+
 func _physics_process(delta: float) -> void:
 	if not is_alive:
 		return
-	# BS-A2：持续效果由 StatusComponent._process 自 tick（原 _update_status 迁入组件）
-	# 持续伤害可能直接击杀，后续行为逻辑不应再跑
+	# BS-A2：StatusComponent 自 tick（dot 可能同帧击杀）
 	if not is_alive:
 		return
-	# O2 软控（BS-A3）：麻痹禁行动（跳过行为/接触伤害；击退仍结算）
-	if stunned:
-		velocity = Vector2.ZERO
-		_process_knockback()
-		return
-	_update_behavior(delta)
-	# 接触伤害（带冷却）
-	if _contact_cd > 0.0:
-		_contact_cd -= delta
-	_try_contact_damage()
-	# 击退结算（行为移动后覆盖 velocity 推离，随帧衰减；零向量时零开销）
-	_process_knockback()
-
-## 击退结算：覆盖 velocity 推离一帧 + 衰减 50%/帧，小于阈值清零
-func _process_knockback() -> void:
-	if _knockback == Vector2.ZERO:
-		return
-	velocity = _knockback
-	move_and_slide()
-	# T-015（F1-散 2026-08-13）：衰减率参数化 = stats.combat.knockback_decay
-	_knockback = _knockback * _knockback_decay
-	if _knockback.length() < 8.0:
-		_knockback = Vector2.ZERO
-
-## 受击击退接口（升级冲击波等外部施加）：dir 为方向（无需归一化）、force 为初速
-func apply_knockback(dir: Vector2, force: float) -> void:
-	if not is_alive:
-		return
-	if dir.length_squared() <= 0.0001 or force <= 0.0:
-		return
-	_knockback = dir.normalized() * force
-
-## 当敌人贴近玩家时造成伤害（初版：所有行为通用）
-func _try_contact_damage() -> void:
-	if not is_target_valid() or _contact_cd > 0.0:
-		return
-	var dist := global_position.distance_to(target.global_position)
-	# D21-22-T1（决策 D16）：接触判定用 hit_radius（换皮解耦），缺省 = 旧公式
-	var contact_range: float = hit_radius if hit_radius > 0.0 else (frame_size.x * 0.5 + 12.0)
-	if dist <= contact_range and target.has_method("take_damage"):
-		# D18-19-T2（决策 D2）：Boss 冲锋命中伤害 × _boss_charge_mult（普通敌人恒 ×1.0）
-		target.take_damage(damage * (_boss_charge_mult if (is_boss and _boss_charge) else 1.0))
-		# T-015（F1-散 2026-08-13）：接触冷却参数化 = stats.combat.contact_cooldown
-		_contact_cd = _contact_cooldown
+	# F4-A：行为/接触/击退 → movement 组件
+	if _movement:
+		_movement.tick(delta)
 
 # ========== 动画 ==========
 
@@ -274,7 +177,7 @@ func _setup_animation() -> void:
 	move_texture = load(cfg["move"])
 	death_texture = load(cfg["death"])
 	frame_size = cfg["size"]
-	# D21-22-T1（决策 D16）：换皮解耦——接触半径从配置读，缺省 = 旧公式兜底零回归
+	# D21-22-T1（决策 D16）：接触半径从配置读，缺省 = 旧公式兜底零回归
 	hit_radius = float(cfg.get("hit_radius", frame_size.x * 0.5 + 12.0))
 	move_frame_count = cfg["move_frames"]
 	death_frame_count = cfg["death_frames"]
@@ -303,11 +206,9 @@ func _resize_collision_shape() -> void:
 	shape.size = col_size
 	col.shape = shape
 
-# ========== 持续效果（BS-A2 · 2026-08-13：元素状态机迁入 StatusComponent） ==========
-# 通用效果组件承载「燃烧/冰冻/中毒/减速/麻痹/减防…」：O1 叠加规则（用户 2026-08-12 拍板）
-#   · 同源（同 source_id+effect_id）→ 刷新计时不叠层；异源 → 独立实例各自 tick；max_stacks 上限
-#   · DoT 伤害不走 take_damage()：一是无视护甲，二是避免逐帧 tween 受击闪烁爆量
-# 旧行为变化登记（交 #5）：原「取更长剩余时间 + 更高 dps」→ 拍板 O1 新规则
+# ========== 持续效果（BS-A2 · 元素状态机迁入 StatusComponent） ==========
+# O1 叠加规则（用户 2026-08-12 拍板）：同源刷新不叠层/异源独立/max_stacks 上限；
+# DoT 不走 take_damage()（无视护甲 + 免逐帧受击闪烁）；旧「取更长+dps」行为变化交 #5 登记
 
 ## 统一施加入口（BS-A3）：source_id = 来源标识（武器 id / 技能 id / "legacy:" 兜底）
 func apply_effect(source_id: String, effect_id: String, params: Dictionary = {}) -> void:
@@ -318,8 +219,7 @@ func apply_effect(source_id: String, effect_id: String, params: Dictionary = {})
 	if _status_component:
 		_status_component.apply_effect(source_id, effect_id, params)
 
-## 旧接口兼容（D3-T2b 时代调用方：projectile/skill 已迁移 apply_effect 带真实 source_id；
-## 兜底 source = "legacy:"+effect_id → 同源刷新语义）
+## 旧接口兼容（兜底 source = "legacy:"+effect_id → 同源刷新语义）
 func apply_status(status_type: String, duration: float, dps: float) -> void:
 	if not is_alive:
 		return
@@ -357,590 +257,9 @@ func _play_hit_flash() -> void:
 	var tw := create_tween()
 	tw.tween_property(_anim, "modulate", Color.WHITE, 0.1)
 
-# ========== Boss attacks 指令解析（D18-19-T2 · 纯函数） ==========
-## enemies.json phases[].attacks 字符串指令 → 结构化字典（决策 D8：禁物理查询，全距离/容器遍历）
-## 输出统一含 5 键 {kind, count, interval, mult, elite}；未知指令 push_warning + 返回 {}（不崩）
-## 指令表（定案 T2-A）：
-##   summon_N_enemies_every_Xs → {kind:"summon", count:N, interval:X, elite:false}
-##   summon_N_elite            → {kind:"summon", count:N, interval:0.0, elite:true}（一次性）
-##   N_projectile_spread       → {kind:"spread", count:N, interval:4.0}（决策 D4）
-##   projectile_barrage        → {kind:"barrage", interval:4.0}（决策 D4）
-##   aoe_every_Xs              → {kind:"aoe", interval:X}
-##   charge_attack / _2x       → {kind:"charge", mult:1.0/2.0, interval:-1.0}（永续置位无计时）
-##   all_attacks_2x            → {kind:"mult", mult:2.0, interval:-1.0}（阶段修饰符无计时）
+# ========== 通用工具（movement/boss 组件共用） ==========
 
-func _parse_attack(cmd: String) -> Dictionary:
-	var parts: PackedStringArray = cmd.split("_")
-	if parts.is_empty():
-		push_warning("[Boss] 未知攻击指令: %s" % cmd)
-		return {}
-	var head: String = parts[0]
-	# 召唤系: summon_N_enemies_every_Xs / summon_N_elite
-	if head == "summon":
-		if parts.size() >= 3:
-			var count: int = maxi(int(parts[1]), 0)
-			if parts[2] == "elite":
-				return {"kind": "summon", "count": count, "interval": 0.0, "mult": 1.0, "elite": true}
-			if parts.size() >= 5 and parts[3] == "every":
-				var interval: float = float(parts[4].trim_suffix("s"))
-				return {"kind": "summon", "count": count, "interval": interval, "mult": 1.0, "elite": false}
-	# 弹幕系: N_projectile_spread / projectile_barrage
-	elif head == "projectile":
-		if parts.size() >= 2 and parts[1] == "barrage":
-			return {"kind": "barrage", "count": 0, "interval": 4.0, "mult": 1.0, "elite": false}
-	# AOE: aoe_every_Xs
-	elif head == "aoe":
-		if parts.size() >= 3 and parts[1] == "every":
-			var interval: float = float(parts[2].trim_suffix("s"))
-			return {"kind": "aoe", "count": 0, "interval": interval, "mult": 1.0, "elite": false}
-	# 冲锋: charge_attack / charge_attack_2x
-	elif head == "charge":
-		if parts.size() == 2 and parts[1] == "attack":
-			return {"kind": "charge", "count": 0, "interval": -1.0, "mult": 1.0, "elite": false}
-		if parts.size() == 3 and parts[1] == "attack" and parts[2] == "2x":
-			return {"kind": "charge", "count": 0, "interval": -1.0, "mult": 2.0, "elite": false}
-	# 阶段修饰符: all_attacks_2x
-	elif head == "all":
-		if parts.size() >= 3 and parts[1] == "attacks" and parts[2] == "2x":
-			return {"kind": "mult", "count": 0, "interval": -1.0, "mult": 2.0, "elite": false}
-	# 数字开头: N_projectile_spread（int 转换须回验防 "abc"→0 误判）
-	elif parts.size() >= 3 and parts[1] == "projectile" and parts[2] == "spread":
-		var count: int = int(head)
-		if str(count) == head:
-			return {"kind": "spread", "count": count, "interval": 4.0, "mult": 1.0, "elite": false}
-	push_warning("[Boss] 未知攻击指令: %s" % cmd)
-	return {}
-
-# ========== 行为系统 ==========
-
-## 根据行为模式更新移动
-func _update_behavior(delta: float) -> void:
-	if not is_target_valid():
-		return
-	# Day 18-19 · T1/T2：Boss 阶段模式（优先于行为枚举；普通/精英零影响——双条件守卫）
-	# BS-C2（2026-08-13）：新 pattern 循环优先接管技能释放；旧 attacks 指令保留为降级
-	# （无 pattern 数据 → 完全旧行为，day18_19 回归兜底）
-	if is_boss and not phases.is_empty():
-		if not _patterns.is_empty():
-			_process_boss_patterns(delta)
-		else:
-			_process_boss_attacks(delta)
-		if _boss_charge:
-			_move_charge(delta)
-		else:
-			_move_chase(delta)
-		return
-	match behavior:
-		Behavior.CHASE:
-			_move_chase(delta)
-		Behavior.CHARGE:
-			_move_charge(delta)
-		Behavior.ZIGZAG:
-			_move_zigzag(delta)
-		Behavior.RANGED:
-			_move_ranged(delta)
-		Behavior.HEAL:
-			_move_heal(delta)
-		Behavior.SPAWN:
-			_move_spawn(delta)
-			# Day 17 · D17-T2：精英产卵（mom）；ability 空 → 立即 return 零影响（regular 产卵者）
-			_elite_spawn(delta)
-		Behavior.STATIONARY:
-			pass  # 不移动
-		Behavior.AOE_ATTACK:
-			_move_chase(delta)  # 精英 AOE 近身
-			_elite_aoe(delta)   # Day 17 · D17-T2：butcher 周期 AOE
-		Behavior.SELF_HEAL:
-			_move_chase(delta)  # 精英自愈近身
-			_elite_self_heal(delta)  # Day 17 · D17-T2：monk 低血周期自愈
-
-## 直追玩家
-func _move_chase(_delta: float) -> void:
-	var direction := global_position.direction_to(target.global_position)
-	velocity = direction * move_speed
-	move_and_slide()
-
-## 冲锋：周期性蓄力后高速冲向玩家
-func _move_charge(delta: float) -> void:
-	_charge_timer -= delta
-	if _is_charging:
-		# F-15（用户拍板 2026-08-06 · P0）：冲锋倍率 ×2.5 → ×1.5（配合 F-01 移速×0.5，
-		# 冲速 425×1.5×0.5≈319，恢复可反应区间，消除「被冲脸瞬秒」围杀体验）
-		# T-009（F1-散 2026-08-13）：倍率参数化 = scaling.charge_speed_mult
-		velocity = _charge_dir * move_speed * _charge_speed_mult
-		move_and_slide()
-		if _charge_timer <= 0.0:
-			_is_charging = false
-			_charge_timer = _charge_windup  # 蓄力间隔（T-009）
-	else:
-		# 蓄力期间缓慢移动
-		var direction := global_position.direction_to(target.global_position)
-		velocity = direction * move_speed * 0.3
-		move_and_slide()
-		if _charge_timer <= 0.0:
-			_is_charging = true
-			_charge_dir = global_position.direction_to(target.global_position)
-			_charge_timer = _charge_duration  # 冲锋持续（T-009）
-
-## Z 形移动
-func _move_zigzag(delta: float) -> void:
-	_zigzag_timer -= delta
-	if _zigzag_timer <= 0.0:
-		_zigzag_dir *= -1.0
-		_zigzag_timer = 0.5
-	var direction := global_position.direction_to(target.global_position)
-	# 在追踪方向上叠加垂直偏移
-	var perp := Vector2(-direction.y, direction.x) * _zigzag_dir
-	velocity = (direction + perp * 0.6).normalized() * move_speed
-	move_and_slide()
-
-## 远程：保持距离
-func _move_ranged(_delta: float) -> void:
-	var dist := global_position.distance_to(target.global_position)
-	var direction := global_position.direction_to(target.global_position)
-	if dist < 200.0:
-		# 太近，后退
-		velocity = -direction * move_speed
-	elif dist > 300.0:
-		# 太远，靠近
-		velocity = direction * move_speed * 0.5
-	else:
-		# 在射程内，横向移动
-		var perp := Vector2(-direction.y, direction.x)
-		velocity = perp * move_speed * 0.8
-	move_and_slide()
-
-## 治疗：跟随友军并治疗
-func _move_heal(_delta: float) -> void:
-	# 简单跟随玩家附近
-	var direction := global_position.direction_to(target.global_position)
-	var dist := global_position.distance_to(target.global_position)
-	if dist > 250.0:
-		velocity = direction * move_speed
-	else:
-		velocity = Vector2.ZERO
-	move_and_slide()
-
-## 产卵：缓慢移动
-func _move_spawn(_delta: float) -> void:
-	var direction := global_position.direction_to(target.global_position)
-	velocity = direction * move_speed * 0.5
-	move_and_slide()
-
-# ========== 精英特殊能力（Day 17 · D17-T2） ==========
-## 三能力全部用距离判断 + 容器遍历，禁物理查询（无头稳定铁律，D3 火球物理先例）。
-## ability 空（colossus/rhino/croc 缺省）→ 立即 return，零行为回归。
-
-## 特效容器解析：vfx_container → current_scene → null（无容器静默跳过不崩）
-func _resolve_fx_container() -> Node:
-	if GameManager and GameManager.vfx_container:
-		return GameManager.vfx_container
-	if get_tree() and get_tree().current_scene:
-		return get_tree().current_scene
-	return null
-
-## AOE 攻击（butcher）：周期对 radius 内玩家造成 damage × damage_mult
-func _elite_aoe(delta: float) -> void:
-	if ability.is_empty():
-		return
-	_ability_timer -= delta
-	if _ability_timer > 0.0:
-		return
-	var radius: float = float(ability.get("radius", 0.0))
-	var damage_mult: float = float(ability.get("damage_mult", 1.0))
-	if radius > 0.0 and is_target_valid() and target.has_method("take_damage"):
-		if global_position.distance_to(target.global_position) <= radius:
-			target.take_damage(damage * damage_mult)
-			var fx_container: Node = _resolve_fx_container()
-			if fx_container:
-				VfxPlayer.spawn(fx_container, target.global_position, "crit")
-			AudioManager.play_sfx("crit")   # D24-T3-③：精英 AOE 命中 SFX（D30 收敛点 2/2）
-	_ability_timer = float(ability.get("interval", 1.0))
-
-## 自愈（monk）：血量 < max_health × threshold 时周期恢复 heal_percent% 最大生命
-func _elite_self_heal(delta: float) -> void:
-	if ability.is_empty():
-		return
-	_ability_timer -= delta
-	if _ability_timer > 0.0:
-		return
-	var threshold: float = float(ability.get("threshold", 0.5))
-	var heal_percent: float = float(ability.get("heal_percent", 0.0))
-	if heal_percent > 0.0 and health < max_health * threshold:
-		health = min(max_health, health + max_health * heal_percent)
-		health_changed.emit(health, max_health)
-		var fx_container: Node = _resolve_fx_container()
-		if fx_container:
-			VfxPlayer.spawn(fx_container, global_position, "levelup")
-	_ability_timer = float(ability.get("interval", 1.0))
-
-## 产卵（mom）：周期生成 count 只 minion（用自身 wave_number 同波缩放）
-func _elite_spawn(delta: float) -> void:
-	if ability.is_empty():
-		return
-	_ability_timer -= delta
-	if _ability_timer > 0.0:
-		return
-	var minion: String = str(ability.get("minion", ""))
-	var count: int = maxi(int(ability.get("count", 0)), 0)
-	if minion.is_empty() or count <= 0:
-		_ability_timer = float(ability.get("interval", 1.0))
-		return
-	# 容器：优先 GameManager.enemies_container（main 接线）；缺失静默跳过不崩
-	var container: Node = null
-	if GameManager and GameManager.enemies_container:
-		container = GameManager.enemies_container
-	elif GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
-		container = GameManager.enemy_spawner.enemies_container
-	if container == null:
-		return
-	# 敌人场景：优先 spawner 已加载资源，否则延迟 load（避免脚本 preload 自身场景循环）
-	var scene: PackedScene = null
-	if GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemy_scene:
-		scene = GameManager.enemy_spawner.enemy_scene
-	else:
-		scene = load("res://scenes/Enemy.tscn")
-	if scene == null:
-		return
-	for _i in count:
-		var stats: Dictionary = DataLoader.get_scaled_enemy(minion, wave_number)
-		if stats.is_empty():
-			break
-		var minion_node: Node = _spawn_minion_node(scene, stats)
-		if minion_node == null:
-			# 容器/工厂不可用（异常环境）→ 中止本次召唤（与原「容器 null → return」同语义）
-			_ability_timer = float(ability.get("interval", 1.0))
-			return
-		if GameManager and GameManager.player and minion_node.has_method("set_target"):
-			minion_node.set_target(GameManager.player)
-	_ability_timer = float(ability.get("interval", 1.0))
-
-# ========== Boss 阶段状态机与攻击执行器（Day 18-19 · T1/T2） ==========
-## 决策引用：D1 弹丸挂自身 / D2 冲锋复用 _move_charge 只乘命中倍率 / D3 all_attacks_2x 阶段修饰符 /
-## D4 spread/barrage 默认间隔 4.0s、barrage=8 向×3 波 0.25s / D5 aoe 半径 120px / D8 禁物理查询
-## 全部以 is_boss + phases 双守卫，普通/精英敌人零新行为
-
-## 血量阈值相位切换：从下一阶段起找第一个命中阈值的阶段；无更低阈值 → 保持
-## F3-T4（2026-08-13）：枚举推进（_phase 单调递增语义与旧 _current_phase_idx+1 一致；
-## ⚠️ Godot 4 禁 int(枚举) 转换——枚举本质 int，先赋 int 变量再运算）
-func _check_phase_transition() -> void:
-	var cur_idx: int = _phase
-	for i in range(cur_idx + 1, phases.size()):
-		var threshold: float = float(phases[i].get("hp_threshold_percent", 0.0)) / 100.0
-		if health / max_health <= threshold:
-			_transition_phase(i)
-			return
-
-## F3-T4（T-033 · 2026-08-13）：阶段转移统一入口（per CODE_STYLE §2.6 形态 B）——
-## 同值早退 + phases 边界断言（防跳转至数据未定义阶段）+ 进入钩子（_reset_boss_phase）
-func _transition_phase(next: BossPhase) -> void:
-	if _phase == next:
-		return
-	var next_idx: int = PHASE_TABLE[next]
-	if not PHASE_TABLE.has(next) or next_idx >= phases.size():
-		push_warning("[Boss] 阶段越界: %d ≥ phases %d（跳过）" % [next_idx, phases.size()])
-		return
-	_reset_boss_phase(next_idx)
-
-## 激活指定阶段：清计时器 → 解析 attacks 缓存 → 修饰符/冲锋置位 → 移速 → 阶段横幅
-## 形参保留 int（initialize 直调 _reset_boss_phase(0) 兼容防漂移）；_phase 同步枚举
-func _reset_boss_phase(idx: int) -> void:
-	_phase = clampi(idx, 0, 2)
-	_attack_timers.clear()
-	var phase: Dictionary = phases[idx]
-	var attacks: Array = phase.get("attacks", [])
-	for cmd in attacks:
-		var parsed: Dictionary = _parse_attack(str(cmd))
-		if parsed.is_empty():
-			continue
-		_attack_timers[str(cmd)] = {"parsed": parsed, "timer": 0.0}
-	# 阶段修饰符（决策 D3：all_attacks_2x → _attack_mult ×2.0，仅伤害类生效；对 summon 无效）
-	if _attack_timers.has("all_attacks_2x"):
-		_attack_mult *= 2.0
-	# 冲锋置位（决策 D2：charge 型永续置位 _boss_charge + 命中倍率）
-	_boss_charge = false
-	_boss_charge_mult = 1.0
-	for key in _attack_timers:
-		var entry: Dictionary = _attack_timers[key]
-		if str(entry.get("parsed", {}).get("kind", "")) == "charge":
-			_boss_charge = true
-			_boss_charge_mult = float(entry["parsed"].get("mult", 1.0))
-			break
-	# 阶段移速（speed_multiplier 基准 _base_speed；F-15 已定型移动倍率零改动）
-	move_speed = _base_speed * float(phase.get("speed_multiplier", 1.0))
-	# 阶段横幅「⚠ Boss 进入第 N 阶段」（1.5s 淡出上浮，容器缺失静默）
-	_show_boss_phase_banner(idx + 1)
-
-## 阶段切换横幅（仿 _spawn_exp_popup / D17 精英横幅范式；容器缺失静默跳过不崩）
-func _show_boss_phase_banner(phase_num: int) -> void:
-	var container: Node = _resolve_fx_container()
-	if container == null:
-		return
-	var banner := Node2D.new()
-	banner.name = "BossPhaseBanner"
-	var label := Label.new()
-	label.text = "⚠ Boss 进入第 %d 阶段" % phase_num
-	label.add_theme_font_size_override("font_size", 22)
-	label.add_theme_color_override("font_color", Color(0.95, 0.4, 0.4))
-	banner.add_child(label)
-	container.add_child(banner)
-	banner.global_position = Vector2(320.0, 90.0)
-	var tween := banner.create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(label, "modulate:a", 0.0, 1.5)
-	tween.tween_property(banner, "global_position:y", banner.global_position.y - 30.0, 1.5)
-	tween.chain().tween_callback(banner.queue_free)
-
-## 攻击执行主循环：遍历 _attack_timers 计时结算；barrage 波次独立推进
-func _process_boss_attacks(delta: float) -> void:
-	# barrage 波次推进（8 向 × 3 波、波间隔 0.25s，决策 D4）
-	if _barrage_wave > 0:
-		_barrage_timer -= delta
-		if _barrage_timer <= 0.0:
-			_boss_spread(8)
-			_barrage_wave -= 1
-			_barrage_timer = 0.25
-	if _attack_timers.is_empty():
-		return
-	var remove_keys: Array = []
-	for key in _attack_timers:
-		var entry: Dictionary = _attack_timers[key]
-		var parsed: Dictionary = entry.get("parsed", {})
-		var interval: float = float(parsed.get("interval", -1.0))
-		if interval < 0.0:
-			continue  # charge/mult 置位型无计时
-		entry["timer"] = float(entry.get("timer", 0.0)) - delta
-		if float(entry["timer"]) > 0.0:
-			continue
-		_execute_attack(str(parsed.get("kind", "")), parsed)
-		if interval <= 0.0:
-			remove_keys.append(key)  # 一次性（summon_N_elite）执行后移除
-		else:
-			entry["timer"] = interval
-	for key in remove_keys:
-		_attack_timers.erase(key)
-
-# ========== Boss pattern 技能循环（BS-C2/C3 · 2026-08-13） ==========
-## 权重随机 + 保底（同技能不连续 2 次）+ phase 解锁（100/66/33 阈值）+ 四拍子执行器复用
-## 数据门控：_patterns 空 → 完全旧路径（_process_boss_attacks）
-
-## pattern 主循环：执行器运行 → 推进；冷却 → 递减；就绪 → 挑技能施放
-func _process_boss_patterns(delta: float) -> void:
-	if _active_executor != null and is_instance_valid(_active_executor):
-		_active_executor.call("tick", delta, {"player": target})
-		if bool(_active_executor.call("is_done")):
-			_active_executor.queue_free()
-			_active_executor = null
-			_pattern_cooldown = _pattern_cooldown_total
-		return
-	if _pattern_cooldown > 0.0:
-		_pattern_cooldown -= delta
-		return
-	_pick_and_cast()
-
-## 权重随机挑 pattern（_rng 实例禁全局 RNG）+ 保底不连续 + 阶段解锁
-func _pick_and_cast() -> void:
-	var pool: Array = _active_pattern_pool()
-	if pool.is_empty() or target == null:
-		return
-	var total: float = 0.0
-	for p in pool:
-		total += maxf(float(p.get("weight", 1.0)), 0.0)
-	if total <= 0.0:
-		return
-	var roll: float = _rng.randf_range(0.0, total)
-	var picked: Dictionary = {}
-	var acc: float = 0.0
-	for p in pool:
-		acc += maxf(float(p.get("weight", 1.0)), 0.0)
-		if roll <= acc:
-			picked = p
-			break
-	if picked.is_empty():
-		return
-	# 保底：同技能不连续 2 次（仅一个技能时跳过）
-	if str(picked.get("skill_id", "")) == _last_pattern_skill and pool.size() > 1:
-		var alt: Array = []
-		for p in pool:
-			if str(p.get("skill_id", "")) != _last_pattern_skill:
-				alt.append(p)
-		if not alt.is_empty():
-			picked = alt[_rng.randi_range(0, alt.size() - 1)]
-	# C3：override 合成（技能模板 + pattern override 覆盖）
-	var params: Dictionary = _compose_skill_params(picked)
-	if params.is_empty():
-		return
-	# BS-D1（§5）：难度系数合成（基础 = 波次曲线 × 动态 = build 强度）→ 参数倍率 → 公平底线钳制
-	var coeff: float = _compose_difficulty_coeff()
-	if absf(coeff - 1.0) > 0.001:
-		var player_speed: float = 300.0
-		if target != null and "move_speed" in target:
-			player_speed = float(target.move_speed)
-		SkillExecutorBaseScript.scale_params_by_difficulty(params, coeff, player_speed)
-	var exec: Node = BossSkillFactoryScript.make(str(params.get("type", "")))
-	if exec == null:
-		return  # 未知 type → 跳过本轮（工厂已 push_warning），冷却由上层兜底
-	exec.name = "PatternExecutor"
-	add_child(exec)
-	params["player"] = target
-	params["fx_container"] = _resolve_fx_container()
-	exec.call("enter", {"params": params})
-	_active_executor = exec
-	_last_pattern_skill = str(picked.get("skill_id", ""))
-	# 冷却 = max(技能 cooldown, pattern min_interval)（大招冷却 + 最短间隔双约束）
-	var cd: float = maxf(float(params.get("cooldown", 4.0)),
-		float(picked.get("min_interval", 0.0)))
-	_pattern_cooldown_total = cd
-	_pattern_cooldown = 0.0
-
-## 阶段解锁池：pattern.phase ≥ 当前阶段阈值（P1=100 / P2=66 / P3=33）
-func _active_pattern_pool() -> Array:
-	var threshold: int = 100
-	match _phase:
-		BossPhase.P2:
-			threshold = 66
-		BossPhase.P3:
-			threshold = 33
-	var pool: Array = []
-	for p in _patterns:
-		if int(p.get("phase", 100)) >= threshold:
-			pool.append(p)
-	return pool
-
-## C3：override 合成（skill 模板 → pattern override 覆盖；merge 顺序 = 模板 → override）
-func _compose_skill_params(pattern: Dictionary) -> Dictionary:
-	var skill: Dictionary = DataLoader.get_boss_skill(str(pattern.get("skill_id", "")))
-	if skill.is_empty():
-		return {}
-	var params: Dictionary = skill.duplicate(true)
-	var override: Variant = pattern.get("override", {})
-	if override is Dictionary:
-		for k in override:
-			params[k] = override[k]
-	return params
-
-## BS-D1（§5 · 2026-08-13）：难度系数合成——基础难度（波次曲线）× 动态难度（build 强度）
-## 最小可验证口径：基础 = 1.0 + (wave-1)×0.02；动态 = 1.0 + 0.05×已装备武器/道具数
-## （GameManager.inventory 缺失环境兜底 1.0）；compose_difficulty clamp 0.5~2.0
-func _compose_difficulty_coeff() -> float:
-	var base: float = 1.0 + float(maxi(wave_number, 1) - 1) * 0.02
-	var build: float = 1.0
-	if GameManager and GameManager.inventory:
-		var n: int = int(GameManager.inventory.get_weapons().size()) \
-			+ int(GameManager.inventory.get_items().size())
-		build = 1.0 + 0.05 * n
-	return SkillExecutorBaseScript.compose_difficulty(base, build)
-
-## BS-D2（§2.4 · 2026-08-13）：QTE 打断钩子——resolve 窗口内玩家攻击命中（take_damage）
-## → 当前执行器 interrupt()（中断即豁免，失败不致命）
-func _interrupt_active_executor() -> void:
-	if _active_executor != null and is_instance_valid(_active_executor) \
-			and _active_executor.has_method("interrupt"):
-		_active_executor.call("interrupt")
-
-## 按 kind 分派执行器（全距离/容器遍历，禁物理查询，决策 D8）
-func _execute_attack(kind: String, parsed: Dictionary) -> void:
-	match kind:
-		"summon":
-			_boss_summon(maxi(int(parsed.get("count", 0)), 0), bool(parsed.get("elite", false)))
-		"spread":
-			_boss_spread(maxi(int(parsed.get("count", 0)), 0))
-		"barrage":
-			_boss_barrage()
-		"aoe":
-			_boss_aoe()
-		_:
-			push_warning("[Boss] 未知执行指令 kind: %s" % kind)
-
-## Boss 召唤（regular/elite 池随机取 id，同波缩放，进 Enemies 容器计入存活 ✅）
-## 容器/场景解析复用 _elite_spawn 范式（:425-440）
-func _boss_summon(count: int, elite: bool) -> void:
-	if count <= 0:
-		return
-	var pool: Array = DataLoader.get_enemy_ids_by_category("elite" if elite else "regular")
-	if pool.is_empty():
-		return
-	var scene: PackedScene = null
-	if GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemy_scene:
-		scene = GameManager.enemy_spawner.enemy_scene
-	else:
-		scene = load("res://scenes/Enemy.tscn")
-	if scene == null:
-		return
-	for _i in count:
-		var enemy_id: String = str(pool[_rng.randi_range(0, pool.size() - 1)])
-		var stats: Dictionary = DataLoader.get_scaled_enemy(enemy_id, wave_number)
-		if stats.is_empty():
-			continue
-		var minion_node: Node = _spawn_minion_node(scene, stats)
-		if minion_node == null:
-			# 容器/工厂不可用（异常环境）→ 中止本次召唤（与原「容器 null → return」同语义）
-			return
-		if GameManager and GameManager.player and minion_node.has_method("set_target"):
-			minion_node.set_target(GameManager.player)
-
-## F2-T4：召唤物统一经 World.spawn_minion 工厂（instantiate + initialize 透传 + 挂 Enemies
-## 容器；initialize 必须先于 add_child —— _ready 用 max_health 初始化 health）。
-## World 缺失环境（探针白盒/非战斗场景）→ 兜底旧路径（instantiate + initialize + 容器 add_child）。
-## 容器/工厂均不可用 → 返回 null（调用方按原「容器 null → return」语义中止召唤）
-func _spawn_minion_node(scene: PackedScene, stats: Dictionary) -> Node:
-	var world: Node = GameManager.get_world() if GameManager else null
-	if world and world.has_method("spawn_minion"):
-		return world.spawn_minion(scene, stats)
-	# 兜底旧路径
-	var container: Node = null
-	if GameManager and GameManager.enemies_container:
-		container = GameManager.enemies_container
-	elif GameManager and GameManager.enemy_spawner and GameManager.enemy_spawner.enemies_container:
-		container = GameManager.enemy_spawner.enemies_container
-	if container == null:
-		return null
-	var minion_node: Node = scene.instantiate()
-	if minion_node.has_method("initialize"):
-		minion_node.initialize(stats)
-	container.add_child(minion_node)
-	return minion_node
-
-## 环形弹幕：count 向均匀分布，基准角朝玩家，单发伤害 damage × _attack_mult
-func _boss_spread(count: int) -> void:
-	if count <= 0:
-		return
-	var base: float = 0.0
-	if is_target_valid():
-		base = global_position.direction_to(target.global_position).angle()
-	for i in count:
-		var angle: float = base + TAU * float(i) / float(count)
-		_spawn_enemy_projectile(Vector2.from_angle(angle))
-
-## 弹幕风暴：8 向 × 3 波、波间隔 0.25s（决策 D4；由 _process_boss_attacks 推进波次）
-func _boss_barrage() -> void:
-	_barrage_wave = 3
-	_barrage_timer = 0.0
-
-## AOE：玩家距离 ≤ 120px（决策 D5）→ 伤害 × _attack_mult + crit 特效（容器缺失静默）
-func _boss_aoe() -> void:
-	if not is_target_valid() or not target.has_method("take_damage"):
-		return
-	if global_position.distance_to(target.global_position) <= 120.0:
-		target.take_damage(damage * _attack_mult)
-		var fx_container: Node = _resolve_fx_container()
-		if fx_container:
-			VfxPlayer.spawn(fx_container, target.global_position, "crit")
-		AudioManager.play_sfx("crit")   # D24-T3-③：Boss AOE 命中 SFX（D30 收敛点 2/2）
-
-## 实例化敌人弹丸并挂到自身（决策 D1：防 Enemies 容器 alive-count 污染；随父销毁）
-func _spawn_enemy_projectile(dir: Vector2) -> void:
-	var proj: Node = EnemyProjectileScript.new()
-	if proj.has_method("initialize"):
-		proj.initialize({
-			"speed": 220.0,
-			"damage": damage * _attack_mult,
-			"lifetime": 2.0,
-		})
-	if proj.has_method("set_direction"):
-		proj.set_direction(dir)
-	add_child(proj)
-
+## 目标有效性检查（target 无效或已死 → false）
 func is_target_valid() -> bool:
 	if not is_instance_valid(target):
 		return false
@@ -948,94 +267,75 @@ func is_target_valid() -> bool:
 		return target.is_alive
 	return true
 
-# ========== 受伤与死亡 ==========
+## 特效容器解析：vfx_container → current_scene → null（无容器静默跳过不崩；组件共用）
+func _resolve_fx_container() -> Node:
+	if GameManager and GameManager.vfx_container:
+		return GameManager.vfx_container
+	if get_tree() and get_tree().current_scene:
+		return get_tree().current_scene
+	return null
 
-## 受到伤害 (考虑护甲减伤)
-## F-11（用户拍板 2026-08-06）：新增可选 is_crit 参数——默认 false 零回归（DoT/接触/旧调用
-## 不传即普通伤害数字）；projectile 线弹/AOE 透传真实暴击态 → 金色大字号「N!」
-func take_damage(amount: float, is_crit: bool = false) -> void:
-	if not is_alive:
-		return
-	# 护甲减伤（F1-C · 用户 2026-08-10 拍板「伤害-护甲=最终伤害」平直减法，与 player.gd 同式）
-	var actual_damage: float = max(amount - armor, 1.0)
-	health -= actual_damage
-	health_changed.emit(health, max_health)
-	_play_hit_flash()
-	_spawn_damage_number(actual_damage, is_crit)
-	if health <= 0.0:
-		die()
-		return
-	# Day 18-19 · T1：存活命中 → 相位阈值检查（决策 D6：击杀瞬间不触发切换/残留横幅）
-	if is_boss and not phases.is_empty():
-		_check_phase_transition()
-	# BS-D2（§2.4）：QTE 打断钩子——存活命中时若当前技能处于打断窗口 → interrupt（中断即豁免）
-	_interrupt_active_executor()
+# ========== 薄委托（F4-A：组件方法转发——探针白盒动态调用点零改动硬门槛） ==========
+# → enemy_movement
+func _try_contact_damage() -> void:
+	if _movement: _movement._try_contact_damage()
 
-## 死亡处理：播放死亡动画，掉落金币/经验，发射信号
-func die() -> void:
-	is_alive = false
-	health = 0.0
-	_drop_rewards()
-	died.emit(self)
-	# Day 18-19 · T1 + F2-T5（T-045）：Boss 击杀信号化——die 内不再直调
-	# GM.register_boss_killed（消灭实体→系统硬调用），由 main 装配 boss_killed → GM 订阅；
-	# 双守卫 is_boss + has_signal 防纯数据探针异常
-	if is_boss and has_signal("boss_killed"):
-		boss_killed.emit()
-	# F-28（2026-08-08 用户拍板）：击杀后触发通关判定——普通关敌全灭 / Boss 关 Boss 击杀
-	# （此前通关只由波次倒计时触发：Boss 没死超时也通 / Boss 死了要等倒计时）
-	if GameManager and GameManager.wave_manager and GameManager.wave_manager.has_method("check_wave_clear"):
-		GameManager.wave_manager.check_wave_clear()
-	# 播放死亡动画后销毁
-	if _anim and _anim.sprite_frames and _anim.sprite_frames.has_animation("death"):
-		_anim.play("death")
-		_anim.animation_finished.connect(func(): queue_free())
-	else:
-		queue_free()
+func apply_knockback(dir: Vector2, force: float) -> void:  # player.gd 升级冲击波消费
+	if _movement: _movement.apply_knockback(dir, force)
 
-## 掉落奖励
-func _drop_rewards() -> void:
-	if GameManager.economy:
-		GameManager.economy.add_coins(coin_value)
-	# D4-T1：经验直接结算（不造磁吸宝石实体，见 TASKS Day 4 总定案）
-	if GameManager.player and GameManager.player.has_method("gain_exp"):
-		GameManager.player.gain_exp(exp_value)
-		# D6-T4（T-B · P1）：击杀经验飘字「+N」（方案 A；容器缺失时静默跳过不崩）
-		_spawn_exp_popup(exp_value)
+func _elite_aoe(delta: float) -> void:  # day17_elite 探针
+	if _movement: _movement._elite_aoe(delta)
 
-## D6-T4：击杀经验飘字（0.6s 上浮 + 淡出后消失）
-func _spawn_exp_popup(amount: int) -> void:
-	var container: Node = GameManager.vfx_container if GameManager.vfx_container else null
-	if container == null:
-		container = get_tree().current_scene
-	if container == null:
-		return  # 无容器（如纯数据测试）静默跳过
-	var label := Label.new()
-	label.text = "+%d" % amount
-	label.add_theme_font_size_override("font_size", 14)
-	label.add_theme_color_override("font_color", Color(0.45, 0.85, 1.0))
-	container.add_child(label)
-	label.global_position = global_position + Vector2(randf_range(-10.0, 10.0), -28.0)
-	var tween := label.create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(label, "global_position:y", label.global_position.y - 26.0, 0.6)
-	tween.tween_property(label, "modulate:a", 0.0, 0.6)
-	tween.chain().tween_callback(label.queue_free)
+func _elite_self_heal(delta: float) -> void:  # day17_elite 探针
+	if _movement: _movement._elite_self_heal(delta)
 
-## F-11（用户拍板 2026-08-06）：受击伤害数字飘字（普通浅黄 / 暴击金色大字号「N!」）
-## 容器解析复用 _spawn_exp_popup 范式：vfx_container → current_scene → 无容器跳过不崩
-func _spawn_damage_number(amount: float, is_crit: bool) -> void:
-	var container: Node = GameManager.vfx_container if GameManager.vfx_container else null
-	if container == null:
-		container = get_tree().current_scene
-	if container == null:
-		return
-	DamageNumberScript.spawn(container, global_position, amount, is_crit)
+func _elite_spawn(delta: float) -> void:  # day17_elite 探针
+	if _movement: _movement._elite_spawn(delta)
+
+# → enemy_boss
+func _parse_attack(cmd: String) -> Dictionary:  # day18_19 探针
+	if _boss_ctrl: return _boss_ctrl._parse_attack(cmd)
+	return {}
+
+func _transition_phase(next: int) -> void:  # day30_boss_skill 探针（int = BossPhase 枚举值）
+	if _boss_ctrl: _boss_ctrl._transition_phase(next)
+
+func _process_boss_patterns(delta: float) -> void:  # day30_boss_skill 探针
+	if _boss_ctrl: _boss_ctrl._process_boss_patterns(delta)
+
+func _pick_and_cast() -> void:  # day30_boss_skill 探针
+	if _boss_ctrl: _boss_ctrl._pick_and_cast()
+
+func _active_pattern_pool() -> Array:  # day30_boss_skill 探针
+	if _boss_ctrl: return _boss_ctrl._active_pattern_pool()
+	return []
+
+func _compose_skill_params(pattern: Dictionary) -> Dictionary:  # day30_boss_skill 探针
+	if _boss_ctrl: return _boss_ctrl._compose_skill_params(pattern)
+	return {}
+
+func _boss_summon(count: int, elite: bool) -> void:  # day18_19 探针
+	if _boss_ctrl: _boss_ctrl._boss_summon(count, elite)
+
+func _boss_spread(count: int) -> void:  # day18_19 探针
+	if _boss_ctrl: _boss_ctrl._boss_spread(count)
+
+func _boss_aoe() -> void:  # day18_19 探针
+	if _boss_ctrl: _boss_ctrl._boss_aoe()
+
+# → enemy_damage
+func take_damage(amount: float, is_crit: bool = false) -> void:  # player/探针 取血消费
+	if _damage: _damage.take_damage(amount, is_crit)
+
+func die() -> void:  # day4/day18_19 探针
+	if _damage: _damage.die()
 
 # ========== 初始化接口 ==========
 
 ## 从 DataLoader.get_scaled_enemy() 返回的字典初始化敌人属性
 func initialize(stats: Dictionary) -> void:
+	# F4-A：组件先挂载（initialize 先于 _ready；_reset_boss_phase 需 _boss_ctrl 就绪）
+	_ensure_components()
 	if stats.has("id"):
 		enemy_id = stats["id"]
 	if stats.has("category"):
@@ -1054,7 +354,7 @@ func initialize(stats: Dictionary) -> void:
 		exp_value = int(stats["exp_value"])
 	if stats.has("behavior"):
 		var behav_str: String = stats["behavior"]
-		behavior = BEHAVIOR_MAP.get(behav_str, Behavior.CHASE)
+		behavior = BEHAVIOR_MAP.get(behav_str, EnemyEnums.Behavior.CHASE)
 	# Day 17 · D17-T2：精英能力 + 波次（产卵缩放）
 	if stats.has("ability"):
 		ability = stats["ability"]
@@ -1087,7 +387,7 @@ func initialize(stats: Dictionary) -> void:
 		_patterns = DataLoader.get_boss_patterns(enemy_id)
 	_base_speed = move_speed
 	if is_boss and not phases.is_empty():
-		_reset_boss_phase(0)
+		_boss_ctrl._reset_boss_phase(0)
 		scale = Vector2(1.0, 1.0)
 	health = max_health
 	health_changed.emit(health, max_health)
