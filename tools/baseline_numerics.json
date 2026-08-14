@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-10T00:42:58",
+ "generated_at": "2026-08-14T08:52:02",
  "tables": {
   "weapons": [
    {
@@ -15,7 +15,7 @@
     "knockback": 5,
     "life_steal": 0,
     "scaling": {
-     "melee_damage": 1.0
+     "melee_damage": 1
     },
     "levels": [
      {
@@ -89,7 +89,7 @@
     "knockback": 20,
     "life_steal": null,
     "scaling": {
-     "melee_damage": 1.0
+     "melee_damage": 1
     },
     "levels": [
      {
@@ -237,7 +237,7 @@
     "knockback": 10,
     "life_steal": null,
     "scaling": {
-     "melee_damage": 1.0
+     "melee_damage": 1
     },
     "levels": [
      {
@@ -311,7 +311,7 @@
     "knockback": 40,
     "life_steal": null,
     "scaling": {
-     "melee_damage": 1.0
+     "melee_damage": 1
     },
     "levels": [
      {
@@ -534,7 +534,7 @@
     "knockback": 8,
     "life_steal": 1,
     "scaling": {
-     "melee_damage": 1.0
+     "melee_damage": 1
     },
     "levels": [
      {
@@ -680,7 +680,7 @@
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "ranged_damage": 1.0
+     "ranged_damage": 1
     },
     "levels": [
      {
@@ -754,7 +754,7 @@
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "ranged_damage": 1.0
+     "ranged_damage": 1
     },
     "levels": [
      {
@@ -902,7 +902,7 @@
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "ranged_damage": 1.0
+     "ranged_damage": 1
     },
     "levels": [
      {
@@ -976,7 +976,7 @@
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "ranged_damage": 1.0
+     "ranged_damage": 1
     },
     "levels": [
      {
@@ -1050,7 +1050,7 @@
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "ranged_damage": 1.0
+     "ranged_damage": 1
     },
     "levels": [
      {
@@ -1124,7 +1124,7 @@
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "ranged_damage": 1.0
+     "ranged_damage": 1
     },
     "levels": [
      {
@@ -1272,7 +1272,7 @@
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "ranged_damage": 1.0
+     "ranged_damage": 1
     },
     "levels": [
      {
@@ -1783,7 +1783,7 @@
     "tier": 3,
     "price": 55,
     "damage": 8,
-    "cooldown": 1.0,
+    "cooldown": 1,
     "range": 180,
     "crit_chance": 0.05,
     "crit_damage": 1.5,
@@ -1796,14 +1796,14 @@
      {
       "level": 1,
       "damage": 8,
-      "cooldown": 1.0,
+      "cooldown": 1,
       "range": 180,
       "upgrade": "基础形态"
      },
      {
       "level": 2,
       "damage": 10,
-      "cooldown": 1.0,
+      "cooldown": 1,
       "range": 186,
       "upgrade": "伤害 +2"
      },
@@ -1857,27 +1857,27 @@
     "tier": 4,
     "price": 90,
     "damage": 20,
-    "cooldown": 1.0,
+    "cooldown": 1,
     "range": 350,
     "crit_chance": 0.05,
     "crit_damage": 1.5,
     "knockback": null,
     "life_steal": null,
     "scaling": {
-     "elemental_damage": 1.0
+     "elemental_damage": 1
     },
     "levels": [
      {
       "level": 1,
       "damage": 20,
-      "cooldown": 1.0,
+      "cooldown": 1,
       "range": 350,
       "upgrade": "基础形态"
      },
      {
       "level": 2,
       "damage": 25,
-      "cooldown": 1.0,
+      "cooldown": 1,
       "range": 361,
       "upgrade": "伤害 +5"
      },
@@ -2151,7 +2151,7 @@
     "tier": 1,
     "price": 12,
     "damage": 20,
-    "cooldown": 1.0,
+    "cooldown": 1,
     "range": 100,
     "crit_chance": null,
     "crit_damage": null,
@@ -2164,14 +2164,14 @@
      {
       "level": 1,
       "damage": 20,
-      "cooldown": 1.0,
+      "cooldown": 1,
       "range": 100,
       "upgrade": "基础形态"
      },
      {
       "level": 2,
       "damage": 25,
-      "cooldown": 1.0,
+      "cooldown": 1,
       "range": 103,
       "upgrade": "伤害 +5"
      },
@@ -2449,7 +2449,7 @@
     "tier": 3,
     "price": 60,
     "damage": 0,
-    "cooldown": 2.0,
+    "cooldown": 2,
     "range": 120,
     "crit_chance": null,
     "crit_damage": null,
@@ -2462,14 +2462,14 @@
      {
       "level": 1,
       "damage": 0,
-      "cooldown": 2.0,
+      "cooldown": 2,
       "range": 120,
       "upgrade": "基础形态"
      },
      {
       "level": 2,
       "damage": 0,
-      "cooldown": 2.0,
+      "cooldown": 2,
       "range": 126,
       "upgrade": "护盾范围扩大"
      },
@@ -3017,8 +3017,7 @@
     "slot": null,
     "category": null,
     "effects": {
-     "damage_percent": 8,
-     "special_enemies_next_wave": true
+     "damage_percent": 8
     },
     "tags": [
      "damage"
@@ -3246,8 +3245,7 @@
     "slot": null,
     "category": null,
     "effects": {
-     "shop_weapon_upgrade": true,
-     "no_weapon_armor_bonus": 2
+     "shop_weapon_upgrade": true
     },
     "tags": []
    },
@@ -3363,8 +3361,7 @@
     "category": null,
     "effects": {
      "engineering": 10,
-     "structure_damage_percent": 50,
-     "auto_turret_per_wave": 1
+     "structure_damage_percent": 50
     },
     "tags": [
      "engineering"
@@ -3622,7 +3619,7 @@
     "hp": 12,
     "hp_growth": 18,
     "damage": 5,
-    "damage_growth": 1.0,
+    "damage_growth": 1,
     "speed": 150,
     "behavior": "chase",
     "coin_value": 3,
@@ -3636,7 +3633,7 @@
     "hp": 50,
     "hp_growth": 20,
     "damage": 6,
-    "damage_growth": 1.0,
+    "damage_growth": 1,
     "speed": 275,
     "behavior": "chase",
     "coin_value": 6,
@@ -3871,11 +3868,14 @@
    }
   ],
   "enemy_scaling": {
-   "hp_formula": "base_hp + hp_growth * wave",
-   "damage_formula": "base_damage + damage_growth * wave",
-   "speed_formula": "base_speed * (1 + min(wave * 0.01, 0.2)) * 0.5  # F-01(2026-08-06 用户拍板): 怪物移速降至50%",
-   "elite_hp_multiplier": "1 + wave * 0.15",
-   "elite_damage_multiplier": "1 + wave * 0.08"
+   "speed_growth_per_wave": 0.01,
+   "speed_growth_cap": 0.2,
+   "speed_reduction": 0.5,
+   "elite_hp_mult_per_wave": 0.15,
+   "elite_dmg_mult_per_wave": 0.08,
+   "charge_speed_mult": 1.5,
+   "charge_windup": 2,
+   "charge_duration": 0.8
   },
   "characters": [
    {
@@ -3974,11 +3974,11 @@
      "name": "炽星火球",
      "name_en": "Blazing Fireball",
      "type": "active",
-     "cooldown": 8.0,
+     "cooldown": 8,
      "damage": 30,
      "radius": 90,
      "element_type": "fire",
-     "burn_duration": 4.0,
+     "burn_duration": 4,
      "description": "向鼠标方向抛射巨型火球，命中爆炸并施加燃烧(4秒)"
     },
     "starting_weapon": "se_star_flame"
@@ -3999,11 +3999,11 @@
      "name": "紧急部署",
      "name_en": "Emergency Deploy",
      "type": "active",
-     "cooldown": 12.0,
+     "cooldown": 12,
+     "description": "立即在身侧部署 2 台临时炮台，持续 15 秒",
      "summon_id": "se_auto_turret",
      "summon_count": 2,
-     "duration": 15.0,
-     "description": "立即在身侧部署 2 台临时炮台，持续 15 秒"
+     "duration": 15
     },
     "starting_weapon": "se_auto_turret"
    },
@@ -4023,13 +4023,13 @@
      "name": "星刃爆发",
      "name_en": "Blade Burst",
      "type": "active",
-     "cooldown": 10.0,
-     "duration": 5.0,
+     "cooldown": 10,
+     "description": "5 秒内环绕星刃额外 +3 把并提升 50% 攻速",
+     "duration": 5,
      "effects": {
       "orbit_blade_count": 3,
       "attack_speed_percent": 50
-     },
-     "description": "5 秒内环绕星刃额外 +3 把并提升 50% 攻速"
+     }
     },
     "starting_weapon": "se_star_blade"
    },
@@ -4049,13 +4049,13 @@
      "name": "神圣庇护",
      "name_en": "Holy Shield",
      "type": "active",
-     "cooldown": 14.0,
-     "duration": 5.0,
+     "cooldown": 14,
+     "description": "5 秒内获得 30 点护盾并每秒恢复 10 点生命",
+     "duration": 5,
      "effects": {
       "shield": 30,
       "heal": 10
-     },
-     "description": "5 秒内获得 30 点护盾并每秒恢复 10 点生命"
+     }
     },
     "starting_weapon": "se_holy_staff"
    }
@@ -4535,9 +4535,8 @@
    }
   ],
   "wave_generation": {
-   "base_enemy_count_formula": "base_count + wave * 2",
-   "spawn_interval_formula": "max(0.3, base_interval - wave * 0.02)",
-   "max_concurrent_formula": "min(20 + wave * 2, 60)"
+   "spawn_interval_min": 0.3,
+   "spawn_interval_decay": 0.02
   },
   "wave_rewards": {
    "wave_complete_base": "5 + wave * 2",
@@ -4550,37 +4549,62 @@
     "name_en": "Burning",
     "duration": 3,
     "effect": "每秒造成 3 + (元素伤害×0.2) 点伤害",
-    "dot": 3,
-    "dot_scaling": 0.2
+    "type": "dot",
+    "tick_interval": 1,
+    "value": 3,
+    "scaling_attr": "elemental_damage",
+    "scaling_ratio": 0.2,
+    "target_attr": "hp",
+    "max_stacks": 1
    },
    "ice": {
     "name": "减速",
     "name_en": "Chilled",
     "duration": 2,
     "effect": "移动速度-40%",
-    "slow_percent": 40
+    "type": "slow",
+    "tick_interval": 1,
+    "value": 40,
+    "scaling_ratio": 0,
+    "target_attr": "move_speed",
+    "max_stacks": 1
    },
    "lightning": {
     "name": "麻痹",
     "name_en": "Paralyzed",
     "duration": 0.5,
     "effect": "无法行动",
-    "stun": true
+    "type": "stun",
+    "tick_interval": 1,
+    "value": 1,
+    "scaling_ratio": 0,
+    "target_attr": "action",
+    "max_stacks": 1
    },
    "poison": {
     "name": "中毒",
     "name_en": "Poisoned",
     "duration": 5,
     "effect": "每秒造成 2 + (元素伤害×0.15) 点伤害",
-    "dot": 2,
-    "dot_scaling": 0.15
+    "type": "dot",
+    "tick_interval": 1,
+    "value": 2,
+    "scaling_attr": "elemental_damage",
+    "scaling_ratio": 0.15,
+    "target_attr": "hp",
+    "max_stacks": 2
    },
    "plasma": {
     "name": "灼烧",
     "name_en": "Sear",
     "duration": 3,
     "effect": "防御-5",
-    "armor_reduction": 5
+    "type": "armor",
+    "tick_interval": 1,
+    "value": 5,
+    "scaling_ratio": 0,
+    "target_attr": "defense",
+    "max_stacks": 1
    }
   },
   "element_reactions": [
@@ -4605,9 +4629,9 @@
     "name_en": "Storm of Fire",
     "damage": 15,
     "damage_scaling": 0.4,
+    "extra_effect": "触发3次连锁闪电",
     "chain_count": 3,
-    "chain_falloff": 0.25,
-    "extra_effect": "触发3次连锁闪电"
+    "chain_falloff": 0.25
    },
    {
     "combination": [
@@ -4674,8 +4698,8 @@
     "name_en": "Corrosive Chain",
     "damage": 12,
     "damage_scaling": 0.3,
-    "chain_count": 3,
-    "extra_effect": "连锁敌人并施加中毒"
+    "extra_effect": "连锁敌人并施加中毒",
+    "chain_count": 3
    },
    {
     "combination": [
@@ -4707,7 +4731,6 @@
      "name": "最大生命值",
      "name_en": "Max HP",
      "base": 100,
-     "max": null,
      "description": "玩家生命上限"
     },
     {
@@ -4715,7 +4738,6 @@
      "name": "生命回复",
      "name_en": "HP Regen",
      "base": 0,
-     "max": null,
      "description": "每秒回复生命值"
     },
     {
@@ -4740,7 +4762,6 @@
      "name": "移动速度",
      "name_en": "Speed",
      "base": 300,
-     "max": null,
      "description": "移动速度(像素/秒)"
     },
     {
@@ -4748,7 +4769,6 @@
      "name": "拾取范围",
      "name_en": "Pickup Range",
      "base": 80,
-     "max": null,
      "description": "自动拾取半径"
     }
    ],
@@ -4757,29 +4777,25 @@
      "id": "melee_damage",
      "name": "近战伤害",
      "name_en": "Melee Damage",
-     "base": 0,
-     "max": null
+     "base": 0
     },
     {
      "id": "ranged_damage",
      "name": "远程伤害",
      "name_en": "Ranged Damage",
-     "base": 0,
-     "max": null
+     "base": 0
     },
     {
      "id": "elemental_damage",
      "name": "元素伤害",
      "name_en": "Elemental Damage",
-     "base": 0,
-     "max": null
+     "base": 0
     },
     {
      "id": "attack_speed",
      "name": "攻击速度",
      "name_en": "Attack Speed",
      "base": 0,
-     "max": null,
      "unit": "percent"
     },
     {
@@ -4787,7 +4803,6 @@
      "name": "暴击率",
      "name_en": "Crit Chance",
      "base": 5,
-     "max": null,
      "unit": "percent"
     },
     {
@@ -4795,29 +4810,25 @@
      "name": "暴击伤害",
      "name_en": "Crit Damage",
      "base": 150,
-     "max": null,
      "unit": "percent"
     },
     {
      "id": "range",
      "name": "攻击范围",
      "name_en": "Range",
-     "base": 0,
-     "max": null
+     "base": 0
     },
     {
      "id": "knockback",
      "name": "击退",
      "name_en": "Knockback",
-     "base": 0,
-     "max": null
+     "base": 0
     },
     {
      "id": "life_steal",
      "name": "生命偷取",
      "name_en": "Life Steal",
      "base": 0,
-     "max": null,
      "unit": "percent"
     }
    ],
@@ -4827,7 +4838,6 @@
      "name": "收获",
      "name_en": "Harvesting",
      "base": 0,
-     "max": null,
      "description": "每波次结束获得额外材料"
     },
     {
@@ -4835,7 +4845,6 @@
      "name": "幸运",
      "name_en": "Luck",
      "base": 0,
-     "max": null,
      "description": "影响掉落品质和商店品质"
     },
     {
@@ -4843,22 +4852,19 @@
      "name": "经验加成",
      "name_en": "XP Gain",
      "base": 0,
-     "max": null,
      "unit": "percent"
     },
     {
      "id": "engineering",
      "name": "工程学",
      "name_en": "Engineering",
-     "base": 0,
-     "max": null
+     "base": 0
     },
     {
      "id": "curse",
      "name": "诅咒",
      "name_en": "Curse",
      "base": 0,
-     "max": null,
      "description": "增强敌人但增加掉落"
     }
    ]
@@ -5038,8 +5044,9 @@
     "first_layer_has_battle": true,
     "final_layer_boss": true,
     "max_battle_nodes": 36
-   }
+   },
+   "boss_wave": 10
   }
  },
- "fingerprint": "829fb9555b4237fe"
+ "fingerprint": "ed23812b6a6ae5a1"
 }
