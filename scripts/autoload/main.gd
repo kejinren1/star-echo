@@ -45,6 +45,9 @@ func _process(delta: float) -> void:
 	if both and not _debug_keys_prev:
 		GameManager.toggle_debug_cheat()
 	_debug_keys_prev = both
+	# G-D（2026-08-14）：Esc 暂停菜单（已暂停时跳过——升级/商店/事件弹窗均为暂停式）
+	if Input.is_action_just_pressed("ui_cancel") and not get_tree().paused:
+		_open_pause_menu()
 	# F-03（用户拍板 2026-08-06）：相机震动衰减（每帧随机偏移 × 剩余强度）
 	if _shake_time > 0.0:
 		_shake_time -= delta
@@ -53,6 +56,15 @@ func _process(delta: float) -> void:
 			camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _SHAKE_MAGNITUDE * t
 			if _shake_time <= 0.0:
 				camera.offset = Vector2.ZERO
+
+## G-D：Esc 弹暂停菜单（防重复叠加；战斗场景专属——选角/基地无 main 不触发）
+func _open_pause_menu() -> void:
+	if get_tree().paused:
+		return
+	if get_tree().current_scene == null or not get_tree().current_scene.has_node("PauseMenu"):
+		get_tree().paused = true
+		var menu: Node = load("res://scenes/PauseMenu.tscn").instantiate()
+		get_tree().current_scene.add_child(menu)
 
 func _ready() -> void:
 	# 装载本局英雄（须在子系统绑定前完成，保证属性/武器在开局即生效）

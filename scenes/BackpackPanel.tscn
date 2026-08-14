@@ -1,0 +1,83 @@
+[gd_scene load_steps=3 format=3 uid="uid://gbackpackp26"]
+
+[ext_resource type="Script" path="res://scripts/ui/backpack_panel.gd" id="1_backpack"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/panel_shop.png" id="2_pshop"]
+
+[node name="BackpackPanel" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_backpack")
+
+[node name="BG" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="NinePatchRect" parent="Center"]
+custom_minimum_size = Vector2(520, 300)
+layout_mode = 2
+texture = ExtResource("2_pshop")
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "🎒 背包"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+
+[node name="Tabs" type="TabContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="WeaponTab" type="VBoxContainer" parent="Center/Panel/Margin/VBox/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="WeaponGrid" type="GridContainer" parent="Center/Panel/Margin/VBox/Tabs/WeaponTab"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="ItemTab" type="VBoxContainer" parent="Center/Panel/Margin/VBox/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ItemGrid" type="GridContainer" parent="Center/Panel/Margin/VBox/Tabs/ItemTab"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="StatLabel" type="Label" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "属性"
+theme_override_font_sizes/font_size = 10
+
+[node name="CloseButton" type="Button" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "关闭"
+theme_override_font_sizes/font_size = 11
