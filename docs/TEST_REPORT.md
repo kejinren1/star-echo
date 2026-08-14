@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #45（08-13 18:45 · Day30 BS-A~D Boss 技能/效果系统 + F3-A~C 状态机收口轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / **action item 0 项**
-- **基线**：`BASELINE CLEAN` ｜ JSON **11/11** · **2367 字段零缺陷**（较 #44 2311 +56 = BS 效果/技能/pattern 新表；新表跨引用 0 悬空）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：**四十件套 40/40 · 985 断言全绿首跑**（= #44 35/866 + F1-散/F3 三连/BS 双探针 5 项 119）｜ HEAD=**48758e1**（较 #44 +11：**F1-散 8 项参数化** `734f79e` + **F3-A/B/C 状态机** `9981ca2`/`1cead61`/`1696295` + **BS-A~D 四段** `743a953`/`8fa5d0f`/`ad1bb87`/`48758e1`，**阶段F主体完成**）
-- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**新探针首记录**：day30_effect 0B 全 CLEAN / day30_boss_skill 368B（1 主动 no_such_skill 兜底+minor）；**F3-A 枚举化副作用**：day4/day16 新增「未知节点类型（空串）」防御性 WARNING——探针跳过选节点步骤致 current_node 空 dict，真机 0 影响
-- **在途 action item（0 项）**：无。工作区干净无游戏运行时代码改动；未跟踪存量 = docs/art_ai/* + 测试立绘/（AI 美术库交付物，入库前须甄别 .ssh_tmp/ 不含私钥/口令）
-- **观察**：**阶段 F 主体完成**（F1-E 主窗口承接排程未动；F4/F5 未开始）；**G 系列动工窗口=今日 18:00 后已到**（HEAD 尚未见 G 提交）；Boss 技能规格决策点随 BS-A~D 全落地；Day 28 性能段挂账交 Owner 未决；Day29 动画/F-32~34 待真人回归
+- **最近轮次 #46（08-14 18:45 · Day30 F4 拆分收口 + G 系列 R1-R6 全落地 EXIT 轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / **action item 0 项**
+- **基线**：`BASELINE CLEAN` ｜ JSON **12/12** · **2381 字段零缺陷**（较 #45 2367 +14 = skill_tree 新表；skill_tree prereq 链 0 悬空）｜ 场景 **23/23**（+6：MainMenu/PauseMenu/BackpackPanel/SkillTreePanel/CodexPanel/ArchivePanel）｜ 600帧深探 242B 良性
+- **探针回归**：**四十六件套 46/46 · 1061 断言全绿首跑**（runner 声明基线 1039）｜ HEAD=**300a0e2**（较 #45 +18：**F4-A~D 拆分四连** `dc77e47`/`a654662`/`3168c14`/`0551cd9`（enemy 1097→405 + player 732→399 + GM 拆 SaveSystem/DebugConsole）+ **G-A~F R1-R6 六段** `16e4a1d`/`bcd97bc`/`74e5e3a`/`e93d63a`/`e01b612`/`fe6038c`，**G 系列 EXIT，主场景改 MainMenu**）
+- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**G 系列 6 探针首记录全 242B 纯音频零泄漏**；day26 402B→160B（2× node.h 探针方法学输出，音频缺席波动）；day6/day10/day18_19 音频叠加缺席波动，与历史口径一致
+- **在途 action item（0 项）**：无。工作区干净无游戏运行时代码改动；未跟踪存量 = docs/art_ai/*（.ssh_tmp/ 入库前甄别）+ 测试立绘/ + AI 美术资产 v2 交付物
+- **观察**：**阶段 F 全链 + G 系列 R1-R6 全落地 EXIT**（F1-E 主窗口承接维持排程未动）；**主场景 CharacterSelect→MainMenu 变更待真人确认**；Day 28 性能段挂账交 Owner 未决；Day29 动画/F-32~34 待真人回归
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3248,3 +3248,44 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 **观察项维持/更新**：**阶段 F 主体完成**（F1-散/F3-A~C/BS-A~D 全收口；F1-E 主窗口承接仍排程未动；F4/F5 未开始）｜ **G 系列动工窗口=今日 18:00 后已到**（用户 08-12 拍板 18:05 #2 拆解 → 18:35 #3 动工；本轮 18:45 时点 HEAD 尚未见 G 系列提交）｜ **Boss 技能规格闭环**：BOSS_SKILL_SPEC.md 决策点随 BS-A~D 全落地 ｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ AI 美术库交付物（docs/art_ai/* + 测试立绘/）未入库待甄别 ｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持
 
 **观察项维持/更新**：**阶段 F 执行阻塞清零**（F1-G-尾已收口；F1-E 主窗口承接排程未动、F2 已收口 → F3 状态机待排）｜ **G 系列排期**：用户 08-12 拍板动工窗口=今日 18:00 后（算力成本考虑），08-12 白天禁止提前拆解/动工 ｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持
+
+---
+
+## §7.46 轮次 #46 · 2026-08-14 18:45（自动化 · **Day30 F4 拆分收口 + G 系列 R1-R6 全落地 EXIT 轮**：enemy/player/GM 三拆 + 主菜单/大地图/图鉴/回廊/背包/技能树六系统）
+
+**验证快照 = HEAD=300a0e2（工作区干净，无在途游戏代码改动）** · 执行 18:40-18:48
+
+### 快照与在途
+
+- HEAD 较 #45（48758e1）**+18 提交**：`f70dcf4` PLAYTEST #64 + TEST_REPORT #45 核查 ｜ `dc77e47` **F4-A** enemy.gd 拆三组件（enemy_movement/enemy_boss/enemy_damage 无 class_name 注入范式 + enemy_enums 共享枚举），enemy.gd 1097→405 行，day26 静态锚点同步 ｜ `a654662` **F4-B/C** GM 拆 SaveSystem+DebugConsole（存档格式零改动 + 金手指 ↑↓ toggle）+ player 拆 AttributeController（STAT_MAP/bonus_stats 整体迁移）+ PlayerAnim（F3 枚举+守卫），player.gd 732→399 / GM 686→623 ｜ `3168c14` **F4-D 快照刷新**（F1.0 Excel 管线 int 表示历史差异，数值语义零变化） ｜ `0551cd9` **F4-D 收口**（T-047/048 EXIT：回归 40/40 全绿 + 探针锚点 6 处修复 + player 薄委托 `_ensure_components`） ｜ `16e4a1d` **G-A（R2 主菜单）**：MainMenu.tscn+main_menu.gd 动态 5 入口，**run/main_scene 改 MainMenu**（CharacterSelect 保留可直达） ｜ `bcd97bc` **G-B（R1 大地图）**：RouteSelectPanel 改可视化节点地图（网格画布+Line2D 路径+迷雾 O3 前 2 层可见后模糊+已走灰显），旧 route_generator 数据结构零改动 ｜ `74e5e3a` **G-C（R3 图鉴+R4 回廊）**：SaveSystem.record_codex 五分类去重 + 4 记录点（敌首杀 O5/商店池/选角/事件）+ CodexPanel + ArchivePanel（角色等级解锁零新增存档字段） ｜ `e93d63a` **G-D（R5 背包）**：PauseMenu（Esc 暂停+继续/背包/返回主菜单）+ BackpackPanel（6 武器+6 被动+属性一览 F2-T2 接口直读） ｜ `e01b612` **G-E（R6 技能树）**：skill_tree.json（3 系×6 节点，D2 不走 Excel 注册）+ SaveSystem 技能点发放（O1 升级+1）+ unlock_skill 前置+扣点持久化 + SkillTreePanel + main 进局全量注入（O2 独立并存） ｜ `fe6038c` **G-F EXIT**：6 探针并入本地 runner（**46 件套 1039**）+ day26 回归锚点同步（40→46 项/985→1039）+ TASKS F4/G-R1~R6 全 [x] ｜ `300a0e2` docs 挂账同步
+- 工作区在途：**无游戏代码改动**（git status 干净）；未跟踪存量 = docs/art_ai/* + 测试立绘/ + 星骸回响_AI美术资产_v2_20260814/ + 两个 zip + ComfyUI 说明书 docx（AI 美术库交付物，**入库前须甄别 .ssh_tmp/ 不含私钥/口令**）
+- **回归 runner 扩容实证**：PROBES **46 项 1039 断言**（= #45 的 40/985 + G 系列 6 探针 54）；实测输出 46 探针合计 **1061 断言**（G 系列实际 76 > expect 54，超量 22 为探针断言明细展开）
+
+### 检查结果（全绿）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + --quit-after 4） | ✅ PASS · **BASELINE CLEAN**（import err 0B / runtime err 0B） |
+| 600 帧深探 | ✅ EXIT 0 · deep_runtime_err.log 242B 良性（Day 24 音频白名单） |
+| JSON **12/12** 解析 | ✅ characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20；**+1 新表**：skill_tree.json（G-E，3 系×2 级 6 节点，version/points_per_level/nodes 结构）（qa_validate 13 文件含 .manifest.json） |
+| 数值边界 | ✅ **2381 字段零缺陷**（较 #45 的 2367 **+14**：skill_tree cost×6+effect value×6+points_per_level+version；39 负值=惩罚/诅咒有意 + 0 非豁免零伤害 + 2 Boss 哨兵 -1 有意；crit 双口径合法） |
+| 跨引用完整性 | ✅ 0 硬悬空 · **DATA LAYER CLEAN**；**skill_tree 手工补查**（qa_validate 未覆盖，本轮首查）：6 节点 id 唯一 / prereq 链 0 悬空（atk_2→atk_1、hp_2→hp_1、lck_2→lck_1）✅ / effect.stat 引用合法（damage/max_health/armor/luck/coin_bonus）✅ |
+| 场景 smoke | ✅ **23/23 全可实例化**（较 #45 17 +6：MainMenu/PauseMenu/BackpackPanel/SkillTreePanel/CodexPanel/ArchivePanel；Main.tscn 置末方法学维持，临时文件 os.remove 清理无残留；退出 242B 良性） |
+| 探针回归（runner） | ✅ **四十六件套 46/46 · 1061 断言全 CLEAN 首跑（48s）**（#45 40 项 985 → #46 46 项 1061；0 FAIL / 0 script_errors，单轮实证） |
+
+**合计 46 探针 · 1061 断言全 CLEAN 首跑。**
+
+### stderr 口径（与 #45 逐一比对：6 项新探针首记录 + 3 项音频叠加缺席波动，无新增异常）
+
+- **G 系列 6 探针首记录（全 242B 纯音频、探针自身零泄漏）**：day30_g_mainmenu / day30_g_map / day30_g_codex / day30_g_archive / day30_g_backpack / day30_g_skilltree —— 主菜单 5 入口接线、大地图可视化+迷雾、图鉴五分类、回廊等级解锁、背包双槽、技能树前置+扣点行为级探针全部零 stderr 异常
+- **day26 402B→160B（解释性，非缺陷）**：2× `node.h:446 Parameter "data.tree" is null` 维持（探针未入树 boss initialize() → get_tree()，#29/#32 已定性方法学输出）；**音频 242B 本轮缺席**（160B=纯 2 条 node.h，无叠加）
+- **音频 BENIGN 时序波动（与 #32→#35 各轮同类）**：day6 0B→242B（纯音频，历史 #43 同态）；day10 374B→132B（仅 1 条主动 `[Inventory] items.json 无此道具: non_existent_core_xyz` 兜底测试预期，音频缺席）；day18_19 359B→117B（仅 1 条主动 `[Boss] 未知攻击指令: unknown_attack_x` 兜底预期，音频缺席）
+- 维持项（与 #45 逐一一致）：day2 242 / day3 0 / day5 242 / day7 366 / day8 242 / day11_12 660 / day13 860 / day14_15 373 / day16 636（3 主动：ghost_relic+reroute+未知节点类型空串，F3-A 定性维持）/ day4 344 / day17_elite 242 / day17_p0 242 / day18_fb 626 / day18_fb2 571 / day18_fb3 362 / day18_fb4 242 / day18_fb5 621 / day18_fb6 362 / day20 941 / day21_22 564 / day23 367 / day24_audio 456 / day24_f13 860 / day27_meta 496 / day28_f31 920 / day29_elin 242 / day29_attack 362 / day30_p0_fix 534 / day30_f1_scaling 242 / day30_f1d_shop 358 / day30_f2_boundary 473 / day30_f1_scatter 242 / day30_f3_compliance 242 / day30_f3_flow 242 / day30_effect 242（#45 0B 波动）/ day30_boss_skill 368
+
+### 结论
+
+**✅ 2026-08-14 18:45 自动化测试轮次 #46：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**300a0e2**：**阶段 F 全链 + G 系列 R1-R6 全落地 EXIT**——F4 拆分四连（enemy 1097→405 / player 732→399 / GM 拆 SaveSystem+DebugConsole，无 class_name 注入范式 + 共享枚举防探针编译期坑）行为级零回归，G 系列六系统（主菜单/大地图可视化+迷雾/图鉴/回廊/背包/技能树）全部数据驱动落地且**主场景改 MainMenu**（原 CharacterSelect 保留）。工程可导入、可运行、数据完整（12 表 2381 字段零缺陷 + skill_tree 跨引用 0 悬空）、23 场景全可实例化、回归扩至 **46 件套 1061 断言全绿首跑**。**无新增功能缺陷、无需回退。**
+
+**action item（0 项）**：无新增。观察项 2 条待跟进：① **主场景变更（CharacterSelect→MainMenu）建议真机走一遍开局全链路**（选角→进局→暂停→背包/返回主菜单，U-1 待目视）；② docs/art_ai/.ssh_tmp/ 入库前须甄别不含私钥/口令。
+
+**观察项维持/更新**：**阶段 F 全链收口 + G 系列 EXIT**（TASKS F4-T1~7 / G-R1~R6 全 [x]；F1-E 主窗口承接维持排程未动）｜ 主场景改 MainMenu 待真人确认（见上）｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ AI 美术库交付物（docs/art_ai/* + 测试立绘/ + 资产 v2）未入库待甄别 ｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持 ｜ latent `mixed*` 维持关闭
