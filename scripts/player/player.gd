@@ -47,7 +47,6 @@ var structure_damage_mult: float = 1.0    ## 结构伤害倍率（turret 弹药�
 
 # ========== 角色（Day 2：hero id 消费） ==========
 
-## 英雄精灵目录（配合 characters.json 的 `sprite` 前缀字段拼装）
 const SPRITE_DIR: String = "res://assets/sprites/characters/"
 ## BS-A2（2026-08-13）：通用持续效果组件（无 class_name，preload 范式——探针 --script 兼容）
 const StatusComponentScript: GDScript = preload("res://scripts/systems/status_component.gd")
@@ -67,7 +66,6 @@ const ANIM_MAP: Dictionary = PlayerEnums.ANIM_MAP
 var character_id: String = ""                ## 当前英雄 id（空 = 未经角色选择）
 var bonus_stats: Dictionary = {}             ## 引擎尚未实现的被动/惩罚键，Day 3 技能与 Day 4 面板读此字典
 
-# ========== 内部状态 ==========
 
 var health: float                            ## 当前生命值
 ## P0-Bug1 修复（2026-08-10）：希亚「神圣庇护」护盾 —— 受击优先吸收，时长到自动归零
@@ -113,7 +111,6 @@ func _ready() -> void:
 	if sc and sc.has_signal("skill_cast"):
 		sc.skill_cast.connect(_play_skill_anim)
 
-## F4-C：组件懒挂载（initialize/apply_character 先于 _ready → 保证组件就绪；幂等）
 func _ensure_components() -> void:
 	if _attr_ctrl == null:
 		_attr_ctrl = AttributeControllerScript.new()
@@ -126,7 +123,6 @@ func _ensure_components() -> void:
 		add_child(_anim_ctrl)
 		_anim_ctrl.setup(self)
 
-# ========== 角色装载（由 Main 在 _ready 中调用） ==========
 
 ## 应用 characters.json 中的一条英雄数据：被动 + 惩罚 + 精灵资源（空字典直接返回）
 func apply_character(char_data: Dictionary) -> void:
@@ -147,37 +143,48 @@ func apply_character(char_data: Dictionary) -> void:
 
 # ========== 属性系统薄委托（F4-C · 定义见 attribute_controller.gd） ==========
 # 探针 day30_p0_fix call("apply_item_bonuses") / main D42 直调 apply_stat_modifier → 转发组件
+# ⚠️ 惰性 _ensure_components：探针 `player_script.new()` 直造（不入树不触发 _ready）→ 组件未挂载，
+#    薄委托须先幂等挂载再转发（day24_f13 low_health 锚点实证）
 func apply_item_bonuses(item: Resource, remove: bool = false) -> void:
+	_ensure_components()
 	if _attr_ctrl: _attr_ctrl.apply_item_bonuses(item, remove)
 
 func apply_stat_modifier(stat_name: String, value: float, is_multiplicative: bool = false) -> void:
+	_ensure_components()
 	if _attr_ctrl: _attr_ctrl.apply_stat_modifier(stat_name, value, is_multiplicative)
 
-# ========== 动画薄委托（F4-C · 定义见 player_anim.gd） ==========
 # 探针 day29_elin/day29_attack 动态调用同名方法 → 转发 PlayerAnim 组件
 # （_state/_anim/_sprite_prefix/_facing_left 字段仍由宿主持有，探针 get/set 兼容）
 func _apply_character_sprite(prefix: String) -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl.apply_character_sprite(prefix)
 
 func _setup_animation() -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl._setup_animation()
 
 func _play_attack_anim() -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl._play_attack_anim()
 
 func _play_skill_anim(_skill_id: String = "") -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl._play_skill_anim()
 
 func _on_anim_finished() -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl._on_anim_finished()
 
 func _play_hit_anim() -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl._play_hit_anim()
 
 func _play_hit_flash() -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl._play_hit_flash()
 
 func _update_facing() -> void:
+	_ensure_components()
 	if _anim_ctrl: _anim_ctrl._update_facing()
 
 func _physics_process(delta: float) -> void:
@@ -193,7 +200,6 @@ func _physics_process(delta: float) -> void:
 
 
 func _handle_movement() -> void:
-	# O2 软控（BS-A3）：麻痹禁行动——跳过输入（velocity 归零），受击/技能仍可用
 	if stunned:
 		velocity = Vector2.ZERO
 		move_and_slide()
@@ -205,22 +211,18 @@ func _handle_movement() -> void:
 
 	velocity = input_vector * move_speed
 	move_and_slide()
-	# F-33（08-09 用户反馈）：左右转向 —— 原图默认朝左，按水平移动方向镜像翻转
 	_update_facing()
 
-# ========== 主动技能（大纲 §5：玩家控制的主动技能，带冷却/资源） ==========
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("skill_cast"):
 		_try_cast_skill()
 
-## 主动技能释放（转发给 SkillController；节点缺失时保留空实现分支防崩）
 func _try_cast_skill() -> void:
 	var controller: Node = get_node_or_null("SkillController")
 	if controller and controller.has_method("try_cast"):
 		controller.try_cast()
 
-# ========== 生命与受伤 ==========
 
 func _handle_regeneration(delta: float) -> void:
 	if regen > 0.0 and health < max_health:
@@ -311,7 +313,6 @@ func die() -> void:
 	died.emit()
 	GameManager.end_game(false)
 
-# ========== 经验与升级（Day 4 · D4-T1） ==========
 ## 经验曲线唯一权威：stats.json.leveling.xp_per_level 表达式（Godot Expression 求值，
 ## 禁代码硬编码第二份曲线防双源漂移）
 
@@ -340,7 +341,6 @@ func _check_level_up() -> void:
 		level_up.emit(level)
 		AudioManager.play_sfx("levelup")   # D24-T3-⑤：升级 SFX
 
-# ========== 升级冲击波（H-01 升级体验反馈 2026-08-07 · 用户拍板） ==========
 ## 升级光效 + 周围敌人击退 + 普攻级伤害（占位特效机制验证；伤害对齐普攻口径）
 const LEVEL_IMPACT_RADIUS: float = 140.0      ## 冲击半径（640×360 视口约 1/3 屏宽）
 const LEVEL_IMPACT_KNOCKBACK: float = 500.0   ## 击退初速（px/s，衰减 50%/帧 ≈ 15-20px 推离）

@@ -324,9 +324,13 @@ func _source_has(path: String, needle: String) -> bool:
 
 func _part_regression() -> void:
 	# 既有 5 特效消费点源码锚点（enemy crit、levelup、main death）
+	# F4-A 拆分：crit → enemy_boss（_boss_aoe）/enemy_movement（_elite_aoe）；levelup → enemy_movement
 	var enemy_src: String = "res://scripts/enemy/enemy.gd"
+	var enemy_boss_src: String = "res://scripts/enemy/enemy_boss.gd"
+	var enemy_mov_src: String = "res://scripts/enemy/enemy_movement.gd"
 	var main_src: String = "res://scripts/autoload/main.gd"
-	var ok1: bool = _source_has(enemy_src, "\"crit\"") and _source_has(enemy_src, "\"levelup\"")
+	var ok1: bool = (_source_has(enemy_src, "\"crit\"") or _source_has(enemy_boss_src, "\"crit\"") or _source_has(enemy_mov_src, "\"crit\"")) \
+		and (_source_has(enemy_src, "\"levelup\"") or _source_has(enemy_mov_src, "\"levelup\""))
 	var ok2: bool = _source_has(main_src, "\"death\"")
 	if not ok1 or not ok2:
 		_fail("回归: enemy crit/levelup 或 main death spawn 调用缺失（源码锚点）")

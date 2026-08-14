@@ -579,6 +579,12 @@ func _on_player_level_up(_new_level: int) -> void:
 ## 薄委托转发（探针 day27_meta `_gm.load_meta()` 等零改动；meta_progress/meta_save_path
 ## 字段保留 GM 供探针读写；行为实现见 save_system.gd，存档格式零改动）
 
+## 默认零值元进度（探针 day2/day4 `_gm.call("_default_meta")` 兼容）
+func _default_meta() -> Dictionary:
+	if _save_system:
+		return _save_system._default_meta()
+	return {"wins": 0, "research_points": 0, "research": {}, "chars": {}}
+
 ## 加载局外存档（缺文件/损坏 JSON 容错零值；经 SaveSystem）
 func load_meta() -> void:
 	if _save_system:

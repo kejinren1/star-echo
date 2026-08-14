@@ -292,6 +292,9 @@ func _elite_self_heal(delta: float) -> void:  # day17_elite 探针
 func _elite_spawn(delta: float) -> void:  # day17_elite 探针
 	if _movement: _movement._elite_spawn(delta)
 
+func _process_knockback() -> void:  # day18_feedback3 探针（升级冲击波击退）
+	if _movement: _movement._process_knockback()
+
 # → enemy_boss
 func _parse_attack(cmd: String) -> Dictionary:  # day18_19 探针
 	if _boss_ctrl: return _boss_ctrl._parse_attack(cmd)
@@ -322,6 +325,11 @@ func _boss_spread(count: int) -> void:  # day18_19 探针
 
 func _boss_aoe() -> void:  # day18_19 探针
 	if _boss_ctrl: _boss_ctrl._boss_aoe()
+
+func _compose_difficulty_coeff() -> float:  # day30_boss_skill 探针
+	if _boss_ctrl:
+		return _boss_ctrl._compose_difficulty_coeff()
+	return 1.0
 
 # → enemy_damage
 func take_damage(amount: float, is_crit: bool = false) -> void:  # player/探针 取血消费

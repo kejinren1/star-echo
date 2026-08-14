@@ -191,9 +191,12 @@ func _part_art() -> void:
 		_pass("美术 / 敌 10 + 角色 walk 4 + 背景 4 + 阵营 5 .import 齐全")
 	else:
 		_fail("美术: %d 处 .import 缺失" % imp_miss)
-	# T2 SPRITE_MAP 命中（静态语义）：player.gd 有 _apply_character_sprite + fighter 兜底 + siia 资产已验
+	# T2 SPRITE_MAP 命中（静态语义）：player.gd 有 _apply_character_sprite 薄委托 + fighter 兜底
+	# （F4-C：兜底加载迁 player_anim.gd）+ siia 资产已验
 	var player_txt: String = FileAccess.get_file_as_string("res://scripts/player/player.gd")
-	if player_txt.find("_apply_character_sprite") >= 0 and player_txt.find("fighter_walk.png") >= 0 \
+	var panim_txt: String = FileAccess.get_file_as_string("res://scripts/player/player_anim.gd")
+	if player_txt.find("_apply_character_sprite") >= 0 \
+			and (player_txt.find("fighter_walk.png") >= 0 or panim_txt.find("fighter_walk.png") >= 0) \
 			and ResourceLoader.exists("res://assets/sprites/characters/siia_walk.png"):
 		_pass("T2 / SPRITE_MAP 命中链路（_apply_character_sprite + fighter 兜底 + siia 资产齐备）")
 	else:
