@@ -2,8 +2,8 @@
 ## 仿 CharacterSelect 全屏 + LevelUpPanel 动态构建范式；W3 ◐ 占位主题（复用纯色/Label，P1 可延）
 extends Control
 
-## 返回角色选择
-const CHARACTER_SELECT_SCENE: String = "res://scenes/CharacterSelect.tscn"
+## 返回主菜单（G-A · 2026-08-14：主场景入口改 MainMenu，基地返回目标同步）
+const MAIN_MENU_SCENE: String = "res://scenes/MainMenu.tscn"
 
 ## 研究 3 项（key = GameManager research 键；1 级制即达大纲值——攻击 +5% / 生命 +10% / 幸运 +0.05）
 const RESEARCH_ITEMS: Array = [
@@ -133,7 +133,7 @@ func _on_story_pressed(id: String) -> void:
 		_story_label.text = "【%s】等级不足（当前 Lv.%d，Lv.%d 解锁）" % [str(data.get("name", id)), level, sul]
 
 func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file(CHARACTER_SELECT_SCENE)
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 # ========== 刷新（研究点余量 / 研究项状态 / 角色卡等级·XP·剧情按钮） ==========
 

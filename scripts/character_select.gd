@@ -50,6 +50,7 @@ static func get_selected_character_id(node: Node) -> String:
 func _ready() -> void:
 	_build_cards()
 	_build_base_station_entry()
+	_build_main_menu_entry()
 
 ## D27-T4：方舟基地入口按钮（动态创建加 $Root/，不改 tscn）
 func _build_base_station_entry() -> void:
@@ -62,6 +63,17 @@ func _build_base_station_entry() -> void:
 
 func _on_base_station_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/BaseStation.tscn")
+
+## G-A（2026-08-14）：返回主菜单按钮（主场景入口已改 MainMenu，选角页补返回）
+func _build_main_menu_entry() -> void:
+	var mm_btn := Button.new()
+	mm_btn.text = "← 返回主菜单"
+	mm_btn.add_theme_font_size_override("font_size", 10)
+	mm_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	mm_btn.pressed.connect(func() -> void:
+		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+	)
+	$Root.add_child(mm_btn)
 
 # ========== 卡片构建 ==========
 

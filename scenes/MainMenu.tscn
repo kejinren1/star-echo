@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://gmainmenu2026"]
+
+[ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_mainmenu"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mainmenu")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.054902, 0.054902, 0.090196, 1)
+
+[node name="Root" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 120.0
+offset_top = 60.0
+offset_right = -120.0
+offset_bottom = -60.0
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Root"]
+layout_mode = 2
+text = "星骸回响 Star Echo"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 40
+
+[node name="Subtitle" type="Label" parent="Root"]
+layout_mode = 2
+text = "—— 星骸之下，回声不绝 ——"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
