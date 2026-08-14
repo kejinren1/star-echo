@@ -22,7 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="NinePatchRect" parent="CenterContainer"]
-custom_minimum_size = Vector2(280, 180)
+custom_minimum_size = Vector2(620, 340)
 layout_mode = 2
 texture = ExtResource("2_pshop")
 patch_margin_left = 12
@@ -51,6 +51,7 @@ text = "选择路线"
 theme_override_font_sizes/font_size = 12
 horizontal_alignment = 1
 
-[node name="NodeContainer" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="Canvas" type="Control" parent="CenterContainer/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
+custom_minimum_size = Vector2(580, 270)
+clip_contents = true
