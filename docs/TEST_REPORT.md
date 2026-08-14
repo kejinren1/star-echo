@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #44（08-12 18:41 · Day30 阶段F F1-G-尾+F2 三批次收口轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / **action item 0 项**（#43 唯一项已关闭）
-- **基线**：`BASELINE CLEAN` ｜ JSON **10/10** · **2311 字段零缺陷**（较 #43 2313 -2 = F1-G-尾删 3 死键；items 54）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
-- **探针回归**：**三十五件套 35/35 · 866 断言全绿首跑**（runner 已并入 day30_f2_boundary **36** = F2 批次C 收口实证）｜ HEAD=**b232fb8**（较 #43 +11：**`2178370` F1-G-尾收口（WPS 锁消失删 3 死键+管线入库）** + F2 批次 A/B/C `10c4a37`/`d38f00f`/`a9ebe49`（GM 首拆 783→634 行）+ G 系列排期 docs）
-- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**F1-G 接线生效实证维持**——day11_12 660B / day20 941B / day23 367B；**F2 收口实证**：day30_f2_boundary 473B（1 主动 push_warning+minor）/ day30_p0_fix 534B（2 主动+minor）均非缺陷
-- **在途 action item（0 项）**：无。#43「F1-G-尾 WPS 占用+管线在途」已随 2178370 关闭（锁文件消失、3 死键删除、Excel 管线入库）；工作区干净无游戏运行时代码改动
-- **观察**：**阶段 F 执行阻塞清零**（F1-G-尾收口；F1-E 排程未动；F2 已收口 → F3 状态机待排）；**G 系列动工窗口=今日 18:00 后**（用户 08-12 拍板算力成本考虑）；Day 28 性能段挂账交 Owner 未决；Day29 动画/F-32~34 待真人回归
+- **最近轮次 #45（08-13 18:45 · Day30 BS-A~D Boss 技能/效果系统 + F3-A~C 状态机收口轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / **action item 0 项**
+- **基线**：`BASELINE CLEAN` ｜ JSON **11/11** · **2367 字段零缺陷**（较 #44 2311 +56 = BS 效果/技能/pattern 新表；新表跨引用 0 悬空）｜ 场景 **17/17** 全可实例化 ｜ 600帧深探 242B 良性
+- **探针回归**：**四十件套 40/40 · 985 断言全绿首跑**（= #44 35/866 + F1-散/F3 三连/BS 双探针 5 项 119）｜ HEAD=**48758e1**（较 #44 +11：**F1-散 8 项参数化** `734f79e` + **F3-A/B/C 状态机** `9981ca2`/`1cead61`/`1696295` + **BS-A~D 四段** `743a953`/`8fa5d0f`/`ad1bb87`/`48758e1`，**阶段F主体完成**）
+- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**新探针首记录**：day30_effect 0B 全 CLEAN / day30_boss_skill 368B（1 主动 no_such_skill 兜底+minor）；**F3-A 枚举化副作用**：day4/day16 新增「未知节点类型（空串）」防御性 WARNING——探针跳过选节点步骤致 current_node 空 dict，真机 0 影响
+- **在途 action item（0 项）**：无。工作区干净无游戏运行时代码改动；未跟踪存量 = docs/art_ai/* + 测试立绘/（AI 美术库交付物，入库前须甄别 .ssh_tmp/ 不含私钥/口令）
+- **观察**：**阶段 F 主体完成**（F1-E 主窗口承接排程未动；F4/F5 未开始）；**G 系列动工窗口=今日 18:00 后已到**（HEAD 尚未见 G 提交）；Boss 技能规格决策点随 BS-A~D 全落地；Day 28 性能段挂账交 Owner 未决；Day29 动画/F-32~34 待真人回归
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3206,5 +3206,45 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 **✅ 2026-08-12 18:41 自动化测试轮次 #44：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**b232fb8**：**F1-G-尾 WPS 阻塞解除（#43 唯一 action item 关闭）**——用户放行后 3 死键数据删除、双行表头管线落地、Excel 管线三文件入库；**F2 三批次（边界收拢/状态信号化+UI 直读/GM 首拆）全部收口**，GM 783→634 行，runner 扩至 35 项 866 断言全绿首跑。工程可导入、可运行、数据完整（10 表 2311 字段零缺陷）、**17 场景全可实例化**、**35 探针 866 断言全绿首跑**。**无新增功能缺陷、无需回退。**
 
 **action item（0 项）**：无新增。#43 唯一 action item（F1-G-尾 WPS 阻塞+管线入库）已随 2178370 关闭。
+
+---
+
+## §7.45 轮次 #45 · 2026-08-13 18:45（自动化 · **Day30 BS-A~D Boss 技能/效果系统 + F3-A~C 状态机收口轮**：效果统一地基 + 四拍子交互技能 + 阶段F主体完成）
+
+**验证快照 = HEAD=48758e1（工作区干净，无在途游戏代码改动）** · 执行 18:40-18:45
+
+### 快照与在途
+
+- HEAD 较 #44（b232fb8）**+11 提交**：`010f522` PLAYTEST #63 ｜ `faaa5ab` BOSS_SKILL_SPEC.md 入库 ｜ `734f79e` **F1-散** 数值参数化散条目 8 项（T-007~013/015/053，stats 三表+enemy_scaling 3 列+8 消费点，day30_f1_scatter 19/19） ｜ `9981ca2` **F3-A** 状态机规范+GM `_transition(next,context)`+RouteNodeType 枚举单点 `route_type_from_string` ｜ `1cead61` **F3-B** enemy BossPhase 枚举+player PlayerState 枚举+ANIM_MAP（行为零改动） ｜ `1696295` **F3-C** audio int 字面量→GameState 枚举+start_game 双路径修复（合规 12/12+状态流 21/21） ｜ `743a953` **BS-A** 效果系统统一地基（elements effect 表+StatusComponent 通用组件+apply_effect 统一入口+O2 软控三类型+HUD 状态栏，day30_effect 18/18） ｜ `8fa5d0f` **BS-B** SkillExecutor 三接口+工厂（exec_circle 四拍子+fair_telegraph 公平底线，day30_boss_skill 16/16） ｜ `4c7ca98` AGENT_DEV_PLAYBOOK ｜ `ad1bb87` **BS-C** boss_skill/boss_pattern 表+enemies resist 列+pattern 状态机（权重随机+phase 解锁+override 合成，26/26） ｜ `48758e1` **BS-D** 难度系数合成(0.5~2.0 钳制+公平底线)+exec_fan/beam/charge+QTE 打断+免疫 UI（49/49，**阶段F主体完成**）
+- 工作区在途：**无游戏代码改动**（git status 干净）；未跟踪存量 = docs/art_ai/* + 测试立绘/ + ComfyUI 说明书 docx（AI 美术库交付物，**入库前须甄别 .ssh_tmp/ 不含私钥/口令**）
+- **回归 runner 扩容实证**：PROBES 40 项 985 断言（= #44 的 35/866 + F1-散/F3 三连/BS 双探针 5 项 119）
+
+### 检查结果（全绿）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + --quit-after 4） | ✅ PASS · **BASELINE CLEAN**（err 242B=Day 24 音频 BENIGN 白名单） |
+| 600 帧深探 | ✅ EXIT 0 · deep_runtime_err.log 242B 良性 |
+| JSON **11/11** 解析 | ✅ characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20；**+2 新表**：boss_skills（skills dict，2 技能）/ boss_patterns（3 patterns，boss_id+skill_id+override）（qa_validate 12 文件含 .manifest.json） |
+| 数值边界 | ✅ **2367 字段零缺陷**（较 #44 的 2311 **+56**：BS 效果/技能/pattern 新增；39 负值=惩罚/诅咒有意 + 0 非豁免零伤害 + 2 Boss 哨兵 -1 有意；crit 双口径合法） |
+| 跨引用完整性 | ✅ 0 硬悬空 · **DATA LAYER CLEAN**；**新表手工补查**（qa_validate 未覆盖，本轮首查）：patterns→enemies（invoker/predator）✅ / patterns→boss_skills（circle_aoe/circle_eruption）✅ / skill effect fire→elements ✅ |
+| 场景 smoke | ✅ **17/17 全可实例化**（Main.tscn 置末方法学维持，临时文件 os.remove 清理无残留；退出 242B 良性） |
+| 探针回归（runner） | ✅ **四十件套 40/40 · 985 断言全 CLEAN 首跑**（#44 35 项 866 → #45 40 项 985；0 FAIL / 0 script_errors，两轮复跑一致） |
+
+**合计 40 探针 · 985 断言全 CLEAN 首跑。**
+
+### stderr 口径（与 #44 逐一比对：2 项解释性增量 + 2 项新探针首记录，无新增异常）
+
+- **新探针首记录**：day30_effect **0B 全 CLEAN**（StatusComponent 探针零 stderr）；day30_boss_skill **368B** = 1× 主动 push_warning（`[BossSkillFactory] 未知技能类型: no_such_skill` 工厂兜底测试预期，BS-B 工厂三接口实证）+ 泄漏 minor（ObjectDB+1 resources+242B 音频），非缺陷
+- **解释性增量（F3-A 枚举化副作用，非缺陷）**：day16 **636B**（#44 534B +102B）= 3× 主动 push_warning——`[EventManager] 事件奖励道具缺失: ghost_relic`（探针 day16:284-285 白盒未知 item 兜底）+ reroute 层 14（存量）+ **`[Route] 未知节点类型:`（空串）**；day4 **344B**（#44 242B +102B）= 1× `[Route] 未知节点类型:`（空串）。**定性**：`9981ca2` F3-A 的 `route_type_from_string` 给未知/空类型新增 push_warning 防御分支（原「按已完成处理」静默兜底语义保留）——探针跳过 RouteSelectPanel 选节点步骤，GM.current_node 仍为 _start_run 的空 dict `{}` → `_on_node_completed` `get("type","")` 得空串触发（game_manager.gd:468）；**route_generator 生成节点恒注入 type（route_generator.gd:86/95/182 实证），600 帧真机深探 0 此类警告 → 纯探针白盒路径，真机零影响**
+- 维持项（与 #44 逐一一致）：day2 242 / day3 0 / day5 242 / day6 0 / day7 366 / day8 242 / day10 374 / day11_12 660 / day13 860 / day14_15 373 / day17_elite 242 / day17_p0 242 / day18_19 359 / day18_fb 626 / day18_fb2 571 / day18_fb3 362 / day18_fb4 242 / day18_fb5 621 / day18_fb6 362 / day20 941 / day21_22 564 / day23 367 / day24_audio 456 / day24_f13 859 / day26 402 / day27_meta 496 / day28_f31 920 / day29_elin 242 / day29_attack 362 / day30_p0_fix 534 / day30_f1_scaling 242 / day30_f1d_shop 358 / day30_f2_boundary 473 / day30_f1_scatter 242 / day30_f3_compliance 242 / day30_f3_flow 242
+
+### 结论
+
+**✅ 2026-08-13 18:45 自动化测试轮次 #45：PASS（0 阻断 / 0 功能缺陷，无新增 minor，无新增 action item）。** HEAD=**48758e1**：**阶段 F 主体完成**（F1-散 8 项参数化 + F3-A/B/C 状态机三连收口 + BS-A~D Boss 技能/效果系统四段收口）——效果系统统一（elements effect 表 + StatusComponent + 软控三类型 + 免疫 UI）、Boss 四拍子交互技能（circle 数据驱动 + fan/beam/charge 执行器 + QTE 打断 + 公平底线 2r/v+0.4）全链行为级收口，**回归扩至 40 件套 985 断言全绿首跑**。工程可导入、可运行、数据完整（11 表 2367 字段零缺陷 + 新表跨引用 0 悬空）、17 场景全可实例化。**无新增功能缺陷、无需回退。**
+
+**action item（0 项）**：无新增。观察项 2 条待跟进：① F3-A 枚举化在 day4/day16 探针白盒路径新增「未知节点类型（空串）」防御性 WARNING（真机零影响，探针跳过选节点步骤所致）——后续探针维护若想消噪，可让探针走 RouteSelectPanel 真实选节点流程；② docs/art_ai/.ssh_tmp/ 入库前须甄别不含私钥/口令。
+
+**观察项维持/更新**：**阶段 F 主体完成**（F1-散/F3-A~C/BS-A~D 全收口；F1-E 主窗口承接仍排程未动；F4/F5 未开始）｜ **G 系列动工窗口=今日 18:00 后已到**（用户 08-12 拍板 18:05 #2 拆解 → 18:35 #3 动工；本轮 18:45 时点 HEAD 尚未见 G 系列提交）｜ **Boss 技能规格闭环**：BOSS_SKILL_SPEC.md 决策点随 BS-A~D 全落地 ｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ AI 美术库交付物（docs/art_ai/* + 测试立绘/）未入库待甄别 ｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持
 
 **观察项维持/更新**：**阶段 F 执行阻塞清零**（F1-G-尾已收口；F1-E 主窗口承接排程未动、F2 已收口 → F3 状态机待排）｜ **G 系列排期**：用户 08-12 拍板动工窗口=今日 18:00 后（算力成本考虑），08-12 白天禁止提前拆解/动工 ｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持
