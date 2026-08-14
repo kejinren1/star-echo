@@ -250,9 +250,11 @@ func _part_regression() -> void:
 	# day21_22 探针 §3 已同步 elin idle 320×64
 	var d2122: String = FileAccess.get_file_as_string("res://tools/day21_22_art_check.gd")
 	_ok(d2122.find("Vector2i(320, 64)") >= 0, "§4 回归: day21_22 探针 §3 elin idle 断言已同步 320×64")
-	# player.gd 状态机含 "hit" 分支（_update_animation 禁打断 + _on_anim_finished 回 idle + take_damage 触发）
+	# F4-C 拆分：状态机迁 player_anim.gd（player.gd 保留薄委托）——双文件文本锚点
 	var pg: String = FileAccess.get_file_as_string("res://scripts/player/player.gd")
-	_ok(pg.find("\"attack\", \"skill\", \"hit\"") >= 0, "§4 回归: player.gd _update_animation 含 hit 禁打断分支")
+	var panim: String = FileAccess.get_file_as_string("res://scripts/player/player_anim.gd")
+	_ok(pg.find("\"attack\", \"skill\", \"hit\"") >= 0 or panim.find("\"attack\", \"skill\", \"hit\"") >= 0,
+		"§4 回归: player_anim.gd _update_animation 含 hit 禁打断分支")
 	_ok(pg.find("func _play_hit_anim") >= 0, "§4 回归: player.gd 含 _play_hit_anim 方法")
 	_ok(pg.find("_play_hit_anim()") > pg.find("func _play_hit_anim"), "§4 回归: take_damage 调用 _play_hit_anim（触发点接线）")
 	# 生成管线在册（用户直派工具）

@@ -27,6 +27,10 @@ const Item: GDScript = preload("res://scripts/items/item.gd")
 ## GM._ready 实例化为子节点，行为拆分见各自文件头注释）
 const EventManagerScript: GDScript = preload("res://scripts/systems/event_manager.gd")
 const UIPanelFactoryScript: GDScript = preload("res://scripts/ui/ui_panel_factory.gd")
+## F4-B（2026-08-14 · T-046 续）：存档系统 / 调试金手指组件（无 class_name；组件不引用
+## Autoload 标识符，无循环 preload；_ready 挂载，GM 保留同名薄委托）
+const SaveSystemScript: GDScript = preload("res://scripts/systems/save_system.gd")
+const DebugConsoleScript: GDScript = preload("res://scripts/systems/debug_console.gd")
 
 # ========== 枚举 ==========
 
@@ -151,6 +155,10 @@ var _current_event: Dictionary = {}       ## 当前事件（_start_event 随机�
 ## F2-T6：事件系统 / UI 面板工厂实例（_ready 创建；薄委托入口见事件段）
 var _event_manager: Node = null
 var _ui_panel_factory: Node = null
+## F4-B：存档 / 金手指组件实例（_ready 挂载；meta_progress/meta_save_path/debug_cheat
+## 字段保留 GM——探针白盒直接读写，迁走必红）
+var _save_system: Node = null
+var _debug_console: Node = null
 
 # ========== 状态流转方法 ==========
 
@@ -196,7 +204,15 @@ func route_type_from_string(s: String) -> RouteNodeType:
 			return RouteNodeType.UNKNOWN
 
 func _ready() -> void:
-	# D27-T1：首行加载局外存档（缺失/损坏容错默认零值不崩）
+	# D27-T1：首行加载局外存档（缺失/损坏容错默认零值不崩；F4-B 经 SaveSystem 组件）
+	_save_system = SaveSystemScript.new()
+	_save_system.name = "SaveSystem"
+	add_child(_save_system)
+	_save_system.setup(self)
+	_debug_console = DebugConsoleScript.new()
+	_debug_console.name = "DebugConsole"
+	add_child(_debug_console)
+	_debug_console.setup(self)
 	load_meta()
 	# F2-T6：事件系统 + UI 面板工厂实例化（子节点随 GM autoload 生命周期；
 	# EventManager._ready 内 _event_rng.randomize()，原 GM._ready 随机化语义迁移）
@@ -420,41 +436,16 @@ func register_boss_killed() -> void:
 		route["flags"] = route.get("flags", {})
 		route["flags"]["boss_defeated"] = true
 
-# ========== 调试金手指（F-04 · 用户拍板 2026-08-06） ==========
-## ↑+↓ 同按 → toggle：跳关 + 攻击 ×10 + 受伤 0.1%。机器可验证（探针白盒直调）。
-## 攻击倍率走 player.debug_mult（weapon_controller/skill_controller 聚合消费）；
-## 受伤 0.1% 走 player.take_damage 消费。关闭全还原（debug_mult 1.0 / 无残留状态）。
-func toggle_debug_cheat() -> void:
-	debug_cheat = not debug_cheat
-	if player and "debug_mult" in player:
-		player.debug_mult = 10.0 if debug_cheat else 1.0
-	if debug_cheat and current_state == GameState.BATTLE:
-		# 跳关：清残敌 + 直接进入下一波（仅战斗状态可跳，防路线选择/商店误触）
-		_clear_remaining_enemies()
-		_start_next_wave(current_wave + 1)
-	_show_debug_banner()
+# ========== 调试金手指（F-04 · F4-B 拆分至 DebugConsole） ==========
+## 薄委托转发（探针 day17_p0 `_gm.call("toggle_debug_cheat")` 零改动；行为见 debug_console.gd）
 
-## 金手指状态横幅（1.5s 淡出，复用精英横幅范式；容器缺失静默跳过）
+func toggle_debug_cheat() -> void:
+	if _debug_console:
+		_debug_console.toggle_debug_cheat()
+
 func _show_debug_banner() -> void:
-	var container: Node = vfx_container if vfx_container else null
-	if container == null:
-		container = get_tree().current_scene
-	if container == null:
-		return
-	var banner := Node2D.new()
-	banner.name = "DebugBanner"
-	var label := Label.new()
-	label.text = "🛠 金手指 %s（攻击×10 · 受伤0.1%%）" % ("ON" if debug_cheat else "OFF")
-	label.add_theme_font_size_override("font_size", 20)
-	label.add_theme_color_override("font_color", Color(0.6, 0.95, 0.6))
-	banner.add_child(label)
-	container.add_child(banner)
-	banner.global_position = Vector2(320.0, 130.0)
-	var tween := banner.create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(label, "modulate:a", 0.0, 1.5)
-	tween.tween_property(banner, "global_position:y", banner.global_position.y - 30.0, 1.5)
-	tween.chain().tween_callback(banner.queue_free)
+	if _debug_console:
+		_debug_console._show_debug_banner()
 
 ## 当前节点完成 → 下一层选择；末层完成 → 胜利
 ## P1 Fix-1：battle/elite 完成后先弹商店（玩家需要花战斗赚的金币），关闭后再进路线选择
@@ -584,103 +575,49 @@ func _on_player_level_up(_new_level: int) -> void:
 	if _level_up_panel.has_method("setup"):
 		_level_up_panel.setup()
 
-# ========== 局外养成接口（Day 27 · D27-T1） ==========
+# ========== 局外养成接口（Day 27 · D27-T1 · F4-B 拆分至 SaveSystem） ==========
+## 薄委托转发（探针 day27_meta `_gm.load_meta()` 等零改动；meta_progress/meta_save_path
+## 字段保留 GM 供探针读写；行为实现见 save_system.gd，存档格式零改动）
 
-## 默认零值元进度（load_meta 兜底与 reset 复用）
-func _default_meta() -> Dictionary:
-	return {
-		"wins": 0,
-		"research_points": 0,
-		"research": {"attack": 0, "hp": 0, "luck": 0},
-		"chars": {},
-	}
-
-## 加载局外存档：缺文件/打开失败/非 Dictionary → 默认零值 + push_warning 容错不崩；
-## 成功 → 逐键 int() 收敛（Godot 4.3 JSON 全数字 float 的已知特性，DataLoader 先例）
+## 加载局外存档（缺文件/损坏 JSON 容错零值；经 SaveSystem）
 func load_meta() -> void:
-	meta_progress = _default_meta()
-	if not FileAccess.file_exists(meta_save_path):
-		return
-	var f := FileAccess.open(meta_save_path, FileAccess.READ)
-	if f == null:
-		push_warning("[GameManager] 存档打开失败(%s)，使用默认元进度" % meta_save_path)
-		return
-	var parsed: Variant = JSON.parse_string(f.get_as_text())
-	if not (parsed is Dictionary):
-		push_warning("[GameManager] 存档解析失败(%s)，使用默认元进度" % meta_save_path)
-		return
-	var data: Dictionary = parsed as Dictionary
-	meta_progress["wins"] = int(data.get("wins", 0))
-	meta_progress["research_points"] = int(data.get("research_points", 0))
-	var research: Dictionary = data.get("research", {})
-	meta_progress["research"] = {
-		"attack": int(research.get("attack", 0)),
-		"hp": int(research.get("hp", 0)),
-		"luck": int(research.get("luck", 0)),
-	}
-	var chars: Dictionary = data.get("chars", {})
-	var clean_chars: Dictionary = {}
-	for cid in chars.keys():
-		var cdata: Variant = chars[cid]
-		var xp: int = int(cdata.get("xp", 0)) if cdata is Dictionary else 0
-		clean_chars[str(cid)] = {"xp": xp}
-	meta_progress["chars"] = clean_chars
+	if _save_system:
+		_save_system.load_meta()
 
 ## 保存局外存档（每次结算/研究升级后调用）
 func save_meta() -> void:
-	var f := FileAccess.open(meta_save_path, FileAccess.WRITE)
-	if f == null:
-		push_warning("[GameManager] 存档写入失败(%s)" % meta_save_path)
-		return
-	f.store_string(JSON.stringify(meta_progress, "  "))
+	if _save_system:
+		_save_system.save_meta()
 
-## 局外永久增益换算：attack ×(1+0.05/级) / max_health ×(1+0.10/级) / luck +0.05/级
-## research 全 0 → 返回空字典（调用方零注入零回归）
+## 局外永久增益换算（research 全 0 → 空字典零回归）
 func get_meta_bonus() -> Dictionary:
-	var research: Dictionary = meta_progress.get("research", {})
-	var atk: int = int(research.get("attack", 0))
-	var hp: int = int(research.get("hp", 0))
-	var lck: int = int(research.get("luck", 0))
-	if atk <= 0 and hp <= 0 and lck <= 0:
-		return {}
-	return {
-		"attack_mult": 1.0 + 0.05 * float(atk),
-		"hp_mult": 1.0 + 0.10 * float(hp),
-		"luck_add": 0.05 * float(lck),
-	}
+	if _save_system:
+		return _save_system.get_meta_bonus()
+	return {}
 
-## 研究升级（消耗 1 点）：成功 true；键非法/已满级/点数不足 → false 不扣点
+## 研究升级（消耗 1 点；成功 true，失败 false 不扣点）
 func upgrade_research(key: String) -> bool:
-	if key != "attack" and key != "hp" and key != "luck":
-		return false
-	var research: Dictionary = meta_progress.get("research", {})
-	if int(research.get(key, 0)) > 0:
-		return false
-	var points: int = int(meta_progress.get("research_points", 0))
-	if points <= 0:
-		return false
-	research[key] = 1
-	meta_progress["research"] = research
-	meta_progress["research_points"] = points - 1
-	save_meta()
-	return true
+	if _save_system:
+		return _save_system.upgrade_research(key)
+	return false
 
 ## 增加研究点（胜利结算调用）
 func add_research_point(amount: int = 1) -> void:
-	meta_progress["research_points"] = int(meta_progress.get("research_points", 0)) + maxi(amount, 0)
+	if _save_system:
+		_save_system.add_research_point(amount)
 
 ## 角色 XP 累计（出场/胜场各 +1；id 空判空跳过）
 func add_char_xp(id: String, amount: int = 1) -> void:
-	if id.is_empty():
-		return
-	var chars: Dictionary = meta_progress.get("chars", {})
-	var cdata: Dictionary = chars.get(id, {})
-	chars[id] = {"xp": int(cdata.get("xp", 0)) + maxi(amount, 0)}
-	meta_progress["chars"] = chars
+	if _save_system:
+		_save_system.add_char_xp(id, amount)
 
 func get_char_xp(id: String) -> int:
-	return int(meta_progress.get("chars", {}).get(id, {}).get("xp", 0))
+	if _save_system:
+		return _save_system.get_char_xp(id)
+	return 0
 
 ## 角色等级 = xp/3 向下取整（仅驱动剧情解锁 + 展示，无属性收益）
 func get_char_level(id: String) -> int:
-	return int(get_char_xp(id) / 3)
+	if _save_system:
+		return _save_system.get_char_level(id)
+	return 0

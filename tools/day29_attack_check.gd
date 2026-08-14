@@ -189,7 +189,10 @@ func _part_regression() -> void:
 	_ok(wc_txt.contains("_has_enemy_in_range"), "§3 文本: weapon_controller 含 _has_enemy_in_range")
 	_ok(wc_txt.contains("if not _has_enemy_in_range(weapon.attack_range)"), "§3 文本: _process 索敌门控行在位（can_fire 之后）")
 	var pl_txt: String = FileAccess.get_file_as_string("res://scripts/player/player.gd")
-	_ok(pl_txt.contains('if _state == PlayerState.ATTACK or _state == PlayerState.SKILL:'), "§3 文本: player _transition_state 含 skill 守卫（F3-T6 守卫内聚同步）")
+	var anim_txt: String = FileAccess.get_file_as_string("res://scripts/player/player_anim.gd")
+	_ok(anim_txt.contains("_player._state == PlayerEnums.PlayerState.ATTACK or _player._state == PlayerEnums.PlayerState.SKILL:")
+		or pl_txt.contains('if _state == PlayerState.ATTACK or _state == PlayerState.SKILL:'),
+		"§3 文本: player_anim._transition_state 含 skill 守卫（F3-T6 守卫内聚同步）")
 	_ok(pl_txt.contains("func _play_skill_anim"), "§3 文本: _play_skill_anim 保留")
 
 
