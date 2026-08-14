@@ -33,6 +33,8 @@ func _ready() -> void:
 ## autowrap_mode=WORD_SMART 自动换行，面板 ~540×300 内可读，视口 640×360）
 func setup(event_data: Dictionary) -> void:
 	_event_data = event_data
+	# G-C（R3 图鉴）：事件展示即记录（去重零开销）
+	GameManager.record_codex("event", str(event_data.get("id", "")))
 	title_label.text = str(event_data.get("title", "事件"))
 	theme_label.text = str(event_data.get("theme", ""))
 	description_label.text = str(event_data.get("description", ""))

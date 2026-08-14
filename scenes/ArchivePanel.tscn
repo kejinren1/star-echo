@@ -1,0 +1,76 @@
+[gd_scene load_steps=2 format=3 uid="uid://garchivepan26"]
+
+[ext_resource type="Script" path="res://scripts/ui/archive_panel.gd" id="1_archive"]
+
+[node name="ArchivePanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_archive")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.054902, 0.054902, 0.090196, 1)
+
+[node name="Root" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = 24.0
+offset_right = -60.0
+offset_bottom = -24.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Root"]
+layout_mode = 2
+text = "🏺 回廊 · 角色档案"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 26
+
+[node name="HBox" type="HBoxContainer" parent="Root"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="List" type="VBoxContainer" parent="Root/HBox"]
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Detail" type="PanelContainer" parent="Root/HBox"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="Root/HBox/Detail"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Root/HBox/Detail/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="Label" parent="Root/HBox/Detail/Margin/VBox"]
+layout_mode = 2
+text = "（选择角色）"
+theme_override_font_sizes/font_size = 18
+
+[node name="DetailLabel" type="Label" parent="Root/HBox/Detail/Margin/VBox"]
+layout_mode = 2
+text = "选择左侧角色查看档案"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 11

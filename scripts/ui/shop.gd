@@ -221,6 +221,15 @@ func _build_shop_pool() -> Array:
 		var svc: Resource = _build_item_resource(iid)
 		if svc != null:
 			pool.append(svc)
+	# G-C（R3 图鉴）：商店卡池生成即记录（武器/道具/遗物；去重零开销——record_codex 内部 has 检查）
+	for p in pool:
+		if p == null:
+			continue
+		var pid: String = str(p.get("id"))
+		if pid.is_empty():
+			continue
+		var category: String = "weapon" if p.get("weapon_type") != null else "item"
+		GameManager.record_codex(category, pid)
 	return pool
 
 ## 武器 id → Weapon 资源（懒加载纯函数构建器；未入树实例调用 build_weapon_from_data）

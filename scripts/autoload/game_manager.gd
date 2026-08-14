@@ -627,3 +627,24 @@ func get_char_level(id: String) -> int:
 	if _save_system:
 		return _save_system.get_char_level(id)
 	return 0
+
+## G-C（R3 图鉴 · 2026-08-14）：记录已见过条目（去重；经 SaveSystem）
+func record_codex(category: String, id: String) -> void:
+	if _save_system:
+		_save_system.record_codex(category, id)
+
+## G-C：图鉴查询
+func get_codex() -> Dictionary:
+	if _save_system:
+		return _save_system.get_codex()
+	return {}
+
+## G-E（R6 技能树 · 2026-08-14）：meta_progress.skill_tree 读写（缺省空兼容旧档）
+func get_skill_tree() -> Dictionary:
+	if _save_system:
+		return _save_system.get_skill_tree()
+	return {}
+
+func set_skill_tree(data: Dictionary) -> void:
+	if _save_system:
+		_save_system.set_skill_tree(data)

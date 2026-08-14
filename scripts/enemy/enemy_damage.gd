@@ -41,6 +41,8 @@ func take_damage(amount: float, is_crit: bool = false) -> void:
 func die() -> void:
 	_enemy.is_alive = false
 	_enemy.health = 0.0
+	# G-C（R3 图鉴）：敌人首次击杀记录（去重查表零开销——record_codex 内部 has 检查）
+	GameManager.record_codex("enemy", _enemy.enemy_id)
 	_drop_rewards()
 	_enemy.died.emit(_enemy)
 	# Day 18-19 · T1 + F2-T5（T-045）：Boss 击杀信号化——die 内不再直调

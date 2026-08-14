@@ -50,6 +50,21 @@ func load_meta() -> void:
 		var xp: int = int(cdata.get("xp", 0)) if cdata is Dictionary else 0
 		clean_chars[str(cid)] = {"xp": xp}
 	_gm.meta_progress["chars"] = clean_chars
+	# G-C/G-E（2026-08-14）：codex/skill_tree 扩展键（缺省空兼容旧档）
+	var codex_data: Variant = data.get("codex", {})
+	if codex_data is Dictionary:
+		var clean_codex: Dictionary = {}
+		for cat in codex_data.keys():
+			var lst: Variant = codex_data[cat]
+			var clean_list: Array = []
+			if lst is Array:
+				for cid in lst:
+					clean_list.append(str(cid))
+			clean_codex[str(cat)] = clean_list
+		_gm.meta_progress["codex"] = clean_codex
+	var st_data: Variant = data.get("skill_tree", {})
+	if st_data is Dictionary:
+		_gm.meta_progress["skill_tree"] = st_data
 
 ## 保存局外存档（每次结算/研究升级后调用）
 func save_meta() -> void:
@@ -109,3 +124,27 @@ func get_char_xp(id: String) -> int:
 ## 角色等级 = xp/3 向下取整（仅驱动剧情解锁 + 展示，无属性收益）
 func get_char_level(id: String) -> int:
 	return int(get_char_xp(id) / 3)
+
+## G-C（R3 图鉴 · 2026-08-14）：记录已见过条目（去重入 meta_progress.codex；
+## 缺省空兼容旧档——load_meta 不读 codex 键，首次记录自动建）
+## category ∈ "weapon"/"character"/"enemy"/"item"/"event"
+func record_codex(category: String, id: String) -> void:
+	if category.is_empty() or id.is_empty():
+		return
+	var codex: Dictionary = _gm.meta_progress.get("codex", {})
+	var list: Array = codex.get(category, [])
+	if not list.has(id):
+		list.append(id)
+		codex[category] = list
+		_gm.meta_progress["codex"] = codex
+
+## 图鉴查询（CodexPanel 展示；无记录返回空字典）
+func get_codex() -> Dictionary:
+	return _gm.meta_progress.get("codex", {})
+
+## G-E（R6 技能树 · 2026-08-14）：meta_progress.skill_tree 读写（缺省空兼容旧档）
+func get_skill_tree() -> Dictionary:
+	return _gm.meta_progress.get("skill_tree", {})
+
+func set_skill_tree(data: Dictionary) -> void:
+	_gm.meta_progress["skill_tree"] = data

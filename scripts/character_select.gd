@@ -98,6 +98,8 @@ func _build_cards() -> void:
 		if data.is_empty():
 			push_warning("[CharacterSelect] characters.json 缺少英雄: %s" % hero_id)
 			continue
+		# G-C（R3 图鉴）：角色可见即记录（选角页加载批量；去重零开销）
+		GameManager.record_codex("character", hero_id)
 		var card := _create_card(hero_id, data)
 		card_row.add_child(card)
 		_cards.append(card)
