@@ -542,14 +542,16 @@ func _part_regression() -> void:
 	# BS-B/C/D 同步（2026-08-13）：day30_boss_skill 16→49（+§4 pattern + §5 难度 + §5b fan/beam/charge/QTE + §6 免疫 + §11 验收）→ 40 项 / 期望 985（936 + 49）
 	# G 系列同步（2026-08-14）：runner +6（expect 门槛 8+10+10+8+8+10 = 54）→ 46 项 / 期望 1039（985 + 54）
 	# F-39 同步（2026-08-15）：runner +day31_spawner_deadlock(7) → 47 项 / 期望 1046（1039 + 7）
-	if probe_count == 47:
-		_pass("回归 / _regression_run.py PROBES 47 项（40 + G 系列 6 探针 + day31 死锁探针）")
+	# PS-A 同步（2026-08-16）：runner +day31_skill_slots(11) → 48 项 / 期望 1057（1046 + 11）
+	# PS-B 同步（2026-08-16）：runner +day31_skill_movement(13) → 49 项 / 期望 1070（1057 + 13）
+	if probe_count == 49:
+		_pass("回归 / _regression_run.py PROBES 49 项（40 + G 系列 6 + day31 死锁 1 + PS-A 技能槽 1 + PS-B 位移 1）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 47" % probe_count)
-	if expect_sum == 1046:
-		_pass("回归 / 期望断言合计 1046（1039 + day31 门槛 7）")
+		_fail("回归: PROBES 项数 %d ≠ 49" % probe_count)
+	if expect_sum == 1070:
+		_pass("回归 / 期望断言合计 1070（1057 + PS-B 位移 13）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1046" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1070" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

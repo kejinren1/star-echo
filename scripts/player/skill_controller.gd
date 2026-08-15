@@ -1,15 +1,21 @@
-## 主动技能控制器（Day 3 · D3-T1/T3/T4/T5）
+## 主动技能控制器（Day 3 · D3-T1/T3/T4/T5 + PS-A1 列表化 2026-08-16）
 ## 挂载在玩家身上（Player.tscn 内、WeaponController 同层），负责：
 ##   · 英雄技能数据的装载（setup，由 Main 在角色装载完成后调用）
-##   · 冷却计时与 cooldown_changed 信号（供 Day 6 HUD 冷却指示读取）
-##   · 按 skill.id 分派差异化释放：艾琳火球 / 诺亚炮台 / 莱恩星刃
+##   · 冷却计时与 cooldown_changed 信号（供 HUD 冷却指示读取）
+##   · 按 skill.id 分派差异化释放：艾琳火球 / 诺亚炮台 / 莱恩星刃 / 希亚庇护
+## PS-A1（PLAYER_SKILL_SPEC §4 · 2026-08-16）：单技能 match → 技能列表 + 槽位路由
+##   · 3 槽：槽 0 = 英雄默认技能（characters.json skill 单字段，PS-A0 数据零迁移）
+##         槽 1/2 = 掉落技能（skill_relics 装配，PS-C 批承载；空槽 can_cast=false 静默）
+##   · 独立冷却各转各的（槽 0 兼容 day3 探针 _cd_left/_cd_total 直读写）
+##   · try_cast 保留 = 槽 0 薄转发（day3_skill_check 16/16 零改动硬门槛）
 ## 设计约定（见 docs/TASKS.md Day 3 定案表）：
 ##   · 本日只做冷却，不做法力（三技能均无 cost/mana 字段，不臆造数值）
 extends Node
 
 # ========== 信号 ==========
 
-signal cooldown_changed(left: float, total: float)  ## 冷却变化（left <= 0 即就绪）
+signal cooldown_changed(left: float, total: float)  ## 冷却变化（left <= 0 即就绪；槽 0 兼容）
+signal slot_cooldown_changed(slot: int, left: float, total: float)  ## PS-A3：按槽冷却变化
 signal skill_cast(skill_id: String)                 ## 成功释放一次技能
 
 # ========== 资源引用 ==========
@@ -19,14 +25,18 @@ const TurretScene: PackedScene = preload("res://scenes/Turret.tscn")
 
 # ========== 状态 ==========
 
-var skill_data: Dictionary = {}   ## 当前英雄的 skill 字段（setup 时装载）
+const SLOT_COUNT: int = 3
+## 技能槽列表：元素 = {slot:int, id:String, data:Dictionary, cd_left:float, cd_total:float}
+## 槽 0 = 英雄默认技能；槽 1/2 = 空（掉落技能装配后注入，见 PS-C）
+var skills: Array = []
+var skill_data: Dictionary = {}   ## 槽 0 技能数据（setup 时装载；HUD 图标 / day3 探针兼容读）
 var player                     ## 父节点（玩家）。刻意不加类型标注：Player.gd 的
                                 ## bonus_stats/apply_stat_modifier 等成员不在 Node2D 基类上，
                                 ## 加类型会触发编译期成员解析风险（与 weapon_controller 的
                                 ## owner_node 动态访问策略一致）
 
-var _cd_left: float = 0.0       ## 剩余冷却
-var _cd_total: float = 0.0      ## 总冷却
+var _cd_left: float = 0.0       ## 槽 0 剩余冷却（day3 探针直读写兼容）
+var _cd_total: float = 0.0      ## 槽 0 总冷却
 var _warned_not_impl: bool = false  ## 未实现技能只提示一次（防玩家狂按刷屏）
 
 # ========== 生命周期 ==========
@@ -38,22 +48,51 @@ func _ready() -> void:
 	player = get_parent()
 
 func _process(delta: float) -> void:
-	if _cd_left > 0.0:
-		_cd_left = maxf(_cd_left - delta, 0.0)  # 归零 clamp，禁止负数
-		cooldown_changed.emit(_cd_left, _cd_total)
+	# PS-A1：全槽独立冷却递减（槽 0 同步 _cd_left 兼容旧信号/探针）
+	for entry in skills:
+		if float(entry.get("cd_left", 0.0)) > 0.0:
+			entry["cd_left"] = maxf(float(entry["cd_left"]) - delta, 0.0)
+			var slot: int = int(entry.get("slot", 0))
+			slot_cooldown_changed.emit(slot, float(entry["cd_left"]), float(entry.get("cd_total", 0.0)))
+			if slot == 0:
+				_cd_left = float(entry["cd_left"])
+				cooldown_changed.emit(_cd_left, _cd_total)
 
 # ========== 装载 ==========
 
 ## 由 Main._setup_skill 调用：装载英雄技能数据并复位冷却
+## PS-A1：槽 0 = 英雄 skill 字段；槽 1/2 空占位（初始装备/掉落装配见 PS-C）
 func setup(char_data: Dictionary) -> void:
-	skill_data = char_data.get("skill", {})
-	_cd_total = float(skill_data.get("cooldown", 0.0))
+	var hero_skill: Dictionary = char_data.get("skill", {})
+	skill_data = hero_skill
+	_cd_total = float(hero_skill.get("cooldown", 0.0))
 	_cd_left = 0.0
+	skills.clear()
+	skills.append(_make_slot(0, hero_skill))
+	for slot in range(1, SLOT_COUNT):
+		skills.append(_make_slot(slot, {}))
 	cooldown_changed.emit(0.0, _cd_total)
+	slot_cooldown_changed.emit(0, 0.0, _cd_total)
+
+func _make_slot(slot: int, data: Dictionary) -> Dictionary:
+	return {
+		"slot": slot,
+		"id": str(data.get("id", "")),
+		"data": data,
+		"cd_left": 0.0,
+		"cd_total": float(data.get("cooldown", 0.0)),
+	}
+
+## PS-C 装配接口：把掉落技能注入指定槽（1/2；槽 0 默认技能不可覆盖）
+func equip_slot(slot: int, data: Dictionary) -> void:
+	if slot <= 0 or slot >= skills.size():
+		return
+	skills[slot] = _make_slot(slot, data)
+	slot_cooldown_changed.emit(slot, 0.0, float(data.get("cooldown", 0.0)))
 
 ## 兜底自查：直开 Main.tscn（未经 Main._setup_skill）时技能仍可用
 func _ensure_loaded() -> void:
-	if not skill_data.is_empty():
+	if not skills.is_empty():
 		return
 	var char_data: Dictionary = DataLoader.get_character(GameManager.current_character_id)
 	if not char_data.is_empty():
@@ -62,44 +101,69 @@ func _ensure_loaded() -> void:
 # ========== 释放入口 ==========
 
 func can_cast() -> bool:
-	return _cd_left <= 0.0 and not skill_data.is_empty()
+	# 槽 0 可施放（day3 探针 well_rounded 无技能 → false 语义保留）
+	if skills.is_empty():
+		return false
+	var entry: Dictionary = skills[0]
+	return float(entry.get("cd_left", 0.0)) <= 0.0 and not entry.is_empty() and str(entry.get("id", "")) != ""
+
+## PS-A1 槽路由：指定槽释放（槽空/冷却中/未知 → false 静默）
+func try_cast_slot(slot: int) -> bool:
+	_ensure_loaded()
+	if slot < 0 or slot >= skills.size():
+		return false
+	var entry: Dictionary = skills[slot]
+	if entry.is_empty() or str(entry.get("id", "")) == "":
+		return false  # 空槽静默（can_cast=false 语义）
+	if float(entry.get("cd_left", 0.0)) > 0.0:
+		return false
+	var skill_id: String = str(entry.get("id", ""))
+	if not _exec_skill(skill_id, entry.get("data", {})):
+		return false
+	entry["cd_left"] = float(entry.get("cd_total", 0.0))
+	if slot == 0:
+		_cd_left = entry["cd_left"]
+	skill_cast.emit(skill_id)
+	AudioManager.play_sfx("skill")   # D24-T3-⑧：技能施放 SFX（return true 前）
+	return true
 
 ## 尝试释放技能：冷却中 / 无技能 / 未实现 返回 false（静默，玩家会狂按，不刷 warning）
+## PS-A1：槽 0 薄转发（day3_skill_check 16/16 零改动硬门槛）
 func try_cast() -> bool:
-	_ensure_loaded()
-	if not can_cast():
-		return false
-	var skill_id: String = str(skill_data.get("id", ""))
+	return try_cast_slot(0)
+
+## 技能分派：按 skill.id match（槽 0/1/2 共用；未知 id 静默 false）
+func _exec_skill(skill_id: String, data: Dictionary) -> bool:
 	match skill_id:
 		"se_skill_fireball":
-			_cast_fireball()
+			_cast_fireball(data)
 		"se_skill_deploy_turret":
-			if not _cast_deploy_turret():
+			if not _cast_deploy_turret(data):
 				return false
 		"se_skill_blade_burst":
-			_cast_blade_burst()
+			_cast_blade_burst(data)
 		"se_skill_holy_shield":   # P0-Bug1 修复（2026-08-10）：希亚「神圣庇护」实装
-			_cast_holy_shield()
+			_cast_holy_shield(data)
 		_:
 			push_warning("[SkillController] 未知技能 id: %s" % skill_id)
 			return false
-	_cd_left = _cd_total
-	skill_cast.emit(skill_id)
-	AudioManager.play_sfx("skill")   # D24-T3-⑧：技能施放 SFX（return true 前）
 	return true
 
 # ========== 技能实现 ==========
 
 ## 艾琳「炽星火球」（D3-T3）：朝瞄准方向抛射巨型火球，命中爆炸 + 燃烧
-func _cast_fireball() -> void:
-	var base_damage: float = float(skill_data.get("damage", 30.0))
+## PS-A1：参数化 data（槽 0 = skill_data；掉落技能 = 装配数据；无参直调（探针 day18_feedback）
+## 兼容）= 空字典 → 兜底 skill_data，行为与列表化前逐字节等价）
+func _cast_fireball(data: Dictionary = {}) -> void:
+	var sd: Dictionary = data if not data.is_empty() else skill_data
+	var base_damage: float = float(sd.get("damage", 30.0))
 	# T-012（F1-散 2026-08-13）：火球爆炸半径兜底参数化 = stats.skills.fireball_radius
-	# （skill_data.radius 仍优先——技能级数据 > 全局兜底）
+	# （sd.radius 仍优先——技能级数据 > 全局兜底）
 	var stats_skills: Dictionary = DataLoader.get_stats_skills()
-	var radius: float = float(skill_data.get("radius", stats_skills.get("fireball_radius", 90.0)))
+	var radius: float = float(sd.get("radius", stats_skills.get("fireball_radius", 90.0)))
 	# 技能覆写通用 3s 基准（elements.json.fire.duration=3），见 TASKS D3-T7b 方案 A：
 	# 英雄技能 4 秒属特权加成；通用元素武器后续仍按 elements.json 的 3 秒读
-	var burn_duration: float = float(skill_data.get("burn_duration", 4.0))
+	var burn_duration: float = float(sd.get("burn_duration", 4.0))
 	var dps: float = _calc_burn_dps()
 
 	# 伤害套玩家倍率（对齐 weapon_controller._spawn_projectile 口径）
@@ -127,7 +191,7 @@ func _cast_fireball() -> void:
 		"pierce": int(stats_skills.get("fireball_pierce", 3)),
 		"explosion_radius": radius,
 		"explosion_damage": dmg,
-		"status_type": str(skill_data.get("element_type", "fire")),
+		"status_type": str(sd.get("element_type", "fire")),
 		"status_duration": burn_duration,
 		"status_dps": dps,
 		# 试玩反馈补强（2026-08-05）：火球须肉眼可辨（红色大弹体），否则与基础子弹混同
@@ -169,18 +233,19 @@ func _calc_burn_dps() -> float:
 ## 数值全部来自 DataLoader.get_weapon(summon_id)，禁止硬编码。
 ## D13-T3：玩家装备 se_turret_array（进化「机械炮阵」）→ 炮台常驻（duration=-1）+ 部署台数 +2
 ## 返回 true = 部署成功进入冷却；数据缺失/无 World = false（不进冷却，零 stderr 噪音）
-func _cast_deploy_turret() -> bool:
-	var summon_id: String = str(skill_data.get("summon_id", "se_auto_turret"))
+func _cast_deploy_turret(data: Dictionary = {}) -> bool:
+	var sd: Dictionary = data if not data.is_empty() else skill_data
+	var summon_id: String = str(sd.get("summon_id", "se_auto_turret"))
 	var weapon_data: Dictionary = DataLoader.get_weapon(summon_id)
 	if weapon_data.is_empty():
 		push_warning("[SkillController] 炮台武器数据缺失: %s" % summon_id)
 		return false
-	var base_count: int = int(skill_data.get("summon_count", 2))
+	var base_count: int = int(sd.get("summon_count", 2))
 	var bonus_count: int = 0
 	if player and "bonus_stats" in player:
 		bonus_count = int(float(player.bonus_stats.get("summon_count", 0.0)))
 	var count: int = maxi(base_count + bonus_count, 1)
-	var duration: float = float(skill_data.get("duration", 15.0))
+	var duration: float = float(sd.get("duration", 15.0))
 	# D13-T3：检测已装备武器是否含 se_turret_array → 常驻 + 多台（meta 键与 META_SOURCE_ID 一致）
 	if player and player.has_node("WeaponController"):
 		var wc: Node = player.get_node("WeaponController")
@@ -221,9 +286,10 @@ func _cast_deploy_turret() -> bool:
 ## 莱恩「星刃爆发」（D3-T5）：攻速 buff + 环绕刃数字段埋点
 ## 本日可见性边界：环绕刃渲染机制尚不存在（属 Day 5 武器 6 槽挂载），
 ## 本日只做「攻速 buff 可见 + bonus_stats.orbit_blade_count 埋点」
-func _cast_blade_burst() -> void:
-	var effects: Dictionary = skill_data.get("effects", {})
-	var duration: float = float(skill_data.get("duration", 5.0))
+func _cast_blade_burst(data: Dictionary = {}) -> void:
+	var sd: Dictionary = data if not data.is_empty() else skill_data
+	var effects: Dictionary = sd.get("effects", {})
+	var duration: float = float(sd.get("duration", 5.0))
 	var atk_percent: float = float(effects.get("attack_speed_percent", 0.0))
 	var orbit_count: int = int(effects.get("orbit_blade_count", 0))
 
@@ -254,12 +320,13 @@ func _restore_blade_burst(duration: float, atk_mult: float, orbit_count: int) ->
 
 ## 希亚「神圣庇护」（P0-Bug1 修复 2026-08-10，数据自 characters.json se_siia.skill）：
 ## 立即获得 effects.shield 点护盾，并在 duration 秒内每秒恢复 effects.heal 点生命。
-## 数值全部来自 skill_data（cooldown 14 / duration 5 / shield 30 / heal 10），禁止硬编码。
-func _cast_holy_shield() -> void:
+## 数值全部来自 sd（cooldown 14 / duration 5 / shield 30 / heal 10），禁止硬编码。
+func _cast_holy_shield(data: Dictionary = {}) -> void:
 	if player == null:
 		return
-	var effects: Dictionary = skill_data.get("effects", {})
-	var duration: float = float(skill_data.get("duration", 5.0))
+	var sd: Dictionary = data if not data.is_empty() else skill_data
+	var effects: Dictionary = sd.get("effects", {})
+	var duration: float = float(sd.get("duration", 5.0))
 	var shield_amt: float = float(effects.get("shield", 0.0))
 	var heal_per_sec: float = float(effects.get("heal", 0.0))
 	if shield_amt > 0.0:

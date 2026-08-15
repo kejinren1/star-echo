@@ -14,9 +14,16 @@ extends CanvasLayer
 @onready var timer_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/TimerLabel
 @onready var coins_label: Label = $MarginContainer/VBoxContainer/TopBar/RightSection/CoinsLabel
 
-## 技能冷却槽（D4-T6）：SkillSlot 整体压暗 + 子 Label 显示剩余秒数
+## 技能冷却槽（D4-T6 + PS-A3 2026-08-16 1→3 格）：SkillSlot 整体压暗 + 子 Label 显示剩余秒数
+## 槽 0 = 英雄默认技能（SkillSlot）；槽 1/2 = 掉落技能（SkillSlot1/2，空槽灰显占位）
 @onready var skill_slot: TextureRect = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot
 @onready var skill_label: Label = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot/SkillLabel
+@onready var skill_slot1: TextureRect = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot1
+@onready var skill_label1: Label = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot1/SkillLabel1
+@onready var skill_slot2: TextureRect = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot2
+@onready var skill_label2: Label = $MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot2/SkillLabel2
+## PS-A3 槽位映射：slot 序号 → {slot, label} 对（供 slot_cooldown_changed 统一路由）
+var _skill_slots: Array = []
 
 ## 08-07 反馈：Boss 血条（顶部中央 名称 + HP 条；轮询敌人容器找 is_boss 存活目标，
 ## 天然兼容两制 Boss：路线模式 invoker(wave10) / 旧制 predator(wave20)）
@@ -294,17 +301,30 @@ func _connect_skill_controller() -> void:
 	if GameManager.player == null:
 		return
 	var controller: Node = GameManager.player.get_node_or_null("SkillController")
-	if controller == null or not controller.has_signal("cooldown_changed"):
+	if controller == null:
 		push_warning("[HUD] 未找到 SkillController，技能冷却指示不可用")
 		return
-	controller.cooldown_changed.connect(_on_skill_cooldown_changed)
-	# 注意：Node.get() 只收 1 参数（无默认值），手动判空取 _cd_total
+	# PS-A3：槽位映射初始化（槽 0/1/2）
+	_skill_slots = [
+		{"slot": skill_slot, "label": skill_label},
+		{"slot": skill_slot1, "label": skill_label1},
+		{"slot": skill_slot2, "label": skill_label2},
+	]
+	if controller.has_signal("slot_cooldown_changed"):
+		controller.slot_cooldown_changed.connect(_on_slot_cooldown_changed)
+	if controller.has_signal("cooldown_changed"):
+		controller.cooldown_changed.connect(_on_skill_cooldown_changed)
+	# 初始：槽 0 读 _cd_total；槽 1/2 空槽灰显（SkillSlot1/2 已 modulate 0.35 占位）
 	var total: float = 0.0
 	if controller.get("_cd_total") != null:
 		total = float(controller.get("_cd_total"))
 	_on_skill_cooldown_changed(0.0, total)
+	_on_slot_cooldown_changed(1, 0.0, 0.0)
+	_on_slot_cooldown_changed(2, 0.0, 0.0)
 	# D20-T8（T-D · P0 硬性输入）：技能图标接线（同延迟帧环境，controller 已就绪）
 	_apply_skill_icon(controller)
+	for i in range(1, 3):
+		_apply_skill_slot_icon(controller, i)
 
 ## D20-T8（T-D）：技能图标 —— 按 SkillController.skill_data.id 映射 skills.png 帧索引，
 ## 无图/空 id/节点缺失 → 静默降级（保持现有样式零回归）；未知 id → push_warning 登记不崩
@@ -341,6 +361,46 @@ func _on_skill_cooldown_changed(left: float, _total: float) -> void:
 	else:
 		skill_label.text = "%.1f" % left
 		skill_slot.modulate = Color(1, 1, 1, 0.4)
+
+## PS-A3：按槽冷却显示（槽 1/2 空槽 = total 0 且数据空 → 灰显占位不动）
+func _on_slot_cooldown_changed(slot: int, left: float, total: float) -> void:
+	if slot < 0 or slot >= _skill_slots.size():
+		return
+	var pair: Dictionary = _skill_slots[slot]
+	var slot_node: TextureRect = pair.get("slot")
+	var label_node: Label = pair.get("label")
+	if slot_node == null or label_node == null:
+		return
+	if left <= 0.0:
+		label_node.text = "就绪" if total > 0.0 else "—"
+		slot_node.modulate = Color.WHITE if total > 0.0 else Color(1, 1, 1, 0.35)
+	else:
+		label_node.text = "%.1f" % left
+		slot_node.modulate = Color(1, 1, 1, 0.4)
+
+## PS-A3：掉落技能槽图标（槽 1/2 按装配 data.id 映射 skills.png；空槽灰显占位）
+func _apply_skill_slot_icon(controller: Node, slot: int) -> void:
+	if slot < 0 or slot >= _skill_slots.size():
+		return
+	var slot_node: TextureRect = _skill_slots[slot].get("slot")
+	if controller == null or slot_node == null:
+		return
+	var skills: Variant = controller.get("skills")
+	if not (skills is Array) or (skills as Array).size() <= slot:
+		return
+	var entry: Dictionary = (skills as Array)[slot]
+	if entry.is_empty() or str(entry.get("id", "")) == "":
+		return  # 空槽保持灰显
+	var skill_id: String = str(entry.get("id", ""))
+	if not ResourceLoader.exists("res://assets/sprites/skills/skills.png"):
+		return
+	var idx: int = int(SKILL_ICON_MAP.get(skill_id, -1))
+	if idx < 0:
+		return
+	var frame: AtlasTexture = IconAtlas.get_icon("skills", idx)
+	if frame != null:
+		slot_node.texture = frame
+		slot_node.modulate = Color.WHITE
 
 # ========== 背包槽位更新 ==========
 

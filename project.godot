@@ -28,14 +28,11 @@ window/size/viewport_width=640
 window/size/viewport_height=360
 window/size/window_width_override=1280
 window/size/window_height_override=720
-; 2026-08-05 试玩反馈：viewport 模式把 UI 文本按 640x360 栅格化再 2x 放大 → 字体发糊。
-; 改 canvas_items + integer：UI/文本按窗口 1280x720 渲染（锐利），世界像素精灵仍整数倍放大（像素完美）。
 window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
 
 [gui]
 
-; 全局默认字体 = 系统字体（微软雅黑优先，矢量渲染 + 完整中文），替换 Godot 内置默认字体
 theme/custom="res://assets/ui/theme.tres"
 
 [input]
@@ -75,11 +72,22 @@ move_right={
 , Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194321,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
-
 skill_cast={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"key_label":0,"unicode":32,"location":0,"echo":false,"script":null)
-, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"button_index":2,"button_mask":0,"canceled":false,"double_click":false,"script":null)
+]
+}
+; PS-A2（2026-08-16 · PLAYER_SKILL_SPEC §4.1）：多技能位输入路由
+; 槽 0 = skill_cast（空格，英雄默认技能）/ 槽 1 = skill_slot1（鼠标左键）/ 槽 2 = skill_slot2（鼠标右键）
+; 原 skill_cast 鼠标右键绑定迁移至 skill_slot2（防右键同时触发槽 0/2）
+skill_slot1={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+skill_slot2={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"canceled":false,"pressed":false,"double_click":false,"script":null)
 ]
 }
 

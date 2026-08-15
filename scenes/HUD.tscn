@@ -417,3 +417,52 @@ text = "就绪"
 theme_override_font_sizes/font_size = 7
 horizontal_alignment = 1
 mouse_filter = 2
+
+; PS-A3（2026-08-16 · PLAYER_SKILL_SPEC §4）：技能栏 1→3 格（槽 1/2 掉落技能占位）
+[node name="SkillSlot1" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/SkillBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+modulate = Color(1, 1, 1, 0.35)
+
+[node name="SkillLabel1" type="Label" parent="MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot1"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -4.0
+offset_right = 16.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "—"
+theme_override_font_sizes/font_size = 7
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="SkillSlot2" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomBar/SkillBar"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("7_slotw")
+expand_mode = 1
+modulate = Color(1, 1, 1, 0.35)
+
+[node name="SkillLabel2" type="Label" parent="MarginContainer/VBoxContainer/BottomBar/SkillBar/SkillSlot2"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -4.0
+offset_right = 16.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "—"
+theme_override_font_sizes/font_size = 7
+horizontal_alignment = 1
+mouse_filter = 2

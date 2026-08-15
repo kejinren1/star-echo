@@ -74,6 +74,9 @@ var _shield_timer: float = 0.0               ## 护盾剩余时长（<=0 归零�
 var _shield_duration: float = 0.0            ## 护盾总时长
 var is_alive: bool = true
 var _invulnerable_timer: float = 0.0         ## 无敌帧计时
+## PS-B3（2026-08-16 · PLAYER_SKILL_SPEC §5/§6）：invulnerable 效果标志
+## （位移技能 dash/blink/leap 的无敌窗口，经 StatusComponent 置位/还原；受击判定前查）
+var invulnerable: bool = false
 var _last_stand_active: bool = false         ## D24-F13-2（F-13 low_health · last_stand 背水一战）当前是否生效
 
 # 经验与升级（D4-T1）
@@ -214,13 +217,28 @@ func _handle_movement() -> void:
 	_update_facing()
 
 
+## PS-A2（2026-08-16 · PLAYER_SKILL_SPEC §4.1）：多技能位键位路由
+## 空格 → 槽 0（英雄默认技能）/ 鼠标左键 → 槽 1 / 鼠标右键 → 槽 2
+## UI 防误触：仅 BATTLE 状态路由（仿 P1-4 金手指 ↑↓ 状态守卫先例——暂停菜单/背包/商店
+## 点按钮时技能键不得触发；Control mouse_filter STOP 已由各面板消费，此处再叠状态守卫）
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("skill_cast"):
-		_try_cast_skill()
+	# 金手指守卫域（F-04/P1-4）保留不动：仅调试状态下 ↑+↓ 走 toggle，其余输入照常
+	if GameManager and GameManager.current_state == GameManager.GameState.BATTLE:
+		if event.is_action_pressed("skill_cast"):
+			_try_cast_skill_slot(0)
+		elif event.is_action_pressed("skill_slot1"):
+			_try_cast_skill_slot(1)
+		elif event.is_action_pressed("skill_slot2"):
+			_try_cast_skill_slot(2)
 
 func _try_cast_skill() -> void:
+	_try_cast_skill_slot(0)
+
+func _try_cast_skill_slot(slot: int) -> void:
 	var controller: Node = get_node_or_null("SkillController")
-	if controller and controller.has_method("try_cast"):
+	if controller and controller.has_method("try_cast_slot"):
+		controller.try_cast_slot(slot)
+	elif controller and controller.has_method("try_cast"):
 		controller.try_cast()
 
 
@@ -243,6 +261,8 @@ func add_shield(amount: float, duration: float) -> void:
 func take_damage(amount: float) -> void:
 	if not is_alive or _invulnerable_timer > 0.0:
 		return
+	# PS-B3（2026-08-16）：invulnerable 效果窗口（位移技能通道）→ 免疫伤害
+	if invulnerable:
 		return
 	# T-013（F1-散 2026-08-13）：无敌帧/金手指受伤倍率参数化（单次取表，缺表兜底现值）
 	var combat: Dictionary = DataLoader.get_stats_combat()
