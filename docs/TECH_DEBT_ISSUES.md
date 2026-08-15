@@ -74,7 +74,7 @@
 | T-043 | skill_controller.gd:176 / turret.gd:147 / weapon_controller.gd:41 | 跨层节点树访问三份复制（get_parent→Projectiles） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
 | T-044 | enemy.gd:735 / weapon_controller.gd:376 / skill_controller.gd:180 | 实体直接 new 实体（弹丸/环绕刃/炮台） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
 | T-045 | wave_manager.gd:61-62,96-100 | 系统直调 spawner 私有字段（_is_spawning/spawn_queue） | 已收口 | F2（10c4a37/d38f00f/a9ebe49） |
-| T-046 | game_manager.gd（754 行） | 上帝脚本：状态机+存档+面板工厂+事件系统四合一 | 已收口（F2 拆 EventManager/UIPanelFactory；F4-B 拆 SaveSystem/DebugConsole，GM 783→623 行）｜⚠️ **F4 遗留（2026-08-16 第 47 轮登记）：686→623 行 <400 判据未达——F5-T5 建议放宽判据「enemy/player 达标 + GM 相对 F2 首拆 783 行净减 160 行」，交 #1/Owner 裁决** | F2/F4 |
+| T-046 | game_manager.gd（754 行） | 上帝脚本：状态机+存档+面板工厂+事件系统四合一 | 已收口（F2 拆 EventManager/UIPanelFactory；F4-B 拆 SaveSystem/DebugConsole，GM 783→623 行）｜⚠️ **F4 遗留（2026-08-16 第 47 轮登记）：686→623 行 <400 判据未达——F5-T5 建议放宽判据「enemy/player 达标 + GM 相对 F2 首拆 783 行净减 160 行」，交 #1/Owner 裁决** ｜✅ **F5-T5 执行确认（2026-08-16 #3）：放宽判据登记生效**——enemy 1097→397 / player 732→399 均 <400 达标；GM 623 行相对 F2 首拆 783 行净减 160 行，且已拆 SaveSystem/DebugConsole/EventManager/UIPanelFactory 四组件，继续拆边际收益低；F5 收口后 GM 判据按「enemy/player 达标 + GM 净减 160」执行，交 #1/Owner 终审 | F2/F4 |
 | T-047 | enemy.gd（实测 1097 行） | 上帝脚本：行为+元素+阶段机+受伤掉落+动画八合一（元素 DoT 已随 BS-A2 拆至 StatusComponent；阶段机已随 F3-T4 枚举化） | 已收口（2026-08-14 F4-A：拆分 enemy_movement/enemy_boss/enemy_damage 三组件 + enemy_enums 共享枚举，enemy.gd 1097→397 行） | F4（dc77e47） |
 | T-048 | player.gd（实测 732 行） | 上帝脚本：移动+属性+被动+经验+动画五职责（行为态已随 F3-T6 枚举化） | 已收口（2026-08-14 F4-C：拆分 attribute_controller/player_anim 双组件 + player_enums，player.gd 732→399 行） | F4（a654662） |
 
