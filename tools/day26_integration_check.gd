@@ -541,14 +541,15 @@ func _part_regression() -> void:
 	# BS-A 同步（2026-08-13）：runner +day30_effect(18) → 39 项 / 期望 936（918 + 18）
 	# BS-B/C/D 同步（2026-08-13）：day30_boss_skill 16→49（+§4 pattern + §5 难度 + §5b fan/beam/charge/QTE + §6 免疫 + §11 验收）→ 40 项 / 期望 985（936 + 49）
 	# G 系列同步（2026-08-14）：runner +6（expect 门槛 8+10+10+8+8+10 = 54）→ 46 项 / 期望 1039（985 + 54）
-	if probe_count == 46:
-		_pass("回归 / _regression_run.py PROBES 46 项（40 + G 系列 6 探针）")
+	# F-39 同步（2026-08-15）：runner +day31_spawner_deadlock(7) → 47 项 / 期望 1046（1039 + 7）
+	if probe_count == 47:
+		_pass("回归 / _regression_run.py PROBES 47 项（40 + G 系列 6 探针 + day31 死锁探针）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 46" % probe_count)
-	if expect_sum == 1039:
-		_pass("回归 / 期望断言合计 1039（985 + G 系列门槛 54）")
+		_fail("回归: PROBES 项数 %d ≠ 47" % probe_count)
+	if expect_sum == 1046:
+		_pass("回归 / 期望断言合计 1046（1039 + day31 门槛 7）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1039" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1046" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

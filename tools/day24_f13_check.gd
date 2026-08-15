@@ -5,12 +5,12 @@
 ##
 ## 校验内容（对应 docs/SOLUTION_PLAN.md 第 6 轮任务 4 四段）：
 ##   §1 数据层：items.json 54 项 / 23 被动 / 3 trigger 字段 + type 校验（on_crit/on_kill/low_health）
-##      / icon_index 22/23/24 唯一 / effects 全空
+##      / icon_index 51/52/53 唯一（2026-08-15 图集重建，原 22/23/24）/ effects 全空
 ##   §2 on_crit 白盒（overload_capacitor）：暴击命中 → 目标周围 80px 敌连锁伤害 ≈ crit×0.3（含自身）；
 ##      80px 外不掉；非暴击零触发；未持有遗物零触发零报错
 ##   §3 on_kill + low_health 白盒：击杀 → player.heal(1.0)；低血（≤30%）→ damage×1.5 + attack_speed×1.2
 ##      乘算开；回血（>30%）→ 逆运算恢复；未持有 → 零变化
-##   §4 回归抽样：商店池 58 / icon_atlas items 25 / items.png 800×32
+##   §4 回归抽样：商店池 58→49（F31 同步）/ icon_atlas items 54 / items.png 1728×32（2026-08-15 图集重建）
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -148,12 +148,12 @@ func _part_data() -> void:
 			_fail("数据: %s effects 应空 {}（不入 STAT 白名单）" % iid)
 			trigger_ok = false
 		var icon_idx: int = int(it.get("icon_index", -1))
-		if icon_idx < 22 or icon_idx > 24 or seen_icon.has(icon_idx):
-			_fail("数据: %s icon_index %d 应 22/23/24 唯一" % [iid, icon_idx])
+		if icon_idx < 51 or icon_idx > 53 or seen_icon.has(icon_idx):
+			_fail("数据: %s icon_index %d 应 51/52/53 唯一（2026-08-15 图集重建：items.json 全 54 道具按序，机制型排 51-53）" % [iid, icon_idx])
 			trigger_ok = false
 		seen_icon[icon_idx] = true
 	if trigger_ok:
-		_pass("数据 / 3 trigger 词条 type 合法 + effects 空 + icon_index 22/23/24 唯一")
+		_pass("数据 / 3 trigger 词条 type 合法 + effects 空 + icon_index 51/52/53 唯一")
 	# 验证 trigger 各键存在
 	var oc: Dictionary = _loader.call("get_item", "overload_capacitor")
 	if float(oc.get("trigger", {}).get("radius", 0.0)) == 80.0 and float(oc.get("trigger", {}).get("ratio", 0.0)) == 0.3:
@@ -336,16 +336,16 @@ func _part_regression() -> void:
 		_fail("回归: 商店池应 49, 实得 %d" % pool.size())
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc == 25:
-		_pass("回归 / icon_atlas items frame_count 25")
+	if fc == 54:
+		_pass("回归 / icon_atlas items frame_count 54（2026-08-15 道具图集重建 25→54）")
 	else:
-		_fail("回归: icon_atlas items 应 25, 实得 %d" % fc)
+		_fail("回归: icon_atlas items 应 54, 实得 %d" % fc)
 	var abs_path: String = ProjectSettings.globalize_path("res://assets/sprites/ui/items.png")
 	var img: Image = Image.load_from_file(abs_path)
-	if img != null and img.get_width() == 800 and img.get_height() == 32:
-		_pass("回归 / items.png 800×32（25 帧）")
+	if img != null and img.get_width() == 1728 and img.get_height() == 32:
+		_pass("回归 / items.png 1728×32（54 帧）")
 	else:
-		_fail("回归: items.png 应 800×32")
+		_fail("回归: items.png 应 1728×32")
 
 
 # ========== 汇总 ==========

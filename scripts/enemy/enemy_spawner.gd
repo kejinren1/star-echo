@@ -36,7 +36,17 @@ func _process(delta: float) -> void:
 	# 残留队列会在 SHOP 状态继续刷怪 → 商店中玩家被围殴）
 	if GameManager.current_state != GameManager.GameState.BATTLE:
 		return
-	if not _is_spawning or spawn_queue.is_empty():
+	if not _is_spawning:
+		return
+	# F-39（2026-08-15 真人反馈）：队列已空但标志未复位——旧逻辑
+	# `if not _is_spawning or spawn_queue.is_empty(): return` 短路：队列空时永不调
+	# _spawn_next → 空队列分支（置 false + spawn_complete）永不执行 → _is_spawning 永久 true
+	# → wave_manager.check_wave_clear 的 _spawning_incomplete() 永久 true → 普通关永不判通，
+	# 干等 30s 超时兜底（Boss 关不走该检查故秒通）→ 用户感知「第 10 关 Boss 后第 11 层
+	# 战斗/精英节点没法选择」→ 此处自愈复位（仅一次：复位后下帧 _is_spawning false 短路）
+	if spawn_queue.is_empty():
+		_is_spawning = false
+		spawn_complete.emit()
 		return
 	_spawn_timer -= delta
 	if _spawn_timer <= 0.0:
@@ -90,6 +100,11 @@ func _spawn_next() -> void:
 	if enemy and enemies_container:
 		enemies_container.add_child(enemy)
 		enemy_spawned.emit(enemy)
+	# F-39（2026-08-15）：pop 最后一只后队列变空 → 立即复位生成标志 + 发完成信号
+	# （此前仅依赖 _process 空队列分支触发——该分支被短路逻辑挡死永不执行 → 死锁）
+	if spawn_queue.is_empty():
+		_is_spawning = false
+		spawn_complete.emit()
 
 ## 创建敌人实例并初始化
 ## enemy_id 可以是 "chaser", "elite:butcher", "boss:invoker"

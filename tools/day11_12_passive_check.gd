@@ -14,7 +14,7 @@
 ##   4. 商店层：_refresh_shop 产出 4 卡非 null（混合池：武器 33 + 被动 20 排除 3 结果武器）；
 ##              购买被动触发 item_added → 玩家属性变；槽满 → 失败且 coins 不变；
 ##              购买武器 → equipped_weapons 增 1
-##   5. 图标层：items.png 800×32 + 25 帧中心非空 + 透明键合规；icon_atlas items frame_count == 25（D24-F13-3 机制型被动 3 帧）
+##   5. 图标层：items.png 1728×32 + 54 帧中心非空 + 透明键合规；icon_atlas items frame_count == 54（2026-08-15 道具图集重建 25→54）
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -197,19 +197,19 @@ func _part_data() -> void:
 		_fail("数据: 被动数应 23, 实得 %d" % passives.size())
 	else:
 		_pass("数据 / 23 被动 is_passive=true")
-	# icon_index 0-24 唯一性 + 范围（GDScript 无 set()/any() 内置，用 Dictionary 模拟 + 显式循环）
+	# icon_index 0-53 唯一性 + 范围（2026-08-15 道具图集重建：items.png 25→54 帧；GDScript 无 set()/any() 内置，用 Dictionary 模拟 + 显式循环）
 	var seen_idx: Dictionary = {}
 	for v in icons:
 		seen_idx[v] = true
 	var oob: bool = false
 	for i in icons:
-		if i < 0 or i > 24:
+		if i < 0 or i > 53:
 			oob = true
 			break
 	if icons.size() != 23 or seen_idx.size() != 23 or oob:
-		_fail("数据: icon_index 0-24 唯一性破坏, icons=%s" % str(icons))
+		_fail("数据: icon_index 0-53 唯一性破坏, icons=%s" % str(icons))
 	else:
-		_pass("数据 / icon_index 0-24 唯一")
+		_pass("数据 / icon_index 0-53 唯一")
 	for cat in ["attack", "defense", "stat", "special"]:
 		if cats.get(cat, 0) < 4:
 			_fail("数据: category %s 数量 < 4（实得 %d）" % [cat, cats.get(cat, 0)])
@@ -475,15 +475,15 @@ func _part_shop() -> void:
 # ========== Part 5: 图标层 ==========
 
 func _part_icons() -> void:
-	# icon_atlas items frame_count == 25（D24-F13-3: +3 机制型被动帧）
+	# icon_atlas items frame_count == 54（2026-08-15 道具图集重建：items.json 全 54 道具按序；此前 25 = D24-F13-3 +3 机制型被动帧）
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc != 25:
-		_fail("图标: icon_atlas items frame_count 应 25, 实得 %d" % fc)
+	if fc != 54:
+		_fail("图标: icon_atlas items frame_count 应 54, 实得 %d" % fc)
 	else:
-		_pass("图标 / icon_atlas items frame_count == 25")
+		_pass("图标 / icon_atlas items frame_count == 54")
 
-	# items.png 尺寸 + 25 帧中心非空 + 透明键
+	# items.png 尺寸 + 54 帧中心非空 + 透明键
 	if not FileAccess.file_exists(ITEMS_PNG_PATH):
 		_fail("图标: items.png 不存在")
 		return
@@ -492,15 +492,15 @@ func _part_icons() -> void:
 	if img == null:
 		_fail("图标: items.png 加载失败")
 		return
-	if img.get_width() != 800 or img.get_height() != 32:
-		_fail("图标: items.png 尺寸应 800×32, 实得 %dx%d" % [img.get_width(), img.get_height()])
+	if img.get_width() != 1728 or img.get_height() != 32:
+		_fail("图标: items.png 尺寸应 1728×32, 实得 %dx%d" % [img.get_width(), img.get_height()])
 	else:
-		_pass("图标 / items.png 尺寸 800×32")
+		_pass("图标 / items.png 尺寸 1728×32")
 	# 透明键 (0,0)
 	if img.get_pixel(0, 0).a > 0.0:
 		_fail("图标: 透明键 (0,0) 应全透明")
-	# 25 帧中心非空
-	for idx in 25:
+	# 54 帧中心非空
+	for idx in 54:
 		var x0: int = idx * 32
 		var has: bool = false
 		for dx in range(8, 24):
@@ -513,7 +513,7 @@ func _part_icons() -> void:
 		if not has:
 			_fail("图标: 帧 %d 中心全透明（应实绘）" % idx)
 	if _failures == 0:
-		_pass("图标 / 25 帧中心非空 + 透明键 (0,0) 全透明")
+		_pass("图标 / 54 帧中心非空 + 透明键 (0,0) 全透明")
 
 
 # ========== 断言 ==========

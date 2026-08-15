@@ -4,7 +4,7 @@
 ##     tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day20_relic_check.gd
 ##
 ## 校验内容（对应 docs/SOLUTION_PLAN.md 第 3 轮任务 6 五段）：
-##   §1 数据层：items.json 54 项；2 遗物 slot=="relic" + icon_index 20/21 唯一 + price>0；
+##   §1 数据层：items.json 54 项；2 遗物 slot=="relic" + icon_index 49/50 唯一 + price>0；
 ##      effects 键 ⊆ {damage_percent, damage_taken_percent, structure_damage_percent}；
 ##      resonant_shard 保持无 slot；is_passive 现 23 项（D24-F13 +3 机制型）
 ##   §2 新键装配（白盒直构造 + apply_item_bonuses，禁手动双装配——信号环境 item_added→装配已接）：
@@ -14,15 +14,15 @@
 ##   §4 商店/上限：池 49（23+23+2+1 服务）+ 含 2 遗物 + 零 String；add broken_crown ×2 成功 →
 ##      第 3 次拒（inventory_full("relic")）；6 被动 + 2 遗物共存（MAX_ITEMS 语义不变）
 ##   §5 结构伤害消费 + 回归锚点：白盒 turret 弹药伤害 ×structure_damage_mult（se_mech_core 装配
-##      → structure_mult 1.4 顺带激活悬空词条）；icon_atlas items 25 / 商店池 49 / icon_index 0-24 唯一
+##      → structure_mult 1.4 顺带激活悬空词条）；icon_atlas items 54 / 商店池 49 / icon_index 0-53 唯一
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
 
 const EPSILON: float = 0.001
 const RELIC_IDS: Array = ["broken_crown", "mech_engine"]
-## §5 回归锚点：20 常规被动 icon_index 唯一范围 0-24（3 核心 17/18/19 + 17 常规 + 3 机制型 22/23/24）
-const PASSIVE_ICON_MAX: int = 24
+## §5 回归锚点：被动 icon_index 唯一范围 0-53（2026-08-15 道具图集重建 25→54 帧）
+const PASSIVE_ICON_MAX: int = 53  ## 2026-08-15 道具图集重建：items.png 25→54 帧，icon_index 范围 0-53
 
 var _idx: int = 0
 var _sub: int = 0
@@ -124,7 +124,7 @@ func _part_data() -> void:
 	else:
 		_pass("数据 / items.json 54 项（49 + 2 遗物 + 3 机制型被动）")
 
-	# 2 遗物：slot=="relic" + icon_index 20/21 唯一 + price>0 + effects 键白名单
+	# 2 遗物：slot=="relic" + icon_index 49/50 唯一（2026-08-15 图集重建：items.json 全 54 道具按序，遗物排 49/50）+ price>0 + effects 键白名单
 	var relic_found: Dictionary = {}
 	var effects_ok: bool = true
 	for rid in RELIC_IDS:
@@ -141,14 +141,14 @@ func _part_data() -> void:
 			_fail("数据: icon_index %d 重复（%s）" % [idx, rid])
 		else:
 			relic_found[idx] = rid
-		if idx not in [20, 21]:
-			_fail("数据: %s icon_index 应 20/21, 实得 %d" % [rid, idx])
+		if idx not in [49, 50]:
+			_fail("数据: %s icon_index 应 49/50, 实得 %d" % [rid, idx])
 		for key in (it.get("effects", {}) as Dictionary).keys():
 			if key not in ["damage_percent", "damage_taken_percent", "structure_damage_percent"]:
 				effects_ok = false
 				_fail("数据: %s effects 越白名单键 %s" % [rid, key])
 	if relic_found.size() == 2 and effects_ok:
-		_pass("数据 / 2 遗物 slot=relic + icon 20/21 唯一 + price>0 + effects 白名单")
+		_pass("数据 / 2 遗物 slot=relic + icon 49/50 唯一 + price>0 + effects 白名单")
 
 	# resonant_shard 保持无 slot（事件专属）
 	var shard: Dictionary = _loader.call("get_item", "resonant_shard")
@@ -362,13 +362,13 @@ func _part_structure_and_anchor() -> void:
 		else:
 			_pass("结构 / turret 弹药伤害 ×structure_damage_mult（5×1.4=7）")
 
-	# 回归锚点：icon_atlas items 25 / 商店池 49（F31 同步）/ is_passive icon_index 0-24 唯一
+	# 回归锚点：icon_atlas items 54 / 商店池 49（F31 同步）/ is_passive icon_index 0-53 唯一
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc != 25:
-		_fail("锚点: icon_atlas items frame_count 应 25, 实得 %d" % fc)
+	if fc != 54:
+		_fail("锚点: icon_atlas items frame_count 应 54, 实得 %d" % fc)
 	else:
-		_pass("锚点 / icon_atlas items 25 帧")
+		_pass("锚点 / icon_atlas items 54 帧")
 	var pool: Array = _shop.call("_build_shop_pool")
 	if pool.size() != 49:
 		_fail("锚点: 商店池应 49, 实得 %d" % pool.size())
@@ -391,7 +391,7 @@ func _part_structure_and_anchor() -> void:
 	elif dup:
 		_fail("锚点: 被动 icon_index 存在重复")
 	else:
-		_pass("锚点 / is_passive icon_index 0-24 唯一（23 项）")
+		_pass("锚点 / is_passive icon_index 0-53 唯一（23 项）")
 
 
 # ========== §6 技能图标（D20-T7/T8 · T-D P0 硬性输入） ==========
