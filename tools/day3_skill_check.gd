@@ -28,7 +28,8 @@ const EPSILON: float = 0.01
 const CASES: Array = [
 	{"hero": "se_irene", "expect_cd": 8.0, "special": "fireball"},
 	{"hero": "se_noa", "expect_cd": 12.0, "special": "noa"},
-	{"hero": "se_ren", "expect_cd": 10.0, "special": "blade"},
+	# PS-C4（2026-08-16 · PLAYER_SKILL_SPEC §9.4）：剑士星刃爆发 → 剑气爆发（cd 10→8，无攻速 buff）
+	{"hero": "se_ren", "expect_cd": 8.0, "special": "sword_arc"},
 	{"hero": "well_rounded", "expect_cd": 0.0, "special": "noskill"},
 ]
 
@@ -114,7 +115,7 @@ func _run_special(delta: float) -> void:
 				_checked += 1
 				print("  PASS  noa / 冷却生效，第二次 = false")
 			_finish_case()
-		"blade":
+		"blade", "sword_arc":   # PS-C4：剑士剑气爆发（原星刃爆发用例语义更新）
 			if not _armed:
 				_armed = true
 				_arm_blade_case()
@@ -190,7 +191,7 @@ func _check_fireball_case() -> void:
 	else:
 		_fail("irene / 燃烧状态未附着（D3-T2b 状态机未生效）")
 
-# ========== 莱恩星刃爆发用例 ==========
+# ========== 莱恩剑气爆发用例（PS-C4 2026-08-16 · 星刃爆发 → 剑气爆发） ==========
 
 func _arm_blade_case() -> void:
 	_baseline_atk = float(_player.attack_speed)
@@ -199,26 +200,26 @@ func _arm_blade_case() -> void:
 	var first: bool = bool(_skill.call("try_cast"))
 	if first:
 		_checked += 1
-		print("  PASS  ren / 星刃爆发释放 = true")
+		print("  PASS  ren / 剑气爆发释放 = true")
 	else:
-		_fail("ren / 星刃爆发 try_cast 应为 true")
+		_fail("ren / 剑气爆发 try_cast 应为 true")
 	var second: bool = bool(_skill.call("try_cast"))
 	if second:
 		_fail("ren / 冷却未生效，第二次 try_cast 仍返回 true")
 	else:
 		_checked += 1
 		print("  PASS  ren / 冷却生效，第二次 = false")
-	# 断言 4a：释放瞬间攻速 == 基线 × 1.5
+	# 断言 4a（PS-C4 更新）：剑气爆发为直伤技能，释放瞬间攻速不变（无 buff 语义）
 	var atk_after: float = float(_player.attack_speed)
-	_assert_near("ren / 释放瞬间 attack_speed == 基线×1.5", atk_after, _baseline_atk * 1.5)
+	_assert_near("ren / 释放瞬间 attack_speed 不变（剑气直伤）", atk_after, _baseline_atk)
 
 func _check_blade_case() -> void:
 	var atk_now: float = float(_player.attack_speed)
 	if absf(atk_now - _baseline_atk) <= 0.001:
 		_checked += 1
-		print("  PASS  ren / 5.01s 后 attack_speed 精确还原 %.4f" % atk_now)
+		print("  PASS  ren / 释放后 attack_speed 维持基线 %.4f（无残留 buff）" % atk_now)
 	else:
-		_fail("ren / 还原失败：期望 %.4f，实得 %.4f" % [_baseline_atk, atk_now])
+		_fail("ren / 攻速漂移：期望 %.4f，实得 %.4f" % [_baseline_atk, atk_now])
 
 # ========== 收尾 ==========
 

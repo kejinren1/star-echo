@@ -379,6 +379,20 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         rec = {k: coerce_num(v) for k, v in r.items() if not k.startswith("_")}
         bp_rows.append(unflatten(rec, set(SHEETS["boss_patterns"]["json_cols"])))
     files["boss_patterns.json"] = {"patterns": bp_rows}
+
+    # skill_relics（PS-C1 2026-08-16 · list 形如 {skill_relics: [...]}；per_character JSON 列）
+    sr_rows = []
+    for r in tables.get("skill_relics", []):
+        rec = {k: coerce_num(v) for k, v in r.items() if not k.startswith("_")}
+        sr_rows.append(unflatten(rec, set(SHEETS["skill_relics"]["json_cols"])))
+    files["skill_relics.json"] = {"skill_relics": sr_rows}
+
+    # skill_unlocks（PS-E1 2026-08-16 · list 形如 {skill_unlocks: [...]}；unlocks JSON 列）
+    su_rows = []
+    for r in tables.get("skill_unlocks", []):
+        rec = {k: coerce_num(v) for k, v in r.items() if not k.startswith("_")}
+        su_rows.append(unflatten(rec, set(SHEETS["skill_unlocks"]["json_cols"])))
+    files["skill_unlocks.json"] = {"skill_unlocks": su_rows}
     return files
 
 

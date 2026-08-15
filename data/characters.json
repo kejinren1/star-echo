@@ -226,17 +226,14 @@
       "class": "Melee",
       "star_echo": true,
       "skill": {
-        "id": "se_skill_blade_burst",
-        "name": "星刃爆发",
-        "name_en": "Blade Burst",
-        "type": "active",
-        "cooldown": 10,
-        "description": "5 秒内环绕星刃额外 +3 把并提升 50% 攻速",
-        "duration": 5,
-        "effects": {
-          "orbit_blade_count": 3,
-          "attack_speed_percent": 50
-        }
+        "id": "se_skill_sword_arc",
+        "name": "剑气爆发",
+        "name_en": "Sword Arc",
+        "type": "arc",
+        "cooldown": 8,
+        "damage": 25,
+        "radius": 120,
+        "description": "向前挥出扇形剑气，贯穿敌人一次爆发"
       },
       "growth": {
         "type": "crit_life_steal",

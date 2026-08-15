@@ -84,9 +84,14 @@ func _make_slot(slot: int, data: Dictionary) -> Dictionary:
 	}
 
 ## PS-C 装配接口：把掉落技能注入指定槽（1/2；槽 0 默认技能不可覆盖）
+## 未 setup（探针直造 / 掉落在进局早期）→ 自动建空槽占位（槽 0 空 = 无默认技能）
 func equip_slot(slot: int, data: Dictionary) -> void:
-	if slot <= 0 or slot >= skills.size():
+	if slot <= 0 or slot >= SLOT_COUNT:
 		return
+	if skills.size() < SLOT_COUNT:
+		skills.clear()
+		for i in SLOT_COUNT:
+			skills.append(_make_slot(i, {}))
 	skills[slot] = _make_slot(slot, data)
 	slot_cooldown_changed.emit(slot, 0.0, float(data.get("cooldown", 0.0)))
 
@@ -144,6 +149,8 @@ func _exec_skill(skill_id: String, data: Dictionary) -> bool:
 			_cast_blade_burst(data)
 		"se_skill_holy_shield":   # P0-Bug1 修复（2026-08-10）：希亚「神圣庇护」实装
 			_cast_holy_shield(data)
+		"se_skill_sword_arc":   # PS-C4（2026-08-16）：剑士星刃替换 → 剑气爆发（§9.4）
+			_cast_sword_arc(data)
 		_:
 			push_warning("[SkillController] 未知技能 id: %s" % skill_id)
 			return false
@@ -317,6 +324,60 @@ func _restore_blade_burst(duration: float, atk_mult: float, orbit_count: int) ->
 		player.apply_stat_modifier("attack_speed", 1.0 / atk_mult, true)
 	if orbit_count > 0:
 		player.bonus_stats["orbit_blade_count"] = float(player.bonus_stats.get("orbit_blade_count", 0.0)) - orbit_count
+
+## PS-C4（2026-08-16 · PLAYER_SKILL_SPEC §9.4）：剑士「剑气爆发」—— 向前挥出扇形剑气，
+## 一次爆发贯穿敌人（复用 projectile 多弹散布：arc_count 道弹丸呈扇形角度散布）。
+## 数据：damage（单道）/ radius（扇形半径，兼顾弹道直射）/ arc_count（道数，缺省 5）/
+## speed（剑气速度，缺省 380）/ pierce（贯穿数，缺省 3 = 一次爆发贯穿）
+func _cast_sword_arc(data: Dictionary = {}) -> void:
+	var sd: Dictionary = data if not data.is_empty() else skill_data
+	var base_damage: float = float(sd.get("damage", 25.0))
+	var radius: float = float(sd.get("radius", 120.0))
+	var arc_count: int = maxi(int(sd.get("arc_count", 5)), 1)
+	var speed: float = float(sd.get("speed", 380.0))
+	var pierce: int = int(sd.get("pierce", 3))
+	# 伤害套玩家倍率（对齐 _cast_fireball 口径）+ 金手指 debug_mult
+	var dmg: float = base_damage
+	if player and "damage_multiplier" in player:
+		dmg *= player.damage_multiplier
+	if player and "debug_mult" in player:
+		dmg *= float(player.debug_mult)
+	var container: Node2D = _resolve_projectile_container()
+	if container == null and not (GameManager and is_instance_valid(GameManager.world)):
+		push_warning("[SkillController] 无弹丸容器，剑气未生成")
+		return
+	var aim_dir: Vector2 = _get_aim_direction()
+	if aim_dir == Vector2.ZERO:
+		return
+	var base_angle: float = aim_dir.angle()
+	# 扇形散布：总开角 = 60°（±30°），arc_count 道均布
+	var spread: float = 60.0 * PI / 180.0
+	for i in arc_count:
+		var angle: float = base_angle - spread * 0.5 + spread * float(i) / float(arc_count - 1) if arc_count > 1 else base_angle
+		var props := {
+			"speed": speed,
+			"damage": dmg,
+			"lifetime": 1.0,
+			"pierce": pierce,
+			"explosion_radius": 0.0,
+			"explosion_damage": 0.0,
+			"bullet_color": Color(0.8, 0.95, 1.0),
+			"bullet_radius": 4.0,
+			"arc_visual": true,   # F1-G 无消费方键纪律：此处仅视觉标记（projectile 忽略也零回归）
+		}
+		var proj: Node2D = null
+		if GameManager and is_instance_valid(GameManager.world) and GameManager.world.has_method("spawn_projectile"):
+			proj = GameManager.world.spawn_projectile(ProjectileScene, props)
+		else:
+			proj = ProjectileScene.instantiate() as Node2D
+			proj.initialize(props)
+			if container:
+				container.add_child(proj)
+		if proj == null:
+			continue
+		proj.global_position = player.global_position
+		proj.set_direction(Vector2.from_angle(angle))
+		proj.set_meta(&"source_id", DataLoader.SKILL_SWORD_ARC)
 
 ## 希亚「神圣庇护」（P0-Bug1 修复 2026-08-10，数据自 characters.json se_siia.skill）：
 ## 立即获得 effects.shield 点护盾，并在 duration 秒内每秒恢复 effects.heal 点生命。

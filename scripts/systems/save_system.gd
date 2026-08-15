@@ -65,6 +65,20 @@ func load_meta() -> void:
 	var st_data: Variant = data.get("skill_tree", {})
 	if st_data is Dictionary:
 		_gm.meta_progress["skill_tree"] = st_data
+	# PS-E2（2026-08-16）：skill_slots 扩展键（char_id → [槽位]，缺省空兼容旧档）
+	var slots_data: Variant = data.get("skill_slots", {})
+	if slots_data is Dictionary:
+		var clean_slots: Dictionary = {}
+		for cid in slots_data.keys():
+			var lst: Variant = slots_data[cid]
+			var clean_list: Array = []
+			if lst is Array:
+				for s in lst:
+					var si: int = int(s)
+					if si > 0 and not clean_list.has(si):
+						clean_list.append(si)
+			clean_slots[str(cid)] = clean_list
+		_gm.meta_progress["skill_slots"] = clean_slots
 
 ## 保存局外存档（每次结算/研究升级后调用）
 func save_meta() -> void:
@@ -192,3 +206,19 @@ func unlock_skill(node_id: String) -> bool:
 ## 已解锁节点列表
 func get_unlocked_skills() -> Array:
 	return _gm.meta_progress.get("skill_tree", {}).get("unlocked", [])
+
+## PS-E2（2026-08-16 · PLAYER_SKILL_SPEC §3 D6）：角色等级解锁技能槽位——
+## meta_progress.skill_slots = {char_id: [槽位…]}（缺省空兼容旧档；进局装配时查询）
+func get_unlocked_slots(id: String) -> Array:
+	return _gm.meta_progress.get("skill_slots", {}).get(id, [])
+
+## 达门槛 → 登记解锁槽位（幂等：已解锁不重复追加）
+func unlock_slot_for_level(id: String, level: int) -> void:
+	var slots_data: Dictionary = _gm.meta_progress.get("skill_slots", {})
+	var existing: Array = slots_data.get(id, [])
+	var unlocked: Array = DataLoader.get_unlocked_slots_for_level(level) if DataLoader else []
+	for s in unlocked:
+		if not existing.has(s):
+			existing.append(s)
+	slots_data[id] = existing
+	_gm.meta_progress["skill_slots"] = slots_data

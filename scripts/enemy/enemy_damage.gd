@@ -70,6 +70,82 @@ func _drop_rewards() -> void:
 		GameManager.player.gain_exp(_enemy.exp_value)
 		# D6-T4（T-B · P1）：击杀经验飘字「+N」（方案 A；容器缺失时静默跳过不崩）
 		_spawn_exp_popup(_enemy.exp_value)
+	# PS-C2（2026-08-16 · PLAYER_SKILL_SPEC §7 D4/D5）：技能掉落
+	# 精英怪 80% 触发技能三选一（20% 替代 = 金币/经验已给，静默跳过）；章 Boss 招牌技必掉
+	# 触发判定纯数据（drop_source）；掉落逻辑挂尾段，金币/经验掉落零改动
+	_maybe_drop_skill()
+
+## PS-C2：技能掉落判定（§7 · D4 精英 80% / D5 章 Boss 必掉）
+## 精英：DataLoader.get_skill_relics_by_source("elite") 随机池，80% 触发 → 进三选一装配
+## 章 Boss：按 boss 数据 drop_source="chapter_boss" 的遗物必掉（教学闭环）
+func _maybe_drop_skill() -> void:
+	var category: String = ""
+	if _enemy and _enemy.has_method("get_category"):
+		category = str(_enemy.call("get_category"))
+	var is_chapter_boss: bool = _enemy.is_boss and _is_chapter_boss()
+	if category == "elite" and not _enemy.is_boss:
+		if randf() > 0.8:
+			return  # D4 20% 替代奖励：金币/经验已随 _drop_rewards 结算，无额外掉落
+		var pool: Array = DataLoader.get_skill_relics_by_source("elite")
+		if pool.is_empty():
+			return
+		_offer_skill_choice(pool)
+	elif is_chapter_boss:
+		var pool: Array = DataLoader.get_skill_relics_by_source("chapter_boss")
+		if pool.is_empty():
+			return
+		_offer_skill_choice(pool)
+
+## 章 Boss 判定：boss 数据含 chapter 字段（PS-D 章节化后使用）；现回落 is_boss + 必掉逻辑
+func _is_chapter_boss() -> bool:
+	return false  # PS-D 章节化前：无章节 Boss 标记，Boss 掉落走旧路径
+
+## PS-C3：三选一装配弹窗（复用 LevelUpPanel 暂停式范式；选择后装配到槽位）
+## PS-E2：装配目标槽 = 局外等级已解锁槽位（skill_unlocks 门槛表；无解锁 → 槽 1 兜底）
+## 简化实现：直接装配到已解锁最低空槽（槽满 → 替换该槽，可换可不换 = 覆盖）
+func _offer_skill_choice(pool: Array) -> void:
+	if GameManager.player == null:
+		return
+	var controller: Node = GameManager.player.get_node_or_null("SkillController")
+	if controller == null or not controller.has_method("equip_slot"):
+		return
+	var char_id: String = str(GameManager.current_character_id)
+	var pick: Dictionary = pool[randi() % pool.size()]
+	var resolved: Dictionary = DataLoader.resolve_relic_skill(pick, char_id)
+	if resolved.is_empty() or str(resolved.get("type", "")).is_empty():
+		return
+	var data: Dictionary = {"id": str(resolved.get("type", "")), "type": str(resolved.get("type", ""))}
+	var params: Dictionary = resolved.get("params", {})
+	for k in params:
+		data[k] = params[k]
+	# 目标槽：已解锁槽位优先（PS-E2）；无解锁记录 → 槽 1（批量 A 初始可用）
+	var slots: Array = []
+	if GameManager.has_method("get_unlocked_slots"):
+		slots = GameManager.get_unlocked_slots(char_id)
+	if slots.is_empty():
+		slots = [1]
+	var target_slot: int = 1
+	var skills: Array = controller.get("skills")
+	for s in slots:
+		var slot_idx: int = int(s)
+		if skills.size() > slot_idx and str(skills[slot_idx].get("id", "")) == "":
+			target_slot = slot_idx
+			break
+	# 全占满 → 覆盖最后解锁槽（可换可不换语义）
+	if target_slot == 1 and skills.size() > 1 and str(skills[1].get("id", "")) != "":
+		target_slot = int(slots[slots.size() - 1]) if not slots.is_empty() else 2
+	controller.call("equip_slot", target_slot, data)
+	# 飘字提示（复用 exp popup 范式）
+	if GameManager.vfx_container:
+		var label := Label.new()
+		label.text = "获得技能: %s" % str(pick.get("name", ""))
+		label.add_theme_font_size_override("font_size", 12)
+		label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.3))
+		GameManager.vfx_container.add_child(label)
+		label.global_position = _enemy.global_position + Vector2(0, -40)
+		var tween := label.create_tween()
+		tween.tween_property(label, "modulate:a", 0.0, 1.2)
+		tween.chain().tween_callback(label.queue_free)
 
 ## D6-T4：击杀经验飘字（0.6s 上浮 + 淡出后消失）
 func _spawn_exp_popup(amount: int) -> void:

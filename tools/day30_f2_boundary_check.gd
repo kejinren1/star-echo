@@ -109,16 +109,17 @@ func _static_grep() -> void:
 			assign_count += 1
 	_ok(assign_count == 1, "§1f: current_state = 赋值仅 _transition 内 1 处（实得 %d）" % assign_count)
 
-	# g. 原 5 处直接 instantiate 散点已收口：weapon_controller(1)/skill_controller(2)/turret(1)/enemy(1)
+	# g. 原 5 处直接 instantiate 散点已收口：weapon_controller(1)/skill_controller(3)/turret(1)/enemy(1)
 	#    均出现在兜底路径（文件含「兜底」注释标记），主路径走 world 工厂（world.gd 3 处 instantiate）
 	#    F4-A 同步：enemy 兜底 instantiate 迁 enemy_boss.gd（_spawn_minion_node），enemy.gd 本体零 instantiate
+	#    PS-C4 同步（2026-08-16）：skill_controller 剑气爆发兜底路径 +1（fireball/turret/sword_arc）→ sc=3
 	var wc_count: int = _count_occ(FileAccess.get_file_as_string("res://scripts/weapons/weapon_controller.gd"), ".instantiate()")
 	var sc_count: int = _count_occ(FileAccess.get_file_as_string("res://scripts/player/skill_controller.gd"), ".instantiate()")
 	var tt_count: int = _count_occ(FileAccess.get_file_as_string("res://scripts/weapons/turret.gd"), ".instantiate()")
 	var en_count: int = _count_occ(FileAccess.get_file_as_string("res://scripts/enemy/enemy.gd"), ".instantiate()") \
 		+ _count_occ(FileAccess.get_file_as_string("res://scripts/enemy/enemy_boss.gd"), ".instantiate()")
 	var wf_count: int = _count_occ(wsrc, ".instantiate()")
-	_ok(wc_count == 1 and sc_count == 2 and tt_count == 1 and en_count == 1,
+	_ok(wc_count == 1 and sc_count == 3 and tt_count == 1 and en_count == 1,
 		"§1g: 实体 instantiate 收口为兜底单点（wc=%d sc=%d tt=%d en=%d）" % [wc_count, sc_count, tt_count, en_count])
 	_ok(wf_count == 3, "§1g: world.gd 工厂内 instantiate == 3（实得 %d）" % wf_count)
 	_ok(FileAccess.get_file_as_string("res://scripts/weapons/weapon_controller.gd").contains("兜底"),

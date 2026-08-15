@@ -15,6 +15,8 @@ const SKILL_FIREBALL: String = "se_skill_fireball"
 const SKILL_DEPLOY_TURRET: String = "se_skill_deploy_turret"
 const SKILL_BLADE_BURST: String = "se_skill_blade_burst"
 const SKILL_HOLY_SHIELD: String = "se_skill_holy_shield"
+## PS-C4（2026-08-16 · PLAYER_SKILL_SPEC §9.4）：剑士星刃替换 → 剑气爆发
+const SKILL_SWORD_ARC: String = "se_skill_sword_arc"
 ## 武器 id（进化/机制识别消费点：炮台常驻多台判定等）
 const WEAPON_TURRET_ARRAY: String = "se_turret_array"
 
@@ -45,6 +47,9 @@ var _boss_skills: Dictionary = {}       ## { skill_id → 技能定义 }
 var _boss_patterns: Array = []          ## [{boss_id, skill_id, weight, phase, override, min_interval}]
 ## G-E（2026-08-14）：技能树表（data/skill_tree.json；gen_skill_tree.py 生成）
 var _skill_tree: Dictionary = {}
+## PS-C1/PS-E1（2026-08-16 · PLAYER_SKILL_SPEC §9.2/§3 D6）：掉落技能遗物表 + 局外等级奖励门槛表
+var _skill_relics: Array = []            ## [{id, name, desc, base_type, drop_source, per_character}]
+var _skill_unlocks: Array = []           ## [{char_level, unlocks:{slot:int}}]
 
 # ========== F1-散 参数段兜底（缺段时接口返回的默认值 = 现硬编码值，防 Excel 未导出行为漂移） ==========
 const COMBAT_DEFAULTS: Dictionary = {
@@ -92,6 +97,7 @@ func load_all() -> void:
 	_load_events()
 	_load_boss_tables()
 	_load_skill_tree()
+	_load_skill_relics()
 	_loaded = true
 
 ## 加载敌人数据
@@ -205,6 +211,15 @@ func _load_skill_tree() -> void:
 	var data = _load_json("res://data/skill_tree.json")
 	if data:
 		_skill_tree = data
+
+## PS-C1（2026-08-16）：掉落技能遗物表 + 局外等级奖励门槛表（缺失 → 空表，装配零崩）
+func _load_skill_relics() -> void:
+	var data = _load_json("res://data/skill_relics.json")
+	if data:
+		_skill_relics = data.get("skill_relics", [])
+	var data2 = _load_json("res://data/skill_unlocks.json")
+	if data2:
+		_skill_unlocks = data2.get("skill_unlocks", [])
 
 # ========== JSON 工具 ==========
 
@@ -386,6 +401,48 @@ func get_skill_ids() -> Array[String]:
 		if not sid.is_empty() and not ids.has(sid):
 			ids.append(sid)
 	return ids
+
+## PS-C1（2026-08-16）：全部掉落技能遗物（skill_relics.json；缺失 → 空表）
+func get_all_skill_relics() -> Array:
+	return _skill_relics
+
+## PS-C1：按掉落源筛遗物（drop_source ∈ elite/chapter_boss；缺失 → 空表）
+func get_skill_relics_by_source(source: String) -> Array:
+	var out: Array = []
+	for relic in _skill_relics:
+		if str(relic.get("drop_source", "")) == source:
+			out.append(relic)
+	return out
+
+## PS-C1：单遗物数据（id 命中；缺失 → 空字典）
+func get_skill_relic(relic_id: String) -> Dictionary:
+	for relic in _skill_relics:
+		if str(relic.get("id", "")) == relic_id:
+			return relic
+	return {}
+
+## PS-C1（§9.2/§9.4）：按角色解析遗物实际技能（per_character[char_id] → {type, params}；
+## 无该角色条目 → 通用兜底 base_type（params 空））
+func resolve_relic_skill(relic: Dictionary, char_id: String) -> Dictionary:
+	var per_char: Dictionary = relic.get("per_character", {})
+	if per_char.has(char_id):
+		return per_char[char_id]
+	var out: Dictionary = {"type": str(relic.get("base_type", ""))}
+	if not out["type"].is_empty():
+		out["params"] = {}
+	return out
+
+## PS-E1（2026-08-16）：角色等级 → 已解锁槽位列表（skill_unlocks.json；门槛表驱动）
+func get_unlocked_slots_for_level(level: int) -> Array:
+	var out: Array = []
+	for row in _skill_unlocks:
+		if int(row.get("char_level", 999)) <= level:
+			var unlocks: Dictionary = row.get("unlocks", {})
+			if unlocks.has("slot"):
+				var s: int = int(unlocks["slot"])
+				if s > 0 and not out.has(s):
+					out.append(s)
+	return out
 
 # ========== 波次接口 ==========
 

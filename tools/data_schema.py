@@ -146,6 +146,12 @@ COLUMN_ZH = {
     "constraints.first_layer_has_battle": "约束.首层必有战斗",
     "constraints.final_layer_boss": "约束.末层Boss",
     "constraints.max_battle_nodes": "约束.最大战斗节点",
+    # ---- skill_relics（PS-C1 2026-08-16 · 掉落技能遗物表） ----
+    "relic_id": "掉落物ID", "drop_source": "掉落源(精英/chapter_boss)",
+    "per_character": "按角色变体(JSON)", "base_type": "基础类型",
+    # ---- skill_unlocks（PS-E1 2026-08-16 · 局外等级奖励门槛表） ----
+    "char_level": "角色等级", "unlocks": "解锁内容(JSON: slot/skill_pack)",
+    "slot_index": "解锁槽位", "skill_pack": "解锁技能包",
 }
 
 
@@ -301,6 +307,19 @@ SHEETS = {
         "sheet": "boss_pattern", "file": "boss_patterns.json", "root": "patterns",
         "key": None, "category": None, "kind": "list",
         "json_cols": ["override"], "child": None,
+    },
+    # PS-C1（2026-08-16 · PLAYER_SKILL_SPEC §9.2）：掉落技能遗物表
+    # per_character = {char_id: {type, params…}} JSON 文本列（每掉落物按角色变体）
+    "skill_relics": {
+        "sheet": "skill_relics", "file": "skill_relics.json", "root": "skill_relics",
+        "key": "id", "category": None, "kind": "list",
+        "json_cols": ["per_character"], "child": None,
+    },
+    # PS-E1（2026-08-16 · PLAYER_SKILL_SPEC §3 D6）：局外等级奖励门槛表
+    "skill_unlocks": {
+        "sheet": "skill_unlocks", "file": "skill_unlocks.json", "root": "skill_unlocks",
+        "key": None, "category": None, "kind": "list",
+        "json_cols": ["unlocks"], "child": None,
     },
 }
 

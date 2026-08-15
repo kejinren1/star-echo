@@ -664,3 +664,13 @@ func get_unlocked_skills() -> Array:
 	if _save_system:
 		return _save_system.get_unlocked_skills()
 	return []
+
+## PS-E2（2026-08-16 · PLAYER_SKILL_SPEC §3 D6）：局外等级解锁技能槽位（薄委托）
+func get_unlocked_slots(id: String) -> Array:
+	if _save_system:
+		return _save_system.get_unlocked_slots(id)
+	return []
+
+func unlock_slot_for_level(id: String, level: int) -> void:
+	if _save_system:
+		_save_system.unlock_slot_for_level(id, level)

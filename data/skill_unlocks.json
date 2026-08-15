@@ -1,0 +1,16 @@
+{
+  "skill_unlocks": [
+    {
+      "char_level": 2,
+      "unlocks": {
+        "slot": 1
+      }
+    },
+    {
+      "char_level": 4,
+      "unlocks": {
+        "slot": 2
+      }
+    }
+  ]
+}
