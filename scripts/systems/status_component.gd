@@ -11,6 +11,8 @@
 ##   slow  — 减速（move_speed × (1 - value/100)）
 ##   stun  — 麻痹/眩晕（禁行动，_target.stunned 标志）
 ##   armor — 减防（armor - value）
+##   invulnerable — 无敌（PS-B3 2026-08-16 · PLAYER_SKILL_SPEC §5/§6：受击免疫窗口，
+##                   _target.invulnerable 标志；位移技能 dash/blink/leap 共用通道）
 ## 免疫惯例（O3/O5）：硬控（stun/knockback）Boss 免疫，软控保留——免疫表放 boss 表（BS-C 消费）
 ## ⚠️ 无 class_name：无头 --script 模式（探针）不注册全局类名（enemy.gd DamageNumberScript 先例），
 ## 消费方用 preload 引用（enemy.gd / player.gd 各自 const StatusComponentScript）
@@ -149,6 +151,10 @@ func _apply(inst: Dictionary) -> void:
 				_target.armor = maxf(float(_target.armor) - float(def.get("value", 0.0)), 0.0)
 		"stun":
 			_sync_stun_flag(true)
+		"invulnerable":
+			if "invulnerable" in _target:
+				inst["orig_invulnerable"] = bool(_target.invulnerable)
+				_target.invulnerable = true
 
 ## 效果到期/刷新还原：恢复原值
 func _revert(inst: Dictionary) -> void:
@@ -163,6 +169,9 @@ func _revert(inst: Dictionary) -> void:
 				_target.armor = float(inst["orig_armor"])
 		"stun":
 			_sync_stun_flag(false)
+		"invulnerable":
+			if "orig_invulnerable" in inst and "invulnerable" in _target:
+				_target.invulnerable = bool(inst["orig_invulnerable"])
 
 ## stun 标志与实例数同步（多实例异源并存时任一在 → stunned=true；目标须有 stunned 属性）
 func _sync_stun_flag(force: bool) -> void:

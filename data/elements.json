@@ -61,6 +61,17 @@
       "scaling_ratio": 0,
       "target_attr": "defense",
       "max_stacks": 1
+    },
+    "invulnerable": {
+      "name": "无敌",
+      "name_en": "Invulnerable",
+      "duration": 0.3,
+      "effect": "免疫伤害（位移技能窗口）",
+      "type": "invulnerable",
+      "value": 1,
+      "scaling_ratio": 0,
+      "target_attr": "immune",
+      "max_stacks": 1
     }
   },
   "element_reactions": [

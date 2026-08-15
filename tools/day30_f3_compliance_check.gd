@@ -20,7 +20,7 @@ const BOOL_WHITELIST: Dictionary = {
 	"scripts/autoload/main.gd": ["_debug_keys_prev"],
 	"scripts/enemy/enemy.gd": ["_boss_charge", "_is_charging", "is_alive", "stunned"],
 	"scripts/enemy/enemy_spawner.gd": ["_is_spawning"],
-	"scripts/player/player.gd": ["_facing_left", "_last_stand_active", "is_alive", "stunned"],
+	"scripts/player/player.gd": ["_facing_left", "_last_stand_active", "is_alive", "stunned", "invulnerable"],
 	"scripts/player/skill_controller.gd": ["_warned_not_impl"],
 	"scripts/systems/wave_manager.gd": ["is_active"],
 	"scripts/ui/shop.gd": ["star_grace_available", "star_grace_used"],
@@ -30,6 +30,14 @@ const BOOL_WHITELIST: Dictionary = {
 	"scripts/boss/exec_fan.gd": ["_resolved"],
 	"scripts/boss/exec_beam.gd": ["_resolved"],
 	"scripts/boss/exec_charge.gd": ["_resolved"],
+	# PS-B（2026-08-16 · PLAYER_SKILL_SPEC §5/§6）：位移/召唤/增益执行器同款骨架
+	"scripts/boss/exec_dash.gd": ["_resolved"],
+	"scripts/boss/exec_blink.gd": ["_resolved"],
+	"scripts/boss/exec_leap.gd": ["_resolved"],
+	"scripts/boss/exec_spawn.gd": ["_resolved"],
+	"scripts/boss/exec_buff.gd": ["_resolved"],
+	# PS-B4 探针辅助：dummy_target（测试桩，非游戏逻辑）
+	"scripts/dummy_target.gd": ["is_alive", "invulnerable"],
 }
 
 var _sub: int = 0
