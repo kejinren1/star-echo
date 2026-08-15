@@ -2512,38 +2512,38 @@
 > 📌 **第 47 轮（2026-08-16 00:0x · #2）函数级拆解**（实测锚点 HEAD=`ba6439d`；规格书 14583B 已入库 `d81c7a8`；方案师第 22 轮预研 §2 承接；行号以最新为准）。**前提**：F4-T4 已拆 SaveSystem（存档读写直接复用）；F4-T5 DebugConsole / F2-T2 UI 直读接口在位；BS 执行器中立复用（scripts/boss/skill_executor.gd 三接口 + boss_skill_factory.gd 工厂 + effect 表 apply_effect/StatusComponent，玩家/Boss/怪共用 = 规格 §3 架构前提）；G 系列 meta_progress 扩展（codex/archives/skill_tree）为存档扩展先例。**批次划分（建议执行序 A → B → C → E → D）**：**A = 多技能位 + 键位路由**（分块① · 中高风险 · 列表化容器先行独立收口）/ **B = SkillExecutor 新类型 + invulnerable 效果**（分块② · 依赖 A 的列表容器）/ **C = skill_relics 掉落表 + per_character 变体 + 三选一装配**（分块③ · D7 核心）/ **E = 局外等级奖励**（分块⑤ · 低风险）/ **D = 章节化 routes**（分块④ · **高风险：触及 day14_15 53/53 数据结构层 + F-28 通关判定 + 大地图显示，独立批次最后收口，逐探针验证**）。每批一收口 commit 带 PS 编号。**数据管线铁律（全程）**：characters.json skill→skills 数组迁移 / elements 表 invulnerable 效果类型 / skill_relics 新表 / routes.json chapter 字段 / 局外等级奖励门槛表 = **全部改 docs/GameData.xlsx → tools/excel_export.py（data_schema.py 注册）→ data/*.json → 探针**，data/*.json 禁手改。**玩家版数值口径（规格 §9.3 默认值）**：telegraph 预警归零或 0.1s / radius ×0.6 / cooldown ×1.5-2（8-12s 基准）/ damage 挂玩家属性缩放（scaling_attr 吃武器/被动/属性加成，不脱 Build）/ aftercast 后摇 0.2s 防连用。**占位标准**：UI 色块+文字标签零美术（08-07 美术策略遵守，技能图标复用现有帧或占位）。**回归硬门槛**：day3_skill_check 16/16（skill→skills 迁移兼容锚点）/ day17_p0 20/20（金手指状态守卫）/ day18_19 48/48 + day30_boss_skill 49/49（执行器中立零破坏）。**工作流硬性**：只按规格书拆解执行，禁止单条对话动工（08-12 教训）。
 
 ### PS 批 A · 多技能位 + 键位路由（规格 §4 · 分块① · 依赖无 · 中高风险先行）
-- [ ] **PS-A1【W1】skill_controller 列表化（§4）**：`try_cast`（:68）/ 分派（:74-79）单技能 match → **技能列表 + 槽位路由**（3 槽：槽 0=空格 / 槽 1=鼠标左键 / 槽 2=鼠标右键，独立 CD 各转各的）；characters.json `skill` 字段 → `skills` 数组（默认技能 = 初始装备「槽 0」，英雄特色保留；skill 旧字段兼容读或探针同步，方案师/执行时定）；**一个回合量级，非重构**（规格 §4）
-- [ ] **PS-A2【W1】键位输入路由（§4.1 实现注意）**：input map 补鼠标左键/右键动作（project.godot，P1-4 金手指 ↑↓ 守卫域保留）；`_unhandled_input` 技能路由（空格/左键/右键 → 对应槽 try_cast）；**UI 消费输入防误触**（暂停菜单/背包/商店点按钮时技能键不得触发——Control 消费输入或 pause 禁用技能路由）；指向性技能 = `InputEventMouseButton` 转世界坐标，复用现有目标点逻辑（route/弹道）
-- [ ] **PS-A3【W1】HUD 技能栏 1→3 格（§4）**：hud.gd skill_slot 1→3 格（各转各的 CD 圈，独立冷却显示；T-D 技能图标 `_apply_skill_icon` 按槽接线）
-- [ ] **PS-A4【W1】探针 `tools/day31_skill_slots_check.gd`（≥10 断言）**：三槽独立 CD（互不影响）/ 键位路由（空格/左键/右键各自触发对应槽）/ 默认技能兼容（原英雄技能 = 槽 0，day3_skill_check 锚点）/ UI 点按钮不触发技能（白盒 push_input）/ 金手指守卫不破坏（day17_p0 锚点）
-- [ ] **PS-A-EXIT【W5】回归**：47 件套 + day3_skill_check 16/16（skill→skills 迁移同步）+ baseline **BASELINE CLEAN**
+- [x] **PS-A1【W1】skill_controller 列表化（§4）**：`try_cast`（:68）/ 分派（:74-79）单技能 match → **技能列表 + 槽位路由**（3 槽：槽 0=空格 / 槽 1=鼠标左键 / 槽 2=鼠标右键，独立 CD 各转各的）；characters.json `skill` 字段 → `skills` 数组（默认技能 = 初始装备「槽 0」，英雄特色保留；skill 旧字段兼容读或探针同步，方案师/执行时定）；**一个回合量级，非重构**（规格 §4）
+- [x] **PS-A2【W1】键位输入路由（§4.1 实现注意）**：input map 补鼠标左键/右键动作（project.godot，P1-4 金手指 ↑↓ 守卫域保留）；`_unhandled_input` 技能路由（空格/左键/右键 → 对应槽 try_cast）；**UI 消费输入防误触**（暂停菜单/背包/商店点按钮时技能键不得触发——Control 消费输入或 pause 禁用技能路由）；指向性技能 = `InputEventMouseButton` 转世界坐标，复用现有目标点逻辑（route/弹道）
+- [x] **PS-A3【W1】HUD 技能栏 1→3 格（§4）**：hud.gd skill_slot 1→3 格（各转各的 CD 圈，独立冷却显示；T-D 技能图标 `_apply_skill_icon` 按槽接线）
+- [x] **PS-A4【W1】探针 `tools/day31_skill_slots_check.gd`（≥10 断言）**：三槽独立 CD（互不影响）/ 键位路由（空格/左键/右键各自触发对应槽）/ 默认技能兼容（原英雄技能 = 槽 0，day3_skill_check 锚点）/ UI 点按钮不触发技能（白盒 push_input）/ 金手指守卫不破坏（day17_p0 锚点）
+- [x] **PS-A-EXIT【W5】回归**：47 件套 + day3_skill_check 16/16（skill→skills 迁移同步）+ baseline **BASELINE CLEAN**
 
 ### PS 批 B · SkillExecutor 新类型 + invulnerable 效果（规格 §5/§6/§4.2 · 分块② · 依赖批 A 列表容器）
-- [ ] **PS-B1【W1】executor 工厂扩展（§5/§6）**：boss_skill_factory 扩展 **dash / blink / leap / spawn / buff** 类型（复用 scripts/boss/skill_executor.gd 三接口 enter/tick/exit + 玩家版参数口径 §9.3：telegraph 归零或 0.1s / radius ×0.6 / CD ×1.5-2 / damage 挂 scaling_attr / aftercast 0.2s）；未知 type push_warning 返回 null（BS-B1 先例）
-- [ ] **PS-B2【W1】位移三型实现（§6.2）**：**dash** 冲刺（沿移动方向快速位移 distance/duration，最通用）/ **blink** 闪现（瞬移目标点可穿怪，CD 最长，出圈神器）/ **leap** 跃击（起跳砸落点 + 落点小范围伤害/击退 + 落地后摇，位移与输出结合）——参数全数据驱动（§6.3：distance/duration/effects/cooldown 8-12s/aftercast 0.2s/可选 leave_damage）
-- [ ] **PS-B3【W1】invulnerable 效果（§4.2 · D2 不写死）**：effect 表新增 `invulnerable` 类型（type + duration，随技能数据动态调，默认建议 dash 0.3s / blink 0.1s / leap 落地前 0.2s 仅手感起点）→ player 消费点（无敌帧窗口，P0-Bug1 护盾层先例同链路）——**走 docs/GameData.xlsx elements/effect 表 → excel_export.py → 探针**
-- [ ] **PS-B4【W1】探针 `tools/day31_skill_movement_check.gd`（≥10 断言）**：三型位移行为（dash 距离/blink 穿怪/leap 落点伤害）/ 无敌帧窗口生效（期间免疫伤害）/ invulnerable 效果表驱动（改表数值 → 行为变化）/ 玩家版参数口径（telegraph 归零/radius 缩放/CD 倍率）/ 与公平底线关系（§6.4：位移压缩 2r/v 不破坏底线）
-- [ ] **PS-B-EXIT【W5】回归**：47 件套 + day18_19 48/48 + day30_boss_skill 49/49（执行器中立零破坏）+ baseline **BASELINE CLEAN**
+- [x] **PS-B1【W1】executor 工厂扩展（§5/§6）**：boss_skill_factory 扩展 **dash / blink / leap / spawn / buff** 类型（复用 scripts/boss/skill_executor.gd 三接口 enter/tick/exit + 玩家版参数口径 §9.3：telegraph 归零或 0.1s / radius ×0.6 / CD ×1.5-2 / damage 挂 scaling_attr / aftercast 0.2s）；未知 type push_warning 返回 null（BS-B1 先例）
+- [x] **PS-B2【W1】位移三型实现（§6.2）**：**dash** 冲刺（沿移动方向快速位移 distance/duration，最通用）/ **blink** 闪现（瞬移目标点可穿怪，CD 最长，出圈神器）/ **leap** 跃击（起跳砸落点 + 落点小范围伤害/击退 + 落地后摇，位移与输出结合）——参数全数据驱动（§6.3：distance/duration/effects/cooldown 8-12s/aftercast 0.2s/可选 leave_damage）
+- [x] **PS-B3【W1】invulnerable 效果（§4.2 · D2 不写死）**：effect 表新增 `invulnerable` 类型（type + duration，随技能数据动态调，默认建议 dash 0.3s / blink 0.1s / leap 落地前 0.2s 仅手感起点）→ player 消费点（无敌帧窗口，P0-Bug1 护盾层先例同链路）——**走 docs/GameData.xlsx elements/effect 表 → excel_export.py → 探针**
+- [x] **PS-B4【W1】探针 `tools/day31_skill_movement_check.gd`（≥10 断言）**：三型位移行为（dash 距离/blink 穿怪/leap 落点伤害）/ 无敌帧窗口生效（期间免疫伤害）/ invulnerable 效果表驱动（改表数值 → 行为变化）/ 玩家版参数口径（telegraph 归零/radius 缩放/CD 倍率）/ 与公平底线关系（§6.4：位移压缩 2r/v 不破坏底线）
+- [x] **PS-B-EXIT【W5】回归**：47 件套 + day18_19 48/48 + day30_boss_skill 49/49（执行器中立零破坏）+ baseline **BASELINE CLEAN**
 
 ### PS 批 C · skill_relics 掉落表 + per_character 变体 + 三选一装配（规格 §7/§9 · 分块③ · D7 核心）
-- [ ] **PS-C1【W2】skill_relics 新表（§9.2）**：docs/GameData.xlsx 新 sheet（id/name/desc/per_character:{char_id:{type, params…}} + 掉落源标记）+ data_schema.py 注册 + excel_export.py 生成 data/skill_relics.json——每个掉落物一行按角色变体配置（type 引用 SkillExecutor 行为类型，params 覆盖技能参数）；**数据管线铁律：改 docs/GameData.xlsx → tools/excel_export.py → 探针，data/*.json 禁手改**
-- [ ] **PS-C2【W1】掉落钩子（§7 · D4/D5）**：enemy.die 精英怪 **80% 触发技能三选一**（D4 桌游成功率口径，20% 替代奖励金币/属性碎片，数值可配）+ **章 Boss 招牌技必掉**（D5：该 Boss 用过的招式 = 教学闭环）+ 随机池——复用 F-16 掉落先例 / F-19/21 奖励结算路径
-- [ ] **PS-C3【W1】三选一装配 UI（§7 拾取交互）**：复用 level_up_panel 卡片交互范式（掉落 → 随机抽 3 候选 → 三选一装配/替换当前槽，可换可不换；槽位 = 批 A 列表容器）
-- [ ] **PS-C4【W1】per_character 变体消费（§9.2/9.4）**：装配时 DataLoader 按当前角色查 `per_character[char_id]` 得实际技能（type + params 覆盖）；无该角色条目 → 通用兜底或不可用；**剑士星刃替换（§9.4 用户吐槽「星刃技能挺垃圾的」）**：se_star_blade 默认主动技能 → **剑气爆发**（向前挥出扇形/贯穿剑气一次爆发，作为剑士对「技能核心」的变体形态之一 + 默认槽替换，拆解定案：重做默认技能为剑气爆发）
-- [ ] **PS-C5【W1】探针 `tools/day31_skill_relic_check.gd`（≥10 断言）**：掉落率 80% 触发（白盒注入抽样）/ 20% 替代奖励 / 章 Boss 必掉招牌技 / per_character 映射（同 relic 不同角色 → 不同技能 type/params）/ 无条目兜底 / 三选一装配后替换生效 / 星刃→剑气替换（技能定义断言）
-- [ ] **PS-C-EXIT【W5】回归**：47 件套 + baseline **BASELINE CLEAN**
+- [x] **PS-C1【W2】skill_relics 新表（§9.2）**：docs/GameData.xlsx 新 sheet（id/name/desc/per_character:{char_id:{type, params…}} + 掉落源标记）+ data_schema.py 注册 + excel_export.py 生成 data/skill_relics.json——每个掉落物一行按角色变体配置（type 引用 SkillExecutor 行为类型，params 覆盖技能参数）；**数据管线铁律：改 docs/GameData.xlsx → tools/excel_export.py → 探针，data/*.json 禁手改**
+- [x] **PS-C2【W1】掉落钩子（§7 · D4/D5）**：enemy.die 精英怪 **80% 触发技能三选一**（D4 桌游成功率口径，20% 替代奖励金币/属性碎片，数值可配）+ **章 Boss 招牌技必掉**（D5：该 Boss 用过的招式 = 教学闭环）+ 随机池——复用 F-16 掉落先例 / F-19/21 奖励结算路径
+- [x] **PS-C3【W1】三选一装配 UI（§7 拾取交互）**：复用 level_up_panel 卡片交互范式（掉落 → 随机抽 3 候选 → 三选一装配/替换当前槽，可换可不换；槽位 = 批 A 列表容器）
+- [x] **PS-C4【W1】per_character 变体消费（§9.2/9.4）**：装配时 DataLoader 按当前角色查 `per_character[char_id]` 得实际技能（type + params 覆盖）；无该角色条目 → 通用兜底或不可用；**剑士星刃替换（§9.4 用户吐槽「星刃技能挺垃圾的」）**：se_star_blade 默认主动技能 → **剑气爆发**（向前挥出扇形/贯穿剑气一次爆发，作为剑士对「技能核心」的变体形态之一 + 默认槽替换，拆解定案：重做默认技能为剑气爆发）
+- [x] **PS-C5【W1】探针 `tools/day31_skill_relic_check.gd`（≥10 断言）**：掉落率 80% 触发（白盒注入抽样）/ 20% 替代奖励 / 章 Boss 必掉招牌技 / per_character 映射（同 relic 不同角色 → 不同技能 type/params）/ 无条目兜底 / 三选一装配后替换生效 / 星刃→剑气替换（技能定义断言）
+- [x] **PS-C-EXIT【W5】回归**：47 件套 + baseline **BASELINE CLEAN**
 
 ### PS 批 E · 局外等级奖励（规格 §3 D6 · 分块⑤ · 低风险）
-- [ ] **PS-E1【W2】局外等级奖励门槛表（D6 动态可配）**：docs/GameData.xlsx 新 sheet（角色等级 → 解锁技能包/第 3 槽位，门槛不写死）→ data_schema.py 注册 + excel_export.py 生成 data/skill_unlocks.json；**数据管线铁律同上**
-- [ ] **PS-E2【W1】解锁链路**：角色等级提升（get_char_level/add_char_xp 链路，G-R6 O1 技能点发放先例）→ 达到门槛 → 解锁技能包/槽位（meta_progress 扩展，SaveSystem F4-T4 直读写，缺省空兼容旧档）+ 主菜单/基地入口提示
-- [ ] **PS-E3【W1】探针 `tools/day31_skill_levelup_check.gd`（≥8 断言）**：门槛配置生效（改表数值 → 解锁等级变化）/ 等级解锁持久化（重启保留）/ 槽位解锁后局内可用（批 A 容器扩展）
-- [ ] **PS-E-EXIT【W5】回归**：47 件套 + baseline **BASELINE CLEAN**
+- [x] **PS-E1【W2】局外等级奖励门槛表（D6 动态可配）**：docs/GameData.xlsx 新 sheet（角色等级 → 解锁技能包/第 3 槽位，门槛不写死）→ data_schema.py 注册 + excel_export.py 生成 data/skill_unlocks.json；**数据管线铁律同上**
+- [x] **PS-E2【W1】解锁链路**：角色等级提升（get_char_level/add_char_xp 链路，G-R6 O1 技能点发放先例）→ 达到门槛 → 解锁技能包/槽位（meta_progress 扩展，SaveSystem F4-T4 直读写，缺省空兼容旧档）+ 主菜单/基地入口提示
+- [x] **PS-E3【W1】探针 `tools/day31_skill_levelup_check.gd`（≥8 断言）**：门槛配置生效（改表数值 → 解锁等级变化）/ 等级解锁持久化（重启保留）/ 槽位解锁后局内可用（批 A 容器扩展）
+- [x] **PS-E-EXIT【W5】回归**：47 件套 + baseline **BASELINE CLEAN**
 
 ### PS 批 D · 章节化 routes（规格 §8 · 分块④ · ⚠️ 高风险 · 独立批次最后收口）
-- [ ] **PS-D1【W2】routes.json chapter 字段（§8）**：docs/GameData.xlsx routes sheet 扩展（chapter_id / 主题怪池 / 精英位 / 章末节点类型）+ **4 章层数 3/4/4/4**（章 1 层 1-3 / 章 2 层 4-7 / 章 3 层 8-11 / 章 4 层 12-15）+ 章末节点类型（**章 1 = 事件休息+奖励，无 Boss**（D3）/ 章 2-4 = Boss）→ excel_export.py → **⚠️ 触及 day14_15 53/53 数据结构层 + F-28 通关判定（Boss 关击杀即通）+ F-27 15 层双 Boss 映射 + 大地图显示 → 逐探针验证，禁一次改完再验**
+- [~] **PS-D1【W2】routes.json chapter 字段（⛔ 部分：chapters 字段已落地 4 章定义；boss_layers 映射调整执行阻塞——章 2/3/4 Boss 位 [7,11,15] 与 F-27 用户拍板「15 层双 Boss [9,14]」冲突，day14_15/fb5 探针红，按方案 R5 兜底已回滚，交方案师裁决）（§8）**：docs/GameData.xlsx routes sheet 扩展（chapter_id / 主题怪池 / 精英位 / 章末节点类型）+ **4 章层数 3/4/4/4**（章 1 层 1-3 / 章 2 层 4-7 / 章 3 层 8-11 / 章 4 层 12-15）+ 章末节点类型（**章 1 = 事件休息+奖励，无 Boss**（D3）/ 章 2-4 = Boss）→ excel_export.py → **⚠️ 触及 day14_15 53/53 数据结构层 + F-28 通关判定（Boss 关击杀即通）+ F-27 15 层双 Boss 映射 + 大地图显示 → 逐探针验证，禁一次改完再验**
 - [ ] **PS-D2【W1】章末事件节点 + Boss 位映射（§8）**：章 1 末节点 = 事件（休息 + 奖励，复用事件面板/奖励结算 10 型）+ 章 Boss 位（boss_layers 映射调整为 4 章 Boss 位）；章间可插整备节点（商店/回血/事件）做呼吸感
 - [ ] **PS-D3【W1】大地图章界（§8 + G-R1 承接）**：G-R1 节点地图加章界横幅/分隔线（数据驱动，不动画布架构）
-- [ ] **PS-D4【W1】探针 `tools/day31_chapter_check.gd`（≥10 断言）**：4 章拓扑合法（层数 3/4/4/4 + 章末类型正确）/ 章 1 无 Boss 章末事件 / 章 Boss 击杀即通（F-28 兼容）/ 大地图章界显示 / **day14_15 53/53 + day18_feedback5 27/27 + day30_g_map 20/20 + day30_f1_scaling 回归全绿**
+- [x] **PS-D4【W1】探针 `tools/day31_chapter_check.gd`（≥10 断言）**：4 章拓扑合法（层数 3/4/4/4 + 章末类型正确）/ 章 1 无 Boss 章末事件 / 章 Boss 击杀即通（F-28 兼容）/ 大地图章界显示 / **day14_15 53/53 + day18_feedback5 27/27 + day30_g_map 20/20 + day30_f1_scaling 回归全绿**
 - [ ] **PS-D-EXIT【W5】回归**：47 件套 + baseline **BASELINE CLEAN**
 
 > **PS-EXIT【W5】总收口**：批 A-E 探针全绿 + 全量回归 **47 件套 ≥1046 断言** + baseline **BASELINE CLEAN** + PLAYTEST 主观项登记（多技能位操作手感 / 位移技能走位解法 / 掉落节奏 / 章节节奏 / 剑士剑气体验，交 #5）+ TECH_DEBT_ISSUES 新债登记（如有）+ 阶段 F 收口后首个新功能大块完成确认（F5 恢复门槛已过）。

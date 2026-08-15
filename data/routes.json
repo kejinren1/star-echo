@@ -17,5 +17,46 @@
     "final_layer_boss": true,
     "max_battle_nodes": 36
   },
-  "boss_wave": 10
+  "boss_wave": 10,
+  "chapters": [
+    {
+      "chapter_id": 1,
+      "layers": [
+        1,
+        2,
+        3
+      ],
+      "end_type": "event"
+    },
+    {
+      "chapter_id": 2,
+      "layers": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "end_type": "boss"
+    },
+    {
+      "chapter_id": 3,
+      "layers": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "end_type": "boss"
+    },
+    {
+      "chapter_id": 4,
+      "layers": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "end_type": "boss"
+    }
+  ]
 }

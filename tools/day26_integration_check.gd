@@ -546,14 +546,15 @@ func _part_regression() -> void:
 	# PS-B 同步（2026-08-16）：runner +day31_skill_movement(13) → 49 项 / 期望 1070（1057 + 13）
 	# PS-C 同步（2026-08-16）：runner +day31_skill_relic(9) → 50 项 / 期望 1079（1070 + 9）
 	# PS-E 同步（2026-08-16）：runner +day31_skill_levelup(7) → 51 项 / 期望 1086（1079 + 7）
-	if probe_count == 51:
-		_pass("回归 / _regression_run.py PROBES 51 项（40 + G 系列 6 + day31 死锁 1 + PS-A/B/C/E 技能 4）")
+	# PS-D 同步（2026-08-16）：runner +day31_chapter(5) → 52 项 / 期望 1091（1086 + 5）
+	if probe_count == 52:
+		_pass("回归 / _regression_run.py PROBES 52 项（40 + G 系列 6 + day31 死锁 1 + PS-A/B/C/E/D 技能 5）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 51" % probe_count)
-	if expect_sum == 1086:
-		_pass("回归 / 期望断言合计 1086（1079 + PS-E 等级解锁 7）")
+		_fail("回归: PROBES 项数 %d ≠ 52" % probe_count)
+	if expect_sum == 1091:
+		_pass("回归 / 期望断言合计 1091（1086 + PS-D 章节 5）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1086" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1091" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

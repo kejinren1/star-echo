@@ -295,7 +295,7 @@ SHEETS = {
     "routes": {
         "sheet": "routes", "file": "routes.json", "root": None,
         "key": None, "category": None, "kind": "flat_dict",
-        "json_cols": ["boss_layers"], "child": None,
+        "json_cols": ["boss_layers", "chapters"], "child": None,
     },
     # BS-C1（2026-08-13 · BOSS_SKILL_SPEC §4.1/4.2）：Boss 技能表 + pattern 引用表
     "boss_skills": {
