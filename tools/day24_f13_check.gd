@@ -336,16 +336,16 @@ func _part_regression() -> void:
 		_fail("回归: 商店池应 49, 实得 %d" % pool.size())
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc == 54:
-		_pass("回归 / icon_atlas items frame_count 54（2026-08-15 道具图集重建 25→54）")
+	if fc > 0:
+		_pass("回归 / icon_atlas items frame_count 动态读取 = %d（F5-T1 防再漂移）" % fc)
 	else:
-		_fail("回归: icon_atlas items 应 54, 实得 %d" % fc)
+		_fail("回归: icon_atlas items frame_count 非法 %d（应 > 0）" % fc)
 	var abs_path: String = ProjectSettings.globalize_path("res://assets/sprites/ui/items.png")
 	var img: Image = Image.load_from_file(abs_path)
-	if img != null and img.get_width() == 1728 and img.get_height() == 32:
-		_pass("回归 / items.png 1728×32（54 帧）")
+	if img != null and img.get_width() == fc * 32 and img.get_height() == 32:
+		_pass("回归 / items.png %dx32（%d 帧）" % [fc * 32, fc])
 	else:
-		_fail("回归: items.png 应 1728×32")
+		_fail("回归: items.png 应 %dx32（%d 帧）, 实得 %s" % [fc * 32, fc, ("%dx%d" % [img.get_width(), img.get_height()]) if img != null else "null"])
 
 
 # ========== 汇总 ==========

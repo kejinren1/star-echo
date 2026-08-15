@@ -475,15 +475,17 @@ func _part_shop() -> void:
 # ========== Part 5: 图标层 ==========
 
 func _part_icons() -> void:
-	# icon_atlas items frame_count == 54（2026-08-15 道具图集重建：items.json 全 54 道具按序；此前 25 = D24-F13-3 +3 机制型被动帧）
+	# F5-T1 动态读取（2026-08-16 · TEST_REPORT #47 action item）：items 图集帧数
+	# 以 icon_atlas.get_frame_count() 为准，探针不再硬编码具体帧数（25→54 曾两度漂移）。
+	# 断言语义 = 三方自洽：icon_atlas 帧数 > 0 && items.png 宽 = 帧数×32 && 每帧中心非空。
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc != 54:
-		_fail("图标: icon_atlas items frame_count 应 54, 实得 %d" % fc)
+	if fc <= 0:
+		_fail("图标: icon_atlas items frame_count 非法 %d（应 > 0）" % fc)
 	else:
-		_pass("图标 / icon_atlas items frame_count == 54")
+		_pass("图标 / icon_atlas items frame_count 动态读取 = %d" % fc)
 
-	# items.png 尺寸 + 54 帧中心非空 + 透明键
+	# items.png 尺寸（宽 = 帧数×32）+ 每帧中心非空 + 透明键
 	if not FileAccess.file_exists(ITEMS_PNG_PATH):
 		_fail("图标: items.png 不存在")
 		return
@@ -492,15 +494,15 @@ func _part_icons() -> void:
 	if img == null:
 		_fail("图标: items.png 加载失败")
 		return
-	if img.get_width() != 1728 or img.get_height() != 32:
-		_fail("图标: items.png 尺寸应 1728×32, 实得 %dx%d" % [img.get_width(), img.get_height()])
+	if img.get_width() != fc * 32 or img.get_height() != 32:
+		_fail("图标: items.png 尺寸应 %dx32（%d 帧×32px）, 实得 %dx%d" % [fc * 32, fc, img.get_width(), img.get_height()])
 	else:
-		_pass("图标 / items.png 尺寸 1728×32")
+		_pass("图标 / items.png 尺寸 %dx32（%d 帧）" % [fc * 32, fc])
 	# 透明键 (0,0)
 	if img.get_pixel(0, 0).a > 0.0:
 		_fail("图标: 透明键 (0,0) 应全透明")
-	# 54 帧中心非空
-	for idx in 54:
+	# fc 帧中心非空
+	for idx in fc:
 		var x0: int = idx * 32
 		var has: bool = false
 		for dx in range(8, 24):

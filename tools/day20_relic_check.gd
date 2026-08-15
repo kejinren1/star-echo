@@ -362,13 +362,15 @@ func _part_structure_and_anchor() -> void:
 		else:
 			_pass("结构 / turret 弹药伤害 ×structure_damage_mult（5×1.4=7）")
 
-	# 回归锚点：icon_atlas items 54 / 商店池 49（F31 同步）/ is_passive icon_index 0-53 唯一
+	# 回归锚点：icon_atlas items 帧数动态读取（F5-T1 · TEST_REPORT #47 action item：
+	# 不再硬编码 54——items 图集 25→54 曾两度漂移，改以 get_frame_count() 为准）/
+	# 商店池 49（F31 同步）/ is_passive icon_index 0-53 唯一
 	var atlas_script: GDScript = load("res://scripts/utils/icon_atlas.gd")
 	var fc: int = int(atlas_script.call("get_frame_count", "items"))
-	if fc != 54:
-		_fail("锚点: icon_atlas items frame_count 应 54, 实得 %d" % fc)
+	if fc <= 0:
+		_fail("锚点: icon_atlas items frame_count 非法 %d（应 > 0）" % fc)
 	else:
-		_pass("锚点 / icon_atlas items 54 帧")
+		_pass("锚点 / icon_atlas items 帧数动态读取 = %d" % fc)
 	var pool: Array = _shop.call("_build_shop_pool")
 	if pool.size() != 49:
 		_fail("锚点: 商店池应 49, 实得 %d" % pool.size())
