@@ -9,10 +9,10 @@
 
 ## 📌 顶部摘要（滚动 · #1 每轮刷新 · 其他岗位只读本区）
 
-- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **回归扩容 + Owner 收口决策**（`656217e` runner 52→58 件套 1195 断言）｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
-- **阶段完成度**：A 100% ｜ B 100% ｜ C 100% ｜ D 100% ｜ **E ≈90%（3.6/4：Day 27 1.0 + Day 28 1.0 + Day 29 0.6 待真人回归 + Day 30 1.0）**；阶段 F 全闭（**F1-E 🏠 主窗口承接维持唯一 [ ]**）
-- **基线**：`BASELINE CLEAN`（TEST_REPORT #54 · 52/52 全绿 · 0 阻断/0 功能缺陷）；**回归扩容 52→58 件套（1195 断言）** —— `656217e` 兑现 #54 观察（day31 六出口探针并入 runner + run_one 断言兼容 3 格式 + melee_sweep 禁暴击防 flaky + day26 锚点同步 58/1195）；JSON 2449 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
-- **本轮要点**：git 实测 HEAD=`656217e`（Day31 回归扩容，自 58 轮 +3 提交：反馈专员 #76 F-43 登记 → #2 第 54 轮拆解回执 → 回归扩容）；🧹 **工作区 0 项在途——项目迄今最干净**（`.gitignore` 补 `.godot_bak*/` 吸收缓存目录 + `_regression_run.py` 首次入库，修复 clean clone 无法跑回归隐患）；🔄 build/ 维持 08-18 00:13/00:14 产物（exe 84.1MB / pck 4.66MB）→ **D30-T3 上传 + build/ 来源核实待 Owner**；📋 AUDIO_FEEL_SPEC **O-1~3 开放决策待用户拍板**（拍板后 #2 拆 P0 批）；👤 真人回归面 = **E-0 终审完整局 + F-01~F-43 全链 + PS-EXIT + #73 build/ 复测**（不阻塞机器侧）。
+- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **F1-E 表现抽表 2/7 批闭环 + 回归扩容 60 件套**｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
+- **阶段完成度**：A 100% ｜ B 100% ｜ C 100% ｜ D 100% ｜ **E ≈90%（3.6/4：Day 27 1.0 + Day 28 1.0 + Day 29 0.6 待真人回归 + Day 30 1.0）**；阶段 F 全闭（**F1-E 2/7 批闭环：SPRITE_MAP ✓ + BEHAVIOR_MAP ✓，剩余 BGM/SFX→FX→SHEET_CONFIG→初始武器→炮台默认**）
+- **基线**：`BASELINE CLEAN`（TEST_REPORT #55 · 58/58 全绿 · 0 阻断/0 功能缺陷）；**回归 60 件套 1463 断言** —— `70c4f61` 扩容 58→60 + `b410a8b` 回归 **60/60 全绿**；JSON 2449 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
+- **本轮要点**：git 实测 HEAD=`b410a8b`（执行者第 56 轮 · F1-E 第二批 BEHAVIOR_MAP 闭环：Excel enemy_behavior 表 9 行 + presentation.json behavior_map 9 条 + data_loader get_enemy_behavior + enemy.gd 行为解析改读 + 探针 261/261 + 回归 60/60）；🧹 **工作区 0 项在途（历史最干净）**；🎯 **AUDIO_FEEL O-1~3 已由总指挥第 4 轮拍板**（O-1 M1 CC0 先行+M2 并行 / O-2 hitstop 近重远轻 / O-3 H1 挂 P2 降级）→ 待 #2 拆 P0 批；HUD `se_skill_sword_arc` 图标映射已补（TEST_REPORT 观察项关闭）；🔄 build/ 仍 08-18 00:13/00:14 产物（早于最新代码）→ **D30-T3 上传 + build/ 来源核实待 Owner**；👤 真人回归面 = **E-0 终审完整局 + F-01~F-43 全链 + PS-EXIT + #73 build/ 复测**（不阻塞机器侧）。
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3711,5 +3711,23 @@
 - 进行中：**Owner 三项收口决策**——① D30-T3 上传资产库（外部动作）② build/ 来源核实（是否含 PS-D 修复 + 补 manifest/回退副本）③ AUDIO_FEEL_SPEC O-1~3 拍板（音乐选型 M1/M2 / hitstop 档位 / H1 移动曲线）；F1-E 🏠 主窗口承接（阶段 F 唯一 [ ]）；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
 - 风险：**工作区 0 项在途（git status 空，历史最干净）**；冻结 HEAD `70382e5` vs 现 HEAD `656217e` 漂移（冻结后 **+31 提交**）→ 是否按现 HEAD 补冻由 Owner 拍板；TEST_REPORT 观察项 HUD `se_skill_sword_arc` 图标映射（发布冻结窗口登记不实施）、day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别。
 - 下一步：#4 #55 覆盖 `656217e`（58 件套 1195 断言全绿快照 + TEST_REPORT 摘要刷新）；Owner 确认 D30 上传 / build/ 核实 / O-1~3 拍板（拍板后 #2 拆 AUDIO_FEEL P0 批）；随后 F1-E 承接 + 真人完整局回归（E-0 最高优先）。
+
+> 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
+
+## 2026-08-18 05:5x · Day 30 / F1-E 两批闭环 + 回归扩容 60 件套（第 60 轮）
+
+**本轮结论：F1-E 表现抽表 2/7 批闭环（SPRITE_MAP + BEHAVIOR_MAP），回归套件扩容至 60 件套 1463 断言全绿，AUDIO_FEEL O-1~3 已由总指挥拍板解除待决，整体进度持平 ≈99.3%，剩余 = Owner 上传/build 核实 + 真人验收面。**
+
+- Git 实测 HEAD=`b410a8b`（`Day31 执行者第56轮: F1-E第二批BEHAVIOR_MAP抽表闭环` @08-18 05:29）；自第 59 轮（`656217e`）起 **+6 提交，今日累计 17 提交，总 237**：
+  - **`d19eda3` 总指挥第 4 轮（F1-E 第一批 SPRITE_MAP）**——Excel enemy_sprites sheet 23 敌 + presentation.json + DataLoader `get_enemy_sprite_config` 消费（探针 246/246）+ **AUDIO_FEEL O-1~3 拍板落档（O-1=M1 CC0 先行+M2 并行 / O-2=hitstop 近重远轻 / O-3=H1 挂 P2 降级）** + HUD `se_skill_sword_arc` 图标映射探针 22 断言
+  - **`70c4f61` 总指挥第 4 轮（代码侧）**——F1-E 第一批消费端（enemy.gd 改读 presentation 兜底 const）+ HUD sword_arc 图标映射实装（skills.png 5 帧 + icon_atlas frame_count 5）+ **runner 58→60 件套 1463 断言 + day26 锚点同步 + F3 合规修复（bool 白名单）——回归 60/60 全绿**
+  - **`b515e17`/`b410a8b` 执行者第 56 轮（F1-E 第二批 BEHAVIOR_MAP）**——Excel enemy_behavior 表 9 行 + data_schema 注册 + excel_export 构建 + presentation.json behavior_map 9 条（13 JSON 零 diff）+ data_loader `get_enemy_behavior`（懒加载+枚举名解析+const 兜底）+ enemy.gd 行为解析改读 + **探针 261/261 + 回归 60/60**（检查点 `b515e17` 连带挂账 docs 一并入库）
+  - 前序 `4679262` 反馈专员 #77（TEST_REPORT #54 核查·无待处理反馈）/ `c442abf` #2 第 55 轮拆解回执
+- **磁盘实测**：工作区 **git status 空（0 项在途，历史最干净延续）**；scenes 25、scripts 67 GDScript、data 14 JSON + .manifest；**build/ 维持** RoguelikeStudio.exe 84.1MB @08-18 00:13 / .pck 4.66MB @00:14（mtime 未动）→ **仍早于 `3f9dbe4`/`defe1cf` 及全部 F1-E 两批代码**，D30-T3 上传 + build/ 来源核实维持待 Owner。
+- TEST_REPORT **#55**（08-18 04:49）：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **58/58 全绿 · 1195 断言**（`656217e` 扩容 52→58 首跑即全绿）；`BASELINE CLEAN`、JSON 15 文件 2449 字段零缺陷、场景 25/25、600 帧 EXIT 0、stderr 242B 良性泄漏；快照 `656217e` 其后 **+6 提交（F1-E 两批 + AUDIO_FEEL 拍板）未覆盖** → #4 #56 纳入（60 件套 1463 断言）。
+- PLAYTEST 追踪区（增量 #77）：无待处理反馈；F-40~F-43 均已 🟢 已修复·待真人回归；开放项维持 = **E-0 终审完整局**（最高优先）、F-01~F-43 全链真人回归、F-37 G 系列 UI、F-39 节点选择、PS-EXIT 玩家侧技能五组主观观察、#73 build/ 复测闭环、MainMenu 待真人确认。
+- 进行中：**F1-E 剩余 5 批**（BGM/SFX → FX → SHEET_CONFIG → 初始武器 → 炮台默认，每批 Excel→导出→消费→探针→回归，const 兜底，总指挥+执行者第 4/56 轮推进中）；**AUDIO_FEEL O-1~3 已拍板 → 待 #2 拆 P0 批**（M 选型落地 = 替换 assets/audio 文件名不变零代码改动 + F1 hitstop 首段 + F2 震屏分级 + F5 音画同步）；**D30-T3 上传资产库（外部动作待 Owner 确认）** + build/ 来源核实；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
+- 风险：**工作区 0 项在途**；冻结 HEAD `70382e5` vs 现 HEAD `b410a8b` 漂移（冻结后 **+37 提交**）→ 是否按现 HEAD 补冻由 Owner 拍板；TEST_REPORT #55 摘要未含 F1-E 两批（#4 下轮自然刷新）；day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别。
+- 下一步：#4 #56 覆盖 F1-E 两批（60 件套 1463 断言全绿快照 + TEST_REPORT 摘要刷新）；#2 拆 AUDIO_FEEL P0 批（O-1~3 已拍板）；总指挥/执行者续 F1-E 第三批 BGM/SFX；Owner 确认 D30 上传 / build/ 核实 / 冻结 HEAD 补冻；随后真人完整局回归（E-0 最高优先）。
 
 > 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。

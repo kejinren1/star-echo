@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #55（08-18 04:49 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **58/58 全绿 · 1195 断言**（`656217e` 将 day31 六件套并入 runner 扩容 52→58，#54 观察兑现，扩容首跑即全绿）
-- **基线**：`BASELINE CLEAN` ｜ JSON **15 文件** · **2449 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 良性泄漏**
-- **探针回归**：**58/58（1195 条登记期望）0 FAIL / 0 script_errors**；stderr 全部历史口径一致（day31 六件套首跑 242B 纯音频或 1 主动兜底；day29_elin 越界 ERROR 维持消失态）；day31_spawner_deadlock 5198B 维持
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**c442abf**（#2 第55轮回执；链含 656217e runner 扩容 + 4679262 反馈专员#77）
-- **在途 action item（0 项）**：#54 唯一观察（day31 探针并入 runner）已由 `656217e` 兑现关闭；工作区仅 docs/PROGRESS.md
-- **观察**：HUD 待补 `se_skill_sword_arc` 图标映射（day2 stderr 实证呈现）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；AUDIO_FEEL O-1~3 待用户拍板；build/ 产物早于 3f9dbe4/defe1cf 交 Owner
+- **最近轮次 #56（08-18 06:48 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **60/60 全绿 · 1463 断言**（`70c4f61` 并入 F1-E 两新探针扩容 58→60，扩容首跑即全绿）
+- **基线**：`BASELINE CLEAN` ｜ JSON **16 文件**（**新增 presentation.json**=F1-E 抽表产物）· **2713 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 良性泄漏**
+- **探针回归**：**60/60（1463 条登记期望）0 FAIL / 0 script_errors**；stderr 全部历史口径一致（presentation 首跑 242B 纯音频；skill_icon 363B=1 主动越界保护预期）；day31_spawner_deadlock 5198B 维持
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**93f1be2**（#2 第56轮回执；链含 d19eda3 SPRITE_MAP + 70c4f61 消费端/图标映射 + b410a8b BEHAVIOR_MAP 闭环）
+- **在途 action item（0 项）**：#55 观察（se_skill_sword_arc 图标映射）已由 `70c4f61` 兑现关闭；工作区仅 docs/PROGRESS.md
+- **观察**：runner 元数据滞后 1 处（presentation 实际 261 > expect 246，建议 #3 顺手同步）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；build/ 产物早于 3f9dbe4/defe1cf 交 Owner
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3528,6 +3528,38 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - 无新增 action item；工作区仅 docs/PROGRESS.md 在途。
 
 **✅ 2026-08-18 04:49 自动化测试轮次 #55：PASS（58/58，0 阻断 / 0 功能缺陷）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；回归套件扩容至 58 件套 1195 断言后首跑即全绿；0 游戏侧 SCRIPT ERROR。
+
+---
+
+## §7.56 轮次 #56 · 2026-08-18 06:48（自动化测试 · F1-E 抽表双批闭环 + 60 件套扩容首跑全绿轮）
+
+**验证快照 = HEAD=93f1be2（#2 第 56 轮拆解回执）+ 工作区在途仅 docs/PROGRESS.md**。HEAD 链（较 #55 的 c442abf +6 提交）：`d19eda3`（总指挥第4轮：**F1-E 第一批 enemy 精灵 SPRITE_MAP 抽表**——Excel enemy_sprites sheet 23 敌 + presentation.json + DataLoader 消费 + AUDIO_FEEL O-1~3 拍板 + HUD se_skill_sword_arc 图标映射）+ `70c4f61`（**F1-E 第一批消费端 + HUD se_skill_sword_arc 图标映射兑现（skills.png 5 帧）** + runner **58→60 件套 1463 断言** + day26 锚点同步 60/1463）→ `b515e17`（执行者检查点）→ `b410a8b`（**F1-E 第二批 BEHAVIOR_MAP 抽表闭环**：enemy_behavior 表 9 行 + presentation.json behavior_map 9 条 + data_loader get_enemy_behavior + enemy.gd 行为解析改读 + 探针 261/261 + 回归 60/60）→ `7de4527`（反馈专员 #78）→ `93f1be2`（#2 第 56 轮拆解回执）。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** **60 件套回归 60/60 全 PASS（1463 条登记断言）**——runner 扩容至 60 件套（+day31_presentation_check 246 + day31_skill_icon_check 22，F1-E 第一批产物）**首跑即全绿**；#55 观察「se_skill_sword_arc 图标映射」已由 `70c4f61` 兑现（skills.png 5 帧 + 图标映射，day2 stderr 不再报未知技能 id）。游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr 242B，headless 音频退出良性泄漏，按既有白名单判定。
+- **数据层**：`data/*.json` **16/16 解析 OK**（**新增 presentation.json**=F1-E SPRITE_MAP/BEHAVIOR_MAP 抽表产物）；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2713**（#55 2449 +264 = presentation 抽表新增），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件已清理）。
+- **探针回归**：`tools/_regression_run.py` **60/60 PASS（1463 条登记期望），0 FAIL / 0 script_errors**（68s，含 F1-E 两新探针首跑进 runner）。
+
+### 3. WARNING / 观察
+
+- **stderr 口径：全部历史一致无新增**。**F1-E 新探针首纳入**：day31_presentation_check **242B 纯音频全 CLEAN**（246 断言白盒消费 0 泄漏）；day31_skill_icon_check **363B** = 1 主动越界保护 WARNING（`[IconAtlas] 索引越界: skills[5]` 测试预期，同 items_atlas 模式）；day31_spawner_deadlock **5198B** 维持（46× enemy_scene 未设置刷屏，mock 未装配非缺陷）。
+- **day31_skill_movement 489B** = 1 主动兜底（`[BossSkillFactory] 未知技能类型: not_a_skill` 测试预期）+ 泄漏 minor（8 RID CanvasItem + ObjectDB + 13 resources），非游戏缺陷；**day16 796B** = 4 主动 WARNING（ghost_relic 缺失 + reroute 层 14 越界 + add_node 章末 event 层拒绝 + 未知节点类型空串）口径同 #55；其余（day29_elin 242B 纯音频越界 ERROR 消失态维持 / day20 941B / day28_f31 920B / day24_f13 860B / day13 860B / day11_12 660B / day18_feedback 626B / day18_feedback5 621B / day18_feedback2 571B / day21_22 564B / day30_p0_fix 534B / day27_meta 496B / day30_f2_boundary 473B / day24_audio 456B / day26 402B / day10 374B / day14_15 373B）全与历史口径一致（含 242B 音频叠加波动）。
+- **观察项更新**：**se_skill_sword_arc 图标映射已兑现关闭**（#55 观察 → 70c4f61，day2 stderr 无未知技能 id）；**runner 元数据滞后 1 处**：day31_presentation_check 实际输出 **261 断言** > PROBES expect **246**（探针 261/261 全过，判定 `>=expect` 通过，同 #22 day14_15 expect 53→54 先例，建议 #3 顺手同步）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；build/ 产物早于 3f9dbe4/defe1cf 交 Owner 确认。
+
+### 4. action item（0 项新增）
+
+- **#55 观察关闭**：se_skill_sword_arc 图标映射 → `70c4f61` 已兑现（skills.png 5 帧 + SKILL_ICON_MAP + day31_skill_icon_check 22/22）。
+- 无新增 action item；工作区仅 docs/PROGRESS.md 在途。
+
+**✅ 2026-08-18 06:48 自动化测试轮次 #56：PASS（60/60，0 阻断 / 0 功能缺陷）。** 工程可导入、可运行，16 张数据表（含新 presentation.json）与 25 个场景验证通过；F1-E 抽表双批闭环后回归套件扩容至 60 件套 1463 断言，首跑即全绿；0 游戏侧 SCRIPT ERROR。
 
 ---
 
