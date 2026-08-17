@@ -77,6 +77,10 @@ PROBES = [
     ("day31_melee_sweep_check", ["--script", "res://tools/day31_melee_sweep_check.gd"], 9),
     ("day31_player_model_check", ["--script", "res://tools/day31_player_model_check.gd"], 6),
     ("day31_items_atlas_check", ["--script", "res://tools/day31_items_atlas_check.gd"], 58),
+    # 总指挥 2026-08-18 F1-E 第一批：敌人精灵表现抽表闭环（presentation.json ↔ const 一致性 + DataLoader 消费）
+    ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 246),
+    # 总指挥 2026-08-18：技能图标映射闭环（skills.png 5 帧 + SKILL_ICON_MAP 全量覆盖 + 越界防护）
+    ("day31_skill_icon_check", ["--script", "res://tools/day31_skill_icon_check.gd"], 22),
 ]
 
 

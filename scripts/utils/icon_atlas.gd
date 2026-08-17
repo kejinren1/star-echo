@@ -18,7 +18,7 @@ const SHEET_CONFIG: Dictionary = {
 	},
 	"skills": {
 		"path": "res://assets/sprites/skills/skills.png",
-		"frame_count": 4,                        ## D20-T7（T-D）：4 技能图标（fireball/deploy_turret/blade_burst/holy_shield）
+		"frame_count": 5,                        ## D20-T7（T-D）：4 技能图标（fireball/deploy_turret/blade_burst/holy_shield）+ 1 占位（se_skill_sword_arc 剑气爆发，总指挥 F1-E 期补）
 		"frame_size": Vector2i(32, 32),
 	},
 }

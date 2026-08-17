@@ -172,8 +172,9 @@ func _setup_animation() -> void:
 	_anim = get_node_or_null("AnimatedSprite2D")
 	if not _anim:
 		return
-	# 从 SPRITE_MAP 加载纹理，未命中时按分类回退
-	var cfg: Dictionary = SPRITE_MAP.get(enemy_id, FALLBACK_SPRITES.get(enemy_category, FALLBACK_SPRITES["regular"]))
+	# F1-E（2026-08-18 总指挥第一批）：精灵表现配置数据化——presentation.json 优先，
+	# 未命中按分类回退 enemy_enums.gd const SPRITE_MAP/FALLBACK（缺省兜底零回归）
+	var cfg: Dictionary = DataLoader.get_enemy_sprite_config(enemy_id, enemy_category)
 	move_texture = load(cfg["move"])
 	death_texture = load(cfg["death"])
 	frame_size = cfg["size"]

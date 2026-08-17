@@ -2,6 +2,10 @@
 ## 游戏启动时加载所有 JSON 数据表到内存缓存，提供统一访问接口
 extends Node
 
+## F1-E（2026-08-18 总指挥第一批）：敌人精灵表现 const 兜底（enemy_enums 纯常量文件零 Autoload 引用，
+## preload 范式同 enemy.gd —— 探针 --script 编译期可解析；presentation.json 未命中时按 category 回退）
+const EnemyEnums: GDScript = preload("res://scripts/enemy/enemy_enums.gd")
+
 # ========== 机制 id 常量（F1-F T-025~030：数据侧 id 单一事实源，消费点禁散落字面量） ==========
 
 ## 机制型被动 id（D24-F13-1 三机制被动；消费点 main/player/projectile 读此常量防改名即坏）
@@ -23,6 +27,8 @@ const WEAPON_TURRET_ARRAY: String = "se_turret_array"
 # ========== 数据缓存 ==========
 
 var _enemies: Dictionary = {}           ## 敌人数据 { id → data } (含 category 标记)
+var _enemy_sprites: Dictionary = {}     ## F1-E：敌人精灵表现（presentation.json enemy_sprites，懒加载；
+                                        ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _enemy_scaling: Dictionary = {}     ## 敌人成长公式参数
 var _weapons: Dictionary = {}           ## 武器数据 { id → data } (含 category 标记)
 var _items: Dictionary = {}             ## 道具数据 { id → data }
@@ -556,6 +562,29 @@ func get_boss_patterns(boss_id: String) -> Array:
 		if str(p.get("boss_id", "")) == boss_id:
 			out.append(p)
 	return out
+
+# ========== 敌人精灵表现接口（F1-E 第一批 · 2026-08-18 总指挥承接） ==========
+
+## 获取敌人精灵表现配置（presentation.json enemy_sprites 优先；未命中按 category 回退
+## enemy_enums.gd const SPRITE_MAP/FALLBACK_SPRITES —— F 系列缺省兜底约定，表现抽表后旧值仍可启动）。
+## 返回字段与旧 SPRITE_MAP 条目一致：move/death/size(Vector2i)/move_frames/death_frames/
+## move_fps/death_fps/hit_radius/tint(Color)/scale(float)；数据表缺失或损坏 → 全量 const 兜底。
+func get_enemy_sprite_config(enemy_id: String, category: String) -> Dictionary:
+	if _enemy_sprites.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/presentation.json"))
+		if raw is Dictionary and (raw as Dictionary).get("enemy_sprites") is Dictionary:
+			_enemy_sprites = (raw as Dictionary)["enemy_sprites"]
+	var cfg: Variant = _enemy_sprites.get(enemy_id, null)
+	if cfg is Dictionary:
+		var out: Dictionary = (cfg as Dictionary).duplicate()
+		var size: Variant = out.get("size", null)
+		if size is Dictionary:
+			out["size"] = Vector2i(int((size as Dictionary).get("x", 0)), int((size as Dictionary).get("y", 0)))
+		var tint: Variant = out.get("tint", null)
+		if tint is Array and (tint as Array).size() >= 3:
+			out["tint"] = Color(float(tint[0]), float(tint[1]), float(tint[2]))
+		return out
+	return EnemyEnums.SPRITE_MAP.get(enemy_id, EnemyEnums.FALLBACK_SPRITES.get(category, EnemyEnums.FALLBACK_SPRITES["regular"]))
 
 # ========== 技能树接口（G-E · 2026-08-14） ==========
 

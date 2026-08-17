@@ -333,6 +333,7 @@ const SKILL_ICON_MAP: Dictionary = {
 	"se_skill_deploy_turret": 1,
 	"se_skill_blade_burst": 2,
 	"se_skill_holy_shield": 3,
+	"se_skill_sword_arc": 4,   ## PS-C4 剑士剑气爆发（总指挥 08-18 补映射，skills.png 第 5 帧占位）
 }
 func _apply_skill_icon(controller: Node) -> void:
 	if controller == null or skill_slot == null:
