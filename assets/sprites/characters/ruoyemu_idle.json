@@ -1,0 +1,13 @@
+{
+  "sheet": "assets/sprites/characters/ruoyemu_idle.png",
+  "frames": 12,
+  "frame_size": [
+    96,
+    96
+  ],
+  "fps_suggest": 6.0,
+  "loop": true,
+  "source": "docs/art_ai/output_abc/final_完美像素/动画/若叶睦",
+  "align": "bottom",
+  "bg_tol": 6
+}

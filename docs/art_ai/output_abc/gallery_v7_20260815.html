@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>《星骸回响》v7 · 体态轮换版 · 2026-08-15</title>
+<style>
+  body { background:#f7f7f9; color:#222; font-family:"Microsoft YaHei", sans-serif; margin:0; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#666; font-size:13px; margin-bottom:8px; }
+  .note { background:#fff8ef; border:1px solid #f0d9b8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6b5428; margin:14px 0; }
+  .sec { background:#fff; border:1px solid #e3e3e8; border-radius:10px; padding:16px; margin:18px 0; }
+  .sec h2 { font-size:17px; margin:0 0 10px; }
+  .group { margin-bottom:14px; }
+  .group .gname { font-size:13px; font-weight:bold; color:#555; margin-bottom:8px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .var { border:1px solid #e9e9ee; border-radius:8px; padding:8px; background:#fcfcfd; text-align:center; }
+  .var .vname { font-size:12px; font-weight:bold; margin-bottom:6px; }
+  .var .tag { font-size:11px; color:#e0563c; margin-top:4px; }
+  .var img { height:200px; background:repeating-conic-gradient(#f0f0f2 0 25%, #fff 0 50%) 0 0/16px 16px; border-radius:4px; border:1px solid #eee; }
+</style>
+</head>
+<body>
+<h1>《星骸回响》v7 · 体态轮换版（局内模型）</h1>
+<div class="sub">2026-08-15 · 三女角色轮换「巨乳御姐 / 少女 / 萝莉」体态（每体态 2 seed）· 莱恩 5 版 · 全部纯白底 + 肢体完整强化词</div>
+<div class="note">背景抽检 23/23 纯白 ✓，全身 23/23 ✓。侧身度标注（3/4 达标 ✓）。体态要素轮换组合由你最终指定：哪个角色用哪个体态。</div>
+
+<div id="content"></div>
+<script>
+const F = (dir, name) => `v7_bodys_20260815/models/${name}`;
+const BODY_ZH = { mature:"巨乳御姐", youth:"少女", loli:"萝莉" };
+const GIRLS = {
+  elin: { zh:"艾琳 · 炎术师", base:0 },
+  noah: { zh:"诺亚 · 魔导技师", base:6 },
+  siia: { zh:"希亚 · 医师", base:12 },
+};
+const content = document.getElementById("content");
+for (const [hid, meta] of Object.entries(GIRLS)) {
+  const div = document.createElement("div"); div.className = "sec";
+  let html = `<h2>${hid.toUpperCase()} · ${meta.zh} · 体态轮换</h2>`;
+  for (const [bkey, bzh] of Object.entries(BODY_ZH)) {
+    const bi = ["mature","youth","loli"].indexOf(bkey);
+    html += `<div class="group"><div class="gname">${bzh}</div><div class="row">`;
+    for (let k = 1; k <= 2; k++) {
+      const num = String(meta.base + bi*2 + k).padStart(2,"0");
+      const fn = `${hid}_${bkey}_s${k}_v7model_0000${num}_.png`;
+      html += `<div class="var"><div class="vname">seed ${k}</div><a href="${F(hid, fn)}" target="_blank"><img src="${F(hid, fn)}"></a></div>`;
+    }
+    html += `</div></div>`;
+  }
+  html += "</div>";
+  div.innerHTML = html;
+  content.appendChild(div);
+}
+const lainDiv = document.createElement("div"); lainDiv.className = "sec";
+let lh = `<h2>LAIN · 莱恩 · 剑士（5 版）</h2><div class="row">`;
+for (let k = 1; k <= 5; k++) {
+  lh += `<div class="var"><div class="vname">seed ${k}</div><a href="${F("lain", `lain_s${k}_v7model_0000${String(18+k).padStart(2,"0")}_.png`)}" target="_blank"><img src="${F("lain", `lain_s${k}_v7model_0000${String(18+k).padStart(2,"0")}_.png`)}"></a></div>`;
+}
+lh += "</div>";
+lainDiv.innerHTML = lh;
+content.appendChild(lainDiv);
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "category": "character",
+  "track": "portrait",
+  "host": "http://175.155.64.171:61041",
+  "items": [
+    {
+      "file": "character_style_heroic_cel_star_echo_00002_.png",
+      "source": "star_echo_00002_.png"
+    },
+    {
+      "file": "character_style_heroic_cel_star_echo_00003_.png",
+      "source": "star_echo_00003_.png"
+    },
+    {
+      "file": "character_style_heroic_cel_star_echo_00004_.png",
+      "source": "star_echo_00004_.png"
+    }
+  ]
+}

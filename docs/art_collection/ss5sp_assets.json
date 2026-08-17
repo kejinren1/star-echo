@@ -1,0 +1,80 @@
+{
+  "_meta": {
+    "game": "Samurai Shodown 5 / 5 Special (侍魂零/特别版)",
+    "category": "Neo Geo / NGCD",
+    "source": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/",
+    "collected": "2026-08-16",
+    "note": "spriters-resource 有 Cloudflare Turnstile 人机验证，自动化无法绕过；原图需浏览器手动下载。asset ID 已核实。",
+    "sheet_note": "整条 sheet 为竖长条：宽≈1176-1190，高≈12101-23687；每行一个动作、帧等宽横排，可用 tools/ss5sp_sheet_split.py 自动切帧"
+  },
+  "fighters": [
+    {"id": 103418, "name_en": "Haohmaru", "name_zh": "霸王丸", "size": "1188x20129", "bytes": "2.40 MB", "role_hint": "代表性刀剑士 · 主角『莱恩·剑士』首选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/103418/"},
+    {"id": 90810,  "name_en": "Genjuro", "name_zh": "幻十郎", "size": "1176x20545", "bytes": "2.54 MB", "role_hint": "居合拔刀剑客 · 剑士/Boss 备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/90810/"},
+    {"id": 89320,  "name_en": "Yoshitora", "name_zh": "义虎", "size": "1189x21538", "bytes": "2.43 MB", "role_hint": "二刀流剑士 · 剑士备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/89320/"},
+    {"id": 94546,  "name_en": "Jubei Yagyuu", "name_zh": "柳生十兵卫", "size": "1176x18465", "bytes": "2.32 MB", "role_hint": "独眼老者剑客 · 智者/导师型 Boss 备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/94546/"},
+    {"id": 126757, "name_en": "Shizumaru", "name_zh": "白河愁", "size": "1188x16168", "bytes": "2.07 MB", "role_hint": "伞剑·水系 · 优雅剑士备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/126757/"},
+    {"id": 102933, "name_en": "Charlotte", "name_zh": "夏洛特", "size": "1190x23687", "bytes": "2.57 MB", "role_hint": "击剑女骑士 · Boss『④白蓝金骑士』/魔族女战士 首选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/102933/"},
+    {"id": 87693,  "name_en": "Kyoshiro", "name_zh": "京四郎", "size": "1176x17041", "bytes": "2.62 MB", "role_hint": "歌舞伎·薙刀 · 法杖挥舞节奏参考『希亚·牧师』", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/87693/"},
+    {"id": 89316,  "name_en": "Mizuki", "name_zh": "水姬", "size": "1184x17419", "bytes": "2.27 MB", "role_hint": "魔法巫女 · 主角『艾琳·法师』与 Boss『⑦空洞女神』首选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/89316/"},
+    {"id": 94963,  "name_en": "Rimururu", "name_zh": "莉姆露露", "size": "1184x15377", "bytes": "2.04 MB", "role_hint": "冰系巫女战士 · 魔族女战士/法系 Boss 备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/94963/"},
+    {"id": 102865, "name_en": "Hanzo Hattori", "name_zh": "服部半藏", "size": "1176x18144", "bytes": "2.32 MB", "role_hint": "忍者 · 黑衣敏捷型 Boss『②黑魔法师』备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/102865/"},
+    {"id": 87261,  "name_en": "Sogetsu Kazama", "name_zh": "风间苍月", "size": "1176x12101", "bytes": "1.58 MB", "role_hint": "冰系剑士 · 冰系 Boss 备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/87261/"},
+    {"id": 88320,  "name_en": "Gaira", "name_zh": "盖拉", "size": "1187x18856", "bytes": "2.50 MB", "role_hint": "巨锤怪人 · Boss『⑥牛头人』『③帮派首领』体型参考", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/88320/"},
+    {"id": 96147,  "name_en": "Enja", "name_zh": "炎邪", "size": "1189x17951", "bytes": "2.22 MB", "role_hint": "火焰恶鬼 · 火焰系 Boss 备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/96147/"},
+    {"id": 93777,  "name_en": "Tam Tam", "name_zh": "塔姆塔姆", "size": "1176x19938", "bytes": "2.59 MB", "role_hint": "异域战士 · 帮派首领/野性 Boss 备选", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/93777/"}
+  ],
+  "stages": [
+    {"id": 89318,  "name_en": "Zankuro's Lair", "name_zh": "斩红郎祠堂", "size": "968x1036", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/89318/"},
+    {"id": 129797, "name_en": "Amakusa Castle", "name_zh": "天草城", "size": "732x1949", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/129797/"},
+    {"id": 93955,  "name_en": "Busy Dojo", "name_zh": "道场", "size": "932x1735", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/93955/"},
+    {"id": 88319,  "name_en": "Empty Dojo", "name_zh": "空道场", "size": "848x1166", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/88319/"},
+    {"id": 89319,  "name_en": "Mizuki's Shrine", "name_zh": "水姬神社", "size": "1036x1416", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/89319/"},
+    {"id": 62629,  "name_en": "Temple Stage", "name_zh": "寺庙", "size": "652x804", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/62629/"}
+  ],
+  "misc": [
+    {"id": 482388, "name_en": "Character Names (English)", "name_zh": "英文角色名", "size": "784x376", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/asset/482388/"},
+    {"id": null, "name_en": "Rage Explosion (Misc)", "name_zh": "怒爆发特效", "note": "Miscellaneous 区的 Rage Explosion（怒爆发）特效素材，ID 未核实", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown5special/"}
+  ],
+  "traditional_bosses_other_games": [
+    {"game": "samuraishodown (初代)", "char": "Amakusa 天草四郎", "id": 477438, "size": "1916x1727", "note": "初代 sprite 风格较 5SP 旧，但天草是系列招牌 Boss", "url": "https://www.spriters-resource.com/neo_geo_ngcd/samuraishodown/asset/477438/"},
+    {"game": "samuraishodown5special", "char": "Zankuro / Gaoh", "id": null, "note": "5SP 页无 Zankuro/Gaoh 角色 sheet（评论区也指出缺 Amakusa）；如需可去 samuraishodown4 等页搜", "url": null}
+  ],
+  "supplement_sources": [
+    {"site": "爱给网 aigei", "item": "Samurai Shodown IV 天草复仇 成套2D素材（国外）", "url": "https://m.aigei.com/view/58464.html", "note": "国内站，含 SS4 全套角色素材，可作补充；需登录/积分"},
+    {"site": "arcade-fighter.com", "item": "SS5 系列肖像/GIF 素材", "url": "https://arcade-fighter.com/images/samurai-shodown-5-special/ss5-sp-haohmaru.jpg", "note": "肖像与动作 GIF 预览，参考用"},
+    {"site": "fightersgeneration.com", "item": "SS 系列 sprite 拼图", "url": "https://www.fightersgeneration.com/characters/haohsprite.jpg", "note": "历史 sprite 拼图，参考用"}
+  ],
+  "expanded_sources": [
+    {"game": "The Last Blade 月华剑士", "platform": "Neo Geo 1997", "page": "https://www.spriters-resource.com/neo_geo_ngcd/lastblade/", "note": "和风剑客·剑士系最佳补充", "key_assets": [
+      {"char": "Moriya 守矢", "id": 492990, "weapon": "Katana 武士刀", "size": "1919x7776"},
+      {"char": "Amano 天野漂", "id": 492986, "weapon": "Bo Staff 棍", "size": "1918x10285"},
+      {"char": "Juzoh 神崎十三", "id": 492987, "weapon": "棒球棍", "size": "1920x9246"},
+      {"char": "Okina 翁", "id": 492992, "size": "1917x9182"}]},
+    {"game": "Garou: Mark of the Wolves 狼之印记", "platform": "Neo Geo 1999", "page": "https://www.spriters-resource.com/neo_geo_ngcd/garoumarkofthewolves/", "note": "SNK 像素巅峰期", "key_assets": [
+      {"char": "Terry", "id": 272111, "size": "1920x5752"},
+      {"char": "B. Jenet", "id": 272098, "size": "1920x5010"},
+      {"char": "Kevin Rian", "id": 272108, "size": "1918x5756"},
+      {"char": "Jae Hoon", "id": 272106, "size": "1920x5462"}]},
+    {"game": "Darkstalkers 恶魔战士", "platform": "CPS2 1994-97", "page": "https://www.spriters-resource.com/arcade/darkstalkers/", "note": "怪物系金矿·补⑤狼兽⑦女神", "key_assets": [
+      {"char": "Jon Talbain 狼人", "id": 74170, "size": "1918x4018", "match": "Boss⑤病态狼兽 ✅"},
+      {"char": "Felicia 猫娘", "id": 74171, "size": "1214x7905"},
+      {"char": "Morrigan 魅魔", "id": null, "note": "Fighters 区，match: Boss⑦空洞女神 ✅"},
+      {"char": "Anakaris 木乃伊", "id": null}, {"char": "Bishamon 武士铠甲", "id": null}]},
+    {"game": "D&D: Shadow over Mystara 龙与地下城2", "platform": "CPS2 1996", "page": "https://www.spriters-resource.com/arcade/ddshadovermyst/", "note": "四职业模板(战士/法师/牧师/精灵/盗贼/矮人)+怪物区", "key_assets": [
+      {"char": "Synn 龙", "id": 95278, "size": "1239x938"},
+      {"char": "Axe Gnoll 鬣狗人", "id": 57235, "size": "1000x834"},
+      {"char": "Troglodyte 蜥蜴人", "id": 49604, "size": "700x1238"},
+      {"char": "Owlbear 猫头鹰熊", "id": 55508, "size": "1427x651"},
+      {"char": "Goblins 哥布林", "id": 55506, "size": "1100x1374"},
+      {"char": "Minotaur 牛头人", "id": null, "note": "Enemies & Bosses 区，match: Boss⑥牛头人 ✅"},
+      {"char": "Fighter/Cleric/Elf/Magic User", "id": null, "note": "Playable Characters 区 = 主角团职业模板"}]},
+    {"game": "Metal Slug 合金弹头", "platform": "Neo Geo 1996-2003", "page": "https://www.spriters-resource.com/neo_geo_ngcd/ms/", "note": "机械师/兵装素材", "key_assets": [
+      {"char": "Metal Slug 坦克", "id": 32521, "size": "1983x19513", "match": "诺亚·机械师 ✅"},
+      {"char": "Type 2B Melty Honey", "id": 252946, "size": "1344x2288"}]},
+    {"game": "Castlevania: Aria of Sorrow 恶魔城晓月", "platform": "GBA 2003", "page": "https://www.spriters-resource.com/game_boy_advance/cvaos/", "note": "怪物种类全·补⑧镜类", "key_assets": [
+      {"char": "Julius Belmont", "id": 15094, "size": "735x682"},
+      {"char": "Durga & Curly", "id": 246990, "size": "482x198"},
+      {"char": "镜魔/狼人/牛头/妖女", "id": null, "note": "Enemies 区，match: Boss⑧不详之镜 等"}]}
+  ]
+}
+

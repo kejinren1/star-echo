@@ -1,0 +1,27 @@
+{
+  "category": "item",
+  "base_seed": 20005,
+  "count": 4,
+  "items": [
+    {
+      "file": "item_01.png",
+      "seed": 20005,
+      "category": "item"
+    },
+    {
+      "file": "item_02.png",
+      "seed": 20006,
+      "category": "item"
+    },
+    {
+      "file": "item_03.png",
+      "seed": 20007,
+      "category": "item"
+    },
+    {
+      "file": "item_04.png",
+      "seed": 20008,
+      "category": "item"
+    }
+  ]
+}

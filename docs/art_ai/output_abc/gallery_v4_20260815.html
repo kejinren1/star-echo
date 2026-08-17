@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>《星骸回响》局内模型 v4 侧身版 · 2026-08-15</title>
+<style>
+  body { background:#f7f7f9; color:#222; font-family:"Microsoft YaHei", sans-serif; margin:0; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#666; font-size:13px; margin-bottom:8px; }
+  .note { background:#fff8ef; border:1px solid #f0d9b8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6b5428; margin:14px 0; }
+  .sec { background:#fff; border:1px solid #e3e3e8; border-radius:10px; padding:16px; margin:18px 0; }
+  .sec h2 { font-size:17px; margin:0 0 10px; }
+  .row { display:flex; gap:14px; flex-wrap:wrap; }
+  .var { border:1px solid #e9e9ee; border-radius:8px; padding:8px; background:#fcfcfd; text-align:center; }
+  .var .vname { font-size:12px; font-weight:bold; margin-bottom:6px; }
+  .var .tag { font-size:11px; color:#e0563c; margin-top:4px; }
+  .var img { height:190px; background:repeating-conic-gradient(#f0f0f2 0 25%, #fff 0 50%) 0 0/16px 16px; border-radius:4px; border:1px solid #eee; }
+  .var .portrait { height:250px; }
+</style>
+</head>
+<body>
+<h1>《星骸回响》局内模型 v4 · 侧身朝向版</h1>
+<div class="sub">2026-08-15 · 姿势词驱动（side view / three-quarter / turn 三组词对比）· 侧身度 L/R 标注（越偏离 1 越侧身）· 点击看原图</div>
+<div class="note">说明：① 局内模型已有朝向，可直接横向移动；② 立绘风格小样见下方（候选画风：明亮动画风 counterfeitxl / Neta 活力版）；③ 诺亚补跑了 3 个 seed（v2~v4）。</div>
+
+<div id="content"></div>
+<script>
+const HEROES = {
+  elin: { zh:"艾琳 · 炎术师", files: {side:"elin_side_v4side_00004_.png", threeq:"elin_threeq_v4side_00005_.png", turn:"elin_turn_v4side_00006_.png"}, scores: {side:"L/R 1.48 ✓", threeq:"L/R 0.63 ✓", turn:"L/R 1.24 微侧"} },
+  noah: { zh:"诺亚 · 魔导技师", files: {side:"noah_side_v4side_00007_.png", side_v2:"noah_side_v2_v4side_00016_.png", side_v3:"noah_side_v3_v4side_00017_.png", side_v4:"noah_side_v4_v4side_00018_.png", threeq:"noah_threeq_v4side_00008_.png", turn:"noah_turn_v4side_00009_.png"}, scores: {side:"L/R 0.87 微侧", side_v2:"L/R 1.15", side_v3:"L/R 1.03", side_v4:"L/R 0.67 ✓", threeq:"L/R 1.04", turn:"L/R 0.89"} },
+  lain: { zh:"莱恩 · 剑士", files: {side:"lain_side_v4side_00010_.png", threeq:"lain_threeq_v4side_00011_.png", turn:"lain_turn_v4side_00012_.png"}, scores: {side:"L/R 0.76 ✓", threeq:"L/R 0.22 ✓", turn:"L/R 1.11 微侧"} },
+  siia: { zh:"希亚 · 医师", files: {side:"siia_side_v4side_00013_.png", threeq:"siia_threeq_v4side_00014_.png", turn:"siia_turn_v4side_00015_.png"}, scores: {side:"L/R 0.53 ✓", threeq:"L/R 1.07", turn:"L/R 0.80 微侧"} },
+};
+const content = document.getElementById("content");
+for (const [hid, meta] of Object.entries(HEROES)) {
+  const div = document.createElement("div"); div.className = "sec";
+  let html = `<h2>${hid.toUpperCase()} · ${meta.zh}</h2><div class="row">`;
+  for (const [k, f] of Object.entries(meta.files)) {
+    const label = {side:"side 侧视", side_v2:"side 补跑 v2", side_v3:"side 补跑 v3", side_v4:"side 补跑 v4", threeq:"threeq 四分之三侧", turn:"turn 转身"}[k] || k;
+    html += `<div class="var"><div class="vname">${label}</div><a href="v4_side_20260815/models/${f}" target="_blank"><img src="v4_side_20260815/models/${f}"></a><div class="tag">${meta.scores[k]}</div></div>`;
+  }
+  html += "</div></div>";
+  div.innerHTML = html;
+  content.appendChild(div);
+}
+// 立绘风格小样
+const ptDiv = document.createElement("div"); ptDiv.className = "sec";
+ptDiv.innerHTML = `<h2>立绘风格小样（艾琳 · 选风格用）</h2><div class="row">
+  <div class="var"><div class="vname">风格 A · 明亮动画风（counterfeitxl）</div><a href="v3_side_20260815_v2/portraits/portrait_elin_bright_v3portrait_00001_.png" target="_blank"><img class="portrait" src="v3_side_20260815_v2/portraits/portrait_elin_bright_v3portrait_00001_.png"></a></div>
+  <div class="var"><div class="vname">风格 B · Neta 活力版</div><a href="v3_side_20260815_v2/portraits/portrait_elin_neta_vivid_v3portrait_00002_.png" target="_blank"><img class="portrait" src="v3_side_20260815_v2/portraits/portrait_elin_neta_vivid_v3portrait_00002_.png"></a></div>
+</div>`;
+content.appendChild(ptDiv);
+</script>
+</body>
+</html>

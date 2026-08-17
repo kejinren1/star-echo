@@ -94,13 +94,16 @@ def load_palette(spec):
         with open(p, encoding="utf-8") as f:
             data = json.load(f)
         cols = []
-        for key, entry in data.items() if isinstance(data, dict) else []:
-            if isinstance(entry, dict) and "rgb" in entry:
-                cols.append(tuple(entry["rgb"]))
-        if not cols:
-            for v in data.values() if isinstance(data, dict) else []:
-                if isinstance(v, list) and len(v) == 3:
-                    cols.append(tuple(v))
+        if isinstance(data, dict):
+            if "colors" in data and isinstance(data["colors"], dict):
+                data = data["colors"]
+            for key, entry in data.items():
+                if isinstance(entry, dict) and "rgb" in entry:
+                    cols.append(tuple(entry["rgb"]))
+            if not cols:
+                for v in data.values():
+                    if isinstance(v, list) and len(v) == 3:
+                        cols.append(tuple(v))
         return cols or _PALETTE
     im = Image.open(p).convert("RGB")
     return list({px for px in im.getdata()})

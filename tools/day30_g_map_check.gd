@@ -85,13 +85,24 @@ func _part_data_compat() -> void:
 	var route: Dictionary = gen.call("generate", 20260814)
 	var layers: Array = route.get("layers", [])
 	_ok(layers.size() >= 15, "§1 数据: routes.json 生成 15 层（实得 %d）" % layers.size())
+	# 章末 event 层（0-based；chapters 缺省空 → 空数组）。⚠️ 不能按「首节点类型==event」判断——
+	# 普通 3 节点层的首节点也可能恰好为 event（真实路线 li=13 先例），须用 chapters 数据驱动判据
+	var chapter_event_layers: Array = []
+	for ch in route.get("chapters", []):
+		var ch_layers: Array = ch.get("layers", [])
+		if ch_layers.is_empty():
+			continue
+		if str(ch.get("end_type", "")) == "event":
+			chapter_event_layers.append(int(ch_layers[ch_layers.size() - 1]) - 1)
 	var all_3: bool = true
 	for i in range(mini(layers.size(), 15)):
-		# Boss 层（含 boss 类型）= 单节点；普通层 = 3 节点（routes.json boss_layers 驱动）
-		var expect: int = 1 if str(layers[i][0].get("type", "")) == "boss" else 3
+		# Boss 层（含 boss 类型）/ 章末 event 层（PS-D2a-1 单 event 节点）= 单节点；
+		# 普通层 = 3 节点（routes.json boss_layers + chapters 驱动）
+		var first_type: String = str(layers[i][0].get("type", ""))
+		var expect: int = 1 if (first_type == "boss" or i in chapter_event_layers) else 3
 		if int(layers[i].size()) != expect:
 			all_3 = false
-	_ok(all_3, "§1 数据: 普通层 3 节点 + Boss 层单节点（routes.json 结构零改动）")
+	_ok(all_3, "§1 数据: 普通层 3 节点 + 单节点层（boss/章末 event，routes.json 结构零改动）")
 
 # ========== §2 迷雾规则 ==========
 

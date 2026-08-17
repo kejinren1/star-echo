@@ -552,7 +552,7 @@ func _part_passive_stack() -> void:
 	_inv.call("add_item", it_a)
 	_inv.call("add_item", it_b)
 	if absf(float(_player.get("attack_speed")) - 1.1664) > EPSILON:
-		_fail("叠加: 双 +8% 应 1.1664, 实得 %s" % str(_player.get("attack_speed")))
+		_fail("叠加: 双 +8%% 应 1.1664, 实得 %s" % str(_player.get("attack_speed")))
 	else:
 		_pass("叠加 / 双 +8% 被动 → ×1.1664（同键乘法叠加）")
 

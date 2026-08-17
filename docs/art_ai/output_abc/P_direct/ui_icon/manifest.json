@@ -1,0 +1,27 @@
+{
+  "category": "ui_icon",
+  "base_seed": 20001,
+  "count": 4,
+  "items": [
+    {
+      "file": "ui_icon_01.png",
+      "seed": 20001,
+      "category": "ui_icon"
+    },
+    {
+      "file": "ui_icon_02.png",
+      "seed": 20002,
+      "category": "ui_icon"
+    },
+    {
+      "file": "ui_icon_03.png",
+      "seed": 20003,
+      "category": "ui_icon"
+    },
+    {
+      "file": "ui_icon_04.png",
+      "seed": 20004,
+      "category": "ui_icon"
+    }
+  ]
+}

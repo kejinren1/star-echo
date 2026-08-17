@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>《星骸回响》主角团造型 v2 选稿页 · 2026-08-15</title>
+<style>
+  body { background:#f7f7f9; color:#222; font-family:"Microsoft YaHei", sans-serif; margin:0; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#666; font-size:13px; margin-bottom:8px; }
+  .note { background:#fff8ef; border:1px solid #f0d9b8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6b5428; margin:14px 0; }
+  .hero { background:#fff; border:1px solid #e3e3e8; border-radius:10px; padding:16px; margin:20px 0; }
+  .hero h2 { font-size:18px; margin:0 0 4px; }
+  .hero .zh { color:#666; font-size:13px; margin-bottom:12px; }
+  .row { display:flex; gap:16px; flex-wrap:wrap; }
+  .var { border:1px solid #e9e9ee; border-radius:8px; padding:10px; background:#fcfcfd; }
+  .var .vname { font-size:13px; font-weight:bold; margin-bottom:8px; text-align:center; }
+  .imgs { display:flex; gap:8px; }
+  .imgs .box { text-align:center; }
+  .imgs img { height:200px; background:repeating-conic-gradient(#f0f0f2 0 25%, #fff 0 50%) 0 0/16px 16px; border-radius:4px; border:1px solid #eee; }
+  .imgs .cap { font-size:11px; color:#888; margin-top:4px; }
+  .imgs .portrait { height:260px; }
+</style>
+</head>
+<body>
+<h1>《星骸回响》主角团造型 v2 选稿页</h1>
+<div class="sub">2026-08-15 · 日式西幻风格重设计 · 每角色 3 造型版（A 经典奇幻 / B 冒险旅人 / C 高魔华丽）· 每版含【局内模型 + 立绘】· 点击看原图</div>
+<div class="note">局内模型 12 张背景全部纯白合格（可直接抠底试装）。立绘 5 张背景偏灰/深（Neta XL 不吃纯白词）——不影响选型，定稿后统一处理。<br>
+说明：诺亚已从「现代机械师」改为魔导技师/炼金/魔导学者；莱恩已从「现代剑客」改为奇幻骑士/流浪剑士/皇家剑卫。</div>
+
+<div id="content"></div>
+
+<script>
+const DATA = {
+  elin: { zh:"艾琳 · 炎术师", base:1, vA:"经典魔法师", vB:"冒险法师", vC:"皇家大法师" },
+  noah: { zh:"诺亚 · 魔导技师", base:4, vA:"魔导工坊师", vB:"炼金术师", vC:"魔导学院学者" },
+  lain: { zh:"莱恩 · 剑士", base:7, vA:"王国骑士", vB:"流浪剑士", vC:"皇家剑卫" },
+  siia: { zh:"希亚 · 医师", base:10, vA:"教会牧师", vB:"巡游药师", vC:"光之圣女" },
+};
+const files = ["vA","vB","vC"];
+const content = document.getElementById("content");
+for (const [hid, meta] of Object.entries(DATA)) {
+  const heroDiv = document.createElement("div"); heroDiv.className = "hero";
+  let html = `<h2>${hid.toUpperCase()} · ${meta.zh}</h2><div class="zh">发型/瞳色基准：${hid==="elin"?"红发红瞳":hid==="noah"?"银蓝短发蓝瞳":hid==="lain"?"白发蓝瞳":"金发绿瞳"}</div><div class="row">`;
+  for (let i = 0; i < files.length; i++) {
+    const v = files[i];
+    const num = meta.base + i;
+    const model = `${hid}_${v}_model_herov2model_0000${num}_.png`;
+    const portrait = `${hid}_${v}_portrait_herov2portrait_0000${num}_.png`;
+    html += `<div class="var"><div class="vname">${v.toUpperCase()} · ${meta[v]}</div><div class="imgs">
+      <div class="box"><a href="heroes_redesign_20260815/${hid}/${v}/${model}" target="_blank"><img src="heroes_redesign_20260815/${hid}/${v}/${model}"></a><div class="cap">局内模型</div></div>
+      <div class="box"><a href="heroes_redesign_20260815/${hid}/${v}/${portrait}" target="_blank"><img class="portrait" src="heroes_redesign_20260815/${hid}/${v}/${portrait}"></a><div class="cap">立绘</div></div>
+    </div></div>`;
+  }
+  html += "</div>";
+  heroDiv.innerHTML = html;
+  content.appendChild(heroDiv);
+}
+</script>
+</body>
+</html>

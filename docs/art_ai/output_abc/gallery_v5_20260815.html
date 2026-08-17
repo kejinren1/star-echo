@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>《星骸回响》v5 · 3/4 侧身局内模型 + 高清立绘 + 团体图 · 2026-08-15</title>
+<style>
+  body { background:#f7f7f9; color:#222; font-family:"Microsoft YaHei", sans-serif; margin:0; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#666; font-size:13px; margin-bottom:8px; }
+  .note { background:#fff8ef; border:1px solid #f0d9b8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6b5428; margin:14px 0; }
+  .sec { background:#fff; border:1px solid #e3e3e8; border-radius:10px; padding:16px; margin:18px 0; }
+  .sec h2 { font-size:17px; margin:0 0 10px; }
+  .row { display:flex; gap:14px; flex-wrap:wrap; }
+  .var { border:1px solid #e9e9ee; border-radius:8px; padding:8px; background:#fcfcfd; text-align:center; }
+  .var .vname { font-size:12px; font-weight:bold; margin-bottom:6px; }
+  .var .tag { font-size:11px; color:#e0563c; margin-top:4px; }
+  .var img { height:190px; background:repeating-conic-gradient(#f0f0f2 0 25%, #fff 0 50%) 0 0/16px 16px; border-radius:4px; border:1px solid #eee; }
+  .var .big { height:300px; }
+</style>
+</head>
+<body>
+<h1>《星骸回响》v5 · 3/4 侧身 + 高清立绘</h1>
+<div class="sub">2026-08-15 · 局内模型 3/4 侧（两只眼可见，2 seed/角色）· 立绘换高清模型 counterfeitxl 明亮动画风（固定要素词）· 4 人团体图验证画风统一</div>
+<div class="note">局内模型每角色有 3/4 达标版（标 ✓）。立绘为艺术向（含氛围底），非纯白——如需要抠图我再统一提亮处理。团体图为画风统一性参考。</div>
+
+<div id="content"></div>
+<script>
+const HEROES = {
+  elin: { zh:"艾琳 · 炎术师", files: {s1:"model_elin_s1_v5model_00001_.png", s2:"model_elin_s2_v5model_00002_.png"}, marks: {s1:"L/R 0.97 ≈正", s2:"L/R 0.67 ✓ 3/4"} },
+  noah: { zh:"诺亚 · 魔导技师", files: {s1:"model_noah_s1_v5model_00003_.png", s2:"model_noah_s2_v5model_00004_.png"}, marks: {s1:"L/R 1.26 ✓ 3/4", s2:"L/R 1.17 ✓ 3/4"} },
+  lain: { zh:"莱恩 · 剑士", files: {s1:"model_lain_s1_v5model_00005_.png", s2:"model_lain_s2_v5model_00006_.png"}, marks: {s1:"L/R 0.45 纯侧", s2:"L/R 1.47 ✓ 3/4"} },
+  siia: { zh:"希亚 · 医师", files: {s1:"model_siia_s1_v5model_00007_.png", s2:"model_siia_s2_v5model_00008_.png"}, marks: {s1:"L/R 0.93 ✓ 3/4", s2:"L/R 1.12 ✓ 3/4"} },
+};
+const content = document.getElementById("content");
+for (const [hid, meta] of Object.entries(HEROES)) {
+  const div = document.createElement("div"); div.className = "sec";
+  let html = `<h2>${hid.toUpperCase()} · ${meta.zh} · 局内模型 3/4 侧（seed 1/2）</h2><div class="row">`;
+  for (const [k, f] of Object.entries(meta.files)) {
+    html += `<div class="var"><div class="vname">seed ${k.slice(1)}</div><a href="v5_threeq_20260815/models/${f}" target="_blank"><img src="v5_threeq_20260815/models/${f}"></a><div class="tag">${meta.marks[k]}</div></div>`;
+  }
+  html += "</div></div>";
+  div.innerHTML = html;
+  content.appendChild(div);
+}
+const hdDiv = document.createElement("div"); hdDiv.className = "sec";
+let hd = `<h2>高清立绘（counterfeitxl 明亮动画风 · 固定要素词）</h2><div class="row">`;
+for (const [hid, meta] of Object.entries(HEROES)) {
+  hd += `<div class="var"><div class="vname">${meta.zh}</div><a href="v5_threeq_20260815/portraits/portrait_${hid}_v5portrait_0000${["elin","noah","lain","siia"].indexOf(hid)+1}_.png" target="_blank"><img class="big" src="v5_threeq_20260815/portraits/portrait_${hid}_v5portrait_0000${["elin","noah","lain","siia"].indexOf(hid)+1}_.png"></a></div>`;
+}
+hd += `</div></div>`;
+hdDiv.innerHTML = hd;
+content.appendChild(hdDiv);
+const gDiv = document.createElement("div"); gDiv.className = "sec";
+gDiv.innerHTML = `<h2>4 人团体立绘（画风统一校验）</h2><div class="row"><div class="var"><a href="v5_threeq_20260815/group/group_4heroes_v5portrait_00005_.png" target="_blank"><img style="height:420px" src="v5_threeq_20260815/group/group_4heroes_v5portrait_00005_.png"></a></div></div>`;
+content.appendChild(gDiv);
+</script>
+</body>
+</html>

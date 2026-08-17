@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>《星骸回响》v6 · 服装定型 + 白底全身立绘 · 2026-08-15</title>
+<style>
+  body { background:#f7f7f9; color:#222; font-family:"Microsoft YaHei", sans-serif; margin:0; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#666; font-size:13px; margin-bottom:8px; }
+  .note { background:#fff8ef; border:1px solid #f0d9b8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6b5428; margin:14px 0; }
+  .sec { background:#fff; border:1px solid #e3e3e8; border-radius:10px; padding:16px; margin:18px 0; }
+  .sec h2 { font-size:17px; margin:0 0 4px; }
+  .sec .clothes { font-size:12px; color:#777; margin-bottom:10px; }
+  .row { display:flex; gap:14px; flex-wrap:wrap; }
+  .var { border:1px solid #e9e9ee; border-radius:8px; padding:8px; background:#fcfcfd; text-align:center; }
+  .var .vname { font-size:12px; font-weight:bold; margin-bottom:6px; }
+  .var .tag { font-size:11px; color:#e0563c; margin-top:4px; }
+  .var img { height:190px; background:repeating-conic-gradient(#f0f0f2 0 25%, #fff 0 50%) 0 0/16px 16px; border-radius:4px; border:1px solid #eee; }
+  .var .big { height:300px; }
+</style>
+</head>
+<body>
+<h1>《星骸回响》v6 · 服装定型 + 白底全身立绘</h1>
+<div class="sub">2026-08-15 · 服装种类/造型已固定进提示词 · 立绘 Neta XL 白灰底全身 · 局内 3/4 侧 · 每项 2 seed 可选</div>
+<div class="note">立绘白底抽检：绿色标 ✓=白/灰底达标；红标 ✗=背景不达标（选另一 seed）。局内 3/4 达标版标 ✓。团体图在页底（白底 ✓）。</div>
+
+<div id="content"></div>
+<script>
+const HEROES = {
+  elin: {
+    zh:"艾琳 · 炎术师", clothes:"黑色长法师袍·绯红火焰纹·金边·宽袖·黑色披肩金扣·红色束腰缎带·长裙摆·手持浮空火焰宝珠",
+    files:{s1:"model_elin_s1_v6model_00001_.png", s2:"model_elin_s2_v6model_00002_.png"}, marks:{s1:"L/R 1.20 ✓", s2:"L/R 1.85 纯侧"},
+    pts:{s1:"portrait_elin_s1_v6portrait_00001_.png", s2:"portrait_elin_s2_v6portrait_00002_.png"}, pmarks:{s1:"✗背景", s2:"白底 ✓"}
+  },
+  noah: {
+    zh:"诺亚 · 魔导技师", clothes:"深藏青魔导长风衣·黄铜齿轮纽扣·铜制发条肩饰·左臂符文机装手甲·棕色皮革工具腰包·银边及膝风衣·手持发光符文装置",
+    files:{s1:"model_noah_s1_v6model_00003_.png", s2:"model_noah_s2_v6model_00004_.png"}, marks:{s1:"L/R 0.87 ✓", s2:"L/R 1.45 ✓"},
+    pts:{s1:"portrait_noah_s1_v6portrait_00003_.png", s2:"portrait_noah_s2_v6portrait_00004_.png"}, pmarks:{s1:"白底 ✓", s2:"白底 ✓"}
+  },
+  lain: {
+    zh:"莱恩 · 剑士", clothes:"银白全身骑士甲·圆形护肩·蓝宝石雕纹胸甲·单肩蓝色披风·手甲胫甲·肩上扛符文长剑",
+    files:{s1:"model_lain_s1_v6model_00005_.png", s2:"model_lain_s2_v6model_00006_.png"}, marks:{s1:"L/R 3.76 纯侧", s2:"L/R 0.69 ✓"},
+    pts:{s1:"portrait_lain_s1_v6portrait_00005_.png", s2:"portrait_lain_s2_v6portrait_00006_.png"}, pmarks:{s1:"白底 ✓", s2:"✗背景"}
+  },
+  siia: {
+    zh:"希亚 · 医师", clothes:"白金牧师袍·金边十字纹·白色兜帽披肩·层叠裙摆·金色缀饰·手持金水晶治愈法杖",
+    files:{s1:"model_siia_s1_v6model_00007_.png", s2:"model_siia_s2_v6model_00008_.png"}, marks:{s1:"L/R 1.17 ✓", s2:"L/R 0.89 ✓"},
+    pts:{s1:"portrait_siia_s1_v6portrait_00007_.png", s2:"portrait_siia_s2_v6portrait_00008_.png"}, pmarks:{s1:"白底 ✓", s2:"白底 ✓"}
+  },
+};
+const content = document.getElementById("content");
+for (const [hid, meta] of Object.entries(HEROES)) {
+  const div = document.createElement("div"); div.className = "sec";
+  let html = `<h2>${hid.toUpperCase()} · ${meta.zh}</h2><div class="clothes">服装：${meta.clothes}</div><div class="row">`;
+  html += `<div class="var"><div class="vname">局内 seed1</div><a href="v6_final_20260815/models/${meta.files.s1}" target="_blank"><img src="v6_final_20260815/models/${meta.files.s1}"></a><div class="tag">${meta.marks.s1}</div></div>`;
+  html += `<div class="var"><div class="vname">局内 seed2</div><a href="v6_final_20260815/models/${meta.files.s2}" target="_blank"><img src="v6_final_20260815/models/${meta.files.s2}"></a><div class="tag">${meta.marks.s2}</div></div>`;
+  html += `<div class="var"><div class="vname">立绘 seed1</div><a href="v6_final_20260815/portraits/${meta.pts.s1}" target="_blank"><img class="big" src="v6_final_20260815/portraits/${meta.pts.s1}"></a><div class="tag">${meta.pmarks.s1}</div></div>`;
+  html += `<div class="var"><div class="vname">立绘 seed2</div><a href="v6_final_20260815/portraits/${meta.pts.s2}" target="_blank"><img class="big" src="v6_final_20260815/portraits/${meta.pts.s2}"></a><div class="tag">${meta.pmarks.s2}</div></div>`;
+  html += "</div></div>";
+  div.innerHTML = html;
+  content.appendChild(div);
+}
+const gDiv = document.createElement("div"); gDiv.className = "sec";
+gDiv.innerHTML = `<h2>4 人团体立绘（Neta 白底 · 画风统一校验）</h2><div class="row"><div class="var"><a href="v6_final_20260815/group/group_4heroes_v6portrait_00009_.png" target="_blank"><img style="height:430px" src="v6_final_20260815/group/group_4heroes_v6portrait_00009_.png"></a><div class="tag">白底 ✓</div></div></div>`;
+content.appendChild(gDiv);
+</script>
+</body>
+</html>

@@ -110,9 +110,9 @@ func _section_drop() -> void:
 			hits += 1
 	if absf(float(hits) / float(tries) - 0.8) <= 0.15:
 		_checked += 1
-		print("  PASS  §3 精英掉落 80% 触发率抽样（%d/%d = %.2f）" % [hits, tries, float(hits) / float(tries)])
+		print("  PASS  §3 精英掉落 80%% 触发率抽样（%d/%d = %.2f）" % [hits, tries, float(hits) / float(tries)])
 	else:
-		_fail("精英掉落率偏离 80%（%d/%d）" % [hits, tries])
+		_fail("精英掉落率偏离 80%%（%d/%d）" % [hits, tries])
 
 # ========== §4 三选一装配 ==========
 

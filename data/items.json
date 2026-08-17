@@ -27,7 +27,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "defense",
-      "icon_index": 5,
+      "icon_index": 1,
       "effects": {
         "armor": 2
       }
@@ -40,6 +40,7 @@
       "tags": [
         "damage"
       ],
+      "icon_index": 2,
       "effects": {
         "damage_percent": 6,
         "range": -8
@@ -56,7 +57,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "attack",
-      "icon_index": 1,
+      "icon_index": 3,
       "effects": {
         "damage_percent": 7,
         "max_hp": -2
@@ -73,7 +74,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "stat",
-      "icon_index": 10,
+      "icon_index": 4,
       "effects": {
         "speed_percent": 5
       }
@@ -86,6 +87,7 @@
       "tags": [
         "range"
       ],
+      "icon_index": 5,
       "effects": {
         "range": 10
       }
@@ -98,6 +100,7 @@
       "tags": [
         "harvesting"
       ],
+      "icon_index": 6,
       "effects": {
         "harvesting": 3
       }
@@ -114,7 +117,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "defense",
-      "icon_index": 6,
+      "icon_index": 7,
       "effects": {
         "max_hp": 3,
         "hp_regen": 1
@@ -128,6 +131,7 @@
       "tags": [
         "dodge"
       ],
+      "icon_index": 8,
       "effects": {
         "dodge_percent": 5,
         "ranged_damage": -3
@@ -141,6 +145,7 @@
       "tags": [
         "elemental"
       ],
+      "icon_index": 9,
       "effects": {
         "elemental_damage": 3,
         "melee_damage": -2
@@ -154,6 +159,7 @@
       "tags": [
         "melee"
       ],
+      "icon_index": 10,
       "effects": {
         "melee_damage": 3,
         "knockback": 5
@@ -167,6 +173,7 @@
       "tags": [
         "ranged"
       ],
+      "icon_index": 11,
       "effects": {
         "ranged_damage": 4
       }
@@ -182,7 +189,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "stat",
-      "icon_index": 11,
+      "icon_index": 12,
       "effects": {
         "crit_chance_percent": 5,
         "dodge_percent": -5
@@ -199,7 +206,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "defense",
-      "icon_index": 7,
+      "icon_index": 13,
       "effects": {
         "max_hp": 5
       }
@@ -212,6 +219,7 @@
       "tags": [
         "engineering"
       ],
+      "icon_index": 14,
       "effects": {
         "engineering": 2
       }
@@ -224,6 +232,7 @@
       "tags": [
         "dodge"
       ],
+      "icon_index": 15,
       "effects": {
         "dodge_percent": 5,
         "dodge_heal_chance": 50,
@@ -238,6 +247,7 @@
       "tags": [
         "melee"
       ],
+      "icon_index": 16,
       "effects": {
         "melee_damage": 5,
         "knockback": 10,
@@ -256,7 +266,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "special",
-      "icon_index": 16,
+      "icon_index": 17,
       "effects": {
         "attack_speed_percent": 5,
         "range_percent": 8
@@ -273,7 +283,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "special",
-      "icon_index": 15,
+      "icon_index": 18,
       "effects": {
         "life_steal_percent": 3,
         "hp_regen": 2
@@ -291,7 +301,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "attack",
-      "icon_index": 4,
+      "icon_index": 19,
       "effects": {
         "damage_percent": 5,
         "luck": 5
@@ -306,6 +316,7 @@
         "elemental",
         "hp_regen"
       ],
+      "icon_index": 20,
       "effects": {
         "elemental_damage": 4,
         "hp_regen": 2
@@ -320,6 +331,7 @@
         "speed",
         "engineering"
       ],
+      "icon_index": 21,
       "effects": {
         "speed_percent": 5,
         "engineering": 3
@@ -333,6 +345,7 @@
       "tags": [
         "crit"
       ],
+      "icon_index": 22,
       "effects": {
         "crit_chance_percent": 8,
         "miss_chance_percent": 5
@@ -346,6 +359,7 @@
       "tags": [
         "damage"
       ],
+      "icon_index": 23,
       "effects": {
         "damage_percent": 8
       }
@@ -361,7 +375,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "attack",
-      "icon_index": 2,
+      "icon_index": 24,
       "effects": {
         "max_hp": 3,
         "damage_percent": 3,
@@ -381,7 +395,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "defense",
-      "icon_index": 8,
+      "icon_index": 25,
       "effects": {
         "hp_regen": 3,
         "max_hp": -5
@@ -396,6 +410,7 @@
         "melee",
         "attack_speed"
       ],
+      "icon_index": 26,
       "effects": {
         "melee_damage": 6,
         "attack_speed_percent": 5,
@@ -414,6 +429,7 @@
         "crit",
         "elemental"
       ],
+      "icon_index": 27,
       "effects": {
         "melee_damage": 3,
         "ranged_damage": 3,
@@ -435,7 +451,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "stat",
-      "icon_index": 14,
+      "icon_index": 28,
       "effects": {
         "damage_percent": 15,
         "armor": 3,
@@ -453,7 +469,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "attack",
-      "icon_index": 3,
+      "icon_index": 29,
       "effects": {
         "damage_percent": 25,
         "armor": -3
@@ -467,6 +483,7 @@
       "tags": [
         "damage"
       ],
+      "icon_index": 30,
       "effects": {
         "boss_elite_damage_percent": 25
       }
@@ -479,6 +496,7 @@
       "tags": [
         "damage"
       ],
+      "icon_index": 31,
       "effects": {
         "damage_percent": 20,
         "armor": 1,
@@ -497,7 +515,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "stat",
-      "icon_index": 13,
+      "icon_index": 32,
       "effects": {
         "attack_speed_percent": 15,
         "speed_percent": 10,
@@ -516,7 +534,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "defense",
-      "icon_index": 9,
+      "icon_index": 33,
       "effects": {
         "armor": 4,
         "max_hp": 10,
@@ -531,6 +549,7 @@
       "tags": [
         "range"
       ],
+      "icon_index": 34,
       "effects": {
         "range": 20,
         "xp_gain_percent": 10
@@ -544,6 +563,7 @@
       "tags": [
         "elemental"
       ],
+      "icon_index": 35,
       "effects": {
         "elemental_damage": 8,
         "element_reaction_damage_percent": 30
@@ -557,6 +577,7 @@
       "tags": [
         "engineering"
       ],
+      "icon_index": 36,
       "effects": {
         "engineering": 8,
         "structure_duration_percent": 50
@@ -568,6 +589,7 @@
       "rarity": "legendary",
       "price": 120,
       "tags": [],
+      "icon_index": 37,
       "effects": {
         "shop_weapon_upgrade": true
       }
@@ -581,6 +603,7 @@
         "attack_speed",
         "damage"
       ],
+      "icon_index": 38,
       "effects": {
         "attack_speed_percent": 15,
         "damage_percent": 10,
@@ -595,6 +618,7 @@
       "tags": [
         "damage"
       ],
+      "icon_index": 39,
       "effects": {
         "damage_percent": 30,
         "attack_speed_per_different_weapon_percent": -3
@@ -608,6 +632,7 @@
       "tags": [
         "ranged"
       ],
+      "icon_index": 40,
       "effects": {
         "ranged_damage": 5,
         "damage_percent": 10,
@@ -624,6 +649,7 @@
       "tags": [
         "damage"
       ],
+      "icon_index": 41,
       "effects": {
         "damage_percent": 12,
         "attack_speed_per_different_weapon_percent": 6,
@@ -640,7 +666,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "stat",
-      "icon_index": 12,
+      "icon_index": 42,
       "effects": {
         "max_hp": 3,
         "hp_regen": 2,
@@ -661,6 +687,7 @@
       "tags": [
         "elemental"
       ],
+      "icon_index": 43,
       "effects": {
         "elemental_damage": 10,
         "reaction_heal": 5,
@@ -675,6 +702,7 @@
       "tags": [
         "engineering"
       ],
+      "icon_index": 44,
       "effects": {
         "engineering": 10,
         "structure_damage_percent": 50
@@ -692,7 +720,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "special",
-      "icon_index": 17,
+      "icon_index": 45,
       "star_echo": true,
       "evolution": {
         "weapon_id": "se_star_flame",
@@ -719,7 +747,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "special",
-      "icon_index": 18,
+      "icon_index": 46,
       "star_echo": true,
       "evolution": {
         "weapon_id": "se_auto_turret",
@@ -747,7 +775,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "special",
-      "icon_index": 19,
+      "icon_index": 47,
       "star_echo": true,
       "evolution": {
         "weapon_id": "se_star_blade",
@@ -769,6 +797,7 @@
       "tags": [
         "relic"
       ],
+      "icon_index": 48,
       "effects": {
         "crit_damage_percent": 25
       }
@@ -783,7 +812,7 @@
         "damage"
       ],
       "slot": "relic",
-      "icon_index": 20,
+      "icon_index": 49,
       "effects": {
         "damage_percent": 50,
         "damage_taken_percent": 30
@@ -799,7 +828,7 @@
         "engineering"
       ],
       "slot": "relic",
-      "icon_index": 21,
+      "icon_index": 50,
       "effects": {
         "structure_damage_percent": 100
       }
@@ -815,7 +844,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "attack",
-      "icon_index": 22,
+      "icon_index": 51,
       "trigger": {
         "type": "on_crit",
         "radius": 80,
@@ -834,7 +863,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "defense",
-      "icon_index": 23,
+      "icon_index": 52,
       "trigger": {
         "type": "on_kill",
         "heal": 1
@@ -852,7 +881,7 @@
       "is_passive": true,
       "slot": "passive",
       "category": "stat",
-      "icon_index": 24,
+      "icon_index": 53,
       "trigger": {
         "type": "low_health",
         "threshold": 0.3,

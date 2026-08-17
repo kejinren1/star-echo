@@ -349,13 +349,20 @@ func _advance(sub: int) -> int:
 			_ok(flags3.get("archive_unlocked", false) == true, "改线/unlock_node(awakening_archive): flags archive_unlocked 登记")
 			return 8
 		8:
-			# add_node → 当前层+2 追加 event（5 层路线，target = 0+2 = 层 2）
+			# add_node → 当前层+2 追加 event（真实 15 层路线）
+			# PS-D2a-1（2026-08-17）：章末 event 层（层 2）已被保护拒绝追加——
+			# 正常追加从普通层触发（current_layer=1 → target=3 = 层 4 普通层）
 			var r5: Dictionary = _gen.generate_from(FIXED_SEED, _loader.get_routes())
+			_gm.set("route", r5)
+			_gm.set("current_layer", 1)
+			_gm.call("_apply_route_effect", {"type": "add_node", "value": "rescue_signal"})
+			var l2: Array = r5.get("layers")[3]
+			_ok(l2.size() == 4 and str(l2[3].get("type")) == "event", "改线/add_node: 当前层+2 追加 event 节点（层3 → 4 节点）")
+			# 章末 event 层（层 2）拒绝追加（单节点特殊层保护，与 boss 层同构）
 			_gm.set("route", r5)
 			_gm.set("current_layer", 0)
 			_gm.call("_apply_route_effect", {"type": "add_node", "value": "rescue_signal"})
-			var l2: Array = r5.get("layers")[2]
-			_ok(l2.size() == 4 and str(l2[3].get("type")) == "event", "改线/add_node: 当前层+2 追加 event 节点（层2 → 4 节点）")
+			_ok((r5.get("layers")[2] as Array).size() == 1, "改线/add_node: 章末 event 层拒绝追加（保持单节点）")
 			# difficulty → flags 登记
 			_gm.set("route", FIXED_ROUTE.duplicate(true))
 			_gm.call("_apply_route_effect", {"type": "difficulty", "value": -1})

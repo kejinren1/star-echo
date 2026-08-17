@@ -1,0 +1,13 @@
+{
+  "sheet": "assets/sprites/characters/yunni_idle_wave_w192_head_a06.png",
+  "frames": 12,
+  "frame_size": [
+    96,
+    96
+  ],
+  "fps_suggest": 8.0,
+  "loop": true,
+  "source": "docs/tmp_breath_wave/yunni_w192_head_a06",
+  "align": "bottom",
+  "bg_tol": 6
+}

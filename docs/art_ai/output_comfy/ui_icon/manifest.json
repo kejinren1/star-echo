@@ -1,0 +1,23 @@
+{
+  "category": "ui_icon",
+  "track": "portrait",
+  "host": "http://127.0.0.1:18001",
+  "items": [
+    {
+      "file": "ui_icon_style_military_cold_star_echo_00002_.png",
+      "source": "star_echo_00002_.png"
+    },
+    {
+      "file": "ui_icon_style_military_cold_star_echo_00003_.png",
+      "source": "star_echo_00003_.png"
+    },
+    {
+      "file": "ui_icon_style_military_cold_star_echo_00004_.png",
+      "source": "star_echo_00004_.png"
+    },
+    {
+      "file": "ui_icon_style_military_cold_star_echo_00005_.png",
+      "source": "star_echo_00005_.png"
+    }
+  ]
+}

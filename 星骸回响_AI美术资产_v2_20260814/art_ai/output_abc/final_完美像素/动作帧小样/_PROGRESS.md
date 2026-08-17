@@ -1,0 +1,12 @@
+若叶睦/idle_1: OK
+若叶睦/idle_2: OK
+若叶睦/attack_1: OK
+若叶睦/attack_2: OK
+若叶睦/hit_1: OK
+若叶睦/skill_1: OK
+云霓·中式古侠/idle_1: OK
+云霓·中式古侠/idle_2: OK
+云霓·中式古侠/attack_1: OK
+云霓·中式古侠/attack_2: OK
+云霓·中式古侠/hit_1: OK
+云霓·中式古侠/skill_1: OK

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>《星骸回响》美术资源 v1 选稿页 · 2026-08-15</title>
+<style>
+  body { background:#f7f7f9; color:#222; font-family:"Microsoft YaHei", sans-serif; margin:0; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#666; font-size:13px; margin-bottom:20px; }
+  h2 { font-size:17px; border-left:4px solid #e0563c; padding-left:10px; margin:28px 0 12px; }
+  .grid { display:flex; flex-wrap:wrap; gap:12px; }
+  .card { background:#fff; border:1px solid #e3e3e8; border-radius:8px; padding:8px; width:196px; }
+  .card img { width:180px; height:180px; object-fit:contain; background:repeating-conic-gradient(#f0f0f2 0 25%, #fff 0 50%) 0 0/16px 16px; border-radius:4px; display:block; }
+  .card .name { font-size:12px; color:#333; margin-top:6px; text-align:center; word-break:break-all; }
+  .card .tag { font-size:11px; color:#e0563c; text-align:center; margin-top:2px; }
+  .portrait img { height:240px; }
+  .note { background:#fff8ef; border:1px solid #f0d9b8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6b5428; margin:16px 0; }
+</style>
+</head>
+<body>
+<h1>《星骸回响》美术资源 v1 选稿页</h1>
+<div class="sub">2026-08-15 · 全部为纯白背景规范直出原图（768×768 动作帧 / 768×1024 立绘 / 512×512 道具图标）· 点击图片可查看原图</div>
+
+<div class="note">规范说明：局内素材零背景 / 纯白灰底 / 与本体反差大；本页所有局内资源角落均抽检为纯白（可一键抠底）。</div>
+
+<h2>一、主角团 · 局内动作帧（v1 每动作 1 版）</h2>
+<div class="grid" id="heroes"></div>
+
+<h2>二、主角团 · 立绘（768×1024，elin 纯白底，其余浅灰底待定）</h2>
+<div class="grid portrait" id="portraits"></div>
+
+<h2>三、道具图标（54 个 · 512×512 纯白底）</h2>
+<div class="grid" id="items"></div>
+
+<script>
+const HEROES = ["elin","noah","lain","siia"];
+const ACTS = ["idle","walk","attack","skill","hit"];
+const heroNames = {elin:"艾琳·炎术师", noah:"诺亚·机械师", lain:"莱恩·剑士", siia:"希亚·医师"};
+const actNames = {idle:"待机", walk:"行走", attack:"攻击", skill:"技能", hit:"受击"};
+const heroEl = document.getElementById("heroes");
+const heroIdx = {elin:{idle:1,walk:2,attack:3,skill:4,hit:5}, noah:{idle:6,walk:7,attack:8,skill:9,hit:10}, lain:{idle:11,walk:12,attack:13,skill:14,hit:15}, siia:{idle:16,walk:17,attack:18,skill:19,hit:20}};
+const heroFiles = {elin:{}, noah:{}, lain:{}, siia:{}};
+for (const h of HEROES) for (const a of ACTS) heroFiles[h][a] = `${h}_${a}_heroredraw_000${String(heroIdx[h][a]).padStart(2,"0")}_.png`;
+for (const h of HEROES) for (const a of ACTS) {
+  const src = `heroes_redraw_20260815/heroes/${h}/${heroFiles[h][a]}`;
+  const card = document.createElement("div"); card.className = "card";
+  card.innerHTML = `<a href="${src}" target="_blank"><img src="${src}"></a><div class="name">${heroNames[h]} · ${actNames[a]}</div><div class="tag">${h}_${a}</div>`;
+  heroEl.appendChild(card);
+}
+</script>
+<script>
+const ptEl = document.getElementById("portraits");
+const pt = [
+  ["portrait_elin_heroportrait_00001_.png","艾琳·立绘"],
+  ["portrait_noah_heroportrait_00002_.png","诺亚·立绘"],
+  ["portrait_lain_heroportrait_00003_.png","莱恩·立绘"],
+  ["portrait_siia_heroportrait_00004_.png","希亚·立绘"],
+];
+for (const [f, n] of pt) {
+  const card = document.createElement("div"); card.className = "card portrait";
+  card.innerHTML = `<a href="heroes_redraw_20260815/portraits/${f}" target="_blank"><img src="heroes_redraw_20260815/portraits/${f}"></a><div class="name">${n}</div>`;
+  ptEl.appendChild(card);
+}
+</script>
+<script>
+const itemsEl = document.getElementById("items");
+const itemZh = {
+  coffee:"咖啡", helmet:"头盔", head_injury:"创伤", injection:"注射器", sneakers:"速跑鞋", glasses:"望远镜",
+  fertilizer:"肥料", alien_worm:"外星虫", feather:"羽毛", charcoal:"木炭", boxing_glove:"拳击手套", lens:"透镜",
+  insanity:"疯狂", jelly:"果冻", book:"书本", adrenaline:"肾上腺素", black_belt:"黑带", banner:"旗帜",
+  blood_leech:"血蛭", bone_dice:"骰子", campfire:"营火", compass:"罗盘", blindfold:"眼罩", bait:"诱饵",
+  medal:"奖章", mushroom:"蘑菇", saw:"锯子", alloy:"合金", ball_and_chain:"铁球链", glass_cannon:"玻璃大炮",
+  silver_bullet:"银弹", triangle_of_power:"力量三角", adrenaline_shot:"肾上腺素注射", guardian_shield:"护卫盾",
+  radar:"雷达", elemental_core:"元素核心", blueprint:"工程图", anvil:"铁砧", ashes:"灰烬", focus:"焦点",
+  heavy_bullets:"重型子弹", spider:"蜘蛛", potato:"土豆", elemental_master:"元素大师徽章", mech_heart:"机械之心",
+  se_flame_core:"烈焰核心", se_mech_core:"机械核心", se_blade_core:"星刃核心", resonant_shard:"共鸣碎晶",
+  broken_crown:"破碎王冠", mech_engine:"机械引擎", overload_capacitor:"过载电容", executioner_mark:"处决印记",
+  last_stand:"背水一战"
+};
+const order = Object.keys(itemZh);
+fetch("items_20260815/_files.json").then(r=>r.json()).then(filesMap=>{
+  window.itemFiles = filesMap;
+  return fetch("items_20260815/_order.json");
+}).then(r=>r.json()).then(list=>{
+  const use = list.length ? list : order;
+  for (const id of use) {
+    const f = itemFiles[id] || `${id}_item_00001_.png`;
+    const card = document.createElement("div"); card.className = "card";
+    card.innerHTML = `<a href="items_20260815/${f}" target="_blank"><img src="items_20260815/${f}"></a><div class="name">${itemZh[id]}${id==="bone_dice"?"":""}</div><div class="tag">${id}</div>`;
+    itemsEl.appendChild(card);
+  }
+}).catch(()=>{
+  for (const id of order) {
+    const card = document.createElement("div"); card.className = "card";
+    card.innerHTML = `<a href="items_20260815/0" target="_blank"><img src="items_20260815/0"></a><div class="name">${itemZh[id]}</div>`;
+    itemsEl.appendChild(card);
+  }
+});
+</script>
+</body>
+</html>

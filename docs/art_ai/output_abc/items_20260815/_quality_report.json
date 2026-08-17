@@ -1,0 +1,596 @@
+{
+ "adrenaline": {
+  "src": "adrenaline_item_00019_.png",
+  "bbox": [
+   176,
+   472
+  ],
+  "opaque%": 100.0,
+  "colors": 21,
+  "white_op%": 37.3,
+  "status": "WHITE_RESIDUE"
+ },
+ "adrenaline_shot": {
+  "src": "adrenaline_shot_item_00036_.png",
+  "bbox": [
+   456,
+   144
+  ],
+  "opaque%": 17.0,
+  "colors": 19,
+  "white_op%": 1.7,
+  "status": "OK"
+ },
+ "alien_worm": {
+  "src": "alien_worm_item_00011_.png",
+  "bbox": [
+   384,
+   392
+  ],
+  "opaque%": 30.3,
+  "colors": 8,
+  "white_op%": 0.0,
+  "status": "OK"
+ },
+ "alloy": {
+  "src": "alloy_item_00031_.png",
+  "bbox": [
+   280,
+   472
+  ],
+  "opaque%": 62.1,
+  "colors": 15,
+  "white_op%": 3.2,
+  "status": "OK"
+ },
+ "anvil": {
+  "src": "anvil_item_00041_.png",
+  "bbox": [
+   385,
+   504
+  ],
+  "opaque%": 49.2,
+  "colors": 21,
+  "white_op%": 0.7,
+  "status": "OK"
+ },
+ "ashes": {
+  "src": "ashes_item_00042_.png",
+  "bbox": [
+   321,
+   320
+  ],
+  "opaque%": 69.8,
+  "colors": 24,
+  "white_op%": 23.6,
+  "status": "OK"
+ },
+ "bait": {
+  "src": "bait_item_00027_.png",
+  "bbox": [
+   448,
+   240
+  ],
+  "opaque%": 19.2,
+  "colors": 20,
+  "white_op%": 0.8,
+  "status": "OK"
+ },
+ "ball_and_chain": {
+  "src": "ball_and_chain_item_00032_.png",
+  "bbox": [
+   448,
+   448
+  ],
+  "opaque%": 80.8,
+  "colors": 22,
+  "white_op%": 48.7,
+  "status": "WHITE_RESIDUE"
+ },
+ "banner": {
+  "src": "banner_item_00021_.png",
+  "bbox": [
+   224,
+   488
+  ],
+  "opaque%": 69.8,
+  "colors": 13,
+  "white_op%": 48.6,
+  "status": "WHITE_RESIDUE"
+ },
+ "black_belt": {
+  "src": "black_belt_item_00020_.png",
+  "bbox": [
+   320,
+   456
+  ],
+  "opaque%": 65.2,
+  "colors": 62,
+  "white_op%": 17.3,
+  "status": "OK"
+ },
+ "blindfold": {
+  "src": "blindfold_item_00026_.png",
+  "bbox": [
+   385,
+   456
+  ],
+  "opaque%": 72.9,
+  "colors": 32,
+  "white_op%": 8.8,
+  "status": "OK"
+ },
+ "blood_leech": {
+  "src": "blood_leech_item_00022_.png",
+  "bbox": [
+   305,
+   448
+  ],
+  "opaque%": 58.0,
+  "colors": 25,
+  "white_op%": 0.9,
+  "status": "OK"
+ },
+ "blueprint": {
+  "src": "blueprint_item_00040_.png",
+  "bbox": [
+   425,
+   376
+  ],
+  "opaque%": 39.2,
+  "colors": 14,
+  "white_op%": 1.0,
+  "status": "OK"
+ },
+ "bone_dice": {
+  "src": "bone_dice_item_00058_.png",
+  "bbox": [
+   249,
+   256
+  ],
+  "opaque%": 74.2,
+  "colors": 24,
+  "white_op%": 0.0,
+  "status": "OK"
+ },
+ "book": {
+  "src": "book_item_00018_.png",
+  "bbox": [
+   336,
+   304
+  ],
+  "opaque%": 78.1,
+  "colors": 9,
+  "white_op%": 51.8,
+  "status": "WHITE_RESIDUE"
+ },
+ "boxing_glove": {
+  "src": "boxing_glove_item_00014_.png",
+  "bbox": [
+   416,
+   368
+  ],
+  "opaque%": 38.1,
+  "colors": 37,
+  "white_op%": 3.8,
+  "status": "OK"
+ },
+ "broken_crown": {
+  "src": "broken_crown_item_00053_.png",
+  "bbox": [
+   353,
+   376
+  ],
+  "opaque%": 84.0,
+  "colors": 45,
+  "white_op%": 24.3,
+  "status": "OK"
+ },
+ "campfire": {
+  "src": "campfire_item_00024_.png",
+  "bbox": [
+   337,
+   416
+  ],
+  "opaque%": 53.4,
+  "colors": 39,
+  "white_op%": 8.9,
+  "status": "OK"
+ },
+ "charcoal": {
+  "src": "charcoal_item_00013_.png",
+  "bbox": [
+   400,
+   400
+  ],
+  "opaque%": 80.5,
+  "colors": 12,
+  "white_op%": 0.6,
+  "status": "OK"
+ },
+ "coffee": {
+  "src": "coffee_item_00004_.png",
+  "bbox": [
+   249,
+   320
+  ],
+  "opaque%": 63.8,
+  "colors": 41,
+  "white_op%": 22.1,
+  "status": "OK"
+ },
+ "compass": {
+  "src": "compass_item_00025_.png",
+  "bbox": [
+   488,
+   417
+  ],
+  "opaque%": 49.4,
+  "colors": 53,
+  "white_op%": 12.3,
+  "status": "OK"
+ },
+ "elemental_core": {
+  "src": "elemental_core_item_00039_.png",
+  "bbox": [
+   400,
+   432
+  ],
+  "opaque%": 70.1,
+  "colors": 9,
+  "white_op%": 17.6,
+  "status": "OK"
+ },
+ "elemental_master": {
+  "src": "elemental_master_item_00047_.png",
+  "bbox": [
+   353,
+   416
+  ],
+  "opaque%": 75.7,
+  "colors": 14,
+  "white_op%": 30.8,
+  "status": "OK"
+ },
+ "executioner_mark": {
+  "src": "executioner_mark_item_00056_.png",
+  "bbox": [
+   400,
+   448
+  ],
+  "opaque%": 36.6,
+  "colors": 17,
+  "white_op%": 0.0,
+  "status": "OK"
+ },
+ "feather": {
+  "src": "feather_item_00012_.png",
+  "bbox": [
+   128,
+   104
+  ],
+  "opaque%": 64.1,
+  "colors": 9,
+  "white_op%": 30.5,
+  "status": "OK"
+ },
+ "fertilizer": {
+  "src": "fertilizer_item_00010_.png",
+  "bbox": [
+   96,
+   232
+  ],
+  "opaque%": 95.9,
+  "colors": 33,
+  "white_op%": 16.8,
+  "status": "OK"
+ },
+ "focus": {
+  "src": "focus_item_00043_.png",
+  "bbox": [
+   240,
+   232
+  ],
+  "opaque%": 79.3,
+  "colors": 12,
+  "white_op%": 16.2,
+  "status": "OK"
+ },
+ "glass_cannon": {
+  "src": "glass_cannon_item_00033_.png",
+  "bbox": [
+   369,
+   241
+  ],
+  "opaque%": 41.5,
+  "colors": 29,
+  "white_op%": 10.2,
+  "status": "OK"
+ },
+ "glasses": {
+  "src": "glasses_item_00009_.png",
+  "bbox": [
+   480,
+   392
+  ],
+  "opaque%": 47.8,
+  "colors": 36,
+  "white_op%": 0.1,
+  "status": "OK"
+ },
+ "guardian_shield": {
+  "src": "guardian_shield_item_00037_.png",
+  "bbox": [
+   417,
+   424
+  ],
+  "opaque%": 84.7,
+  "colors": 17,
+  "white_op%": 41.1,
+  "status": "WHITE_RESIDUE"
+ },
+ "head_injury": {
+  "src": "head_injury_item_00006_.png",
+  "bbox": [
+   385,
+   456
+  ],
+  "opaque%": 56.8,
+  "colors": 33,
+  "white_op%": 1.7,
+  "status": "OK"
+ },
+ "heavy_bullets": {
+  "src": "heavy_bullets_item_00044_.png",
+  "bbox": [
+   256,
+   473
+  ],
+  "opaque%": 57.6,
+  "colors": 22,
+  "white_op%": 8.3,
+  "status": "OK"
+ },
+ "helmet": {
+  "src": "helmet_item_00005_.png",
+  "bbox": [
+   345,
+   456
+  ],
+  "opaque%": 74.5,
+  "colors": 44,
+  "white_op%": 26.3,
+  "status": "OK"
+ },
+ "injection": {
+  "src": "injection_item_00007_.png",
+  "bbox": [
+   416,
+   448
+  ],
+  "opaque%": 24.2,
+  "colors": 7,
+  "white_op%": 0.5,
+  "status": "OK"
+ },
+ "insanity": {
+  "src": "insanity_item_00016_.png",
+  "bbox": [
+   416,
+   416
+  ],
+  "opaque%": 85.3,
+  "colors": 10,
+  "white_op%": 36.5,
+  "status": "WHITE_RESIDUE"
+ },
+ "jelly": {
+  "src": "jelly_item_00017_.png",
+  "bbox": [
+   264,
+   208
+  ],
+  "opaque%": 57.5,
+  "colors": 18,
+  "white_op%": 22.4,
+  "status": "OK"
+ },
+ "last_stand": {
+  "src": "last_stand_item_00057_.png",
+  "bbox": [
+   296,
+   368
+  ],
+  "opaque%": 57.4,
+  "colors": 26,
+  "white_op%": 12.4,
+  "status": "OK"
+ },
+ "lens": {
+  "src": "lens_item_00015_.png",
+  "bbox": [
+   400,
+   441
+  ],
+  "opaque%": 28.8,
+  "colors": 12,
+  "white_op%": 4.7,
+  "status": "OK"
+ },
+ "mech_engine": {
+  "src": "mech_engine_item_00054_.png",
+  "bbox": [
+   337,
+   497
+  ],
+  "opaque%": 63.8,
+  "colors": 22,
+  "white_op%": 20.4,
+  "status": "OK"
+ },
+ "mech_heart": {
+  "src": "mech_heart_item_00048_.png",
+  "bbox": [
+   409,
+   488
+  ],
+  "opaque%": 77.5,
+  "colors": 22,
+  "white_op%": 12.7,
+  "status": "OK"
+ },
+ "medal": {
+  "src": "medal_item_00028_.png",
+  "bbox": [
+   257,
+   232
+  ],
+  "opaque%": 45.1,
+  "colors": 23,
+  "white_op%": 1.7,
+  "status": "OK"
+ },
+ "mushroom": {
+  "src": "mushroom_item_00029_.png",
+  "bbox": [
+   512,
+   472
+  ],
+  "opaque%": 48.7,
+  "colors": 37,
+  "white_op%": 5.7,
+  "status": "OK"
+ },
+ "overload_capacitor": {
+  "src": "overload_capacitor_item_00055_.png",
+  "bbox": [
+   336,
+   456
+  ],
+  "opaque%": 54.6,
+  "colors": 14,
+  "white_op%": 22.7,
+  "status": "OK"
+ },
+ "potato": {
+  "src": "potato_item_00046_.png",
+  "bbox": [
+   456,
+   449
+  ],
+  "opaque%": 71.9,
+  "colors": 25,
+  "white_op%": 34.3,
+  "status": "OK"
+ },
+ "radar": {
+  "src": "radar_item_00038_.png",
+  "bbox": [
+   440,
+   384
+  ],
+  "opaque%": 39.3,
+  "colors": 20,
+  "white_op%": 5.9,
+  "status": "OK"
+ },
+ "resonant_shard": {
+  "src": "resonant_shard_item_00052_.png",
+  "bbox": [
+   385,
+   488
+  ],
+  "opaque%": 58.3,
+  "colors": 10,
+  "white_op%": 25.8,
+  "status": "OK"
+ },
+ "saw": {
+  "src": "saw_item_00030_.png",
+  "bbox": [
+   376,
+   480
+  ],
+  "opaque%": 20.5,
+  "colors": 28,
+  "white_op%": 0.0,
+  "status": "OK"
+ },
+ "se_blade_core": {
+  "src": "se_blade_core_item_00051_.png",
+  "bbox": [
+   297,
+   400
+  ],
+  "opaque%": 57.0,
+  "colors": 11,
+  "white_op%": 6.2,
+  "status": "OK"
+ },
+ "se_flame_core": {
+  "src": "se_flame_core_item_00049_.png",
+  "bbox": [
+   336,
+   353
+  ],
+  "opaque%": 86.9,
+  "colors": 9,
+  "white_op%": 67.4,
+  "status": "WHITE_RESIDUE"
+ },
+ "se_mech_core": {
+  "src": "se_mech_core_item_00050_.png",
+  "bbox": [
+   305,
+   472
+  ],
+  "opaque%": 80.6,
+  "colors": 24,
+  "white_op%": 20.6,
+  "status": "OK"
+ },
+ "silver_bullet": {
+  "src": "silver_bullet_item_00034_.png",
+  "bbox": [
+   472,
+   272
+  ],
+  "opaque%": 29.7,
+  "colors": 19,
+  "white_op%": 12.0,
+  "status": "OK"
+ },
+ "sneakers": {
+  "src": "sneakers_item_00008_.png",
+  "bbox": [
+   313,
+   160
+  ],
+  "opaque%": 34.2,
+  "colors": 22,
+  "white_op%": 11.0,
+  "status": "OK"
+ },
+ "spider": {
+  "src": "spider_item_00045_.png",
+  "bbox": [
+   401,
+   473
+  ],
+  "opaque%": 29.3,
+  "colors": 17,
+  "white_op%": 0.0,
+  "status": "OK"
+ },
+ "triangle_of_power": {
+  "src": "triangle_of_power_item_00035_.png",
+  "bbox": [
+   272,
+   490
+  ],
+  "opaque%": 40.1,
+  "colors": 37,
+  "white_op%": 9.3,
+  "status": "OK"
+ }
+}

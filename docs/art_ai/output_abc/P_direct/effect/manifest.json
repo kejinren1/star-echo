@@ -1,0 +1,27 @@
+{
+  "category": "effect",
+  "base_seed": 20009,
+  "count": 4,
+  "items": [
+    {
+      "file": "effect_01.png",
+      "seed": 20009,
+      "category": "effect"
+    },
+    {
+      "file": "effect_02.png",
+      "seed": 20010,
+      "category": "effect"
+    },
+    {
+      "file": "effect_03.png",
+      "seed": 20011,
+      "category": "effect"
+    },
+    {
+      "file": "effect_04.png",
+      "seed": 20012,
+      "category": "effect"
+    }
+  ]
+}

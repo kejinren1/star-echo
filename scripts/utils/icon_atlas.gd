@@ -13,7 +13,7 @@ const SHEET_CONFIG: Dictionary = {
 	},
 	"items": {
 		"path": "res://assets/sprites/ui/items.png",
-		"frame_count": 25,                       ## D24-F13-3: 22 → 25（20 被动 + 2 遗物 + 3 机制型被动）
+		"frame_count": 54,                       ## 2026-08-15 道具图集重建：25 → 54（items.json 全 54 道具按序）
 		"frame_size": Vector2i(32, 32),
 	},
 	"skills": {

@@ -1,0 +1,10 @@
+云霓·中式古侠: OK grid=96x96
+银薇·西幻法师: OK grid=96x96
+绯月·日式巫女: OK grid=96x96
+蜜糖·西海岸辣妹: OK grid=97x95
+奈芙·埃及祭司: OK grid=96x96
+零·赛博义体: OK grid=96x96
+冰霜·维京女武神: OK grid=96x96
+芙蕾雅·英伦大小姐: OK grid=96x96
+影·忍者暗杀者: OK grid=96x96
+夜莺·哥特女王: OK grid=96x96

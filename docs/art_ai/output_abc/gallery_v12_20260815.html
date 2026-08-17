@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>《星骸回响》v12 · Strawberry + ESRGAN 高清立绘 · 2026-08-15</title>
+<style>
+  body { background:#f7f7f9; color:#222; font-family:"Microsoft YaHei", sans-serif; margin:0; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:#666; font-size:13px; margin-bottom:8px; }
+  .note { background:#fff8ef; border:1px solid #f0d9b8; border-radius:8px; padding:10px 14px; font-size:13px; color:#6b5428; margin:14px 0; }
+  .sec { background:#fff; border:1px solid #e3e3e8; border-radius:10px; padding:16px; margin:18px 0; }
+  .sec h2 { font-size:17px; margin:0 0 10px; }
+  .group { margin-bottom:16px; }
+  .group .gname { font-size:13px; font-weight:bold; color:#555; margin-bottom:8px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .var { border:1px solid #e9e9ee; border-radius:8px; padding:6px; background:#fcfcfd; text-align:center; }
+  .var .vname { font-size:11px; font-weight:bold; margin-bottom:4px; }
+  .var img { height:260px; background:repeating-conic-gradient(#f0f0f2 0 25%, #fff 0 50%) 0 0/16px 16px; border-radius:4px; border:1px solid #eee; }
+  .var .bad { outline:2px solid #e0563c; }
+</style>
+</head>
+<body>
+<h1>《星骸回响》v12 · Strawberry + ESRGAN 高清立绘（1024×1536）</h1>
+<div class="sub">2026-08-15 · 选定 B 组合（Strawberry）+ 4x-UltraSharp 超分修复模糊 · 女 3 体态 × 3 角色 + 莱恩 = 20 张 · 清晰度 Laplacian 673 vs 旧 latent-hires 176</div>
+<div class="note">红框 = 背景抽检不达标（希亚萝莉 2 张，可弃或后续重跑）。点击看原图。</div>
+
+<div id="content"></div>
+<script>
+const BODY_ZH = { mature:"巨乳御姐", youth:"少女", loli:"萝莉" };
+const GIRLS = ["elin","noah","siia"];
+const GIRL_ZH = { elin:"艾琳 · 炎术师", noah:"诺亚 · 魔导技师", siia:"希亚 · 医师" };
+const files = {
+  elin: { mature:[2,3], youth:[4,5], loli:[6,7] },
+  noah: { mature:[8,9], youth:[10,11], loli:[12,13] },
+  siia: { mature:[14,15], youth:[16,17], loli:[18,19] },
+};
+const badBg = { siia_loli_p1:true, siia_loli_p2:true };
+const content = document.getElementById("content");
+let html = "";
+for (const hid of GIRLS) {
+  html += `<div class="sec"><h2>${hid.toUpperCase()} · ${GIRL_ZH[hid]}</h2>`;
+  for (const [bkey, bzh] of Object.entries(BODY_ZH)) {
+    html += `<div class="group"><div class="gname">${bzh}</div><div class="row">`;
+    for (let k = 1; k <= 2; k++) {
+      const name = `${hid}_${bkey}_p${k}`;
+      const fn = `${name}_v12_000${String(files[hid][bkey][k-1]).padStart(2,"0")}_.png`;
+      const bad = badBg[name] ? " bad" : "";
+      html += `<div class="var"><div class="vname">${k===1?"立绘 1":"立绘 2"}</div><a href="v12_strawberry_hd_20260815/${fn}" target="_blank"><img class="${bad}" src="v12_strawberry_hd_20260815/${fn}"></a></div>`;
+    }
+    html += `</div></div>`;
+  }
+  html += "</div>";
+}
+html += `<div class="sec"><h2>LAIN · 莱恩 · 剑士</h2><div class="row">`;
+for (let k = 1; k <= 2; k++) {
+  const fn = `lain_p${k}_v12_000${k===1?"20":"21"}_.png`;
+  html += `<div class="var"><div class="vname">立绘 ${k}</div><a href="v12_strawberry_hd_20260815/${fn}" target="_blank"><img src="v12_strawberry_hd_20260815/${fn}"></a></div>`;
+}
+html += `</div></div>`;
+content.innerHTML = html;
+</script>
+</body>
+</html>

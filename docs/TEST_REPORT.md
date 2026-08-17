@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #46（08-14 18:45 · Day30 F4 拆分收口 + G 系列 R1-R6 全落地 EXIT 轮）**：✅ PASS · 0 阻断 / 0 功能缺陷 / 无新增 minor / **action item 0 项**
-- **基线**：`BASELINE CLEAN` ｜ JSON **12/12** · **2381 字段零缺陷**（较 #45 2367 +14 = skill_tree 新表；skill_tree prereq 链 0 悬空）｜ 场景 **23/23**（+6：MainMenu/PauseMenu/BackpackPanel/SkillTreePanel/CodexPanel/ArchivePanel）｜ 600帧深探 242B 良性
-- **探针回归**：**四十六件套 46/46 · 1061 断言全绿首跑**（runner 声明基线 1039）｜ HEAD=**300a0e2**（较 #45 +18：**F4-A~D 拆分四连** `dc77e47`/`a654662`/`3168c14`/`0551cd9`（enemy 1097→405 + player 732→399 + GM 拆 SaveSystem/DebugConsole）+ **G-A~F R1-R6 六段** `16e4a1d`/`bcd97bc`/`74e5e3a`/`e93d63a`/`e01b612`/`fe6038c`，**G 系列 EXIT，主场景改 MainMenu**）
-- **已知良性**：Day 24 音频 242 B/进程 BENIGN 白名单维持；**G 系列 6 探针首记录全 242B 纯音频零泄漏**；day26 402B→160B（2× node.h 探针方法学输出，音频缺席波动）；day6/day10/day18_19 音频叠加缺席波动，与历史口径一致
-- **在途 action item（0 项）**：无。工作区干净无游戏运行时代码改动；未跟踪存量 = docs/art_ai/*（.ssh_tmp/ 入库前甄别）+ 测试立绘/ + AI 美术资产 v2 交付物
-- **观察**：**阶段 F 全链 + G 系列 R1-R6 全落地 EXIT**（F1-E 主窗口承接维持排程未动）；**主场景 CharacterSelect→MainMenu 变更待真人确认**；Day 28 性能段挂账交 Owner 未决；Day29 动画/F-32~34 待真人回归
+- **最近轮次 #52（08-17 22:45 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **46/52**，6 FAIL 全部定性为**探针 orbit 断言未随 PS 大包星刃重构同步**（非游戏缺陷，新玩法探针 9/9 已过）；action item 1 项
+- **基线**：`BASELINE CLEAN` ｜ JSON **15 文件** · **2449 数值字段**零缺陷（-12=PS 大包星刃 orbit 键清零，符合预期）｜场景 **25/25** ｜ 600帧深探 EXIT 0、stderr **242B 良性泄漏**
+- **探针回归**：**46/52（1099 条登记期望）**；6 FAIL = day5×3 / day8×1 / day10×2 / day18_feedback2×6 / day18_feedback4×2 / day18_feedback5×1，均为断言已清零的 orbit 数据（blade_count/orbit_radius/orbit_data/环绕描述）
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**3460916**（31d03b8 PS 大包 + 3460916 立绘实装 12 张）
+- **在途 action item（1 项）**：交 #3 同步 5 旧探针 orbit 断言→扇形挥砍语义（15 条过时断言，同步后恢复 52/52）；在途 178 文件（立绘+探针同步+图集重建）建议尽快 commit
+- **观察**：day31_spawner_deadlock 46× warning 刷屏维持（mock 未装 enemy_scene，非缺陷）；HUD 待补 `se_skill_sword_arc` 图标映射；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突仍待决
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3289,3 +3289,212 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 **action item（0 项）**：无新增。观察项 2 条待跟进：① **主场景变更（CharacterSelect→MainMenu）建议真机走一遍开局全链路**（选角→进局→暂停→背包/返回主菜单，U-1 待目视）；② docs/art_ai/.ssh_tmp/ 入库前须甄别不含私钥/口令。
 
 **观察项维持/更新**：**阶段 F 全链收口 + G 系列 EXIT**（TASKS F4-T1~7 / G-R1~R6 全 [x]；F1-E 主窗口承接维持排程未动）｜ 主场景改 MainMenu 待真人确认（见上）｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ Day29 艾琳动画/F-32~F-34 待真人回归（U-1 待目视）｜ AI 美术库交付物（docs/art_ai/* + 测试立绘/ + 资产 v2）未入库待甄别 ｜ 探针残留（_probe_* / level_up_panel.gd.bak / qa_validate.py / probe_logs / tools/_regression_run.py 本地 gitignore）维持 ｜ latent `mixed*` 维持关闭
+
+## §7.47 轮次 #47 · 2026-08-15 19:3x（自动化 · **Day30 AI 美术资产 v2 实装期在途轮**：items 图集 25→54 帧重建 + 新角色动画试装；3 探针 items 图集期望过期 FAIL（非游戏缺陷））
+
+**验证快照 = HEAD=17663b8 + 在途（AI 美术资产 v2 实装期，153 文件）** · 执行 19:2x-19:3x
+
+### 快照与在途
+
+- HEAD 较 #46（300a0e2）**+2 提交（均 docs）**：`d81c7a8` Day30 执行者确认轮（PLAYER_SKILL_SPEC.md 入库 D1-D7 规格落盘 + SOLUTION_PLAN 执行结果 + 挂账同步）｜ `17663b8` PLAYTEST #66（TEST_REPORT #46 核查 G 系列机器侧 46/46 + F-37 主观回归面登记）
+- 工作区在途 **153 文件 = AI 美术资产 v2 实装期**：**items.png 图集 25→54 帧重建**（1728×32）+ items.json **icon_index 全量重排**（54 项按序，+29 字段）+ icon_atlas.gd items frame_count 25→**54**（三方自洽）+ noah/lain/siia **idle 升级 256×64**（4 帧×64px，day21_22 探针期望已随在途同步）+ 新角色动画实装（**anjelina_dance 10 帧 / ruoyemu_idle 12 帧 / yunni_idle 12 帧** + lain/noah/siia `_hit` 受击）+ 新场景 **AnjelinaDance.tscn** + project.godot 注释/输入序列化格式微调 + img2sprite.py 管线改动
+- 未跟踪新增：ART/CHARA/ + 角色 tmp 残留（eliB99C.tmp 等 4 + fx_A990.tmp）+ **.godot_broken_20260814/** + **.tmp_junk_20260814/**（08-14 故障备份目录）
+
+### 检查结果（4 绿 1 黄）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + --quit-after 4） | ✅ PASS · **BASELINE CLEAN**（import err 0B / runtime err 0B） |
+| 600 帧深探 | ✅ EXIT 0 · deep_runtime_err.log **0B**（音频 BENIGN 缺席波动，较历史 242B 更净） |
+| JSON **13/13** 解析 | ✅ characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20 + skill_tree 等（qa_validate 13 文件含 .manifest.json） |
+| 数值边界 | ✅ **2410 字段零缺陷**（较 #46 的 2381 **+29**：items.json icon_index 重排新增字段；39 负值=惩罚/诅咒有意 + 0 非豁免零伤害 + 2 Boss 哨兵 -1 有意；crit 双口径越界 0） |
+| 跨引用完整性 | ✅ 0 硬悬空 · **DATA LAYER CLEAN**；**skill_tree 补查**：6 节点 id 唯一 / prereq 0 悬空（字符串口径：atk_2→atk_1、hp_2→hp_1、lck_2→lck_1）/ effect {stat,value,mult} 合法；**items icon_index 54 项 max=53 < atlas 54** ✓；**3 新动画 json 可解析**（10/12/12 帧，sheet/frames/frame_size/fps_suggest 结构） |
+| 场景 smoke | ✅ **25/25 全可实例化**（较 #46 23 **+1**：AnjelinaDance.tscn；Main.tscn 置末方法学维持，临时文件 os.remove 清理无残留；退出 242B 良性） |
+| 探针回归（runner） | ⚠️ **43/46 · 3 探针 FAIL（items 图集硬编码期望过期，非游戏缺陷）**；0 script_errors |
+
+**合计 43 探针 PASS · 3 探针 FAIL（全为工具侧期望过期）。**
+
+### 3 项 FAIL 根因（探针侧维护项；游戏侧三方自洽）
+
+| 探针 | 断言 | FAIL 明细 | 根因 |
+|---|---|---|---|
+| day11_12_passive | 23 断言 3 失败 | icon_index 0-24 唯一性范围过期 + icon_atlas items 应 25 实得 54 + items.png 应 800×32 实得 1728×32 | 硬编码 25 帧时代期望 |
+| day20_relic | 37 断言 15 失败 | broken_crown/mech_engine icon_index 应 20/21 实得 **49/50** + frame_count 25 过期 + 被动 icon_index 越界 0-24（13 处，现合法段 0-53） | 同上 |
+| day24_f13 | 24 断言 5 失败 | overload_capacitor/executioner_mark/last_stand icon_index 应 22/23/24 实得 **51/52/53** + frame_count 25 + items.png 800×32 | 同上 |
+
+- **定性**：今日在途 items 图集 25→54 帧重建（执行者已随在途同步 day21_22 探针 idle 期望，漏同步 3 个 items 图集期望）；**游戏侧自洽实证**：icon_atlas.gd frame_count **54** = items.png **1728×32/54 帧** = items.json icon_index **max 53** ✓；全 err log **无 SCRIPT ERROR**
+- 建议修复（交 #3）：探针期望改**动态读取 IconAtlas.get_frame_count("items")**（day24 :338 已有动态读取但比对目标硬编码 25）防再过期；同步后下轮回归应 46/46
+
+### stderr 口径（3 FAIL 探针均在历史 minor 口径内，无新增异常）
+
+- day11_12 **660B**（被动效果键无消费方 ×2 主动 + Canvas leaked minor，与 #43 口径一致）/ day20 **941B**（同上 + HUD 未知技能 id 主动）/ day24_f13 **860B**（Body2D/Canvas/CanvasItem/DummyTexture leaked minor + 音频，与 #46 的 860B 一致）
+- 其余 43 探针全部 PASS，stderr 维持历史口径（本轮未逐一展开，与 #46 一致）
+
+### 结论
+
+**⚠️ 2026-08-15 19:3x 自动化测试轮次 #47：PASS（0 阻断 / 0 功能缺陷，无新增 minor）+ 3 探针 FAIL（工具侧期望过期，非游戏缺陷）。** HEAD=**17663b8**（+2 docs：PLAYER_SKILL_SPEC 入库 + PLAYTEST #66）。工程可导入、可运行、数据完整（13 表 2410 字段零缺陷 + skill_tree/动画元数据补查全 OK）、25 场景全可实例化。**AI 美术资产 v2 实装期在途改动未破坏任何游戏功能**——唯一黄灯为 3 个探针（day11_12/day20/day24_f13）硬编码 items 图集 25 帧时代期望过期，游戏侧 icon_atlas/PNG/JSON 三方自洽，无需回退。
+
+**action item（1 项）**：交 #3 同步 3 探针 items 图集期望（frame_count 25→54、items.png 800×32→1728×32、icon_index 范围 0-24→0-53、遗物 20/21→49/50、机制词条 22/23/24→51/52/53），建议动态读取 get_frame_count("items") 防再过期；同步后下轮回归应 46/46。
+
+**观察项维持/更新**：**AI 美术资产 v2 实装期在途**（items 图集重建 + noah/lain/siia idle 256×64 + 新角色动画 anjelina_dance/ruoyemu_idle/yunni_idle 试装，真机待回归）｜ 主场景改 MainMenu 待真人确认（U-1 待目视）｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ docs/art_ai/.ssh_tmp/ 入库前甄别 ｜ **新杂物建议清理**：assets/sprites/characters/ 4× .tmp + effects/fx_A990.tmp（img2sprite 管线残留，baseline import PASS 无害）+ .godot_broken_20260814/ + .tmp_junk_20260814/（08-14 备份目录）｜ 探针残留（_probe_* / probe_logs / tools/_regression_run.py 本地 gitignore）维持 ｜ latent `mixed*` 维持关闭
+
+---
+
+## §7.48 轮次 #48 · 2026-08-16 18:40（自动化 · **Day31 玩家技能扩展 PS-A~D 收口 + AI 美术资产实装续期在途轮**：多技能位/位移三型/技能遗物/章节化 + 4 探针 `%` 格式隐患修复；1 探针首跑 flaky 定性）
+
+**验证快照 = HEAD=d9e028c + 在途（AI 美术资产实装续期，156 文件）** · 执行 18:40-18:47
+
+### 快照与在途
+
+- HEAD 较 #47（17663b8）**+6 提交（Day31 PS 系列）**：`ce1cc0c` **PS-A 多技能位 3 槽**（skill_controller 列表化 槽0英雄/槽1左键/槽2右键 + input map 补 skill_slot1/2 + HUD SkillBar 1→3 格 + day31_skill_slots 11/11）｜ `36bf5e1` **PS-B 位移三型+invulnerable**（boss_skill_factory 扩展 dash/blink/leap/spawn/buff 只加不改 + 三接口执行器 + elements invulnerable 效果 + player 免疫窗口 + day31_skill_movement 13/13）｜ `e0e27b0` **PS-C+E 技能遗物掉落+局外解锁**（skill_relics 3 掉落精英80%/章Boss必掉 + skill_unlocks Lv2/Lv4 解锁槽1/2 + 剑士星刃→剑气爆发 + SaveSystem skill_slots 持久化 + day31_skill_relic 9/9 + day31_skill_levelup 7/7）｜ `e9f4289` **PS-D 章节化数据层**（routes chapters 4 章 + 章末 boss 映射冲突按 R5 兜底回滚待裁决 + day31_chapter 5/5 + runner 52 项 1091）｜ `d9e028c` 美工素材需求清单（P0 三主角 walk+技能图标）
+- 工作区在途 **156 文件 = AI 美术资产 v2 实装续期**：items.png/items.json/icon_atlas 54 帧三方自洽维持 + characters 全角色 PNG 批量更新 + day21_22 探针 idle 期望 128×32→**256×64** 随在途同步 + 新动画 json/png（anjelina_dance/ruoyemu_idle/yunni_idle）+ img2sprite.py 管线 + open_editor.bat
+- 未跟踪新增：ART/CHARA/ + characters/ 4× .tmp（eliB99C/eliB9AD/eliC1E1/laiB9AE）+ effects/fx_A990.tmp + .godot_broken_20260814/ + .tmp_junk_20260814/（08-14 备份目录存量）
+
+### 检查结果（全绿 + 2 项探针维护）
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + --quit-after 4） | ✅ PASS · **BASELINE CLEAN**（import err 0B / runtime err 0B） |
+| 600 帧深探 | ✅ EXIT 0 · deep_runtime_err.log 242B 良性（Day 24 音频白名单） |
+| JSON **15 文件** 解析（qa_validate 口径） | ✅ characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20；**+2 新表**：skill_relics（3 掉落）/ skill_unlocks（2 门槛）（qa_validate 15 文件含 .manifest.json） |
+| 数值边界 | ✅ **2460 字段零缺陷**（较 #47 的 2410 **+50**：skill_relics per_character 变体 + skill_unlocks；39 负值=惩罚/诅咒有意 + 0 非豁免零伤害 + 2 Boss 哨兵 -1 有意；crit 双口径合法） |
+| 跨引用完整性 | ✅ 0 硬悬空 · **DATA LAYER CLEAN**；**新表手工补查**（qa_validate 未覆盖，本轮首查）：skill_relics 3 id 唯一 / drop_source ∈ {elite, chapter_boss} / per_character 角色 0 悬空（10 角色全命中）/ 执行器类型 ∈ {dash,blink,leap} 合法；skill_unlocks char_level 2/4 严格递增 + slot 1/2 递增 ✅ |
+| 场景 smoke | ✅ **25/25 全可实例化**（Main.tscn 置末方法学维持，临时文件 os.remove 清理无残留；退出 242B 良性） |
+| 探针回归（runner） | ✅ **五十二件套 52/52 · 1093 断言全 CLEAN 重跑实证**（首跑 51/52 → 修复 2 探针后重跑 52/52；0 script_errors） |
+
+**合计 52 探针 · 1093 断言全 CLEAN（重跑实证）。**
+
+### 🛠 探针维护（2 项，工具侧，非游戏缺陷）
+
+1. **首跑 1 FAIL = day18_feedback2（购买断言）→ flaky 定性**：runner 中 §5 真实点击购买断言失败（金币 500→500 / 背包 0→0，点击未命中），**单独连跑 3 次全 42/42 CLEAN** → 与 day10/day11_12 同类 push_input 时序 flaky（headless 下点击坐标/布局时机偶发不命中），**非游戏缺陷**；建议探针维护加 await process_frame 或白盒直调购买。
+2. **3 处 `%` 非法格式符修复（#26 教训复发预防）**：`day31_skill_relic` 2 处（`80%（`/`80% 触发率`）+ `day13` 1 处（`+8% 应`，失败路径隐患）——GDScript 格式串 `%` 后随全角括号/空格触发 C++ 层 `unsupported format character`（variant_op.h:951）；修 `%%` 转义后重跑：day31_skill_relic **319B→242B**（ERROR 消失）/ day13 860B 与历史口径一致。**全量扫描 52 探针带 `%` 运算符字符串：0 残留隐患**。
+
+### stderr 口径（与 #47 比对：1 项解释性增量 + 6 项 day31 新探针首记录 + 3 项良性波动）
+
+- **#47 action item 关闭实证**：day11_12（660B）/ day20（941B）/ day24_f13（860B）全 PASS——items 图集期望已随在途同步（动态 get_frame_count + icon_index 0-53/49-50/51-53），三探针 stderr 与历史口径一致
+- **解释性增量（非缺陷）**：day2/day3/day5 396B（历史 242B +154B）= 新增 1× 主动 `[HUD] 未知技能 id（无图标映射，保留原样式）: se_skill_sword_arc`——PS-C 剑气爆发入库后 HUD 图标映射未登记，防御降级路径（与 day20 历史同类），真机保留原样式零影响；**观察：HUD `_apply_skill_icon` 待补 se_skill_sword_arc 映射**
+- **day31 新探针首记录（6 项）**：day31_skill_slots 242B（纯音频）/ day31_skill_movement 489B（1× 主动 `[BossSkillFactory] 未知技能类型: not_a_skill` 兜底预期 + 泄漏 minor）/ day31_skill_relic 242B（修复后纯音频）/ day31_skill_levelup 242B（纯音频）/ day31_chapter 0B 全 CLEAN / **day31_spawner_deadlock 5440B** = 46× `[EnemySpawner] enemy_scene 未设置！` 守卫（探针 mock 环境未装配 enemy_scene 触发刷屏，#29 方法学同类）+ 泄漏 minor——**探针侧消噪建议：mock 预装配 enemy_scene**，非游戏缺陷
+- 维持项（与 #47 一致）：day7 366 / day10 374 / day11_12 660 / day13 860 / day14_15 373 / day16 636 / day18_19 359 / day18_fb 626 / day18_fb2 571 / day18_fb3 362 / day18_fb4 242 / day18_fb5 621 / day18_fb6 362 / day20 941 / day21_22 564 / day23 367 / day24_audio 456 / day24_f13 860 / day26 402 / day27_meta 496 / day28_f31 920 / day29_elin 242 / day29_attack 362 / day30_p0_fix 534 / day30_f1_scaling 242 / day30_f1d_shop 358 / day30_f2_boundary 473 / day30_f1_scatter 242 / day30_f3_compliance 0 / day30_f3_flow 242 / day30_effect 242 / day30_boss_skill 368 / G 系列 6 项 0-242 / day31_skill_relic 242
+
+### 结论
+
+**✅ 2026-08-16 18:40 自动化测试轮次 #48：PASS（0 阻断 / 0 功能缺陷，无新增 minor，2 项探针维护已修，action item 0 项）。** HEAD=**d9e028c**：**Day31 PS 系列（多技能位 3 槽 / 位移三型+无敌 / 技能遗物掉落 / 局外等级解锁 / 章节化数据层）全链行为级收口零回归**——52 件套 1093 断言重跑全绿，数据层 15 文件 2460 字段零缺陷 + 新表跨引用 0 悬空，25 场景全可实例化。**#47 action item（3 探针 items 图集期望）已随在途同步关闭实证**。本轮探针侧修复 3 处 `%` 格式隐患（防 C++ 层 ERROR）+ day18_feedback2 flaky 定性。**无新增功能缺陷、无需回退。**
+
+**action item（0 项）**：无新增。探针侧建议 2 条（非阻断）：① day18_feedback2 §5 购买点击加 await process_frame 防 flaky；② day31_spawner_deadlock mock 预装配 enemy_scene 消 46 条守卫噪音。
+
+---
+
+## §7.51 轮次 #51 · 2026-08-17 21:05（自动化测试 · 在途 PS-D2a + 图集重建轮）
+
+**验证快照 = HEAD=8bc65a7（08-17 15:22 反馈专员记录）+ 工作区在途改动**。在途（166 文件）：**PS-D2a 章末 event 层守卫**（event_manager.gd +16 `_is_special_layer`，add_node 拒绝 boss/章末 event 特殊层追加）｜ **道具图集重建 25→54 帧**（icon_atlas.gd items frame_count + icon_atlas `_part_skill_icon` 重排 + items.json 图标重排 + 33 张美术 PNG 批量替换 + 新增 anjelina_dance/ruoyemu_idle/yunni_idle/hit 动画）｜ 6 探针同步（day16 +1 断言、day30_g_map 章末 event 层识别、day26 期望 1091→1099 等）｜ img2sprite.py 调色板解析增强。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / 无新增 minor / action item 0 项）。** 在途 PS-D2a 守卫与图集重建未破坏任何基线；所有检查全绿。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0。
+- **600 帧深度运行**：退出码 0；stderr 242B，仅为 headless 音频退出时序的 `ObjectDB/resource leak` 良性信息，已按既有白名单判定。
+- **数据层**：`data/*.json` **15/15 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2461**，39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；items.json 图标重排后 icon_index 无越界（items.png 1728×32=**54 帧**与 icon_atlas.gd frame_count 54 声明**完全匹配**）。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 同上，未发现脚本错误。
+- **探针回归**：`tools/_regression_run.py` **52/52 PASS**，登记期望断言 **1099**，0 FAIL、0 script_errors。在途探针同步验证：**day16_event 49 断言（+1）** 覆盖「add_node 拒绝章末 event 特殊层」新守卫（stderr 新增 1 条主动 push_warning，为测试预期）；**day30_g_map 21 断言** 覆盖章末 event 层识别；day26_integration 内部期望 1091→1099 同步后仍 34/34。
+
+### 3. WARNING / 观察
+
+- **day31_spawner_deadlock stderr 5440B**（历史观察项放大）：46× `[EnemySpawner] enemy_scene 未设置` push_warning 刷屏——探针 mock 未装配 enemy_scene 所致，**非游戏缺陷**（#50 已登记建议 mock 装配）；0 SCRIPT ERROR。
+- 无新增运行时错误或警告。既有观察维持：day18_feedback2 探针建议加 await 防 flaky；HUD `se_skill_sword_arc` 图标映射、MainMenu 真人开局链路、Day 28 性能段、PS-D 章末 Boss 映射仍待后续岗位处理。
+- **在途待办**：PS-D2a 守卫 + 图集重建（代码/数据/美术/探针四侧）建议尽快 commit 入库；`characters/` 4× `.tmp`、`effects/fx_A990.tmp`、`.godot_broken_20260814/`、`.tmp_junk_20260814/` 杂物建议清理。
+
+**✅ 2026-08-17 21:05 自动化测试轮次 #51：PASS。** 工程可导入、可运行，15 张数据表与 25 个场景均通过验证，52 件套 1099 条登记断言全绿；在途 PS-D2a/图集重建零回归。
+
+---
+
+## §7.52 轮次 #52 · 2026-08-17 22:45（自动化测试 · PS 大包星刃重构轮）
+
+**验证快照 = HEAD=3460916（较 #51 8bc65a7 +2 提交）+ 工作区在途改动**。新提交：`31d03b8` **PS 大包（08-17 用户会话）**——莱恩扇形挥砍普攻（se_star_blade 由 orbit 环绕→周期性扇形 AOE，melee_sweep.gd 新节点，arc_angle 数据驱动，GameData.xlsx 加 arc_angle 列，**星刃 orbit 键清零**）+ 选人悬停预览 + 视口 960×540 + 大地图竞技场 1536×864 + 相机跟随 + 怪物丰富性（13 slime→10 slime+5 skeleton）+ 抠图修复 + Boss 链验证探针 + 新探针 day31_melee_sweep/charsel/enemy_richness/boss_flow/boss_chain｜`3460916` 立绘实装（12 张定版立绘抠底入库：4 角色 full 通道 + 8 Boss 归档）。在途（178 文件）：立绘 PNG 批量替换（characters/effects/enemies）+ items 图集重建 + items.json 图标重排 + **6 探针同步在途未入库**（day13 `%%` 转义 / day16 +1 断言章末 event 层 / day21_22 idle 尺寸 128×32→256×64 AI 试装 / day26 期望 1091→1099）+ open_editor.bat 等。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 1 项：5 个旧探针 orbit 断言未随 PS 大包同步）。** PS 大包玩法重构（星刃 orbit→扇形挥砍）后，**52 件套回归 46/52**：6 个 FAIL 全部为**探针断言过时**（仍断言已清零的 orbit 数据），**非游戏缺陷**——新玩法已被执行者自带探针 day31_melee_sweep_check 9/9 覆盖并通过。游戏本体各检查全绿。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0。
+- **600 帧深度运行**：退出码 0；stderr 242B，仅为 headless 音频退出时序的良性泄漏，已按既有白名单判定。
+- **数据层**：`data/*.json` **15/15 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2449**（=2461-12，PS 大包星刃 orbit 键清零所致，**符合预期**），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10（se_ren→se_star_blade 命中）；items.png 图集 54 帧与 icon_atlas 声明匹配维持。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr **0B**（较常规 242B 更干净，良性波动）。
+- **探针回归**：`tools/_regression_run.py` **46/52 PASS**（1099 条登记期望断言，6 FAIL 见下）。
+
+### 3. WARNING / 探针 FAIL 定性（全部探针侧，非游戏缺陷）
+
+**根因统一：31d03b8 PS 大包把 se_star_blade 从 orbit 环绕重构为扇形挥砍普攻，orbit 键（orbit_radius/orbit_data/blade_count）清零，旧探针仍断言旧数据 → 6 个 FAIL 全为断言过时。**
+
+| 探针 | FAIL 数 | 过时断言 |
+|---|---|---|
+| day5_weapon_check | 3 | 「Player 下无 OrbitWeapon（起始星刃应自动挂载）」等 orbit 挂载断言 |
+| day8_weapon_data_check | 1 | 「se_star_blade Lv8 blade_count 应 4, 实得 null」 |
+| day10_evolution_check | 2 | 「se_blade_storm orbit_data.blade_count 应 6」+「se_star_blade Lv8 blade_count 4」 |
+| day18_feedback2_check | 6 | orbit_radius 顶层 40 / levels 40→68 递增 / orbit_data 非空等 |
+| day18_feedback4_check | 2 | 「星刃风暴 orbit_data blade_count 6」+「进化 6 刃」 |
+| day18_feedback5_check | 1 | tooltip 断言含「环绕玩家旋转」→ 实得「周期性扇形挥砍」（desc_builder 文案已更新） |
+
+**佐证非缺陷**：① 新玩法覆盖探针 day31_melee_sweep_check 9/9 在 runner 中 **PASS**（executor 自带，已入库 31d03b8）；② 全链探针 day31_boss_chain_probe 打穿 15 层 3 Boss 通过；③ baseline/600帧/场景/JSON 全绿；④ weapons.json 中 se_star_blade 数据完整（arc_angle 100° 起、8 级 levels 完整、evolution 链到 se_blade_storm 完整）。
+
+**stderr 观察**：day31_spawner_deadlock 5440B（46× enemy_scene 未设置 push_warning 刷屏）维持——探针 mock 未装配 enemy_scene，非缺陷；0 SCRIPT ERROR。
+
+### 4. action item（1 项）
+
+- **交 #3 执行岗**：同步 5 个旧探针的 orbit 断言至扇形挥砍语义（day5/day8/day10/day18_feedback2/day18_feedback4/day18_feedback5，共 15 条过时断言）——删除 orbit 断言或改为断言 arc_angle/扇形挥砍；同步后 runner 应恢复 52/52。执行者已入库的新探针不受影响。
+- **在途 178 文件建议尽快 commit 入库**（立绘实装 + 6 探针同步 + 图集重建，含 #51 遗留的 PS-D2a 守卫）。
+
+**✅ 2026-08-17 22:45 自动化测试轮次 #52：PASS（46/52，6 FAIL 定性为探针断言过时非游戏缺陷）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；PS 大包星刃重构零游戏缺陷，待探针 orbit 断言同步后回归恢复全绿。
+
+---
+
+## §7.50 轮次 #50 · 2026-08-17 15:20（自动化测试 · 无游戏逻辑改动）
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / 无新增 minor / action item 0 项）。** 本轮仅执行测试与报告刷新，未修改游戏逻辑或数据。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0。
+- **600 帧深度运行**：退出码 0；stderr 238B，仅为 headless 音频退出时序的 `ObjectDB/resource leak` 良性信息，已按既有白名单判定。
+- **数据层**：`data/*.json` **15/15 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2461**，39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 238B 同上，未发现脚本错误。
+- **探针回归**：`tools/_regression_run.py` **52/52 PASS**，登记期望断言 **1099**，0 FAIL、0 script_errors。
+
+### 3. WARNING / 观察
+
+- 无新增运行时错误或警告。既有观察维持：day18_feedback2 探针建议增加 await 防时序 flaky；day31_spawner_deadlock 探针建议装配 `enemy_scene` mock；HUD `se_skill_sword_arc` 图标映射、MainMenu 真人开局链路、Day 28 性能段、PS-D 章末 Boss 映射仍待后续岗位处理。
+
+**✅ 2026-08-17 15:20 自动化测试轮次 #50：PASS。** 工程可导入、可运行，15 张数据表与 25 个场景均通过验证，52 件套 1099 条登记断言全绿。
+
+---
+
+## §7.49 轮次 #49 · 2026-08-17 13:19（自动化测试 · 无游戏逻辑改动）
+
+**验证快照 = HEAD=e8a8cf1 + 工作区在途美术/工具/文档改动**。本轮仅执行验证并刷新报告，不修改游戏逻辑、数据或美术资产。
+
+### 检查结果
+
+| 检查项 | 结果 |
+|---|---|
+| baseline（import + runtime） | ✅ PASS · `BASELINE CLEAN`，import/runtime 均 exit 0、stderr clean |
+| 600 帧深探 | ✅ EXIT 0 · `deep_runtime_err.log` 242B，属于 Day 24 音频退出良性白名单 |
+| JSON / 数据边界 | ✅ **15/15 文件解析 OK**；`qa_validate.py`：**2461 数值字段**，39 负值（惩罚/诅咒有意）、0 非 `force_field` 零伤害、2 个 Boss `total_enemies=-1` 哨兵、crit 越界 0；`DATA LAYER CLEAN` |
+| 跨引用 | ✅ 0 硬悬空；characters=10 / weapons=36 / items=54 / events=10 / enemies=23 / waves=20 |
+| 场景 smoke | ✅ **25/25 全可加载并实例化**；退出 stderr 242B 仅为已知 ObjectDB/资源清理良性信息，临时 smoke 文件已清理 |
+| 探针回归 | ✅ **52/52 全通过**，0 FAIL / 0 script_errors；runner 登记期望合计 **1099 条断言** |
+
+### 结论
+
+**✅ 2026-08-17 13:19 自动化测试轮次 #49：PASS（0 阻断 / 0 功能缺陷 / 无新增 minor / action item 0 项）。** 本轮验证确认项目仍可导入、可运行、数据层完整、25 个场景可实例化，回归套件全绿。报告 #48 记载的 1093 条断言与当前 runner 1099 条登记期望存在口径漂移，但不构成测试失败；下轮建议同步报告与 runner 断言统计口径。
+
+**观察项维持**：HUD `se_skill_sword_arc` 图标映射、主场景 MainMenu 真人回归、Day 28 性能段、PS-D 章末 Boss 映射冲突；探针侧两项非阻断维护建议继续跟踪。
+
+**观察项维持/更新**：**AI 美术资产 v2 实装续期在途 156 文件**（items/characters PNG 批量更新 + 新动画试装，真机待回归，建议尽快 commit）｜ **HUD `_apply_skill_icon` 待补 se_skill_sword_arc 图标映射**（PS-C 剑气爆发，降级保留原样式零影响）｜ 主场景改 MainMenu 待真人确认（U-1 待目视）｜ Day 28 性能段（#4 域）挂账交 Owner 未决 ｜ **PS-D 章末 boss 映射冲突（F-27 双Boss[9,14] vs 章2-4三Boss[7,11,15]）已按 R5 兜底回滚待方案师裁决** ｜ docs/art_ai/.ssh_tmp/ 入库前甄别 ｜ **新杂物建议清理**：characters/ 4× .tmp + effects/fx_A990.tmp + .godot_broken_20260814/ + .tmp_junk_20260814/ ｜ 探针残留（_probe_* / probe_logs / tools/_regression_run.py 本地 gitignore）维持 ｜ latent `mixed*` 维持关闭

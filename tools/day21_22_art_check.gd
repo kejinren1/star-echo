@@ -272,6 +272,7 @@ func _part_characters() -> void:
 	## D28：elin 已实装拼豆图纸真实动画（walk 640×64 = 10 帧 / idle 192×64 = 3 帧），
 	## 其余角色仍为收口占位（walk 192×32 = 6 帧 / idle 128×32 = 4 帧）
 	## D29：elin 换装 JPG 全动画实装（walk 640×64 = 10 帧 / idle 320×64 = 5 帧）
+	## 2026-08-15 AI 试装：noah/lain/siia idle 升级 128×32 → 256×64（4 帧×64px），walk 仍 192×32·6 帧
 	var char_ok: bool = true
 	for hero in HEROES:
 		var w: Vector2i = _png_size("res://assets/sprites/characters/%s_walk.png" % hero)
@@ -289,9 +290,9 @@ func _part_characters() -> void:
 			if w != Vector2i(192, 32):
 				char_ok = false
 				print("   %s_walk 尺寸 %s != 192×32" % [hero, w])
-			if idle != Vector2i(128, 32):
+			if idle != Vector2i(256, 64):
 				char_ok = false
-				print("   %s_idle 尺寸 %s != 128×32" % [hero, idle])
+				print("   %s_idle 尺寸 %s != 256×64（AI 试装 4 帧×64px）" % [hero, idle])
 		if not _png_frame_nonempty("res://assets/sprites/characters/%s_walk.png" % hero, walk_frames, Vector2i(64, 64) if hero == "elin" else Vector2i(32, 32)):
 			char_ok = false
 			print("   %s_walk 存在空帧" % hero)

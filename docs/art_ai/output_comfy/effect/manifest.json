@@ -1,0 +1,23 @@
+{
+  "category": "effect",
+  "track": "portrait",
+  "host": "http://127.0.0.1:18001",
+  "items": [
+    {
+      "file": "effect_style_military_cold_star_echo_00010_.png",
+      "source": "star_echo_00010_.png"
+    },
+    {
+      "file": "effect_style_military_cold_star_echo_00011_.png",
+      "source": "star_echo_00011_.png"
+    },
+    {
+      "file": "effect_style_military_cold_star_echo_00012_.png",
+      "source": "star_echo_00012_.png"
+    },
+    {
+      "file": "effect_style_military_cold_star_echo_00013_.png",
+      "source": "star_echo_00013_.png"
+    }
+  ]
+}

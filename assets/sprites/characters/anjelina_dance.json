@@ -1,0 +1,13 @@
+{
+  "sheet": "assets/sprites/characters/anjelina_dance.png",
+  "frames": 10,
+  "frame_size": [
+    96,
+    96
+  ],
+  "fps_suggest": 8.0,
+  "loop": true,
+  "source": "docs/tmp_anjelina_frames",
+  "align": "none",
+  "bg_tol": 8
+}
