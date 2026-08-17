@@ -146,6 +146,8 @@ func _advance_layer() -> int:
 			return 4
 		"battle", "elite", "boss":
 			_cur_pre_advanced = false
+			_stall_since = -1.0
+			_last_q = -1
 			_wait_until = _sim_time + 4.0
 			return 3
 		_:
@@ -220,19 +222,25 @@ func _wait_spawn() -> int:
 		var q: int = 0
 		if _gm.enemy_spawner.get("spawn_queue") != null:
 			q = (_gm.enemy_spawner.get("spawn_queue") as Array).size()
-		# 真死锁判定：queue 停止缩减超过 30 游戏秒（暂停期不算——paused 时 sim 仍走但
-		# spawner 冻结属正常，升级面板处理后才恢复）
+		# 状态非 BATTLE（超时兜底已提前通关进商店）→ spawner 冻结属正常，关店继续推进
+		if _gm.current_state != _gm.GameState.BATTLE:
+			if _gm.current_state == _gm.GameState.SHOP:
+				_gm.close_shop()
+				_wait_until = _sim_time + 2.0
+				return 5
+			return 3
+		# 真死锁判定：BATTLE 状态下 queue 停止缩减超过 30 游戏秒
 		if q < _last_q:
 			_stall_since = _sim_time
 		_last_q = q
 		if _stall_since < 0.0:
 			_stall_since = _sim_time
-		if _sim_time - _stall_since > 30.0 and not paused:
+		if _sim_time - _stall_since > 30.0:
 			var st: float = -1.0
 			if _gm.enemy_spawner.get("_spawn_timer") != null:
 				st = float(_gm.enemy_spawner.get("_spawn_timer"))
-			_fail("第 %d 关敌人生成真死锁（queue 30s 未缩减）queue=%d spawn_timer=%.2f state=%d paused=%s" % [
-				_cur + 1, q, st, int(_gm.current_state), str(paused)])
+			_fail("第 %d 关敌人生成真死锁（BATTLE 下 queue 30s 未缩减）queue=%d spawn_timer=%.2f state=%d" % [
+				_cur + 1, q, st, int(_gm.current_state)])
 			return 99
 		return 3
 	if count > 0:
@@ -281,4 +289,20 @@ func _verify_advance() -> int:
 		_cur += 1
 	return 2
 
-# ========== 阶段 5：商�
+# ========== 阶段 5：商店关闭后进入下一层路线选择 ==========
+
+func _verify_shop_close() -> int:
+	if _sim_time < _wait_until:
+		return 5
+	_checked += 1
+	if _gm.current_state == _gm.GameState.ROUTE_SELECT:
+		print("  PASS  商店关闭 → 第 %d 层路线选择" % (_cur + 2))
+	else:
+		_fail("商店关闭后 state 应为 ROUTE_SELECT, 实得 %s" % str(_gm.current_state))
+		return 99
+	_cur += 1
+	return 2
+
+func _fail(msg: String) -> void:
+	_failures += 1
+	print("  FAIL  %s" % msg)
