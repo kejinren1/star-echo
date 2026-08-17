@@ -111,6 +111,14 @@ func _build_preview_panel() -> void:
 	_center_preview_panel()
 	resized.connect(_center_preview_panel)
 
+## 递归设置鼠标穿透（FIX 2026-08-17 用户反馈：面板浮顶挡头像——面板本身 IGNORE 但
+## 子节点默认 STOP 会拦截鼠标，悬停切换不了人 → 全部子孙节点 IGNORE）
+func _set_ignore_mouse(node: Node) -> void:
+	if node is Control:
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		_set_ignore_mouse(child)
+
 ## 面板居中：position = (视口 - 面板尺寸) / 2
 func _center_preview_panel() -> void:
 	if _preview_panel == null:
@@ -170,6 +178,8 @@ func _center_preview_panel() -> void:
 		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL if spec["key"] == &"desc_line" else 0
 		right.add_child(lbl)
+	# FIX（2026-08-17 用户反馈）：全部子孙节点鼠标穿透（面板浮顶挡头像 → 无法切换）
+	_set_ignore_mouse(_preview_panel)
 
 ## 悬停头像 → 填充预览面板并居中显示
 func _show_preview(hero_id: String) -> void:

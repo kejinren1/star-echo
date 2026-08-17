@@ -53,6 +53,14 @@ func _fail(msg: String) -> void:
 	_failures += 1
 	print("  FAIL  %s" % msg)
 
+## 递归检查 Control 的 mouse_filter（STOP/默认 = 拦截）
+func _check_mouse_filter(node: Node, blocked: Array) -> void:
+	if node is Control:
+		if node.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+			blocked.append(node.name)
+	for child in node.get_children():
+		_check_mouse_filter(child, blocked)
+
 # ========== §1 头像 ==========
 
 func _section_cards(sel: Node) -> void:
@@ -112,6 +120,13 @@ func _section_preview(sel: Node) -> void:
 		_ok("§2 面板为无框自定义样式")
 	else:
 		_fail("面板样式异常: %s" % str(sb))
+	# 鼠标穿透校验（FIX：面板浮顶挡头像 → 子孙节点全部 IGNORE）
+	var blocked: Array = []
+	_check_mouse_filter(panel, blocked)
+	if blocked.is_empty():
+		_ok("§2 面板全部子孙节点鼠标穿透")
+	else:
+		_fail("面板存在拦截鼠标的子节点: %s" % str(blocked))
 	# 检查文本行
 	var texts: Array[String] = []
 	for child in panel.get_children():
