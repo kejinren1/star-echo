@@ -32,19 +32,13 @@
 > 📌 **第 20 轮（2026-08-07 03:1x · #2 任务拆解）**：**P0 检查** = 追踪区增量 #23（02:30）P0/P1 机器侧全闭环（#19 十四件套 365 断言，HEAD=`140b655`），无新机器可验证 P0 需拆；剩余动作 = 真人回归（P0 围杀 + P1 四修复 + 阶段 C 三合一完整局）。**目标日 = Day 18-19（Boss 多阶段）**——git HEAD 无 D18-19 实现提交（enemy.gd phases / enemy_projectile.gd / day18_19_boss_check.gd / boss_killed 零出现），**#3 尚未启动**；D18-19-PRE/T1~T5/EXIT 已函数级就绪，**直接执行勿再等**。本轮核心产出：① **F 系列 P1 排期段函数级细化**（实测 5 项消费点：F-03 只剩相机震动 / F-05 回血点定案 / F-06 只剩剩余怪 / F-07 改 pierce 3 / F-11 新建伤害数字子系统，见 Day 21-22 区 F 系列段）② **Day 23 华丽技能特效预拆**（VfxPlayer 5 特效实测 + 消费点 + 新特效 PNG + 探针，见 Day 23 区）。
 > ✅ **Day 24 已收口（2026-08-08 00:5x · #3 第 33 轮执行）**：阶段 D 音频 + P0·用户拍板 F-13 机制型被动全量完成 —— **F-13 线（P0 硬性输入）**：① **D24-F13-1 数据** items.json 51→54（+overload_capacitor 过载电容 on_crit/executioner_mark 处决印记 on_kill/last_stand 背水一战 low_health 3 机制型被动，新字段 `trigger` + `trigger_config` 不入 effects 白名单）② **D24-F13-3 图标** gen_item_icons.py FRAMES 22→25（青蓝闪电/暗红镰刃/橙黄心火占位色块，豁免色号编码）+ items.png 704→800×32 + icon_atlas 22→25 ③ **D24-F13-2 机制消费点 3 处**：projectile `_trigger_on_crit_chain`（on_crit 暴击→80px 连锁 ×0.3，F-19 容器遍历范式禁物理查询）/ main `_on_enemy_died` heal 1.0（on_kill）/ player `_update_last_stand` 乘算开/关 + 逆运算回滚（low_health ≤30% ×1.5/×1.2，D29）④ **D24-F13-4 回归同步 + 探针** day24_f13_check **17/17 CLEAN** —— **音频线**：⑤ **D24-T1** gen_audio.py 程序化合成 **12 WAV**（BGM 2×8s 循环 + SFX 10 类，22050Hz 16bit mono 峰值≤0.8）⑥ **D24-T2/T4** `scripts/autoload/audio_manager.gd` 第 3 Autoload（BGM 状态机 5 态 + SFX 池×4 + D31 双护栏 + **懒加载防 headless Dummy 驱动 leak**）+ project.godot 注册 ⑦ **D24-T3 SFX 消费点 10 处**（death/hit×2/crit×3/levelup/coin/shop×2/skill/event/boss，D30 收敛）⑧ **D24-T5** day24_audio_check **14/14 CLEAN** —— **EXIT**：**24 件套 23/23 全绿 609 断言**（+day24_f13 17 +day24_audio 14）+ baseline **BASELINE CLEAN**（BENIGN 增加 headless Dummy 音频驱动 leak 白名单，真机零影响）+ commit 5 个（`22c62ae`/`7d3264a`/`454e30f`/`5e90064`/`c4552db`/`3128840`/`b45d84e`）+ push。**执行登记 2 处**：① shop.gd 行号因反馈专员 F-21 漂移（`_build_shop_pool` :92→:168 / `_purchase_item` :236→:312，已按现行行号执行）② 回归同步面实测比方案 D32「8 处」多 **3 处**（day11_12 被动数 20→23 + icon_index 范围 0-19→0-24 / day13 池 Item 22→25 / day20 数据 51→54 + is_passive 23 / day23 锚点 54——D32 清单不全，已全部实测补齐）。**主观项登记**：BGM/SFX 氛围感/音量平衡 + F-13 机制型被动手感 → PLAYTEST #5。下一目标日 = **Day 26 整合校验**（D25 已预交付剩接线归 Day 27；#2 第 32 轮按 #5 第 33 轮建议推进）。
 > ✅ **Day 27 已收口（2026-08-08 05:5x · #3 第 34 轮执行）**：阶段 E 首段完成 —— 局外养成全链路（D48 执行序 T2→T1→T3→T4→T5→T6→EXIT 分批 commit×4）① **D27-T2 数据先行** characters.json 10 英雄补 `story`（SE 四英雄从 LORE.md §2 提炼 / 6 基础英雄 description 扩写标注来源）+ `story_unlock_level`（SE 四英雄=2，其余=1，`97b2a53`）② **D27-T1 存档核心** GameManager `meta_progress` + `load_meta`（缺档/损坏 JSON 容错零值 + Godot4.3 JSON float→int 收敛）/`save_meta`/`get_meta_bonus`（攻击 ×1.05·生命 ×1.10·幸运 +0.05 每级）/`upgrade_research`/`add_research_point`/`add_char_xp`/`get_char_xp`/`get_char_level`（xp/3）+ **start_game 出场记录（D45 判空）+ end_game(victory) 统一结算（wins+1/研究点+1/角色 xp+1 + save_meta，失败局不结算）** + **D44 可覆写 meta_save_path** ③ **D27-T3 增益注入** main.gd `_apply_meta_bonus`（apply_character 后 _setup_skill 前，D42 直调 apply_stat_modifier 不经 bonus_stats；全 0 空字典零注入）④ **D27-T4/T5 基地场景** BaseStation.tscn+base_station.gd（研究区 3 项 + 角色区 **DataLoader 全量 10 英雄 D46** + 剧情按钮 D47 纯函数判定 + 返回）+ CharacterSelect 入口按钮；**unlock_node 零改动**、**boss_defeated 由 end_game(victory) 统一消费** ⑤ **D27-T6 探针** day27_meta_check **35/35 CLEAN 五段**（D44 独立临时档 + 测试后删除）⑥ **EXIT**：回归 **25/25 全绿 678 断言**（609 + day26 34 锚点同步 23→25/609→678 + day27 35，D49 口径）+ baseline **BASELINE CLEAN** + **day26_integration 锚点同步**（回归脚本扩容触发，改探针锚点不改游戏逻辑）。**执行登记 2 处**：① 探针驱动坑——`extends SceneTree` 探针无 `_advance()` 无参虚方法（空转），须 `_process` 驱动带参 `_advance(sub: int) -> int`（day24_f13 范式）+ Autoload 首帧 `root.get_node_or_null` 获取（_init 时机太早）；② day26 §6 回归锚点 23/609 → 25/678（回归脚本 +day26/+day27 扩容）。**主观项登记**：基地 UI 观感 / 研究成长体感 / 剧情解锁趣味 → PLAYTEST #5。下一目标日 = **Day 28（全量测试 + 性能，#4 域无需拆解）**。
-> 📌 **第 49 轮（2026-08-17 13:15 · #2）拆解回执**：**P0 检查** = PLAYTEST「未解决问题追踪区」无新增 🔴 P0 或用户拍板调度指令；F-01~F-39 均已落地待真人回归，主观项不阻塞。本轮零美术生成/精修，继续使用占位纯色图 + 机制可检测口径。
+> 📌 **第 51 轮（2026-08-17 21:06 · #2）拆解回执**：**P0 检查** = PLAYTEST 未解决问题追踪区无新增 🔴 P0 / 用户拍板调度指令（增量 #71 15:21 无待处理反馈轮：F-01~F-39 全 🟢 已落地待真人回归，🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #51（21:05）= **52/52 探针 · 1099 断言 · BASELINE CLEAN · 0 阻断 / 0 功能缺陷 / 0 action item**。本轮零美术生成/精修，继续遵守占位纯色图 + 机制可检测口径。
 >
-> **当前目标 = 玩家侧技能系统批 D（章节化 routes）收尾**：批 A/B/C/E 已收口；D2a/D2b/D3/D4 已完成并通过 52 件套回归，PS-D-EXIT 已收口；剩余仅 PS-EXIT 主观项登记与 F1-E 主窗口承接。
+> **目标日 = Day 30 发布准备（第 50 轮已函数级拆解，无需重复拆解）**：git 实测 HEAD=`8bc65a7`（反馈专员 #71）；**#3 执行状态 = 已响应未开工**——`f13fbd6`（15:20）Day30 执行轮次状态同步 = SOLUTION_PLAN.md 第 26 轮方案落盘 + overview 刷新，**build/ 目录仍为 08-04 旧产物（RoguelikeStudio.exe 132.9MB / .pck 146KB 未动）、无版本冻结 commit、无导出/产物校验证据** → D30-T1~T3/EXIT 全部仍 [ ]；门禁工具实测在位（tools/qa_validate.py / build_release.py / excel_export.py / export_presets.cfg 均存在）。F1-E 仍为主窗口承接；PS-EXIT 仅主观项（交 #5）。
 >
-> **数据管线铁律**：D2b 改 `boss_layers` 必须走 `docs/GameData.xlsx` → `tools/excel_export.py`（含 `data_schema.py` 注册/校验）→ `data/routes.json` → 探针；不得手改 generated JSON。D2a/D3 仅消费既有 `chapters` 字段，不涉及改数。
+> **本轮动作**：① 核对 TEST_REPORT #51（52/52 全绿；观察区「PS-D2a 在途」= 在途资产口径滞后——PS-D 章节化已由 `b8a075a` 入库收口，「Day 28 性能段与 Boss 映射冲突待决」已被用户 00:3x 拍板方案②三 Boss [6,10,14] 消解）② 确认 Day 30 拆解已就绪 → **登记「已拆待执行」不空转** ③ 提交 TASKS.md 单文件（含第 50 轮 Day 30 函数级拆解 + 本轮状态块；工作区 166 项在途资产一律不碰）④ 交 #3：按 D30-T1→T2→T3→EXIT 直接执行（版本冻结 → 临时目录导出 → 产物校验 → Owner 确认后上传）；TEST_REPORT #51 观察项「HUD 待补 se_skill_sword_arc 图标映射」= PS-C 剑气替换表现收尾，交 #3 顺手补（非 #2 拆解缺口）。
 >
-> **本轮动作**：
-> ① 回写第 49 轮状态块并刷新批 D 标题为「D2b 阻塞解除」；
-> ② 维持 D2a-1 章 1 末层事件与 D3 章界并行可执行；
-> ③ 将 D2b 执行验收固定为：Excel 导出后 `boss_layers == [6,10,14]`，新增 D2b-0 一致性校验，逐项同步 `day31_chapter_check`、`day14_15_route_check`、`day18_feedback5`，并复核 `day30_g_map` 无硬编码漂移；
-> ④ D4 扩展章末事件/章界断言，D2a+D2b+D3 收口后再跑 52 件套与 baseline。
->
-> **下轮起手**：查 #3 是否出现 D2a/D2b/D3 提交与 `day31_chapter_check` §4；若 D2a/D3 已落地，优先验证 53/53、20/20 零改动门槛；若 D2b 已落地，核对 Excel→导出→三探针锚点和 D2b-0 护栏；全部完成后仅剩 PS-D-EXIT/PS-EXIT 收口与 PLAYTEST 主观项登记。
+> **下轮起手**：查 #3 是否产出 Day 30 实质证据（版本冻结 commit / build_release --zip 产物 / 临时导出目录 / manifest）——**若 T1 落地**：确认冻结清单 + 门禁全绿快照；**若 T2 落地**：核对临时导出目录 + 兼容矩阵逐项 PASS；**若 T3/EXIT 落地**：核对 manifest + hash + build 替换护栏（旧 build 保留副本）；**若仍未开工**：维持「已拆待执行」，提示 #3 按 D30 拆解直接执行勿再等。F1-E 主窗口承接维持；PLAYTEST 开放项继续以 E-0 终审完整局 + F-16~F-39 真人回归为最高优先；工作区在途（用户会话 AI 美术资产 v2 实装期 166 项）一律不碰。
 >
 >> 📌 **第 48 轮（2026-08-17 00:0x · #2 任务拆解）**：**P0 检查** = 追踪区增量 #69（08-16 00:5x · 反馈专员：无待处理反馈轮 · TEST_REPORT #47 核查：资产 v2 实装期在途轮 + F5 收口确认）——F-01~F-39 全 🟢 已落地·待真人回归；🟡 仅 H-05 家族主观审阅域 → **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需拆**；美术资源策略（08-07 拍板）遵守（本轮零美术生成，PS 章节化占位先行）。**目标日 = 玩家侧技能系统批 D（章节化收尾）**——git 实测 HEAD=`d9e028c`（08-16 外部美工素材需求清单 ART_REQUEST_20260816 docs 提交）；**PS 系列执行进展（#3 第 49-51 轮）**：批 A `ce1cc0c`（多技能位 3 槽 + 键位路由，day31_skill_slots 11/11 + runner 47→48）/ 批 B `36bf5e1`（位移三型 + invulnerable，day31_skill_movement 13/13 + runner 48→49）/ **批 C+E `e0e27b0`**（skill_relics 掉落表 + 剑士剑气爆发 + 局外等级解锁，day31_skill_relic 9/9 + day31_skill_levelup 7/7 + runner 50→51）/ **批 D `e9f4289` 部分落地**（routes.json chapters 字段 4 章定义 3/4/4/4 + 章末类型章1=event 章2-4=boss，day31_chapter_check 5/5 + runner 51→52 + **回归 52/52 全绿 BASELINE CLEAN**）——**⚠️ 但 boss_layers 映射调整执行阻塞**：F-27 用户拍板「15 层双 Boss [9,14]」vs 章节化 4 章三 Boss 位 [6,10,14] 冲突（day14_15/fb5 探针红），已按方案 R5 兜底回滚 boss_layers 至 [9,14]，**交方案师/用户裁决**（见 PS-D2b）。**本轮核心产出 = ① PS-D2 细化拆解（拆 D2a 章末事件节点=不依赖裁决可先行 + D2b 章 Boss 位映射=依赖裁决阻塞标注）② PS-D3 大地图章界函数级拆解（独立可先行）③ PS-D1 阻塞登记刷新 + PS-D-EXIT 收口条件（D2a/D3 收口 + 方案师裁决后 D2b 落地）④ 头部第 48 轮状态块**。数据管线铁律：routes.json chapters 已落地（走 Excel → excel_export.py）；**D2a/D3 纯代码层（route_generator 消费 chapters + route_select_panel 章界显示）零数值不涉 Excel**；D2b 若裁决改三 Boss 位 = 改 docs/GameData.xlsx routes sheet boss_layers 列 → excel_export.py → 探针（day14_15/day18_feedback5/day30_g_map 锚点同步）。工作区在途（零游戏代码本岗不碰）：46+ 资产文件 M（items 图集 25→54 帧 + 角色动画 v2 实装期用户会话）+ docs 4 M（LOOP_HEALTH/PROGRESS/TEST_REPORT/GameData.xlsx）+ project.godot/open_editor.bat（用户会话）+ icon_atlas.gd/tools/day13_build_check.gd M。**下轮起手**：查 #3 是否按 PS-D2a/D3 拆解开工（git log 出现 route_generator chapters 消费 / route_select_panel 章界 / day31_chapter_check +§4）——**若 D2a/D3 收口**：确认 day14_15 53/53 + day30_g_map 20/20 零改动（章界不动画布架构硬门槛）→ 剩余 = D2b 待方案师裁决 + PS-D-EXIT（回归 52 件套 + baseline）→ **PS-EXIT 总收口**（批 A-E 探针全绿 + 回归 52 件套 + PLAYTEST 主观项登记：多技能位手感/位移走位/掉落节奏/章节节奏/剑气体验）；**方案师裁决跟踪**：boss_layers 双 Boss [9,14] vs 三 Boss [6,10,14] 二选一（改三 Boss 须同步 3 处探针锚点 + F-27 用户拍板复核）；**#1/Owner 终审**：T-046 GM 行数放宽判据；**F1-E**：主窗口承接维持；若出现新 P0（🔴 用户拍板调度指令）→ 优先拆解。
 >
@@ -2311,10 +2305,34 @@
 - [ ] **人工试玩**（手感/难度/乐趣/UI/视听/剧情）
 - [ ] 收集反馈 → 修复关键缺陷 + polish
 
-### Day 30 — 发布准备
-- [ ] `python tools/build_release.py --zip`
-- [ ] Steam 构建 / 导出 pck+exe / 存档兼容
-- [ ] 资产库上传 `build`
+### Day 30 — 发布准备　🎯 **当前目标日 · 第 50 轮已函数级拆解（方案已定：SOLUTION_PLAN.md 第 26 轮）**
+> 📌 **第 51 轮（2026-08-17 21:06 · #2）确认**：三批次拆解已就绪（D30-T1/T2/T3/EXIT），#3 未实质开工（HEAD=`8bc65a7`，build/ 仍为 08-04 旧产物、无版本冻结/导出/校验证据）→ **按下方批次直接执行，勿重复拆解**；门禁工具实测在位（qa_validate.py / build_release.py / excel_export.py / export_presets.cfg）；上传前须 Owner 明确确认，发布阶段默认零数据改动。
+> 发布阶段只做可验证的构建、兼容与产物交付；不新增玩法、不返工美术、不覆盖现有 `build/`，不上传前不得跳过全量回归。所有数据若需变更仍遵守 `docs/GameData.xlsx → tools/excel_export.py → data/*.json → 探针`，发布阶段默认零数据改动。
+
+#### D30-T1【W1/W5】构建前检查与版本冻结
+- [ ] 建立发布工作树/版本冻结清单：记录 git commit、Godot 版本、`project.godot` 主场景、导出 preset、数据 manifest、现有 `build/` 基线；先确认工作区无未预期游戏代码/数据改动。
+- [ ] 执行门禁：`python tools/baseline_check.py`、`python tools/qa_validate.py`、Excel `--check-only`、全量回归 52/52；记录 `TEST_REPORT.md` 快照与断言数，失败即停止，不进入导出。
+- [ ] 存档兼容预检：用临时 `user://` 档验证旧字段缺省、`skill_slots`/`skill_points`/章节字段缺省容错；禁止读取、覆盖 Owner 真实存档。
+- **验收证据**：冻结 commit + 命令退出码 + `BASELINE CLEAN` + 52/52 + 兼容矩阵结果；失败回滚点 = 回到冻结前 commit，不改 `build/`。
+
+#### D30-T2【W1】Steam 导出与存档兼容矩阵
+- [ ] 核对 `export_presets.cfg` 的 Windows preset 与输出目录；先导出到全新临时目录，不得直接覆盖 `build/`。
+- [ ] 运行 `tools/build_release.py --zip`（若脚本不存在或参数不符，先登记阻塞并由 #1/方案师确认，不臆造替代命令）；生成 `.exe`、`.pck`、zip 及版本元数据。
+- [ ] 兼容矩阵至少覆盖：新档启动、旧档缺 `skill_slots`、旧档缺 `skill_points`、旧档缺 `chapters`、损坏存档/空存档；每项验证启动不崩、字段自动补默认、失败不污染真实档。
+- [ ] 导出后对临时产物运行最小启动/加载检查；不把 Steam 上传凭据写入仓库，不在无凭据时尝试上传。
+- **验收证据**：临时导出目录清单、exe/pck 文件大小与 hash、兼容矩阵逐项 PASS、启动日志；失败回滚点 = 删除临时导出目录并回到冻结 commit（不得删除个人目录文件）。
+
+#### D30-T3【W1/W5】build 产物校验与上传
+- [ ] 产物校验：确认 exe/pck/zip 齐全、Godot 导出无 `script_error`/import 错误、版本号与冻结 commit 一致；运行 `tools/baseline_check.py` 不作为导出成功的唯一依据，必须结合启动检查。
+- [ ] 资产清单校验：只校验发布所需文件是否存在、路径大小写与引用一致；不新增美术、不做精修、不将 `ART/RAW` 输入区或 `.workbuddy` 纳入产物。
+- [ ] 生成发布 manifest（commit、构建时间、文件 hash、Godot 版本、兼容矩阵摘要）；manifest 先落临时导出目录，确认后再归档到项目发布记录。
+- [ ] 上传属于外部动作，必须先获得 Owner 明确确认并核对目标资产库；无确认/无连接时只完成本地校验，不上传。
+- **验收证据**：manifest + hash 清单 + 上传回执（或明确“未上传，等待 Owner 确认”）；失败回滚点 = 保留本地临时产物，禁止删除现有稳定 `build/`。
+
+#### D30-EXIT【W5】发布准备收口
+- [ ] 三批次均有证据且无阻断；更新 `docs/TEST_REPORT.md` 发布验证摘要与 `docs/PLAYTEST_CHECKLIST.md` 主观开放项，不将人工试玩项伪装成机器 PASS。
+- [ ] 仅在 Owner 明确确认后，将临时导出产物复制/替换到 `build/` 并执行上传；替换前保留旧 `build/` 可回退副本。
+- [ ] `python tools/baseline_check.py` + 导出产物启动检查 + manifest hash 三者一致后，标记 Day 30 发布准备完成。
 
 ---
 
@@ -2380,7 +2398,7 @@
 - [x] F1-B waves.generation + routes.boss_wave 参数化（T-003/014；day30_f1_scaling_check 10 断言）
 - [x] F1-C 护甲公式统一（T-006：player 平直减 vs enemy 百分比两套 → 统一）【✅ 收口 2026-08-11（方案第 18 轮 · 用户 2026-08-10 拍板「伤害-护甲=最终伤害」平直减法）：enemy.gd :761-763 百分比改平直减 `max(amount-armor,1.0)` 对齐 player（player 零改动=玩家数值零漂移）+ stats.formulas armor_reduction/armor_final 死公式 TECH_DEBT_ISSUES T-006 登记作废 + day30_f1_scaling_check §4 护甲段（10→14 断言）+ 回归 34 项全绿】
 - [x] F1-D 商店参数数据化（T-010：REROLL_COST=10 / 星刃保底 current_wave==4 → stats.json shop 段）【✅ 收口 2026-08-10 `b6e0177`：Excel stats_shop sheet + data_schema 注册 + DataLoader.get_stats_shop + shop.gd 读参兜底 + day30_f1d_shop_check 8 断言】
-- [ ] F1-E 表现配置抽表（T-016~024：SPRITE_MAP/BEHAVIOR_MAP/BGM/SFX/FX/SHEET_CONFIG/初始枪/炮台默认 → Excel presentation sheet）【🏠 主窗口承接 · #3 勿自行开工（SOLUTION_PLAN 阶段 F：7+ 脚本 + 新表，主窗口分步执行并逐脚本验证，保留代码兜底默认值）】
+- [ ] F1-E 表现配置抽表（T-016~024：SPRITE_MAP/BEHAVIOR_MAP/BGM/SFX/FX/SHEET_CONFIG/初始枪/炮台默认 → Excel presentation sheet）【🏠 主窗口承接 · #3 勿自行开工（SOLUTION_PLAN 第 26 轮执行交接：按 SPRITE_MAP→BEHAVIOR_MAP→BGM/SFX→FX→SHEET_CONFIG→初始武器→炮台默认分批，每批 Excel→导出→消费点→回归，保留代码兜底默认值）· **方案已定（SOLUTION_PLAN.md 第 26 轮）**】
 - [x] F1-F 机制 id 收敛（T-025~030：HERO_IDS 改 DataLoader 全量；道具/技能 id 常量表）【✅ 收口 2026-08-10 `162fa52`：HERO_IDS→DataLoader SE 过滤兜底 + 9 机制 id 常量 + get_skill_ids + 消费点收敛（grep 零残留）】
 - [x] F1-G 无消费方效果键逐键裁决（T-050 22 键：接线 or 删，参考 wave_rewards.harvesting_bonus 等现成消费点）【✅ 收口 2026-08-10 `112e6a9` 裁决 22/22 + 2026-08-12 F1-G-尾 删数据落地：接线 5 键（xp/melee/ranged/knockback/boss_elite）+ shop_weapon_upgrade 实为已消费 + 13 键保留待 F2+ + **3 键删数据（no_weapon_armor_bonus/special_enemies_next_wave/auto_turret_per_wave 已从 items_effects 移除）**；余下 16 键不硬接（防为接线而接线），TECH_DEBT_ISSUES T-050 逐键登记】
 - [x] **F1-G-尾 删数据 3 键落 Excel（T-050 收尾 · #2 第 43 轮拆解 08-11）**【✅ 收口 2026-08-12（用户放行 + WPS 锁已消失）：3 键 = **no_weapon_armor_bonus / special_enemies_next_wave / auto_turret_per_wave**（已 grep 确认零代码消费；anvil/bait/mech_heart 为**保留条目**仍有数据引用，非删除对象）——执行记录：① items_effects 删 3 行（bait row 43 / anvil row 82 / mech_heart row 111，删除锚点逐行验证）② **双行表头升级**（工具已按「第 1 行英文+第 2 行中文注释+第 3 行起数据」规范改造但 Excel 仍单行表头→21 表自动插中文注释行，插入前后数据逐表比对零漂移）③ excel_export 校验通过 + 导出 → items.json 3 键消失、bait/anvil/mech_heart 保留键完好、**其他 8 JSON 零漂移** ④ desc_builder.gd STAT_CN 3 处死映射同步删除 ⑤ 回归 **35/35 全绿** + T-050 转已收口】
@@ -2523,7 +2541,7 @@
 
 ---
 
-## 玩家侧技能系统（2026-08-14 用户拍板 · 规格唯一来源 docs/PLAYER_SKILL_SPEC.md · ✅ 已拆解 2026-08-16 第 47 轮 · 未拆解前禁动工 · 拆解完成即解锁 · 方案已定（SOLUTION_PLAN.md 第 23 轮）· 🔵 执行中：批 A `ce1cc0c` / 批 B `36bf5e1` / 批 C+E `e0e27b0` 全 [x] 收口 · 批 D `e9f4289` 部分落地（D1 阻塞交方案师裁决 · D2a/D3 第 48 轮已细化拆解））
+## 玩家侧技能系统（2026-08-14 用户拍板 · 规格唯一来源 docs/PLAYER_SKILL_SPEC.md · ✅ 已拆解 2026-08-16 第 47 轮 · 未拆解前禁动工 · 拆解完成即解锁 · 方案已定（SOLUTION_PLAN.md 第 23 轮）· 🔵 执行中：批 A `ce1cc0c` / 批 B `36bf5e1` / 批 C+E `e0e27b0` 全 [x] 收口 · 批 D `e9f4289` 部分落地（D1 阻塞交方案师裁决 · D2a/D3 第 48 轮已细化拆解）· **PS-EXIT 主观收口方案已定（SOLUTION_PLAN.md 第 25 轮）**）
 
 > 📌 **第 47 轮（2026-08-16 00:0x · #2）函数级拆解**（实测锚点 HEAD=`ba6439d`；规格书 14583B 已入库 `d81c7a8`；方案师第 22 轮预研 §2 承接；行号以最新为准）。**前提**：F4-T4 已拆 SaveSystem（存档读写直接复用）；F4-T5 DebugConsole / F2-T2 UI 直读接口在位；BS 执行器中立复用（scripts/boss/skill_executor.gd 三接口 + boss_skill_factory.gd 工厂 + effect 表 apply_effect/StatusComponent，玩家/Boss/怪共用 = 规格 §3 架构前提）；G 系列 meta_progress 扩展（codex/archives/skill_tree）为存档扩展先例。**批次划分（建议执行序 A → B → C → E → D）**：**A = 多技能位 + 键位路由**（分块① · 中高风险 · 列表化容器先行独立收口）/ **B = SkillExecutor 新类型 + invulnerable 效果**（分块② · 依赖 A 的列表容器）/ **C = skill_relics 掉落表 + per_character 变体 + 三选一装配**（分块③ · D7 核心）/ **E = 局外等级奖励**（分块⑤ · 低风险）/ **D = 章节化 routes**（分块④ · **高风险：触及 day14_15 53/53 数据结构层 + F-28 通关判定 + 大地图显示，独立批次最后收口，逐探针验证**）。每批一收口 commit 带 PS 编号。**数据管线铁律（全程）**：characters.json skill→skills 数组迁移 / elements 表 invulnerable 效果类型 / skill_relics 新表 / routes.json chapter 字段 / 局外等级奖励门槛表 = **全部改 docs/GameData.xlsx → tools/excel_export.py（data_schema.py 注册）→ data/*.json → 探针**，data/*.json 禁手改。**玩家版数值口径（规格 §9.3 默认值）**：telegraph 预警归零或 0.1s / radius ×0.6 / cooldown ×1.5-2（8-12s 基准）/ damage 挂玩家属性缩放（scaling_attr 吃武器/被动/属性加成，不脱 Build）/ aftercast 后摇 0.2s 防连用。**占位标准**：UI 色块+文字标签零美术（08-07 美术策略遵守，技能图标复用现有帧或占位）。**回归硬门槛**：day3_skill_check 16/16（skill→skills 迁移兼容锚点）/ day17_p0 20/20（金手指状态守卫）/ day18_19 48/48 + day30_boss_skill 49/49（执行器中立零破坏）。**工作流硬性**：只按规格书拆解执行，禁止单条对话动工（08-12 教训）。
 
@@ -2562,4 +2580,4 @@
 - [x] **PS-D4【W1】探针 `tools/day31_chapter_check.gd`（11 断言）**：章节数据/拓扑、章末 event 生成、章界横幅显示与 `boss_layers` 一致性护栏全覆盖；`day31_chapter_check` 11/11 通过。
 - [x] **PS-D-EXIT【W5】回归**：章节批次完成后全量回归 **52/52 探针通过、无脚本错误**；`day31_chapter_check` 11/11、`day14_15_route_check` 54/54、`day18_feedback5_check` 28/28、`day30_g_map_check` 20/20；Excel `--check-only` 通过。
 
-> **PS-EXIT【W5】总收口**：批 A-E 探针全绿 + 全量回归 **47 件套 ≥1046 断言** + baseline **BASELINE CLEAN** + PLAYTEST 主观项登记（多技能位操作手感 / 位移技能走位解法 / 掉落节奏 / 章节节奏 / 剑士剑气体验，交 #5）+ TECH_DEBT_ISSUES 新债登记（如有）+ 阶段 F 收口后首个新功能大块完成确认（F5 恢复门槛已过）。
+> **PS-EXIT【W5】总收口**：批 A-E 探针全绿 + 全量回归 **52 件套 ≥1099 断言** + baseline **BASELINE CLEAN** + PLAYTEST 主观项登记（多技能位操作手感 / 位移技能走位解法 / 掉落节奏 / 章节节奏 / 剑士剑气体验，交 #5）+ TECH_DEBT_ISSUES 新债登记（如有）+ 阶段 F 收口后首个新功能大块完成确认（F5 恢复门槛已过）· **方案已定（SOLUTION_PLAN.md 第 25 轮）**：PS-EXIT 仍需真人五组观察结论，主观项不阻塞客观回归。
