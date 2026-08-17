@@ -307,7 +307,7 @@ func _part_clear_condition() -> void:
 	boss2.is_alive = false
 	wm.call("check_wave_clear")
 	_ok(cleared_events.size() == 1, "F-28/Boss: Boss 死 → 通关")
-	# ---- 旧制普通关超时兜底 ----
+	# ---- 08-18 用户反馈：普通关超时不再兜底通关（必须生成完成 + 敌全灭） ----
 	_gm.set("is_boss_wave", false)
 	wm.set("is_active", true)
 	cleared_events.clear()
@@ -315,7 +315,12 @@ func _part_clear_condition() -> void:
 	container.add_child(e3)
 	wm.set("time_remaining", 0.0)
 	wm.call("_process", 0.0)
-	_ok(cleared_events.size() == 1, "F-28/超时: 普通关超时 → 兜底通关（Brotato 范式保留）")
+	_ok(cleared_events.is_empty() and bool(wm.get("is_active")), "08-18/超时: 普通关超时 + 仍有存活敌人 → 续时不通关（怪没打完不送选关）")
+	e3.is_alive = false
+	cleared_events.clear()
+	wm.set("time_remaining", 0.0)
+	wm.call("_process", 0.0)
+	_ok(cleared_events.size() == 1, "08-18/超时: 普通关超时 + 敌全灭 → 通关（防死锁兜底保留）")
 	# 恢复
 	_gm.set("wave_manager", wm_backup)
 	_gm.set("enemy_spawner", spawner_backup)

@@ -39,10 +39,19 @@ func _process(delta: float) -> void:
 		# F-28（2026-08-08 用户拍板）：Boss 关不因倒计时通关——通关判定 = Boss 击杀
 		# （此前倒计时到点强制通关导致「Boss 没死就提示通关」）；普通关保留超时兜底。
 		# 防死锁：超时且容器已无任何存活敌人（生成异常）→ 放行通关
+		# 08-18 用户反馈修复：普通关超时不再无条件强制通关——通关判定 = 生成完成 + 敌全灭，
+		# 玩家没清完怪不得被送进选关界面（wave 1-6 duration 仅 20-35s，超时强制通关导致
+		# 「打了一半突然就结束」）；仅生成异常/无存活敌人时超时兜底放行防卡关
 		if GameManager != null and GameManager.is_boss_wave:
 			if _alive_enemy_count() > 0:
 				time_remaining = 5.0  # 续时继续等 Boss 击杀
 				return
+			_end_wave()
+			return
+		# 普通关：生成未完成或仍有存活敌人 → 续时等待（不强制通关）
+		if _spawning_incomplete() or _alive_enemy_count() > 0:
+			time_remaining = 5.0
+			return
 		_end_wave()
 
 # ========== 波次控制 ==========
