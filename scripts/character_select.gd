@@ -29,12 +29,12 @@ const MAIN_SCENE_PATH: String = "res://scenes/Main.tscn"
 ## 角色素材目录（立绘/动画）
 const SPRITE_DIR: String = "res://assets/sprites/characters/"
 
-## 头像尺寸（PS：4 头像横排站得下，视口 640×360）
+## 头像尺寸（PS：4 头像横排站得下，视口 960×540）
 const AVATAR_SIZE: Vector2 = Vector2(56, 56)
-## 预览面板尺寸
-const PREVIEW_SIZE: Vector2 = Vector2(560, 232)
-## 像素立绘展示尺寸（128×128 放大 1.25 保持像素感）
-const PORTRAIT_SHOW_SIZE: Vector2 = Vector2(160, 160)
+## 预览面板尺寸（PS：适配 2:3 大立绘 160×240）
+const PREVIEW_SIZE: Vector2 = Vector2(560, 292)
+## 大立绘展示尺寸（full 512×768 → 160×240；像素立绘回退同框）
+const PORTRAIT_SHOW_SIZE: Vector2 = Vector2(160, 240)
 ## 局内模型 idle 动画展示倍率（64px 帧 → 96px 显示）
 const IDLE_SCALE: float = 1.5
 
