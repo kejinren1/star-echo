@@ -94,6 +94,24 @@ func _section_preview(sel: Node) -> void:
 		_fail("_show_preview 后面板不可见")
 		return
 	_ok("§2 _show_preview(se_ren) 面板可见")
+	# 居中校验（FIX：面板 position 按视口居中，不偏右下）
+	var vs: Vector2 = sel.get_viewport_rect().size
+	var psize: Vector2 = panel.custom_minimum_size
+	var pos: Vector2 = panel.position
+	var margin_l: float = pos.x
+	var margin_r: float = vs.x - pos.x - psize.x
+	var margin_t: float = pos.y
+	var margin_b: float = vs.y - pos.y - psize.y
+	if absf(margin_l - margin_r) < 2.0 and absf(margin_t - margin_b) < 2.0:
+		_ok("§2 面板居中（边距 L%.0f R%.0f T%.0f B%.0f）" % [margin_l, margin_r, margin_t, margin_b])
+	else:
+		_fail("面板未居中: L%.0f R%.0f T%.0f B%.0f" % [margin_l, margin_r, margin_t, margin_b])
+	# 无框校验：面板样式为 StyleBoxFlat（非默认白框）
+	var sb: StyleBox = panel.get_theme_stylebox("panel")
+	if sb is StyleBoxFlat:
+		_ok("§2 面板为无框自定义样式")
+	else:
+		_fail("面板样式异常: %s" % str(sb))
 	# 检查文本行
 	var texts: Array[String] = []
 	for child in panel.get_children():

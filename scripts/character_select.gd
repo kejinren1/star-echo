@@ -29,14 +29,14 @@ const MAIN_SCENE_PATH: String = "res://scenes/Main.tscn"
 ## 角色素材目录（立绘/动画）
 const SPRITE_DIR: String = "res://assets/sprites/characters/"
 
-## 头像尺寸（PS：4 头像横排站得下，视口 960×540）
+## 头像尺寸（PS：4 头像横排站得下，视口 640×360）
 const AVATAR_SIZE: Vector2 = Vector2(56, 56)
-## 预览面板尺寸（PS：适配 2:3 大立绘 160×240）
-const PREVIEW_SIZE: Vector2 = Vector2(560, 292)
-## 大立绘展示尺寸（full 512×768 → 160×240；像素立绘回退同框）
-const PORTRAIT_SHOW_SIZE: Vector2 = Vector2(160, 240)
-## 局内模型 idle 动画展示倍率（64px 帧 → 96px 显示）
-const IDLE_SCALE: float = 1.5
+## 预览面板尺寸（FIX 2026-08-17：视口回滚 640×360，面板近全屏居中）
+const PREVIEW_SIZE: Vector2 = Vector2(600, 330)
+## 大立绘展示尺寸（full 512×768 → 150×225；像素立绘回退同框）
+const PORTRAIT_SHOW_SIZE: Vector2 = Vector2(150, 225)
+## 局内模型 idle 动画展示倍率（64px 帧原样显示，适配 66px 高容器）
+const IDLE_SCALE: float = 1.0
 
 # ========== 节点引用 ==========
 
@@ -91,13 +91,32 @@ func _build_main_menu_entry() -> void:
 
 ## 屏幕正中心预览面板：左立绘 + 局内 idle 动画，右介绍/技能/武器/被动
 ## 全代码构建（不动 tscn）；初始隐藏，悬停头像时显示
+## FIX（2026-08-17 用户反馈）：PRESET_CENTER 锚点未配偏移导致面板偏右下 →
+## 改为锚点 (0,0) + position 显式居中；默认 Panel 边框改为无框半透明样式
 func _build_preview_panel() -> void:
 	_preview_panel = Panel.new()
 	_preview_panel.custom_minimum_size = PREVIEW_SIZE
-	_preview_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_preview_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# 无框样式：半透明深色 + 细描边（替代默认 Panel 白框）
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.07, 0.11, 0.92)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(1.0, 1.0, 1.0, 0.15)
+	sb.set_corner_radius_all(6)
+	_preview_panel.add_theme_stylebox_override("panel", sb)
+	# 显式居中：锚点左上 + position 按视口计算（resized 时重新定位）
+	_preview_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_preview_panel.visible = false
 	add_child(_preview_panel)
+	_center_preview_panel()
+	resized.connect(_center_preview_panel)
+
+## 面板居中：position = (视口 - 面板尺寸) / 2
+func _center_preview_panel() -> void:
+	if _preview_panel == null:
+		return
+	var vs := get_viewport_rect().size
+	_preview_panel.position = (vs - PREVIEW_SIZE) * 0.5
 
 	var hbox := HBoxContainer.new()
 	hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -123,11 +142,11 @@ func _build_preview_panel() -> void:
 	left.add_child(portrait)
 
 	var idle_holder := Control.new()
-	idle_holder.custom_minimum_size = Vector2(96, 72)
+	idle_holder.custom_minimum_size = Vector2(120, 66)
 	idle_holder.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	left.add_child(idle_holder)
 	_preview_idle = AnimatedSprite2D.new()
-	_preview_idle.position = Vector2(48, 36)
+	_preview_idle.position = Vector2(60, 33)
 	idle_holder.add_child(_preview_idle)
 
 	# 右列：文字信息
@@ -271,7 +290,7 @@ func _create_avatar(hero_id: String, data: Dictionary) -> Button:
 	card.set_meta("character_id", hero_id)
 	card.tooltip_text = str(data.get("name", hero_id))
 	# 头像底：小立绘缩略（像素立绘缩到 48×48 居中）
-	var tex := _load_portrait(hero_id, data)
+	var tex := _load_avatar_portrait(hero_id, data)
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -319,6 +338,23 @@ func _load_portrait(hero_id: String, data: Dictionary) -> Texture2D:
 		candidates.append("%s%s_portrait_full.png" % [SPRITE_DIR, prefix])
 		candidates.append("%s%s_portrait.png" % [SPRITE_DIR, prefix])
 		candidates.append("%s%s_idle.png" % [SPRITE_DIR, prefix])
+	# 数据未配 sprite 时，最后按 id 同名资产兜底
+	candidates.append("%s%s_portrait.png" % [SPRITE_DIR, hero_id])
+
+	for path in candidates:
+		if ResourceLoader.exists(path):
+			var res := ResourceLoader.load(path)
+			if res is Texture2D:
+				return res as Texture2D
+	return null
+
+## 头像专用小立绘：只用像素 portrait（FIX 2026-08-17：头像 48px 框放 full 大图会糊，
+## full 仅供悬停预览大图；缺失回退 idle 帧 / null 占位）
+func _load_avatar_portrait(hero_id: String, data: Dictionary) -> Texture2D:
+	var candidates: Array[String] = []
+	var prefix: String = str(data.get("sprite", ""))
+	if not prefix.is_empty():
+		candidates.append("%s%s_portrait.png" % [SPRITE_DIR, prefix])
 	# 数据未配 sprite 时，最后按 id 同名资产兜底
 	candidates.append("%s%s_portrait.png" % [SPRITE_DIR, hero_id])
 
