@@ -105,3 +105,19 @@
 **执行结果：部分（等待方案）**：本轮已按精简岗纪律读取方案、TASKS 头部/相关任务段、PLAYTEST 未解决区及 PROGRESS/TEST_REPORT 顶部摘要。SOLUTION_PLAN 明确要求等待 #2 将 Day 30 发布准备拆为可执行批次；当前无覆盖方案的新增机器可验证 P0，也无可执行代码/数据任务。因此未修改游戏文件、未运行探针或导出、未改动任务状态、未提交或推送代码。
 
 **执行结果（2026-08-17 21:1x · 第 52 轮 #3）**：**部分（等待方案）**。已复核方案与台账：① 方案第 26 轮仍为「等待任务拆解」，其任务 4 自述「方案师下一轮应在 #2 产出函数/批次级任务后重新覆盖本文件」；② **TASKS.md 第 50 轮（15:15 · #2）已完成 Day 30 三批次函数级拆解（D30-T1 构建前检查/版本冻结、D30-T2 Steam 导出与存档兼容矩阵、D30-T3 build 产物校验与上传 + D30-EXIT）**；③ **#2 第 51 轮（21:08 · f94cdca）进一步确认「Day 30 已拆待执行」**——门禁工具实测在位（tools/qa_validate.py / build_release.py / excel_export.py / export_presets.cfg 均存在），明确「交 #3 按 D30-T1→T2→T3→EXIT 直接执行（版本冻结 → 临时目录导出 → 产物校验 → Owner 确认后上传）」，并指示「若仍未开工：维持『已拆待执行』，按 D30 拆解直接执行勿再等」；④ 方案师尚未按 #2 拆解产出重新覆盖本文件 → **执行输入存在文档间信息差**（方案第 26 轮「不得开工」 vs #2 第 50/51 轮「直接执行」）。按纪律 0（执行依据 = 本文件，内容为「等待任务拆解」→ 输出等待方案）+ 红线「不擅自改方案」，本轮不越权开工 Day 30 发布链（涉及导出/上传等不可逆动作），零代码/零数据/零探针改动；未改动 TASKS 任务状态。**待办：方案师下一轮将本文件覆盖为「Day 30 已拆解可执行」或明确授权按 TASKS 第 50 轮拆解执行**，届时 #3 从 D30-T1 起直接执行（发布护栏：先临时目录导出、不覆盖现有 build/、上传需 Owner 确认）。转述 #2 顺手项：TEST_REPORT #51 观察「HUD 待补 se_skill_sword_arc 图标映射」（PS-C 剑气替换表现收尾）待方案覆盖后随批执行。
+
+**执行结果（2026-08-17 23:1x · 第 53 轮 #3）**：**完成（本地部分 · 核实确认轮）**。总指挥第 27 轮方案（本文件头部）已覆盖 Day 30 发布链并将本地可执行部分全部落地（commit `285dc9e`），本轮 #3 为核实确认轮，产出如下：
+
+1. **总指挥成果核实（trust but verify 全通过）**：
+   - 临时导出目录 `%TEMP%\star_echo_release_20260817_2210\` 三件产物在盘且大小与方案记录逐字节一致（exe 132,918,392B / pck 1,836,016B / zip 59,061,343B）+ export_log×2 + release_manifest.json。
+   - manifest 关键字段核对：version 0.9.0-d30-preview、frozen_commit=`70382e5`、godot 4.3.stable、main_scene MainMenu.tscn、preset Windows Desktop、三件 sha16 与方案一致、compat_matrix 14/14 PASS、gates 三连 PASS、**upload=PENDING 等待 Owner 明确确认与目标资产库**。
+   - 打包卫生 2 修复已入库：export_presets.cfg exclude_filter=`addons/**, docs/**, tools/**, .godot/**`（`**` 跨目录，`285dc9e` 内）；`0815立绘风格、画风示例/.gdignore` 已建且已 git 跟踪。
+   - `tools/day30_save_compat_check.gd` 已入库（git ls-files 命中）。
+   - TASKS.md Day 30 区状态：D30-T1/T2 全 [x]、T3 剩「上传」[ ]（外部动作正确保留）、EXIT 剩 [~]/[ ] 均为 Owner 依赖项，台账状态合理。
+2. **本轮动作**：
+   - P0 检查：PLAYTEST 追踪区增量 #72（22:05 · 反馈专员）确认 🟠/🔴 无新增机器可验证 P0（F-01~F-39 全 🟢 待真人回归），无用户拍板调度指令。
+   - 数据管线护栏：`python tools/excel_export.py --check-only` EXIT=0、13 文件导出完成，git 无 data 文件 diff = 数据层干净。
+   - **顺手项评估（登记不实施）**：TEST_REPORT #51 观察「HUD 待补 se_skill_sword_arc 图标映射」——实测 `scripts/ui/hud.gd` SKILL_ICON_MAP 仍 4 键无 `se_skill_sword_arc`（剑士剑气爆发 PS-C4 无图标映射，旧日志 `regr_day2_hero_check_err.log` 有 WARNING 佐证）。**本轮不实施**，理由：① 方案第 27 轮（最新覆盖）未列此项，纪律 3 禁擅自改方案；② 改动牵动发布冻结链（改 hud.gd/skills.png → 需重导出 → 与 manifest frozen_commit 不一致），发布窗口内动代码会污染冻结基线；③ #2 转述为「顺手补」非硬性任务。**登记建议**：随「发布后第一轮迭代」或在 PS-D 总收口（PS-EXIT 真人记录后）时由方案师排期补 SKILL_ICON_MAP 键 + skills.png 第 5 帧占位图标。
+3. **状态差异登记（重要）**：当前 HEAD=`44c4c34` ≠ manifest frozen_commit=`70382e5`——用户会话在冻结后追加了 3 提交（`31d03b8` PS 大包/`3460916` 立绘实装/`44c4c34` Day31 checkpoint），**导出的 exe/pck 不含这些最新内容**。若 Owner 要求发布产物包含用户会话内容，需重新冻结+重导出（届时 #3 按同一 D30-T2 流程重做）；否则以 `70382e5` 为发布基线。
+4. **待 Owner（本岗不越权）**：① 上传目标资产库确认 + 上传动作 ② `build/` 替换（保留旧 build 回退副本）③ D30-EXIT 收口标记。TEST_REPORT 发布验证摘要由 #4 下轮落盘。
+5. **收尾**：仅提交本文件执行结果记录；工作区唯一在途 `tools/day31_boss_fullpath_probe.gd`（用户会话，commit `44c4c34` 已注明「工作区在途为用户会话，仅建检查点不卷入」）按纪律不碰。
