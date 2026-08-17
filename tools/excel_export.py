@@ -393,6 +393,21 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         rec = {k: coerce_num(v) for k, v in r.items() if not k.startswith("_")}
         su_rows.append(unflatten(rec, set(SHEETS["skill_unlocks"]["json_cols"])))
     files["skill_unlocks.json"] = {"skill_unlocks": su_rows}
+
+    # presentation（F1-E 第一批 2026-08-18 · 敌人精灵表现 dict 形 {enemy_sprites: {id: cfg}}；
+    # size 由 size_w/size_h 两列组装 {"x","y"} 供消费端 Vector2i；tint 为 JSON 数组列）
+    ps_map: dict = {}
+    for r in tables.get("enemy_sprites", []):
+        sid = str(r.get("id", ""))
+        if not sid:
+            continue
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
+        rec = unflatten(rec, set(SHEETS["enemy_sprites"]["json_cols"]))
+        w = coerce_num(r.get("size_w")); h = coerce_num(r.get("size_h"))
+        if w and h:
+            rec["size"] = {"x": int(w), "y": int(h)}
+        ps_map[sid] = rec
+    files["presentation.json"] = {"enemy_sprites": ps_map}
     return files
 
 

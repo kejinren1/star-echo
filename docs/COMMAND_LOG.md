@@ -87,3 +87,46 @@
 - **开放决策项（交 Owner）**：O-1 音乐选型（建议 M1+M2）/ O-2 hitstop 档位是否按武器系调整 / O-3 H1 移动曲线接受度。
 - **动作**：写 `docs/AUDIO_FEEL_SPEC.md`（唯一事实源）；COMMAND_LOG 记录；git 提交（仅文档）。**未动任何 .gd/.tscn/.wav/.json**。
 - **结果**：方案就绪，待 #2 按 P0→P1 拆解（#2 下轮 :05 窗口自动读取 TASKS/方案文档）；#3 未拆解前禁动工。
+
+---
+
+## 2026-08-18 04:5x · 第 4 轮（自动化第 2 轮 · F1-E 承接动工 + AUDIO_FEEL 拍板 + HUD 图标补丁）
+
+### 决策 D-007：AUDIO_FEEL_SPEC O-1~3 总指挥自主拍板（用户未表态项，08-17 授权内）
+
+- **O-1 音乐选型 = M1（免费 CC0 素材）先行 + M2（程序合成）并行长期**；M3 AI 生成 / M4 外包挂起留 Owner（M3 需外部工具账号、M4 涉及付款 = 外部动作，红线内）。
+  - 理由一行：M1 从 GitHub 生态采集 CC0 曲目零成本零外部动作（08-07「网上素材随意用」先例），M2 与 PS-D 章节化对齐长期复用。
+- **O-2 hitstop 档位 = 按武器系调整**（近战重 0.15s / 远程轻 0.05s），落地走 Excel 管线（F1-E 批次内）。
+  - 理由一行：近战命中感密度低，重顿帧补偿；远程高频，轻顿帧防节奏碎裂——均为档位数据非结构改动。
+- **O-3 H1 移动曲线 = 接受但降级实施**：H1 挂 P2 批（本轮不动曲线，避免体感回归面影响发布基线），先行 H2 命中反馈 / H3 技能前摇 / H4 数值档位。
+  - 理由一行：H1 牵动全角色移动手感（体感回归面最大），发布窗口内优先级让位于 F1/F2/F5 打击感三支柱。
+- **动作**：更新 `docs/AUDIO_FEEL_SPEC.md` 开放决策段（O-1~3 标注总指挥拍板结论）；#2 下轮可据此拆 P0 批。
+
+### 决策 D-008：F1-E 表现配置抽表 = 总指挥直接承接（主窗口长期未动，阶段 F 唯一 [ ] 不再挂账）
+
+- **内容**：F1-E（T-016~024）原定「主窗口承接」，但主窗口（用户会话）长期无动作；总指挥按 08-17 授权承接，按既定顺序分批落地。
+- **第一批 = enemy SPRITE_MAP 抽表闭环（本轮完成）**：
+  1. `docs/GameData.xlsx` 新增 `enemy_sprites` sheet（23 敌人，双行表头，数据源自 enemy_enums.gd SPRITE_MAP 逐条抄录）
+  2. `tools/data_schema.py` 注册 SHEETS（file=presentation.json, root=enemy_sprites, kind=dict）+ COLUMN_ZH 列映射
+  3. `tools/excel_export.py` build_json_files 新增 presentation 构建（size_w/size_h → {"x","y"} 组装，tint JSON 列）
+  4. 导出 `data/presentation.json`（23 条）——其他 13 JSON 零 diff（管线稳定）
+  5. 消费端：`data_loader.gd` 新增 `get_enemy_sprite_config()`（懒加载 presentation.json；size→Vector2i、tint→Color、scale→float；未命中按 category 兜底 enemy_enums.gd const——F 系列缺省兜底约定）；`enemy.gd` `_setup_animation` 改读 DataLoader
+  6. 新探针 `tools/day31_presentation_check.gd`：246 断言全绿（23 条键集合一致 + 逐条 8 字段与 const 零漂移 + DataLoader 消费 Vector2i/Color/scale/兜底全对）
+- **理由一行**：发布窗口已过冻结基线（HEAD 已 +31 提交漂移），抽表不再污染冻结产物；每批保留 const 兜底零回归。
+- **后续批次**：BEHAVIOR_MAP → BGM/SFX → FX → SHEET_CONFIG → 初始武器 → 炮台默认，由总指挥/主窗口按批推进。
+
+### 决策 D-009：HUD se_skill_sword_arc 图标映射立即补（TEST_REPORT 观察项，不再等排期）
+
+- **内容**：`hud.gd` SKILL_ICON_MAP 补 `"se_skill_sword_arc": 4`；`skills.png` 扩至 160×32（第 5 帧 32×32 纯色占位，剑气紫）；`icon_atlas.gd` skills.frame_count 4→5。
+- **理由一行**：#3 第 53 轮「发布冻结窗口不动代码」的顾虑已随冻结基线漂移解除（产物已导出完毕），补丁随现 HEAD 走，Owner 若补冻则重导出即可。
+- **验证**：新探针 `tools/day31_skill_icon_check.gd` 22 断言全绿（5 帧全非空 + 图集配置 + 4 技能 id 全覆盖 + 越界拦截 + sword_arc=4）。
+- **踩坑记录**：skills.png 修改后 Godot import 缓存未刷新 → 探针读旧 128×32 → `--headless --import` 触发重导后 22/22 全绿；`.import` 文件已随改（提交时一并入库）。
+
+### 本轮执行链
+
+1. 04:5x 读全局文档（PROGRESS/TASKS/SOLUTION_PLAN/LOOP_HEALTH 精简岗口径）+ git 实测（HEAD=c442abf）+ 自动化 7/7 ACTIVE。
+2. HUD 图标补丁（hud.gd + icon_atlas.gd + skills.png 5 帧）→ 探针 22/22。
+3. F1-E 第一批（Excel sheet + schema + export + presentation.json + DataLoader + enemy.gd）→ 探针 246/246。
+4. 两探针并入 runner（58→60 件套）；全量回归后台跑（k595ma，预计 ~1.5-2h）。
+5. 探针驱动范式修正：extends SceneTree 探针必须 `_process` 首帧驱动（Autoload 挂载后 root 可见）+ 显式 `quit()`——_init 直跑会拿不到 DataLoader 且进程挂起（工作记忆「--script 探针三坑」再踩，已内化）。
+6. **待回归结果**：60/60 全绿后提交（Day31-xxx 摘要）+ push；若有 FAIL → 回退对应改动。

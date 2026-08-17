@@ -73,6 +73,12 @@ COLUMN_ZH = {
     "speed_growth_per_wave": "速度每波成长", "speed_growth_cap": "速度成长上限",
     "speed_reduction": "速度削减", "elite_hp_mult_per_wave": "精英生命每波倍率",
     "elite_dmg_mult_per_wave": "精英伤害每波倍率",
+    # ---- enemy_sprites（F1-E 第一批 · 敌人精灵表现抽表，原 enemy_enums.gd SPRITE_MAP 数据化） ----
+    "move": "移动精灵", "death": "死亡精灵",
+    "size_w": "精灵宽(px)", "size_h": "精灵高(px)",
+    "move_frames": "移动帧数", "death_frames": "死亡帧数",
+    "move_fps": "移动FPS", "death_fps": "死亡FPS",
+    "hit_radius": "接触判定半径", "tint": "色调(JSON)", "scale": "体型倍率",
     # ---- characters ----
     "sprite": "精灵", "starting_weapon": "起始武器", "weapon_restrictions": "武器限制(JSON)",
     "unlock_condition": "解锁条件", "story": "背景故事", "story_unlock_level": "解锁等级",
@@ -199,6 +205,15 @@ SHEETS = {
         "sheet": "enemy_scaling", "file": "enemies.json", "root": "scaling",
         "key": None, "category": None, "kind": "flat_dict",
         "json_cols": [], "child": None,
+    },
+    # F1-E（2026-08-18 总指挥承接第一批）：敌人精灵表现抽表——原 enemy_enums.gd SPRITE_MAP
+    # 20 条数据化（id 主键 dict 形，导出 data/presentation.json），消费端 DataLoader
+    # get_enemy_sprite_config 优先读 JSON、未命中按 category 兜底 const（F 系列缺省兜底约定）；
+    # size 拆 size_w/size_h 两列便于策划填写，导出时组装 {"x","y"} 供消费端 Vector2i()
+    "enemy_sprites": {
+        "sheet": "enemy_sprites", "file": "presentation.json", "root": "enemy_sprites",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": ["tint"], "child": None,
     },
     "characters": {
         "sheet": "characters", "file": "characters.json", "root": "characters",
