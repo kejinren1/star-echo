@@ -121,3 +121,20 @@
 3. **状态差异登记（重要）**：当前 HEAD=`44c4c34` ≠ manifest frozen_commit=`70382e5`——用户会话在冻结后追加了 3 提交（`31d03b8` PS 大包/`3460916` 立绘实装/`44c4c34` Day31 checkpoint），**导出的 exe/pck 不含这些最新内容**。若 Owner 要求发布产物包含用户会话内容，需重新冻结+重导出（届时 #3 按同一 D30-T2 流程重做）；否则以 `70382e5` 为发布基线。
 4. **待 Owner（本岗不越权）**：① 上传目标资产库确认 + 上传动作 ② `build/` 替换（保留旧 build 回退副本）③ D30-EXIT 收口标记。TEST_REPORT 发布验证摘要由 #4 下轮落盘。
 5. **收尾**：仅提交本文件执行结果记录；工作区唯一在途 `tools/day31_boss_fullpath_probe.gd`（用户会话，commit `44c4c34` 已注明「工作区在途为用户会话，仅建检查点不卷入」）按纪律不碰。
+
+**执行结果（2026-08-18 01:2x · 第 54 轮 #3）**：**完成（探针锚点同步 · TEST_REPORT #53 action item 兑现）**。本轮按 TEST_REPORT #53（00:49）在途 action item 执行——**同步 9 个旧探针锚点恢复 52/52**，产出如下：
+
+1. **P0 检查**：PLAYTEST 追踪区增量 #75（00:4x · 反馈专员）用户双反馈「关卡结束机制 + Boss 后不能选关」已由 `3f9dbe4` 修复落地 + 真实 GUI 探针 day31_boss_after_check 6/6，无新增机器可验证 P0 / 用户拍板调度指令。
+2. **orbit → 扇形挥砍锚点同步（6 探针 15 条）**：PS 大包 `31d03b8` 星刃从 orbit 环绕重构为扇形挥砍（arc_angle 100→135° 递增 / 进化 150°），旧探针仍断言已清零的 orbit 数据 → 全部改为新语义：
+   - `day5_weapon_check`（3 条）：OrbitWeapon 挂载/刃数/bonus 埋点 → MeleeSweep 挂载 + arc_angle≥100 + `_do_slash` 扇形伤害精确断言（踩坑：headless 下 `_get_aim_direction` 指向左上 → 敌人须摆瞄准方向；crit 波动 → 临时禁暴击 + 计入 melee_damage 8%）
+   - `day8_weapon_data_check`（1 条）：Lv8 blade_count 4 → arc_angle 135
+   - `day10_evolution_check`（2 条）：storm orbit_data.blade_count 6 → arc_angle 150；Lv8 blade_count → arc_angle 135
+   - `day18_feedback2_check`（6 条）：§2 半径 40→68 递增 → 扇形角 100→135 递增 + 武器资源 arc_angle 落地
+   - `day18_feedback4_check`（2 条）：storm blade_count 6 → arc_angle 150；F-22 渲染 orbit_weapon 手动实例 → melee_sweep 刀光颜色/扇形角断言（含 Object.get() 1 参坑修复）
+   - `day18_feedback5_check`（1 条）：tooltip「环绕玩家旋转」→「周期性扇形挥砍」
+3. **换装尺寸锚点同步（3 探针 4 条）**：8-16 定稿换装 walk 192×32/640×64 → 256×64·4 帧、idle → 768×64·12 帧（08-18 呼吸动画定稿）：
+   - `day21_22_art_check`（1 条）：§3 4 角色 walk 256×64·4 帧 + idle 768×64·12 帧
+   - `day26_integration_check`（1 条）：角色 walk 统一 256×64
+   - `day29_elin_anim_check`（2 条）：SHEET_EXPECT idle 768×64·12 / walk/attack/skill 256×64·4 + §4 文本锚点同步
+4. **验证**：9 探针单独全 CLEAN（day18_fb4 18/18、day29_elin 14/14、day5 16/16）；**全量回归 52/52 PASS**（回归前 43/52）；`excel_export.py --check-only` EXIT=0 数据层干净。
+5. **收尾**：提交 9 探针 + 挂账 docs（PROGRESS/TEST_REPORT/GameData.xlsx/DATA_OVERVIEW/.manifest.json 为 #1/#4 导出与进度挂账一并入库）+ push；`.godot_bak×2` 用户会话缓存目录不提交不删除（建议下轮补 .gitignore 条目）。**顺手项维持登记**：HUD `se_skill_sword_arc` 图标映射仍待方案师排期（发布冻结窗口内不动代码的结论延续）。

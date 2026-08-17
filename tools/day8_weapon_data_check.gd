@@ -15,7 +15,7 @@
 ##   4. 图标层：18 帧（0/1/2/4/6/9/10/14/15/19/21/22/23/24/28/29/30/31）中心 16×16 非全透明；
 ##              (0,0) 透明键；帧 36-39 全透明（D10-T5 占 33/34/35）
 ##   5. 回归层：day7 15 把 levels 未被破坏（sword Lv8 damage 50 / se_star_flame Lv8 projectiles 3 /
-##              se_star_blade Lv8 blade_count 4）；36 把 icon_index 与 D7-T5+D10-T1 映射表一致
+##              se_star_blade Lv8 arc_angle 135）；36 把 icon_index 与 D7-T5+D10-T1 映射表一致
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -328,14 +328,14 @@ func _part_regression() -> void:
 		else:
 			_pass("回归 / se_star_flame Lv8 projectiles == 3（day7 未破坏）")
 
-	# se_star_blade Lv8 blade_count 4
+	# se_star_blade Lv8 arc_angle 135（PS 2026-08-17 星刃 orbit→扇形挥砍重构，扇形角 100→135 递增）
 	var ssb: Dictionary = _loader.call("get_weapon", "se_star_blade")
 	var ssb_lv: Array = ssb.get("levels", [])
 	if ssb_lv.size() >= 8:
-		if int(ssb_lv[7].get("blade_count", -1)) != 4:
-			_fail("回归: se_star_blade Lv8 blade_count 应 4, 实得 %s" % str(ssb_lv[7].get("blade_count")))
+		if int(ssb_lv[7].get("arc_angle", -1)) != 135:
+			_fail("回归: se_star_blade Lv8 arc_angle 应 135, 实得 %s" % str(ssb_lv[7].get("arc_angle")))
 		else:
-			_pass("回归 / se_star_blade Lv8 blade_count == 4（day7 未破坏）")
+			_pass("回归 / se_star_blade Lv8 arc_angle == 135（day7 未破坏）")
 
 	# 36 把 icon_index 与 D7-T5+D10-T1 映射表一致
 	for wid in ICON_INDEX_MAP.keys():

@@ -6,6 +6,7 @@
 ##      is_boss 存活目标（兼容两制：路线 invoker wave10 / 旧制 predator wave20）
 ##   ③ 星刃离人物太远（orbit_radius 110-138）→ 修复：se_star_blade 40→68 紧贴人物环绕，
 ##      se_blade_storm 120→68（进化 6 刃风暴贴体）
+##      → PS 2026-08-17 重构：orbit 环绕 → 扇形挥砍（arc_angle 100→135 递增 / 进化 150）
 ##   §6（2026-08-08 反馈专员 F-21）群星回应：第四关结算 + 升级两次技能 + 本商店无星刃核心
 ##      → 激活免费高亮刷新，点击刷新必出星刃核心（本局一次）
 ##
@@ -165,32 +166,32 @@ func _part1_consume_key() -> void:
 	var iv: Dictionary = _loader.call("get_scaled_enemy", "invoker", 10)
 	_ok(int(iv.get("coin_value", 0)) == 150, "get_scaled_enemy(invoker) coin_value == 150（实际 %s）" % str(iv.get("coin_value")))
 
-# ---------- §2 星刃轨道半径（紧贴人物环绕） ----------
+# ---------- §2 星刃扇形挥砍（PS 2026-08-17 重构：orbit 环绕 → 扇形挥砍，扇形角递增） ----------
 
 func _part2_star_blade_data() -> void:
 	var wd: Dictionary = _loader.call("get_weapon", "se_star_blade")
-	_ok(int(wd.get("orbit_radius", 0)) == 40, "se_star_blade 顶层 orbit_radius == 40（实际 %s）" % str(wd.get("orbit_radius")))
+	_ok(int(wd.get("arc_angle", 0)) == 100, "se_star_blade 顶层 arc_angle == 100（实际 %s）" % str(wd.get("arc_angle")))
 	var levels: Array = wd.get("levels", [])
 	_ok(levels.size() >= 8, "se_star_blade levels >= 8（实际 %d）" % levels.size())
-	var expect: Dictionary = {1: 40, 2: 44, 3: 48, 4: 52, 5: 56, 6: 60, 7: 64, 8: 68}
+	var expect: Dictionary = {1: 100, 2: 105, 3: 110, 4: 115, 5: 120, 6: 125, 7: 130, 8: 135}
 	var bad: Array = []
 	for lv in levels:
 		var l: int = int(lv.get("level", 0))
-		var r: int = int(lv.get("orbit_radius", -1))
-		if r != expect.get(l, -1):
-			bad.append("Lv%d=%d" % [l, r])
-	_ok(bad.is_empty(), "se_star_blade levels 半径 40→68 紧贴递增（异常: %s）" % str(bad))
+		var a: int = int(lv.get("arc_angle", -1))
+		if a != expect.get(l, -1):
+			bad.append("Lv%d=%d" % [l, a])
+	_ok(bad.is_empty(), "se_star_blade levels 扇形角 100→135 递增（异常: %s）" % str(bad))
 	var storm: Dictionary = _loader.call("get_weapon", "se_blade_storm")
-	_ok(int(storm.get("orbit_radius", 0)) == 68, "se_blade_storm orbit_radius == 68（实际 %s）" % str(storm.get("orbit_radius")))
+	_ok(int(storm.get("arc_angle", 0)) == 150, "se_blade_storm arc_angle == 150（实际 %s）" % str(storm.get("arc_angle")))
 
 func _part2_star_blade_weapon_resource() -> void:
-	# 武器资源 orbit_data 落地（WeaponController 纯函数构建）
+	# 武器资源 arc_angle 落地（WeaponController 纯函数构建）
 	var wc: Node = load("res://scripts/weapons/weapon_controller.gd").new()
 	var w: Resource = wc.call("build_weapon_from_data", "se_star_blade")
-	var od: Dictionary = w.get("orbit_data") if w else {}
-	_ok(w != null and not od.is_empty(), "se_star_blade 武器资源 orbit_data 非空")
-	_ok(float(od.get("orbit_radius", 0.0)) == 40.0, "orbit_data.orbit_radius == 40（实际 %s）" % str(od.get("orbit_radius")))
-	_ok(int(od.get("blade_count", 0)) >= 1, "orbit_data.blade_count >= 1（实际 %s）" % str(od.get("blade_count")))
+	var arc: float = float(w.get("arc_angle")) if w else 0.0
+	_ok(w != null and arc > 0.0, "se_star_blade 武器资源 arc_angle 已落地（实得 %s）" % str(arc))
+	_ok(arc == 100.0, "arc_angle == 100（实际 %s）" % str(arc))
+	_ok(arc >= 90.0, "arc_angle >= 90（扇形挥砍判定阈值，实际 %s）" % str(arc))
 
 # ---------- §3 HUD Boss 血条 ----------
 

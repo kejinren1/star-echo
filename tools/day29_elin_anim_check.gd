@@ -3,14 +3,14 @@
 ## 用法（无头，不需要编辑器）：
 ##     tools/Godot_v4.3-stable_win64.exe --headless --path . --script res://tools/day29_elin_anim_check.gd
 ##
-## 校验内容（用户 2026-08-08 21:0x 直派：ART/RAW/elin 28 帧 JPG → 5 sheet）：
-##   §1 资产：elin_idle 320×64(5) / elin_walk 640×64(10) / elin_attack 320×64(5) /
-##      elin_skill 384×64(6) / elin_hit 128×64(2) 尺寸 + 每帧非空 + (0,0) 透明键
+## 校验内容（用户 2026-08-08 21:0x 直派：ART/RAW/elin 28 帧 JPG → 5 sheet；2026-08-16/18 定稿换装）：
+##   §1 资产：elin_idle 768×64(12) / elin_walk 256×64(4) / elin_attack 256×64(4) /
+##      elin_skill 256×64(4) / elin_hit 128×64(2) 尺寸 + 每帧非空 + (0,0) 透明键
 ##   §2 接线：_apply_character_sprite("elin") 白盒 → SpriteFrames 注册 5 动画
-##      （idle/walk/attack/skill/hit），帧数 = 5/10/5/6/2，attack/skill/hit 非循环
+##      （idle/walk/attack/skill/hit），帧数 = 12/4/4/4/2，attack/skill/hit 非循环
 ##   §3 hit 状态机：take_damage → animation == "hit"（红闪保留）→ 播完 _on_anim_finished
 ##      → 回 idle；攻击中受击不打断 attack（降级）；缺帧前缀 → 无 hit 动画
-##   §4 回归锚点：day21_22 探针 §3 尺寸断言已同步（elin idle 320×64）；player.gd
+##   §4 回归锚点：day21_22 探针 §3 尺寸断言已同步（elin idle 768×64）；player.gd
 ##      _update_animation/_on_anim_finished 含 "hit" 分支（grep 文本锚点）
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
@@ -23,12 +23,12 @@ var _checked: int = 0
 var _failures: int = 0
 var _expect_loaded: bool = false
 
-# 期望 sheet：(宽, 高, 帧数)
+# 期望 sheet：(宽, 高, 帧数) —— 2026-08-16/18 定稿换装（波浪呼吸 12 帧 idle / 4 帧 walk/attack/skill）
 const SHEET_EXPECT: Dictionary = {
-	"idle": Vector3i(320, 64, 5),
-	"walk": Vector3i(640, 64, 10),
-	"attack": Vector3i(320, 64, 5),
-	"skill": Vector3i(384, 64, 6),
+	"idle": Vector3i(768, 64, 12),
+	"walk": Vector3i(256, 64, 4),
+	"attack": Vector3i(256, 64, 4),
+	"skill": Vector3i(256, 64, 4),
 	"hit": Vector3i(128, 64, 2),
 }
 
@@ -158,7 +158,7 @@ func _part_assets() -> void:
 		if img == null or img.get_pixel(0, 0).a > 0.0:
 			ok_all = false
 			print("    elin_%s 左上角 (0,0) 非透明（透明键协议违反）" % name)
-	_ok(ok_all, "§1 资产: elin 5 sheet 尺寸/帧非空/透明键全合规（idle 320×64·5 / walk 640×64·10 / attack 320×64·5 / skill 384×64·6 / hit 128×64·2）")
+	_ok(ok_all, "§1 资产: elin 5 sheet 尺寸/帧非空/透明键全合规（idle 768×64·12 / walk 256×64·4 / attack 256×64·4 / skill 256×64·4 / hit 128×64·2）")
 
 
 # ========== §2 动画接线 ==========
@@ -180,14 +180,14 @@ func _part_animations() -> void:
 			all_have = false
 			print("    缺动画: %s" % n)
 	_ok(all_have, "§2 接线: SpriteFrames 注册 5 动画 idle/walk/attack/skill/hit（实得 %s）" % str(names))
-	# 帧数：idle 5 / walk 10 / attack 5 / skill 6 / hit 2
+	# 帧数：idle 12 / walk 4 / attack 4 / skill 4 / hit 2
 	var frames_ok: bool = true
 	for n: String in SHEET_EXPECT:
 		var expect_frames: int = SHEET_EXPECT[n].z
 		if sf.get_frame_count(n) != expect_frames:
 			frames_ok = false
 			print("    %s 帧数 %d != %d" % [n, sf.get_frame_count(n), expect_frames])
-	_ok(frames_ok, "§2 接线: 5 动画帧数 = 5/10/5/6/2（_sheet_meta 自动推断）")
+	_ok(frames_ok, "§2 接线: 5 动画帧数 = 12/4/4/4/2（_sheet_meta 自动推断）")
 	# 循环标志：attack/skill/hit 非循环，idle/walk 循环
 	var loop_ok: bool = true
 	for n in ["attack", "skill", "hit"]:
@@ -247,9 +247,9 @@ func _part_hit_state() -> void:
 # ========== §4 回归锚点 ==========
 
 func _part_regression() -> void:
-	# day21_22 探针 §3 已同步 elin idle 320×64
+	# day21_22 探针 §3 已同步 elin idle 768×64（2026-08-16/18 定稿换装）
 	var d2122: String = FileAccess.get_file_as_string("res://tools/day21_22_art_check.gd")
-	_ok(d2122.find("Vector2i(320, 64)") >= 0, "§4 回归: day21_22 探针 §3 elin idle 断言已同步 320×64")
+	_ok(d2122.find("Vector2i(768, 64)") >= 0, "§4 回归: day21_22 探针 §3 elin idle 断言已同步 768×64")
 	# F4-C 拆分：状态机迁 player_anim.gd（player.gd 保留薄委托）——双文件文本锚点
 	var pg: String = FileAccess.get_file_as_string("res://scripts/player/player.gd")
 	var panim: String = FileAccess.get_file_as_string("res://scripts/player/player_anim.gd")

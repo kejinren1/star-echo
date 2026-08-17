@@ -125,7 +125,7 @@ func _part_tooltip_shop() -> void:
 	var wc = wc_script.new()
 	var blade: Resource = wc.call("build_weapon_from_data", "se_star_blade")
 	var t4: String = DescBuilderScript.weapon_tooltip(blade)
-	_ok(t4.contains("伤害 7") and t4.contains("环绕玩家旋转") and t4.contains("满级可进化『星刃风暴』"),
+	_ok(t4.contains("伤害 7") and t4.contains("周期性扇形挥砍") and t4.contains("满级可进化『星刃风暴』"),
 		"F-24/武器: 星刃 tooltip 含数值/描述/进化提示（实得: %s）" % t4.replace("\n", " / "))
 	shop.free()
 

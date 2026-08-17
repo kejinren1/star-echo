@@ -1,6 +1,6 @@
 # 数据分布总览（DATA_OVERVIEW）
 
-- 生成时间：2026-08-17 22:10
+- 生成时间：2026-08-18 01:23
 - 来源：docs/GameData.xlsx（tools/excel_export.py 导出时自动刷新）
 
 ## weapons（36 行）

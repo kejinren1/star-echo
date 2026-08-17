@@ -5,7 +5,7 @@
 ##
 ## 校验内容（对应 docs/SOLUTION_PLAN.md 第 7 轮任务 1/2/3）：
 ##   §1 美术资产：SPRITE_MAP 23 键 + FALLBACK 3 键路径 exists + Boss scale 白盒复位（D17 双点）
-##                 + 4 角色 walk(192×32)/attack/skill + factions 5 + backgrounds 4 + 头像 3 + .import 齐全
+##                 + 4 角色 walk(256×64)/attack/skill + factions 5 + backgrounds 4 + 头像 3 + .import 齐全
 ##   §2 特效资产：FX_CONFIG 10 键（含 5 新特效）+ 5 新特效 PNG + hit 消费点 + source_id 接线（se_star_fall→meteor）
 ##   §3 音频资产：12 WAV 头合法（RIFF/WAVE + mono + 22050 + 16bit）+ AudioManager autoload + BGM 状态机 5 态 + SFX_MAP 10 键
 ##   §4 剧情载体：LORE.md exists + events.json 10 事件 + 解锁文案数据存在性（解锁接线 = Day 27 依赖，缺失不判失败）
@@ -140,7 +140,7 @@ func _part_art() -> void:
 		_pass("美术 / Boss scale 白盒复位 ×1（%s，D17 语义断言）" % "invoker/predator")
 	else:
 		_fail("美术: Boss scale 未复位")
-	# 角色 walk strip（elin 实装拼豆图纸动画 640×64·10 帧，其余收口占位 192×32·6 帧）+ attack/skill strip
+	# 角色 walk strip（2026-08-16/18 定稿换装：4 角色统一 256×64·4 帧）+ attack/skill strip
 	var char_ok: bool = true
 	var char_detail: String = ""
 	for prefix in CHARACTER_PREFIXES:
@@ -151,12 +151,10 @@ func _part_art() -> void:
 			char_ok = false
 			continue
 		var img := Image.load_from_file(ProjectSettings.globalize_path(walk_p))
-		var expect_w: int = 640 if prefix == "elin" else 192
-		var expect_h: int = 64 if prefix == "elin" else 32
-		if img.get_width() != expect_w or img.get_height() != expect_h:
+		if img.get_width() != 256 or img.get_height() != 64:
 			char_ok = false
 	if char_ok:
-		_pass("美术 / 4 角色 walk（elin 640×64 / 其余 192×32）+ attack/skill strip 全 exists")
+		_pass("美术 / 4 角色 walk（256×64）+ attack/skill strip 全 exists")
 	else:
 		_fail("美术: 角色 walk/attack/skill 缺失或尺寸非预期")
 	# factions / backgrounds / portraits

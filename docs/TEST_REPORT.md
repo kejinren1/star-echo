@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #52（08-17 22:45 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **46/52**，6 FAIL 全部定性为**探针 orbit 断言未随 PS 大包星刃重构同步**（非游戏缺陷，新玩法探针 9/9 已过）；action item 1 项
-- **基线**：`BASELINE CLEAN` ｜ JSON **15 文件** · **2449 数值字段**零缺陷（-12=PS 大包星刃 orbit 键清零，符合预期）｜场景 **25/25** ｜ 600帧深探 EXIT 0、stderr **242B 良性泄漏**
-- **探针回归**：**46/52（1099 条登记期望）**；6 FAIL = day5×3 / day8×1 / day10×2 / day18_feedback2×6 / day18_feedback4×2 / day18_feedback5×1，均为断言已清零的 orbit 数据（blade_count/orbit_radius/orbit_data/环绕描述）
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**3460916**（31d03b8 PS 大包 + 3460916 立绘实装 12 张）
-- **在途 action item（1 项）**：交 #3 同步 5 旧探针 orbit 断言→扇形挥砍语义（15 条过时断言，同步后恢复 52/52）；在途 178 文件（立绘+探针同步+图集重建）建议尽快 commit
-- **观察**：day31_spawner_deadlock 46× warning 刷屏维持（mock 未装 enemy_scene，非缺陷）；HUD 待补 `se_skill_sword_arc` 图标映射；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突仍待决
+- **最近轮次 #53（08-18 00:49 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **43/52**，9 FAIL 全部定性为**探针锚点过时非游戏缺陷**（6 orbit 15 条 + 3 换装尺寸 4 条）；新探针 5 件 90 断言全 PASS；08-18 超时反馈修复已实证
+- **基线**：`BASELINE CLEAN` ｜ JSON **15 文件** · **2449 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 良性泄漏**
+- **探针回归**：**43/52（1099 条登记期望）**；9 FAIL = day5×3/day8×1/day10×2/day18_fb2×6/day18_fb4×2/day18_fb5×1（orbit 语义，#52 遗留）+ **day21_22×1/day26×1/day29_elin×2（8-16 定稿换装尺寸锚点：192×32/640×64→实得 256×64·4 帧，#53 新增）**
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**27f5a05**（8-16 定稿换装 + 缓存自愈工具）
+- **在途 action item（2 项）**：交 #3 同步 9 个旧探针锚点（orbit 15 条 + 尺寸 4 条，同步后恢复 52/52）；在途 9 文件建议尽快 commit（08-18 超时修复 wave_manager + day18_fb5 同步 + LevelUpPanel layer=10）
+- **观察**：day31_spawner_deadlock 46× warning 刷屏维持（mock 未装 enemy_scene，非缺陷）；HUD 待补 `se_skill_sword_arc` 图标映射；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；.godot_bak×2 缓存目录未跟踪
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3451,6 +3451,51 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - **在途 178 文件建议尽快 commit 入库**（立绘实装 + 6 探针同步 + 图集重建，含 #51 遗留的 PS-D2a 守卫）。
 
 **✅ 2026-08-17 22:45 自动化测试轮次 #52：PASS（46/52，6 FAIL 定性为探针断言过时非游戏缺陷）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；PS 大包星刃重构零游戏缺陷，待探针 orbit 断言同步后回归恢复全绿。
+
+---
+
+## §7.53 轮次 #53 · 2026-08-18 00:49（自动化测试 · 8-16 定稿换装探针锚点轮）
+
+**验证快照 = HEAD=27f5a05（局内模型换装 8-16 定稿版 + 缓存一键自愈工具）+ 工作区在途改动（9 项）**。HEAD 链：`e514fa4`+`396cb4e`（08-17 选人预览面板修复：视口回滚 640×360 + 面板居中/无框/idle + 鼠标穿透）→ `33863df`（反馈专员 #74）→ `88dd107`（#2 第 53 轮拆解回执 + Day30 总指挥门禁三连）→ `27f5a05`（8-16 定稿换装 + 缓存自愈）。在途：**08-18 用户反馈修复**——`wave_manager.gd` +9：**普通关超时不再无条件强制通关**（通关判定 = 生成完成 + 敌全灭；仅生成异常/无存活敌人时超时兜底放行防卡关，杜绝「打了一半被送进选关」）+ `day18_feedback5_check.gd` 同步改写超时断言（28→29）+ `LevelUpPanel.tscn` layer=10 + docs×3（PROGRESS/DATA_OVERVIEW/GameData.xlsx）+ `data/.manifest.json` + `.godot_bak_235252/`/`.godot_bak2_000844/` 未跟踪缓存目录。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 2 项）。** **52 件套回归 43/52**：9 个 FAIL 全部定性为**探针锚点过时，非游戏缺陷**——① orbit 语义 6 探针 15 条（#52 已定性，PS 大包星刃 orbit→扇形重构后旧断言未同步，待 #3 处理）；② **8-16 定稿换装尺寸锚点 3 探针 4 条（本轮新增定性）**——角色动画已按「8-16 定稿版」统一为 64px 帧规格（idle/walk/attack/skill 256×64·4 帧、hit 128×64·2 帧），旧探针仍断言 192×32/320×64/640×64。游戏本体各检查全绿；**08-18 超时新逻辑已被 day18_fb5 探针实证收口**（29 checked / 1 failed，净 +1 新断言通过）。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0。
+- **600 帧深度运行**：退出码 0；stderr 242B，headless 音频退出良性泄漏，按既有白名单判定。
+- **数据层**：`data/*.json` **15/15 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2449**（与 #52 持平零变更），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10；items.png 图集 54 帧与 icon_atlas 声明匹配维持。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr = 1 条 HUD「inventory 未就绪」主动防御 WARNING + 242B 良性，**0 SCRIPT ERROR**（首跑曾现 `shop.gd:80 coins_changed previously freed`，系 Main 置于 Shop 前的 smoke 顺序假象，Main 置末后消失，与 #11/#20 方法论记录一致，非游戏缺陷）。
+- **探针回归**：`tools/_regression_run.py` **43/52 PASS**（1099 条登记期望；9 FAIL 定性见下）。
+- **新探针补跑（未入 runner，单独验证）**：day31_melee_sweep **9/9**、day31_player_model **6/6**（断言「idle 帧尺寸 64×64（定稿 64px 帧规格）」——**坐实换装规格权威**）、day31_charsel **12/12**、day31_enemy_richness **5/5**、day31_items_atlas **58 断言 0 FAIL** —— 合计 90 断言全 PASS，0 script_errors。
+
+### 3. WARNING / 探针 FAIL 定性（全部探针侧，非游戏缺陷）
+
+**组 A · orbit 语义过时（#52 已定性，待 #3 同步，15 条）**：day5 ×3（OrbitWeapon 挂载）/ day8 ×1（blade_count）/ day10 ×2（orbit_data/blade_count）/ day18_feedback2 ×6（orbit_radius 40→68 递增 + orbit_data）/ day18_feedback4 ×2（blade_count 6/进化 6 刃）/ day18_feedback5 ×1（tooltip 断言——实得内容完整「伤害 7 · 攻速 2.2/s · 范围 110 · 暴击 8% / 周期性扇形挥砍, 对前方扇形范围内的敌人造成伤害 / 满级可进化」）。
+
+**组 B · 8-16 定稿换装尺寸锚点过时（本轮新增，4 条）**：
+
+| 探针 | FAIL | 过时断言 vs 实得 |
+|---|---|---|
+| day21_22_art_check | 1 | lain/siia walk 断言 192×32，实得 256×64 |
+| day26_integration_check | 1 | 美术段 SPRITE_MAP 角色 walk/attack/skill 尺寸锚点过时 |
+| day29_elin_anim_check | 2 | §1 尺寸（期望 idle 320×64/walk 640×64/attack 320×64/skill 384×64，实得全 256×64）+ §2 帧数（实得 4 帧 vs 期望 5/10/5/6） |
+
+**佐证非缺陷**：① 资产实测全部角色 idle/walk/attack/skill = 256×64、hit = 128×64，与「8-16 定稿版」提交一致；② day31_player_model 6/6 断言定稿 64px 帧规格通过；③ 接线完整（SpriteFrames 5 动画注册、hit 禁打断、信号接线全 PASS）；④ baseline/600帧/场景/JSON 全绿。
+
+**08-18 在途改动实证**：day18_fb5 探针 29 checked / 1 failed（仅 tooltip 组 A 旧断言）——新改写断言「超时+仍有存活敌人→续时不通关」「超时+敌全灭→通关」均通过，wave_manager 新逻辑行为收口。
+
+**stderr 观察**：day31_spawner_deadlock 5440B（46× enemy_scene 未设置 push_warning 刷屏）维持，mock 未装配非缺陷；day31_items_atlas 364B = 1 条主动越界保护 WARNING（items[54] 共 54 帧，测试预期）+ 242B 良性；day29_elin 探针越界 ERROR（p_x 256/320/384/448 > width 256）系探针按旧帧宽遍历 sheet 的锚点过时伴随产物；0 游戏侧 SCRIPT ERROR。
+
+### 4. action item（2 项）
+
+- **交 #3 执行岗**：① 同步 #52 遗留 6 探针 orbit 断言（15 条，day5/day8/day10/day18_feedback2/day18_feedback4/day18_feedback5）；② 同步本轮 3 探针尺寸锚点（4 条：day21_22 walk 192×32→256×64、day26 SPRITE_MAP 角色尺寸、day29_elin idle/walk/attack/skill 640/320→256×64·4 帧）——两组合计 9 探针 19 条过时断言，同步后恢复 52/52。
+- **在途 9 项建议尽快 commit 入库**（08-18 超时修复 wave_manager + day18_fb5 探针同步 + LevelUpPanel layer=10 + docs×3 + .manifest.json；.godot_bak×2 缓存目录确认后清理）。
+
+**✅ 2026-08-18 00:49 自动化测试轮次 #53：PASS（43/52，9 FAIL 全部定性为探针锚点过时非游戏缺陷；08-18 超时反馈修复已实证收口）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；待 9 个旧探针锚点同步后回归恢复全绿。
 
 ---
 

@@ -8,7 +8,7 @@
 ##      requires_item ∈ items.json 且 tags 含 evolution_core；result_id ∈ weapons.json 且带 evolution_result；
 ##      3 把结果武器 levels 8 条 + max_level 8 + Lv1==顶层 + Lv8==顶层（平曲线）
 ##   2. 装配层：build_weapon_from_data("se_star_fall") → explosion_radius 90；
-##              build_weapon_from_data("se_blade_storm") → orbit_data.blade_count 6；
+##              build_weapon_from_data("se_blade_storm") → arc_angle 150；
 ##              build_weapon_from_data("se_turret_array") → 正常装配
 ##   3. 背包层：add_item_from_data("se_flame_core") → has_item_id true → remove_item_id true → false；
 ##              未知 id → false 且不抛错
@@ -16,7 +16,7 @@
 ##              → 槽位数不变 + level == max_level + source_id == "se_star_fall"；
 ##              inventory 注入核心 → panel._roll_options 含 evolution 选项 →
 ##              panel._apply_option → 武器替换 + 核心消耗
-##   5. 回归层：sword Lv8 damage 50；se_star_flame Lv8 projectiles 3；se_star_blade Lv8 blade_count 4；
+##   5. 回归层：sword Lv8 damage 50；se_star_flame Lv8 projectiles 3；se_star_blade Lv8 arc_angle 135；
 ##              36 把 icon_index（33 既有 + 3 结果）边界合法
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
@@ -183,16 +183,15 @@ func _part_assembly() -> void:
 		if int(w_fall.get("icon_index")) != 33:
 			_fail("装配: se_star_fall icon_index 应 33, 实得 %d" % int(w_fall.get("icon_index")))
 
-	# se_blade_storm → orbit_data.blade_count 6
+	# se_blade_storm → arc_angle 150（PS 2026-08-17 星刃 orbit→扇形挥砍重构，进化超大扇形）
 	var w_storm: Resource = _wc.call("build_weapon_from_data", "se_blade_storm")
 	if w_storm == null:
 		_fail("装配: build se_blade_storm 返回 null")
 	else:
-		var od: Dictionary = w_storm.get("orbit_data")
-		if int(od.get("blade_count", 0)) != 6:
-			_fail("装配: se_blade_storm orbit_data.blade_count 应 6, 实得 %s" % str(od.get("blade_count")))
+		if int(w_storm.get("arc_angle")) != 150:
+			_fail("装配: se_blade_storm arc_angle 应 150, 实得 %s" % str(w_storm.get("arc_angle")))
 		else:
-			_pass("装配 / se_blade_storm orbit_data.blade_count == 6")
+			_pass("装配 / se_blade_storm arc_angle == 150")
 
 	# se_turret_array → 正常装配
 	var w_arr: Resource = _wc.call("build_weapon_from_data", "se_turret_array")
@@ -389,14 +388,14 @@ func _part_regression() -> void:
 		else:
 			_pass("回归 / se_star_flame Lv8 projectiles == 3")
 
-	# se_star_blade Lv8 blade_count 4
+	# se_star_blade Lv8 arc_angle 135（PS 2026-08-17 星刃 orbit→扇形挥砍重构）
 	var ssb: Dictionary = _loader.call("get_weapon", "se_star_blade")
 	var ssb_lv: Array = ssb.get("levels", [])
 	if ssb_lv.size() >= 8:
-		if int(ssb_lv[7].get("blade_count", -1)) != 4:
-			_fail("回归: se_star_blade Lv8 blade_count 应 4, 实得 %s" % str(ssb_lv[7].get("blade_count")))
+		if int(ssb_lv[7].get("arc_angle", -1)) != 135:
+			_fail("回归: se_star_blade Lv8 arc_angle 应 135, 实得 %s" % str(ssb_lv[7].get("arc_angle")))
 		else:
-			_pass("回归 / se_star_blade Lv8 blade_count == 4")
+			_pass("回归 / se_star_blade Lv8 arc_angle == 135")
 
 	# 36 把 icon_index 越界检查（0-35）
 	var cats: Array = ["melee", "ranged", "elemental", "engineering"]

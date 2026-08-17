@@ -8,14 +8,14 @@
 ##   2. se_star_flame 连续 upgrade() Lv1→Lv8 全 true，再升 false；Lv2 后 base_damage == levels[1].damage（查表生效）
 ##   3. pistol（无 levels 表）升级走通用成长（base_damage == 5 * 1.25）
 ##   4. 升级面板选项池含武器升级项；注入「升级『星刃』」→ 星刃 level == 2；真实按钮点击恢复运行
-##   5. 装备星刃 → Player 下 OrbitWeapon 刃数 == 1；bonus_stats["orbit_blade_count"] = 3 → 刃数 == 4（D3 埋点收口）
-##   6. 刃接触敌人 → 敌人掉血 7 × damage_multiplier
-##   7. 卸下星刃 → Player 下无 OrbitWeapon 节点
+##   5. 装备星刃 → Player 下 MeleeSweep 存在且 Lv1 arc_angle >= 100（PS 2026-08-17 星刃 orbit→扇形挥砍重构）
+##   6. 扇形挥砍命中前方敌人 → 敌人掉血 7 × damage_multiplier
+##   7. 卸下星刃 → Player 下无 MeleeSweep 节点
 ##
 ## 无头环境特殊约定（沿用 day2/day3/day4）：
 ##   · --script 模式下 autoload 标识符不可直接引用，一律经 root 取 GameManager/DataLoader
 ##   · 面板挂载：current_scene 为 null 时 GameManager._add_to_ui_layer 挂 root，故按 root 节点查找
-##   · 环绕刃驱动用「手动调 orbit_node._process(0.016)」加速（真实逻辑与引擎回调一致）
+##   · 扇形挥砍驱动用「直接调 sweep._do_slash()」（冷却 0 守卫放行，真实逻辑与引擎回调一致）
 ##
 ## 退出码 0 = 全部通过；非 0 = 失败项数。
 extends SceneTree
@@ -253,7 +253,7 @@ func _check_panel_real() -> void:
 	else:
 		_fail("slots / 点击后应恢复运行")
 
-# ========== Case B：se_ren（断言 5-7 · 环绕武器） ==========
+# ========== Case B：se_ren（断言 5-7 · 扇形挥砍，PS 2026-08-17 星刃 orbit→扇形重构） ==========
 
 func _advance_orbit(sub: int) -> int:
 	match sub:
@@ -263,94 +263,91 @@ func _advance_orbit(sub: int) -> int:
 		1:
 			return 2  # 空转一帧等 Main ready
 		2:
-			_check_orbit_exists()    # 断言 5a
+			_check_sweep_exists()    # 断言 5a
 			return 3
 		3:
-			_check_orbit_bonus()     # 断言 5b（D3 埋点收口）
+			_check_sweep_ready()     # 断言 5b（arc_angle 驱动就绪）
 			return 4
 		4:
-			_check_orbit_hit()       # 断言 6
+			_check_sweep_hit()       # 断言 6
 			return 5
 		5:
 			return 6  # 空转一帧
 		6:
-			_do_orbit_cleanup()      # 卸下星刃（queue_free 延迟生效）
+			_do_sweep_cleanup()      # 卸下星刃（queue_free 延迟生效）
 			return 7
 		7:
 			return 8  # 空转一帧让 queue_free 生效
 		8:
-			_check_orbit_cleanup()   # 断言 7
+			_check_sweep_cleanup()   # 断言 7
 			_finish_case()
 			return 0
 	return sub + 1
 
-func _orbit_node() -> Node2D:
-	return _player.get_node_or_null("OrbitWeapon") as Node2D
+func _sweep_node() -> Node2D:
+	return _player.get_node_or_null("MeleeSweep") as Node2D
 
-## 断言 5a：装备星刃 → OrbitWeapon 存在且刃数 == 1（Lv1 blade_count）
-func _check_orbit_exists() -> void:
-	var orbit: Node2D = _orbit_node()
-	if orbit == null:
-		_fail("orbit / Player 下无 OrbitWeapon（起始星刃应自动挂载）")
+## 断言 5a：装备星刃 → MeleeSweep 存在且 weapon.arc_angle >= 100（Lv1 扇形角）
+func _check_sweep_exists() -> void:
+	var sweep: Node2D = _sweep_node()
+	if sweep == null:
+		_fail("sweep / Player 下无 MeleeSweep（起始星刃应自动挂载）")
 		return
 	_checked += 1
-	print("  PASS  orbit / OrbitWeapon 已自动挂载（挂 Player 子节点）")
-	var blades: Array = orbit.get("_blades")
-	if blades.size() == 1:
+	print("  PASS  sweep / MeleeSweep 已自动挂载（挂 Player 子节点）")
+	var w: Resource = sweep.get("weapon")
+	if w != null and float(w.arc_angle) >= 100.0:
 		_checked += 1
-		print("  PASS  orbit / Lv1 刃数 == 1")
+		print("  PASS  sweep / Lv1 扇形角 == %.0f°" % float(w.arc_angle))
 	else:
-		_fail("orbit / Lv1 刃数应 1，实得 %d" % blades.size())
+		_fail("sweep / Lv1 arc_angle 应 >= 100，实得 %s" % str(w.arc_angle if w else "null"))
 
-## 断言 5b：bonus_stats.orbit_blade_count = 3 → 下帧刃数 == 4（D3 埋点收口）
-func _check_orbit_bonus() -> void:
-	var orbit: Node2D = _orbit_node()
-	if orbit == null:
-		_fail("orbit / OrbitWeapon 缺失")
+## 断言 5b：MeleeSweep 已 setup 且武器 arc_angle > 0（冷却/刀光就绪可挥砍）
+func _check_sweep_ready() -> void:
+	var sweep: Node2D = _sweep_node()
+	if sweep == null:
+		_fail("sweep / MeleeSweep 缺失")
 		return
-	var bs: Dictionary = _player.get("bonus_stats")
-	bs["orbit_blade_count"] = 3.0
-	orbit.call("_process", 0.016)
-	var blades: Array = orbit.get("_blades")
-	if blades.size() == 4:
+	var w: Resource = sweep.get("weapon")
+	if w != null and float(w.arc_angle) > 0.0 and float(sweep.get("_cooldown")) <= 0.0:
 		_checked += 1
-		print("  PASS  orbit / bonus_stats +3 → 刃数 == 4（D3-T5 埋点收口）")
+		print("  PASS  sweep / setup 就绪（arc_angle=%.0f° 冷却已清）" % float(w.arc_angle))
 	else:
-		_fail("orbit / +3 后刃数应 4，实得 %d" % blades.size())
+		_fail("sweep / 武器未绑定或冷却未就绪")
 
-## 断言 6：刃接触敌人 → 敌人掉血 7 × damage_multiplier
-func _check_orbit_hit() -> void:
-	var orbit: Node2D = _orbit_node()
-	if orbit == null:
-		_fail("orbit / OrbitWeapon 缺失")
+## 断言 6：扇形挥砍命中前方敌人 → 敌人掉血 7 × damage_multiplier
+func _check_sweep_hit() -> void:
+	var sweep: Node2D = _sweep_node()
+	if sweep == null:
+		_fail("sweep / MeleeSweep 缺失")
 		return
 	var spawner: Node = _manager.get("enemy_spawner") if _manager else null
 	var container: Node = spawner.get("enemies_container") if spawner else null
 	if container == null:
-		_fail("orbit / enemies_container 缺失")
+		_fail("sweep / enemies_container 缺失")
 		return
-	# 摆敌人到第 0 刃的正右方判定环上（F-18 08-07：orbit_radius 110→40 贴体；
-	# F-08 必中圆 44 覆盖贴身区 → 摆 radius+8=48px：必中圆外（>44）、刃环内（≤52），
-	# 单测「刃接触伤害」语义；贴身必中由 day18_feedback §3 覆盖）
-	var radius: float = float(orbit.get("weapon").orbit_data.get("orbit_radius", 110.0))
+	# 摆敌人在挥砍瞄准方向上 40px（射程 110 内；_do_slash 用 _get_aim_direction
+	# 实时取方向，headless 下鼠标贴原点 → 敌人必须摆到该方向才在扇形内）
+	var dir: Vector2 = sweep.call("_get_aim_direction")
 	var enemy: Node = (load(ENEMY_SCENE) as PackedScene).instantiate()
 	container.add_child(enemy)
-	enemy.global_position = _player.global_position + Vector2(radius + 8.0, 0.0)
-	# 把第 0 刃角度归 0（正右），手动推进一帧 → 命中
-	var angles: Array = orbit.get("_angles")
-	angles[0] = 0.0
+	enemy.global_position = _player.global_position + dir * 40.0
+	# 临时禁暴击（se_ren crit 23% 波动会破坏精确断言）；期望 = 7 × 倍率 × 近战加成
+	_player.set("crit_chance", 0.0)
 	var hp_before: float = float(enemy.get("health"))
-	orbit.call("_process", 0.016)
+	sweep.call("_do_slash")   # 直接挥砍（冷却 0 守卫放行，方向默认 RIGHT）
 	var hp_after: float = float(enemy.get("health"))
-	var expected: float = 7.0 * float(_player.get("damage_multiplier"))
+	var dmg_mult: float = float(_player.get("damage_multiplier"))
+	var melee_pct: float = float(_player.get("bonus_stats").get("melee_damage", 0.0))
+	var expected: float = 7.0 * dmg_mult * (1.0 + melee_pct / 100.0)
 	if absf(hp_before - hp_after - expected) <= EPSILON:
 		_checked += 1
-		print("  PASS  orbit / 刃接触伤害 = %.1f（%.1f → %.1f）" % [expected, hp_before, hp_after])
+		print("  PASS  sweep / 扇形挥砍伤害 = %.1f（%.1f → %.1f）" % [expected, hp_before, hp_after])
 	else:
-		_fail("orbit / 刃伤害应 %.1f（%.1f → %.1f）" % [expected, hp_before, hp_after])
+		_fail("sweep / 挥砍伤害应 %.1f（%.1f → %.1f）" % [expected, hp_before, hp_after])
 
-## 卸下星刃（触发 _sync_orbit_weapon → orbit_node.queue_free）
-func _do_orbit_cleanup() -> void:
+## 卸下星刃（触发 _sync_melee_sweep → sweep_node.queue_free）
+func _do_sweep_cleanup() -> void:
 	var star_blade: Resource = null
 	var weapons: Array = _controller.get("equipped_weapons")
 	for w in weapons:
@@ -361,13 +358,13 @@ func _do_orbit_cleanup() -> void:
 	if star_blade != null:
 		_controller.call("unequip_weapon", star_blade)
 
-## 断言 7：卸下星刃后 Player 下无 OrbitWeapon
-func _check_orbit_cleanup() -> void:
-	if _orbit_node() == null:
+## 断言 7：卸下星刃后 Player 下无 MeleeSweep
+func _check_sweep_cleanup() -> void:
+	if _sweep_node() == null:
 		_checked += 1
-		print("  PASS  orbit / 卸下星刃后 OrbitWeapon 被清理")
+		print("  PASS  sweep / 卸下星刃后 MeleeSweep 被清理")
 	else:
-		_fail("orbit / 卸下后 Player 下仍存在 OrbitWeapon")
+		_fail("sweep / 卸下后 Player 下仍存在 MeleeSweep")
 
 # ========== 收尾 ==========
 

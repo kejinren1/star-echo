@@ -8,7 +8,7 @@
 ##      size/move_frames/death_frames 与 PNG 实切（Image.load_from_file）一致——防映射与资产脱节；
 ##      hit_radius 锚点（slime 28 / elite 36 / boss 56）+ 未知 id 走 FALLBACK 兜底行为
 ##   §2 Boss scale：get_scaled_enemy("invoker", 10) 白盒 → scale == Vector2(1.0, 1.0)（D17 复位）
-##   §3 角色：4 walk 192×32 + 4 idle 128×32 存在 + 帧非空；_apply_character_sprite("siia") 白盒
+##   §3 角色：4 walk 256×64·4 帧 + 4 idle 768×64·12 帧存在 + 帧非空；_apply_character_sprite("siia") 白盒
 ##      → walk_texture 非 fighter；attack/skill 动画接线（skill_cast 信号 → "skill" → 播完回 "idle"；
 ##      开火 → "attack"；缺帧前缀 → 无 attack 动画走 idle 降级）
 ##   §4 图标/概念图：factions 5 + backgrounds 4 + 遗留头像 3 存在 + 尺寸合规 + (0,0) 透明键
@@ -273,30 +273,22 @@ func _part_characters() -> void:
 	## 其余角色仍为收口占位（walk 192×32 = 6 帧 / idle 128×32 = 4 帧）
 	## D29：elin 换装 JPG 全动画实装（walk 640×64 = 10 帧 / idle 320×64 = 5 帧）
 	## 2026-08-15 AI 试装：noah/lain/siia idle 升级 128×32 → 256×64（4 帧×64px），walk 仍 192×32·6 帧
+	## 2026-08-16/18 定稿换装：4 角色统一 256×64·4 帧 walk + 768×64·12 帧 idle（波浪呼吸动画定稿）
 	var char_ok: bool = true
 	for hero in HEROES:
 		var w: Vector2i = _png_size("res://assets/sprites/characters/%s_walk.png" % hero)
 		var idle: Vector2i = _png_size("res://assets/sprites/characters/%s_idle.png" % hero)
-		var walk_frames: int = 6
-		if hero == "elin":
-			if w != Vector2i(640, 64):
-				char_ok = false
-				print("   %s_walk 尺寸 %s != 640×64" % [hero, w])
-			if idle != Vector2i(320, 64):
-				char_ok = false
-				print("   %s_idle 尺寸 %s != 320×64" % [hero, idle])
-			walk_frames = 10
-		else:
-			if w != Vector2i(192, 32):
-				char_ok = false
-				print("   %s_walk 尺寸 %s != 192×32" % [hero, w])
-			if idle != Vector2i(256, 64):
-				char_ok = false
-				print("   %s_idle 尺寸 %s != 256×64（AI 试装 4 帧×64px）" % [hero, idle])
-		if not _png_frame_nonempty("res://assets/sprites/characters/%s_walk.png" % hero, walk_frames, Vector2i(64, 64) if hero == "elin" else Vector2i(32, 32)):
+		var walk_frames: int = 4
+		if w != Vector2i(256, 64):
+			char_ok = false
+			print("   %s_walk 尺寸 %s != 256×64" % [hero, w])
+		if idle != Vector2i(768, 64):
+			char_ok = false
+			print("   %s_idle 尺寸 %s != 768×64" % [hero, idle])
+		if not _png_frame_nonempty("res://assets/sprites/characters/%s_walk.png" % hero, walk_frames, Vector2i(64, 64)):
 			char_ok = false
 			print("   %s_walk 存在空帧" % hero)
-	_ok(char_ok, "§3 资产: 4 角色 walk（elin 640×64·10 帧 / 其余 192×32·6 帧 非空）+ idle 全存在")
+	_ok(char_ok, "§3 资产: 4 角色 walk 256×64·4 帧 非空 + idle 768×64·12 帧 全存在")
 	# 白盒 _apply_character_sprite("siia") → walk_texture 非 fighter 兜底
 	_player.call("_apply_character_sprite", "siia")
 	var wt: Texture2D = _player.get("walk_texture")
