@@ -9,10 +9,10 @@
 
 ## 📌 顶部摘要（滚动 · #1 每轮刷新 · 其他岗位只读本区）
 
-- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **Day 30 本地收口 + 用户反馈连修**（总指挥 D30-T1/T2/T3 本地落地 → 08-18 用户双反馈修复 `3f9dbe4` + 探针锚点同步 `093f370` 回归恢复 52/52）｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
+- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **回归扩容 + Owner 收口决策**（`656217e` runner 52→58 件套 1195 断言）｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
 - **阶段完成度**：A 100% ｜ B 100% ｜ C 100% ｜ D 100% ｜ **E ≈90%（3.6/4：Day 27 1.0 + Day 28 1.0 + Day 29 0.6 待真人回归 + Day 30 1.0）**；阶段 F 全闭（**F1-E 🏠 主窗口承接维持唯一 [ ]**）
-- **基线**：`BASELINE CLEAN`（TEST_REPORT #53 · 0 阻断/0 缺陷）；**回归 43/52→52/52 已恢复**（`093f370` 同步 9 旧探针锚点 = orbit 15 条 + 换装尺寸 4 条，TEST_REPORT #53 action item 兑现）；JSON 2449 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
-- **本轮要点**：git 实测 HEAD=`093f370`（Day31 探针锚点同步，自 57 轮 +8 提交）；🔧 **08-18 用户双反馈修复落地** `3f9dbe4`（①普通关超时不再强制通关——生成未完成/存活未清则续时等待 ②升级面板 layer=10 模态置顶——修复「打完 Boss 不能选关」）+ day31_boss_after_check 6/6；🎨 4 角色默认呼吸动画改 **12 帧波浪呼吸**（`defe1cf`，play_idle_demo 同款，day31_player_model 6/6）；📋 总指挥第 3 轮 `5860637` **AUDIO_FEEL_SPEC.md 落档**（音乐 4 方案 / 打击感 5 方案 / 手感 4 方案，开放决策 O-1~3 待用户拍板）；🔄 build/ 产物再更新（08-18 00:13/00:14，exe 84.1MB / pck 4.66MB）→ **D30-T3 上传 + build/ 来源核实仍待 Owner**；🧹 工作区 **24→2 项在途**（仅 .godot_bak×2 缓存备份，零代码零 docs 在途）；👤 真人回归面 = **E-0 终审完整局 + F-01~F-42 全链 + PS-EXIT + AUDIO_FEEL O-1~3 决策**（不阻塞机器侧）。
+- **基线**：`BASELINE CLEAN`（TEST_REPORT #54 · 52/52 全绿 · 0 阻断/0 功能缺陷）；**回归扩容 52→58 件套（1195 断言）** —— `656217e` 兑现 #54 观察（day31 六出口探针并入 runner + run_one 断言兼容 3 格式 + melee_sweep 禁暴击防 flaky + day26 锚点同步 58/1195）；JSON 2449 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
+- **本轮要点**：git 实测 HEAD=`656217e`（Day31 回归扩容，自 58 轮 +3 提交：反馈专员 #76 F-43 登记 → #2 第 54 轮拆解回执 → 回归扩容）；🧹 **工作区 0 项在途——项目迄今最干净**（`.gitignore` 补 `.godot_bak*/` 吸收缓存目录 + `_regression_run.py` 首次入库，修复 clean clone 无法跑回归隐患）；🔄 build/ 维持 08-18 00:13/00:14 产物（exe 84.1MB / pck 4.66MB）→ **D30-T3 上传 + build/ 来源核实待 Owner**；📋 AUDIO_FEEL_SPEC **O-1~3 开放决策待用户拍板**（拍板后 #2 拆 P0 批）；👤 真人回归面 = **E-0 终审完整局 + F-01~F-43 全链 + PS-EXIT + #73 build/ 复测**（不阻塞机器侧）。
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3694,5 +3694,22 @@
 - 进行中：**D30-T3 上传资产库 = 外部动作待 Owner 明确确认** + **AUDIO_FEEL_SPEC O-1~3 开放决策待用户拍板**（总指挥第 3 轮新交付）；F1-E 🏠 主窗口承接（阶段 F 唯一 [ ]）；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
 - 风险：工作区 **untracked=2（仅 `.godot_bak2_000844/` + `.godot_bak_235252/` 缓存备份），零代码零 docs 在途——项目迄今最干净**；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别；TEST_REPORT 观察项 HUD `se_skill_sword_arc` 图标映射（发布冻结窗口登记不实施）、day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；冻结 HEAD `70382e5` vs 现 HEAD `093f370` 漂移（冻结后 +17 提交）→ 是否补冻由 Owner 拍板。
 - 下一步：#4 #54 纳入 3f9dbe4/defe1cf/093f370 覆盖（52/52 + day31_boss_after_check + day31_player_model 全绿快照）；Owner 确认 D30 上传 + build/ 来源核实 + AUDIO_FEEL O-1~3 拍板；随后 F1-E 承接 + 真人完整局回归（E-0 最高优先）。
+
+> 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
+
+## 2026-08-18 03:5x · Day 30 / 回归扩容 + 收口决策（第 59 轮）
+
+**本轮结论：回归 runner 扩容 52→58 件套（1195 断言，TEST_REPORT #54 观察兑现），工作区零在途（历史最干净），整体进度持平 ≈99.3%，剩余 = Owner 三项收口决策 + 真人验收面。**
+
+- Git 实测 HEAD=`656217e`（`Day31-回归扩容` @08-18 03:29）；自第 58 轮（`093f370`）起 **+3 提交**：
+  - **`656217e` Day31 回归扩容（本轮核心）**——day31 六出口探针并入 runner **52→58 件套**（TEST_REPORT #54 观察「五新探针未入 runner」兑现）+ `run_one` 断言解析兼容 3 格式 + **melee_sweep §4 禁暴击防 flaky**（randf 全局 RNG 偶发 14→28）+ day26 锚点同步 58/1195 + **`.gitignore` 补 `.godot_bak*/` 与 `_regression_run.py` 例外**（后者首次入库——此前被 `tools/_*` 误忽略，clean clone 无法跑回归，工程隐患根治）
+  - **`9d88f1a` #2 第 54 轮拆解回执**——P0 无新增（增量 #76 无机器可验证项）+ TEST_REPORT #53 action item 兑现确认（52/52 恢复）+ Day 30 剩余 = 纯 Owner/#4 域无 #2 可拆 + AUDIO_FEEL 登记（拍板前不拆）+ build/ 观察交 Owner
+  - **`42baea5` 反馈专员 #76**——F-43 呼吸动画主观回归面登记（`defe1cf` 外部路径）+ TEST_REPORT #53 核查（9 FAIL 锚点 action item 已兑现）
+- **磁盘实测**：scenes 25 个、scripts 67 个 GDScript、data 14 个 JSON + .manifest；day31 系探针 **15 个在盘**（boss_after/boss_chain/boss_flow/boss_fullpath/chapter/charsel/enemy_richness/items_atlas/melee_sweep/player_model/skill_levelup/skill_movement/skill_relic/skill_slots/spawner_deadlock）；**build/ 维持** RoguelikeStudio.exe 84.1MB @00:13 / .pck 4.66MB @00:14（mtime 未动）→ 仍早于 `3f9dbe4`/`defe1cf`，**D30-T3 上传 + build/ 来源核实维持待 Owner**。
+- TEST_REPORT **#54**（08-18 02:49）：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **52/52 全绿**（#53 的 9 FAIL 已由 `093f370` 兑现，action item 全关闭）；day31 五件套 90 断言补跑全 PASS；`BASELINE CLEAN`、JSON 15 文件 2449 字段零缺陷、场景 25/25、600 帧 EXIT 0、stderr 242B 良性泄漏；快照 `9d88f1a` 其后 `656217e` 未覆盖 → **#4 #55 纳入（58 件套 1195 断言）**。
+- PLAYTEST 追踪区（增量 #76）：F-43 呼吸动画主观回归面登记；F-01~F-42 全 🟢 已落地·待真人回归；开放项维持 = **E-0 终审完整局**（最高优先）、F-01~F-43 全链真人回归、F-37 G 系列 UI、F-39 节点选择、PS-EXIT 玩家侧技能五组主观观察、#73 build/ 复测闭环、MainMenu 待真人确认。
+- 进行中：**Owner 三项收口决策**——① D30-T3 上传资产库（外部动作）② build/ 来源核实（是否含 PS-D 修复 + 补 manifest/回退副本）③ AUDIO_FEEL_SPEC O-1~3 拍板（音乐选型 M1/M2 / hitstop 档位 / H1 移动曲线）；F1-E 🏠 主窗口承接（阶段 F 唯一 [ ]）；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
+- 风险：**工作区 0 项在途（git status 空，历史最干净）**；冻结 HEAD `70382e5` vs 现 HEAD `656217e` 漂移（冻结后 **+31 提交**）→ 是否按现 HEAD 补冻由 Owner 拍板；TEST_REPORT 观察项 HUD `se_skill_sword_arc` 图标映射（发布冻结窗口登记不实施）、day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别。
+- 下一步：#4 #55 覆盖 `656217e`（58 件套 1195 断言全绿快照 + TEST_REPORT 摘要刷新）；Owner 确认 D30 上传 / build/ 核实 / O-1~3 拍板（拍板后 #2 拆 AUDIO_FEEL P0 批）；随后 F1-E 承接 + 真人完整局回归（E-0 最高优先）。
 
 > 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。

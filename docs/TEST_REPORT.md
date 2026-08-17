@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #54（08-18 02:49 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **52/52 全绿**（#53 的 9 FAIL 已由 `093f370` 锚点同步兑现，action item 全关闭）；day31 五件套 90 断言补跑全 PASS
+- **最近轮次 #55（08-18 04:49 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **58/58 全绿 · 1195 断言**（`656217e` 将 day31 六件套并入 runner 扩容 52→58，#54 观察兑现，扩容首跑即全绿）
 - **基线**：`BASELINE CLEAN` ｜ JSON **15 文件** · **2449 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 良性泄漏**
-- **探针回归**：**52/52（1099 条登记期望）0 FAIL / 0 script_errors**；stderr 全部历史口径一致，**day29_elin 越界 ERROR 消失（锚点同步实证）**；day31_spawner_deadlock 5440B 维持
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**9d88f1a**（#2 第54轮回执；链含 093f370 锚点同步 + defe1cf 呼吸动画）
-- **在途 action item（0 项）**：#53 两项均已关闭（锚点同步 9d88f1a 链已入库、在途 9 文件已 commit）；工作区仅 docs/PROGRESS.md + .godot_bak×2 缓存
-- **观察**：day31 五新探针（90 断言）未入 runner 建议 #3 并入；day31_spawner_deadlock mock 未装 enemy_scene 非缺陷；HUD 待补 `se_skill_sword_arc` 图标映射；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；AUDIO_FEEL O-1~3 待用户拍板
+- **探针回归**：**58/58（1195 条登记期望）0 FAIL / 0 script_errors**；stderr 全部历史口径一致（day31 六件套首跑 242B 纯音频或 1 主动兜底；day29_elin 越界 ERROR 维持消失态）；day31_spawner_deadlock 5198B 维持
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**c442abf**（#2 第55轮回执；链含 656217e runner 扩容 + 4679262 反馈专员#77）
+- **在途 action item（0 项）**：#54 唯一观察（day31 探针并入 runner）已由 `656217e` 兑现关闭；工作区仅 docs/PROGRESS.md
+- **观察**：HUD 待补 `se_skill_sword_arc` 图标映射（day2 stderr 实证呈现）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；AUDIO_FEEL O-1~3 待用户拍板；build/ 产物早于 3f9dbe4/defe1cf 交 Owner
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3496,6 +3496,38 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - **在途 9 项建议尽快 commit 入库**（08-18 超时修复 wave_manager + day18_fb5 探针同步 + LevelUpPanel layer=10 + docs×3 + .manifest.json；.godot_bak×2 缓存目录确认后清理）。
 
 **✅ 2026-08-18 00:49 自动化测试轮次 #53：PASS（43/52，9 FAIL 全部定性为探针锚点过时非游戏缺陷；08-18 超时反馈修复已实证收口）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；待 9 个旧探针锚点同步后回归恢复全绿。
+
+---
+
+## §7.55 轮次 #55 · 2026-08-18 04:49（自动化测试 · runner 扩容 58 件套首跑全绿轮）
+
+**验证快照 = HEAD=c442abf（#2 第 55 轮拆解回执）+ 工作区在途仅 docs/PROGRESS.md**。HEAD 链（较 #54 的 9d88f1a +3 提交）：`656217e`（**Day31-回归扩容：day31 六出口探针并入 runner 52→58 件套 1195 断言**，TEST_REPORT #54 观察兑现；+ run_one 断言解析兼容 3 格式 + melee_sweep §4 禁暴击防 flaky + day26 锚点同步 58/1195 + `.gitignore` 补 `.godot_bak*/` 与 `_regression_run.py` 例外首次入库）→ `4679262`（反馈专员 #77）→ `c442abf`（#2 第 55 轮拆解回执）。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** **58 件套回归 58/58 全 PASS（1195 条登记断言）**——#54 观察「day31 五新探针未入 runner」已由 `656217e` 兑现并入（+六件套 96 断言），**扩容首跑即全绿**；#54 action item 全关闭。游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr 242B，headless 音频退出良性泄漏，按既有白名单判定。
+- **数据层**：`data/*.json` **15/15 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2449**（与 #54 持平零变更），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件已清理）。
+- **探针回归**：`tools/_regression_run.py` **58/58 PASS（1195 条登记期望），0 FAIL / 0 script_errors**（69s，含 day31 六件套 96 断言首跑进 runner）。
+
+### 3. WARNING / 观察
+
+- **stderr 口径：全部历史一致无新增**。**day31 六件套首跑进 runner**：items_atlas 364B（1 主动越界保护 WARNING）、boss_after 342B（1 主动「[Route] 层索引越界」兜底）、charsel/enemy_richness/melee_sweep/player_model 全 **242B 纯音频**；day31_spawner_deadlock **5198B**（#54 5440B - 242B 音频时序波动；46× enemy_scene 未设置刷屏维持，mock 未装配非缺陷）。
+- **day2_hero 396B 出现「[HUD] 未知技能 id: se_skill_sword_arc」WARNING**——已知观察项（PS-C 剑气图标映射待补，降级保留原样式零影响）在 stderr 的呈现，**非新缺陷**；day16 796B = 4 主动 WARNING（ghost_relic 缺失 + reroute 层 14 越界 + add_node 章末 event 层拒绝 + 未知节点类型空串）口径同 #51；其余（day29_elin 242B 纯音频维持越界 ERROR 消失态 / day5 154B / day10 374B / day18_feedback 626B / day18_feedback2 571B / day18_feedback5 621B / day18_feedback6 362B / day21_22 564B / day26 402B）全与历史口径一致。
+- **观察项维持**：HUD 待补 `se_skill_sword_arc` 图标映射（本轮 day2 stderr 实证呈现）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；AUDIO_FEEL_SPEC 开放决策 O-1~3 待用户拍板；build/ 产物早于 3f9dbe4/defe1cf 交 Owner 确认。
+
+### 4. action item（0 项新增）
+
+- **#54 观察关闭**：day31 五新探针未入 runner → `656217e` 已兑现（runner 52→58 件套 1195 断言，扩容首跑全绿实证）。
+- 无新增 action item；工作区仅 docs/PROGRESS.md 在途。
+
+**✅ 2026-08-18 04:49 自动化测试轮次 #55：PASS（58/58，0 阻断 / 0 功能缺陷）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；回归套件扩容至 58 件套 1195 断言后首跑即全绿；0 游戏侧 SCRIPT ERROR。
 
 ---
 
