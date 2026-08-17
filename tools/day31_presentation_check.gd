@@ -103,3 +103,33 @@ func _run() -> void:
 		_check(cfg_fb.get("size") is Vector2i and cfg_fb["size"] == Vector2i(48, 48), "兜底 regular size 错误: %s" % str(cfg_fb.get("size")))
 		var cfg_fb2: Dictionary = loader.call("get_enemy_sprite_config", "no_such_enemy2", "boss")
 		_check(cfg_fb2.get("size") is Vector2i and cfg_fb2["size"] == Vector2i(128, 128), "兜底 boss size 错误: %s" % str(cfg_fb2.get("size")))
+
+	# ④ behavior_map（F1-E 第二批：行为字符串→枚举名映射抽表，原 enemy_enums.gd BEHAVIOR_MAP 数据化）
+	var bm_map: Dictionary = {}
+	if raw is Dictionary and (raw as Dictionary).get("behavior_map") is Dictionary:
+		bm_map = (raw as Dictionary)["behavior_map"]
+	var const_bm: Dictionary = EnemyEnums.BEHAVIOR_MAP
+	_check(bm_map.size() == const_bm.size(), "behavior_map 条数 %d != const BEHAVIOR_MAP %d" % [bm_map.size(), const_bm.size()])
+	var missing_bm := []
+	for k in const_bm.keys():
+		if not bm_map.has(k):
+			missing_bm.append(k)
+	_check(missing_bm.is_empty(), "behavior_map 缺 const 键: %s" % str(missing_bm))
+	var extra_bm := []
+	for k in bm_map.keys():
+		if not const_bm.has(k):
+			extra_bm.append(k)
+	_check(extra_bm.is_empty(), "behavior_map 多余键: %s" % str(extra_bm))
+	for k in const_bm.keys():
+		var cval: int = int(const_bm[k])
+		var pv: Variant = bm_map.get(k, null)
+		if not (pv is Dictionary):
+			_check(false, "%s behavior_map 条目非字典" % k)
+			continue
+		var ename: String = str((pv as Dictionary).get("behavior", ""))
+		_check(int(EnemyEnums.Behavior.get(ename, -1)) == cval, "%s 枚举名 %s != const %d" % [k, ename, cval])
+	# 消费路径：已知行为正确解析 / 未知行为兜底 CHASE / 数据表缺失兜底 const
+	if loader != null:
+		_check(int(loader.call("get_enemy_behavior", "chase")) == int(EnemyEnums.Behavior.CHASE), "消费 chase 行为错误")
+		_check(int(loader.call("get_enemy_behavior", "aoe_attack")) == int(EnemyEnums.Behavior.AOE_ATTACK), "消费 aoe_attack 行为错误")
+		_check(int(loader.call("get_enemy_behavior", "unknown_behavior")) == int(EnemyEnums.Behavior.CHASE), "未知行为未兜底 CHASE")

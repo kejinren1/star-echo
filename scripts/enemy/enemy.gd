@@ -368,7 +368,7 @@ func initialize(stats: Dictionary) -> void:
 		exp_value = int(stats["exp_value"])
 	if stats.has("behavior"):
 		var behav_str: String = stats["behavior"]
-		behavior = BEHAVIOR_MAP.get(behav_str, EnemyEnums.Behavior.CHASE)
+		behavior = DataLoader.get_enemy_behavior(behav_str)
 	# Day 17 · D17-T2：精英能力 + 波次（产卵缩放）
 	if stats.has("ability"):
 		ability = stats["ability"]

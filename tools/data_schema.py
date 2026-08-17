@@ -79,6 +79,8 @@ COLUMN_ZH = {
     "move_frames": "移动帧数", "death_frames": "死亡帧数",
     "move_fps": "移动FPS", "death_fps": "死亡FPS",
     "hit_radius": "接触判定半径", "tint": "色调(JSON)", "scale": "体型倍率",
+    # ---- enemy_behavior（F1-E 第二批 · 行为字符串→枚举名映射，原 enemy_enums.gd BEHAVIOR_MAP 数据化） ----
+    "behavior": "行为枚举",
     # ---- characters ----
     "sprite": "精灵", "starting_weapon": "起始武器", "weapon_restrictions": "武器限制(JSON)",
     "unlock_condition": "解锁条件", "story": "背景故事", "story_unlock_level": "解锁等级",
@@ -214,6 +216,15 @@ SHEETS = {
         "sheet": "enemy_sprites", "file": "presentation.json", "root": "enemy_sprites",
         "key": "id", "category": None, "kind": "dict",
         "json_cols": ["tint"], "child": None,
+    },
+    # F1-E（2026-08-18 执行者第二批）：行为字符串→枚举名映射抽表——原 enemy_enums.gd BEHAVIOR_MAP
+    # 9 条数据化（id 主键 dict 形，导出 data/presentation.json behavior_map），消费端 DataLoader
+    # get_enemy_behavior 优先读 JSON、未命中回退 const BEHAVIOR_MAP（F 系列缺省兜底约定）；
+    # behavior 列存枚举名（大写字符串），消费端 EnemyEnums.Behavior.get(name) 解析，非法名兜底 CHASE
+    "enemy_behavior": {
+        "sheet": "enemy_behavior", "file": "presentation.json", "root": "behavior_map",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": [], "child": None,
     },
     "characters": {
         "sheet": "characters", "file": "characters.json", "root": "characters",

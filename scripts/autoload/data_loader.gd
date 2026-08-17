@@ -29,6 +29,8 @@ const WEAPON_TURRET_ARRAY: String = "se_turret_array"
 var _enemies: Dictionary = {}           ## 敌人数据 { id → data } (含 category 标记)
 var _enemy_sprites: Dictionary = {}     ## F1-E：敌人精灵表现（presentation.json enemy_sprites，懒加载；
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
+var _behavior_map: Dictionary = {}      ## F1-E：行为字符串→枚举名映射（presentation.json behavior_map，懒加载；
+                                        ## 空字典 = 未加载/缺失，is_empty() 即重试标记）
 var _enemy_scaling: Dictionary = {}     ## 敌人成长公式参数
 var _weapons: Dictionary = {}           ## 武器数据 { id → data } (含 category 标记)
 var _items: Dictionary = {}             ## 道具数据 { id → data }
@@ -585,6 +587,21 @@ func get_enemy_sprite_config(enemy_id: String, category: String) -> Dictionary:
 			out["tint"] = Color(float(tint[0]), float(tint[1]), float(tint[2]))
 		return out
 	return EnemyEnums.SPRITE_MAP.get(enemy_id, EnemyEnums.FALLBACK_SPRITES.get(category, EnemyEnums.FALLBACK_SPRITES["regular"]))
+
+## 获取行为字符串对应的 Behavior 枚举（presentation.json behavior_map 优先；未命中/非法
+## 回退 enemy_enums.gd const BEHAVIOR_MAP —— F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 返回 EnemyEnums.Behavior 枚举 int；数据表缺失/损坏 → const 全量兜底 CHASE。
+func get_enemy_behavior(behav_str: String) -> int:
+	if _behavior_map.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/presentation.json"))
+		if raw is Dictionary and (raw as Dictionary).get("behavior_map") is Dictionary:
+			_behavior_map = (raw as Dictionary)["behavior_map"]
+	var mapped: Variant = _behavior_map.get(behav_str, null)
+	if mapped is Dictionary:
+		var ename: Variant = (mapped as Dictionary).get("behavior", null)
+		if ename is String:
+			return int(EnemyEnums.Behavior.get(ename, EnemyEnums.Behavior.CHASE))
+	return int(EnemyEnums.BEHAVIOR_MAP.get(behav_str, EnemyEnums.Behavior.CHASE))
 
 # ========== 技能树接口（G-E · 2026-08-14） ==========
 

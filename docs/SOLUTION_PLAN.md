@@ -168,3 +168,12 @@
 4. **验证**：全量回归 **58/58 PASS 0 FAIL**；`excel_export.py --check-only` EXIT=0 数据层干净（本轮零数据改动）。
 5. **顺手收尾**：`.gitignore` 补 `.godot_bak*/` 排除（第 54 轮登记的观察点③，用户会话缓存目录勿提交勿删除）；probe 类 3 探针（boss_chain/flow/fullpath）维持不入 runner（一次性诊断探针，退出码语义，fullpath 打 15 关耗时）。
 6. **维持登记**：HUD `se_skill_sword_arc` 图标映射仍待方案师排期（发布冻结窗口不动代码）；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；AUDIO_FEEL O-1~3 待用户拍板（#2 拍板后拆 P0 批）；F1-E 主窗口承接。
+
+**执行结果（2026-08-18 05:4x · 第 56 轮 #3）**：**完成（F1-E 第二批 BEHAVIOR_MAP 抽表 · 回归 60/60 全绿）**。本轮方案 = 总指挥第 4 轮「后续批次（F1-E 剩余）· BEHAVIOR_MAP」，实质动作 = 回归确认（总指挥遗留项）+ 第二批抽表闭环：
+
+1. **P0 检查**：PLAYTEST 追踪区增量 #77（03:5x）确认 🔴 P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需执行。
+2. **回归确认（总指挥第 4 轮遗留「全量回归后台跑，结果待本轮收尾确认；FAIL 则回退不硬合」）**：全量回归 **60/60 PASS**（1463 断言，含新并入 day31_presentation_check 246 + day31_skill_icon_check 22）→ **无需回退**。
+3. **F1-E 第二批 BEHAVIOR_MAP 抽表闭环**：Excel `enemy_behavior` sheet（9 行：chase/charge/zigzag/ranged/heal/spawn/stationary/aoe_attack/self_heal → 枚举名 CHASE 等）→ `data_schema.py` 注册（COLUMN_ZH behavior=行为枚举 + SHEETS enemy_behavior root=behavior_map kind=dict）→ `excel_export.py` 构建段 → `data/presentation.json` 新增 `behavior_map` 9 条（**其余 13 JSON 零 diff**）→ `data_loader.gd` 新增 `get_enemy_behavior()`（懒加载 is_empty 重试标记 + `EnemyEnums.Behavior.get(枚举名)` 解析 + const BEHAVIOR_MAP 全量兜底 CHASE）→ `enemy.gd:371` 行为解析改读数据层（原 BEHAVIOR_MAP.get 兜底语义不变）。
+4. **验证**：探针 day31_presentation_check **261/261 PASS**（+15 断言：条数一致/键集合双向/逐条枚举值对比/消费 3 项含未知行为兜底 CHASE）；全量回归 **60/60 PASS**；`excel_export.py --check-only` EXIT=0。
+5. **收尾**：检查点 `b515e17`（挂账 docs #1/#4 在途一并入库）→ 批次 commit → push。
+6. **维持登记**：F1-E 剩余批次 = BGM/SFX → FX → SHEET_CONFIG → 初始武器 → 炮台默认（每批 Excel→导出→消费→探针→回归，const 兜底）；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；AUDIO_FEEL O-1~3 已由总指挥拍板（M1+M2/近重远轻/H1 挂 P2）待 #2 拆 P0 批；PS-EXIT 五组真人观察待 #5。

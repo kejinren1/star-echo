@@ -407,7 +407,18 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         if w and h:
             rec["size"] = {"x": int(w), "y": int(h)}
         ps_map[sid] = rec
-    files["presentation.json"] = {"enemy_sprites": ps_map}
+
+    # behavior_map（F1-E 第二批 2026-08-18 · 行为字符串→枚举名映射 dict 形
+    # {behavior_map: {行为字符串: {"behavior": "枚举名"}}}；枚举名由消费端
+    # EnemyEnums.Behavior.get(name) 解析，非法/缺失 → const BEHAVIOR_MAP 兜底）
+    bm_map: dict = {}
+    for r in tables.get("enemy_behavior", []):
+        sid = str(r.get("id", ""))
+        if not sid:
+            continue
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
+        bm_map[sid] = rec
+    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map}
     return files
 
 

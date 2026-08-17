@@ -438,5 +438,34 @@
         "y": 128
       }
     }
+  },
+  "behavior_map": {
+    "chase": {
+      "behavior": "CHASE"
+    },
+    "charge": {
+      "behavior": "CHARGE"
+    },
+    "zigzag": {
+      "behavior": "ZIGZAG"
+    },
+    "ranged": {
+      "behavior": "RANGED"
+    },
+    "heal": {
+      "behavior": "HEAL"
+    },
+    "spawn": {
+      "behavior": "SPAWN"
+    },
+    "stationary": {
+      "behavior": "STATIONARY"
+    },
+    "aoe_attack": {
+      "behavior": "AOE_ATTACK"
+    },
+    "self_heal": {
+      "behavior": "SELF_HEAL"
+    }
   }
 }
