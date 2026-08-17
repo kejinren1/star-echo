@@ -8,7 +8,8 @@
 ##      + shop._build_item_resource trigger 透传
 ##   §2 F-25 升级面板 tooltip：属性（乘算加成）/ 武器升级（下一级数值）/ 进化（结果描述）
 ##   §3 F-26 删波次改关卡制：HUD「第 N 关」（路线层+1 / 旧制波号）+ Boss 后缀 + 阵亡文案
-##   §4 F-27 15 关双 Boss：layers==15 / boss_layers [9,14] / boss wave_index==10 双关 /
+##   §4 F-27 + PS-D2b 15 关章节化三 Boss（2026-08-17 用户拍板方案②）：layers==15 /
+##      boss_layers [6,10,14]（第 7/11/15 关）/ boss wave_index==10 三关 /
 ##      battle/elite wave==li+1 / reroute 跳过 boss 层 / force_node_type boss 层拒绝
 ##   §5 F-28 通关判定：普通关敌全灭通关；Boss 关 Boss 击杀通关（不等召唤物）；Boss 关倒计时不通关
 ##
@@ -193,18 +194,23 @@ func _part_route_15() -> void:
 	_ok(int(route.get("layers", []).size()) == 15, "F-27/层数: 15 层（实得 %d）" % int(route.get("layers", []).size()))
 	var layers: Array = route.get("layers", [])
 	var boss_layers: Array = route.get("boss_layers", [])
-	_ok(boss_layers == [9, 14], "F-27/boss层: [9, 14]（实得 %s）" % str(boss_layers))
-	# 第 10 关（index 9）与第 15 关（index 14）为单节点 Boss，wave_index == 10
-	var b1: Array = layers[9]
-	var b2: Array = layers[14]
+	_ok(boss_layers == [6, 10, 14], "PS-D2b/boss层: [6, 10, 14]（实得 %s）" % str(boss_layers))
+	# 第 7 关（index 6）、第 11 关（index 10）与第 15 关（index 14）为单节点 Boss，wave_index == 10
+	var b1: Array = layers[6]
+	var b2: Array = layers[10]
+	var b3: Array = layers[14]
 	_ok(b1.size() == 1 and str(b1[0].get("type", "")) == "boss" and int(b1[0].get("wave_index", 0)) == 10,
-		"F-27/Boss1: 第 10 关 = 单 Boss 节点 wave 10")
+		"PS-D2b/Boss1: 第 7 关 = 单 Boss 节点 wave 10")
 	_ok(b2.size() == 1 and str(b2[0].get("type", "")) == "boss" and int(b2[0].get("wave_index", 0)) == 10,
-		"F-27/Boss2: 第 15 关 = 单 Boss 节点 wave 10（复用 invoker 同配置）")
-	# 普通层 battle/elite → wave_index == li+1；boss 层外每层 3 节点
+		"PS-D2b/Boss2: 第 11 关 = 单 Boss 节点 wave 10")
+	_ok(b3.size() == 1 and str(b3[0].get("type", "")) == "boss" and int(b3[0].get("wave_index", 0)) == 10,
+		"PS-D2b/Boss3: 第 15 关 = 单 Boss 节点 wave 10（三 Boss 共享 invoker 同配置）")
+	# 普通层 battle/elite → wave_index == li+1；boss 层/章末 event 层外每层 3 节点
+	# PS-D2a-1（2026-08-17）：章末 event 层（单节点）同构豁免
+	var chapter_event_layers: Array = gen.call("get_chapter_event_layers", route)
 	var wave_ok: bool = true
 	for li in 15:
-		if li in boss_layers:
+		if li in boss_layers or li in chapter_event_layers:
 			continue
 		if layers[li].size() != 3:
 			wave_ok = false
@@ -221,13 +227,13 @@ func _part_route_15() -> void:
 	var route2: Dictionary = gen.call("generate", 20260806)
 	gen.call("reroute_remaining", route2, 0, {"battle": 0.9, "event": 0.01, "elite": 0.01, "shop": 0.01})
 	var l2: Array = route2.get("layers", [])
-	_ok(str(l2[9][0].get("type", "")) == "boss" and str(l2[14][0].get("type", "")) == "boss",
-		"F-27/reroute: Boss 层不受改写（第 10/15 关保持 boss）")
+	_ok(str(l2[6][0].get("type", "")) == "boss" and str(l2[10][0].get("type", "")) == "boss" and str(l2[14][0].get("type", "")) == "boss",
+		"PS-D2b/reroute: Boss 层不受改写（第 7/11/15 关保持 boss）")
 	# force_node_type boss 层拒绝（白盒：返回值恒 void，验证类型未变）
 	var route3: Dictionary = gen.call("generate", 20260806)
-	gen.call("force_node_type", route3, 9, 0, "battle")
+	gen.call("force_node_type", route3, 6, 0, "battle")
 	var l3: Array = route3.get("layers", [])
-	_ok(str(l3[9][0].get("type", "")) == "boss", "F-27/force: Boss 层不可强制改写")
+	_ok(str(l3[6][0].get("type", "")) == "boss", "PS-D2b/force: Boss 层不可强制改写")
 
 # ========== §5 F-28 通关判定 ==========
 

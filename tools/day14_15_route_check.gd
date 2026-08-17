@@ -173,16 +173,26 @@ func _advance(sub: int) -> int:
 			var layers: Array = _route_same_a.get("layers", [])
 			_ok(layers.size() == int(_loader.get_routes().get("layers", -1)), "层数 == routes.json.layers")
 			var npl: int = int(_loader.get_routes().get("nodes_per_layer", -1))
-			# F-27（2026-08-08 用户拍板）：boss 层（boss_layers [9,14]）为单节点层，
+			# F-27/PS-D2b（2026-08-08 用户拍板 + 2026-08-17 用户拍板三 Boss）：boss 层
+			# （boss_layers [6,10,14] = 章 2/3/4 末层第 7/11/15 关）为单节点层，
+			# PS-D2a-1（2026-08-17）：章末 event 层（chapters end_type=event 的末层）同构豁免，
 			# 普通层节点数 == nodes_per_layer（原「中间层」断言跳过 boss 层）
 			var boss_layers: Array = []
 			for bl in _route_same_a.get("boss_layers", []):
 				boss_layers.append(int(bl))
 			if boss_layers.is_empty():
 				boss_layers = [layers.size() - 1]
+			# 章末 event 层（0-based 层号；chapters 缺省空 → 空数组零影响）
+			var chapter_event_layers: Array = []
+			for ch in _loader.get_routes().get("chapters", []):
+				var ch_layers: Array = ch.get("layers", [])
+				if ch_layers.is_empty():
+					continue
+				if str(ch.get("end_type", "")) == "event":
+					chapter_event_layers.append(int(ch_layers[ch_layers.size() - 1]) - 1)
 			var middle_ok: bool = true
 			for li in layers.size():
-				if li in boss_layers:
+				if li in boss_layers or li in chapter_event_layers:
 					continue
 				if (layers[li] as Array).size() != npl:
 					middle_ok = false
@@ -190,7 +200,7 @@ func _advance(sub: int) -> int:
 			var last_layer: Array = layers[layers.size() - 1]
 			_ok(last_layer.size() == 1 and str(last_layer[0].get("type")) == "boss", "末层唯一 boss 节点")
 			_ok(_layer_has_battle(layers[0]), "首层含 battle")
-			# F-27：boss 仅 boss_layers 层（第 10/15 关）
+			# F-27/PS-D2b：boss 仅 boss_layers 层（第 7/11/15 关）
 			var boss_only_last: bool = true
 			for li in layers.size():
 				if li in boss_layers:
@@ -198,7 +208,7 @@ func _advance(sub: int) -> int:
 				for node in layers[li]:
 					if str(node.get("type")) == "boss":
 						boss_only_last = false
-			_ok(boss_only_last, "boss 仅 boss_layers 层（第 10/15 关）")
+			_ok(boss_only_last, "boss 仅 boss_layers 层（第 7/11/15 关）")
 			var types_ok: bool = true
 			var valid: Array = ["battle", "event", "elite", "shop", "boss"]
 			for node in _all_nodes(_route_same_a):

@@ -1,6 +1,8 @@
 ## 随机节点路线生成器（Day 14-15 · D14-15-T1）
 ## 层式分支拓扑（集成战略式）：L 层 × N 节点/层；boss 层（routes.json boss_layers，
 ## 缺省末层）为单 Boss 节点层——F-27（2026-08-08 用户拍板）15 关双 Boss：第 10 关、第 15 关；
+## PS-D2a-1（2026-08-17）：章末 event 层（chapters end_type=event 的章末层，如章 1 末层）
+## 为单 event 节点层（与 boss 层单节点同构，章末「休息+奖励」语义；end_type=boss 归 D2b/boss_layers）；
 ## 种子可复现：RandomNumberGenerator 实例（禁全局 RNG shuffle）；
 ## 事件改写预留：modifiers.reroute 可覆盖类型权重（消费归 Day 16）；
 ## 节点→波次映射：P1 Fix-2 改为按层号分配（layer_index+1），
@@ -78,12 +80,28 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 	if boss_layers.is_empty():
 		boss_layers = [layers_count - 1]
 
+	# PS-D2a-1（2026-08-17）：章末 event 层——chapters 数据驱动（end_type=="event" 的章末层
+	# = 单 event 节点层，与 boss 层单节点同构；end_type=="boss" 归 D2b/boss_layers 处理）。
+	# chapters 缺省空 → 空字典，旧 routes.json 零改动兼容。
+	# ⚠️ chapters.layers 为 1-based 层号（章节规格），生成循环 li 为 0-based → 键归一化 li = 层号-1
+	var chapter_end_map: Dictionary = {}
+	for ch in routes.get("chapters", []):
+		var ch_layers: Array = ch.get("layers", [])
+		if ch_layers.is_empty():
+			continue
+		var end_layer_1based: int = int(ch_layers[ch_layers.size() - 1])
+		chapter_end_map[end_layer_1based - 1] = str(ch.get("end_type", ""))
+
 	# 1) 层类型生成：普通层随机 N 节点；boss 层单 Boss 节点（跳过随机）
 	var layers: Array = []
 	var battle_count: int = 0
 	for li in layers_count:
 		if li in boss_layers:
 			layers.append([{"type": NODE_BOSS, "wave_index": 0}])
+			continue
+		# PS-D2a-1：章末 event 层 = 单 event 节点层（与 boss 层单节点同构）
+		if chapter_end_map.get(li, "") == NODE_EVENT:
+			layers.append([{"type": NODE_EVENT, "wave_index": 0}])
 			continue
 		var layer_nodes: Array = []
 		for _ni in nodes_per_layer:
@@ -128,6 +146,8 @@ static func generate_from(seed: int = -1, routes: Dictionary = {}) -> Dictionary
 		"modifiers": modifiers,
 		"flags": routes.get("flags", {}),
 		"boss_layers": boss_layers,
+		# PS-D3（2026-08-17）：chapters 透传（面板章界横幅消费；缺省空数组兼容旧 routes.json）
+		"chapters": routes.get("chapters", []),
 	}
 
 # ========== 改线接口（Day 16 · D16-T3：事件 effect_on_route 消费落点） ==========
@@ -171,9 +191,13 @@ static func reroute_remaining(route: Dictionary, from_layer: int, weights_delta:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(route.get("seed", 0)) + 7919
 	var battle_count: int = _count_battles_before(layers, from_layer)
+	# PS-D2a-1：章末 event 层（单节点特殊层）与 boss 层同构不可改写
+	var chapter_event_layers: Array = get_chapter_event_layers(route)
 	for li in range(from_layer, layers.size() - 1):
 		if li in boss_layers:
 			continue  # F-27：Boss 层（第 10/15 关）不改写
+		if li in chapter_event_layers:
+			continue  # 章末 event 层不改写（保持单节点「休息+奖励」语义）
 		var layer_nodes: Array = layers[li]
 		for ni in layer_nodes.size():
 			var node: Dictionary = layer_nodes[ni]
@@ -215,6 +239,10 @@ static func force_node_type(route: Dictionary, layer_index: int, node_index: int
 	if layer_index in boss_layers:
 		push_warning("[RouteGenerator] force_node_type Boss 层不可改写: %d" % layer_index)
 		return
+	# PS-D2a-1：章末 event 层（单节点特殊层）与 boss 层同构不可改写
+	if layer_index in get_chapter_event_layers(route):
+		push_warning("[RouteGenerator] force_node_type 章末 event 层不可改写: %d" % layer_index)
+		return
 	var layer_nodes: Array = layers[layer_index]
 	if node_index < 0 or node_index >= layer_nodes.size():
 		push_warning("[RouteGenerator] force_node_type 节点越界: %d/%d" % [node_index, layer_nodes.size()])
@@ -226,6 +254,19 @@ static func force_node_type(route: Dictionary, layer_index: int, node_index: int
 	_reassign_wave_indices(route)
 
 # ========== 内部工具 ==========
+
+## 章末 event 层集合（0-based；chapters 中 end_type=="event" 的末层，供改线接口保护——
+## PS-D2a-1 章末 event 层为单节点特殊层，与 boss 层同构不可被改线改写）。
+## chapters 缺省空 → 空数组（旧 routes.json 零改动）。
+static func get_chapter_event_layers(route: Dictionary) -> Array:
+	var result: Array = []
+	for ch in route.get("chapters", []):
+		var ch_layers: Array = ch.get("layers", [])
+		if ch_layers.is_empty():
+			continue
+		if str(ch.get("end_type", "")) == "event":
+			result.append(int(ch_layers[ch_layers.size() - 1]) - 1)
+	return result
 
 ## 从层 0 到 from_layer-1 的战斗类节点数（重抽时精英禁抽阈值的累计基数）
 static func _count_battles_before(layers: Array, from_layer: int) -> int:

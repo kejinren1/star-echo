@@ -17,6 +17,7 @@ var _route: Dictionary = {}      ## 本局路线（GameManager 传入）
 var _layer: int = 0              ## 当前层索引
 var buttons: Array[Button] = []  ## 当前层可点按钮（探针/测试可读）
 var node_meta: Array = []        ## 全层节点状态（探针断言用）：{row, col, type, state}
+var chapter_banners: Array = []  ## 章界横幅（PS-D3 · 探针断言用）：{layer, label}
 
 ## 迷雾规则（用户拍板 O3）：当前层 + 前 2 层可见，之后模糊
 const FOG_VISIBLE_LAYERS: int = 2
@@ -52,6 +53,7 @@ func _render() -> void:
 		child.queue_free()
 	buttons.clear()
 	node_meta.clear()
+	chapter_banners.clear()
 	var layers: Array = _route.get("layers", [])
 	if _layer < 0 or _layer >= layers.size():
 		push_warning("[RouteSelectPanel] 层索引越界: %d" % _layer)
@@ -59,12 +61,48 @@ func _render() -> void:
 	title_label.text = "第 %d 层 · 选择路线（下方迷雾）" % (_layer + 1)
 	# 连线（先画，节点盖其上；Line2D 而非 Control._draw——CanvasLayer 无 _draw）
 	_draw_paths(layers)
+	# 章界横幅（PS-D3：纯新增渲染层，_layout_pos/_render/_draw_paths 语义零改动）
+	_render_chapter_banners(layers)
 	# 节点
 	for row in range(layers.size()):
 		var layer_nodes: Array = layers[row]
 		for col in range(layer_nodes.size()):
 			var node_data: Dictionary = layer_nodes[col]
 			_create_node(row, col, str(node_data.get("type", "?")), layer_nodes.size(), layers.size())
+
+## 章界横幅（PS-D3 · 2026-08-17）：每章起始层上方「第 N 章」Label + Line2D 分隔线。
+## 数据驱动 route.chapters（缺省空 → 零显示零改动兼容旧 routes.json）；占位标准 = 色块 + Label 零美术
+## （08-07 美术策略遵守）。挂载时机 = _draw_paths 后、节点创建前（横幅在连线之上、节点之下，z 序不冲突）。
+func _render_chapter_banners(layers: Array) -> void:
+	var chapters: Array = _route.get("chapters", [])
+	if chapters.is_empty():
+		return
+	var canvas_w: float = canvas.size.x if canvas.size.x > 0.0 else 600.0
+	for ci in chapters.size():
+		var ch: Dictionary = chapters[ci]
+		var ch_layers: Array = ch.get("layers", [])
+		if ch_layers.is_empty():
+			continue
+		var start_1based: int = int(ch_layers[0])  # 章起始层（1-based）
+		var row: int = start_1based - 1            # 0-based
+		if row < 0 or row >= layers.size():
+			continue
+		var col_count: int = (layers[row] as Array).size()
+		var y: float = _layout_pos(row, 0, col_count).y - 14.0
+		# 分隔线（章起始层上方）
+		var line := Line2D.new()
+		line.points = PackedVector2Array([Vector2(12, y), Vector2(canvas_w - 12, y)])
+		line.width = 1.0
+		line.default_color = Color(0.95, 0.85, 0.45, 0.7)
+		canvas.add_child(line)
+		# 章横幅 Label
+		var lbl := Label.new()
+		lbl.text = "第 %d 章" % (ci + 1)
+		lbl.add_theme_font_size_override("font_size", 9)
+		lbl.add_theme_color_override("font_color", Color(0.95, 0.9, 0.6))
+		lbl.position = Vector2(12, y - 13)
+		canvas.add_child(lbl)
+		chapter_banners.append({"layer": row, "label": lbl})
 
 ## 路径连线：相邻层节点间细线（Line2D；已走区域熄灭）
 func _draw_paths(layers: Array) -> void:
