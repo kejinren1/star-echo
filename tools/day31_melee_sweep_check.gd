@@ -175,6 +175,9 @@ func _section_damage_channel() -> void:
 	if not _player.has_method("apply_stat_modifier"):
 		_fail("玩家无 apply_stat_modifier")
 		return
+	# 禁暴击：_do_slash 内 randf()<crit_chance 走全局 RNG，精确数值断言会 flaky（同 day5 先例）
+	_player.set("crit_chance", 0.0)
+	_player.set("crit_damage", 1.0)
 	_player.call("apply_stat_modifier", "damage", 2.0, true)
 	var e3 := MockEnemy.new()
 	e3.enemy_id = "probe_dmg"

@@ -547,14 +547,17 @@ func _part_regression() -> void:
 	# PS-D 同步（2026-08-16）：runner +day31_chapter(5) → 52 项 / 期望 1091（1086 + 5）
 	# PS-D4 扩展（2026-08-17 · 方案第 24 轮 §5）：day31_chapter 5→11（+6）+ day16 41→42（+1）+ day18_feedback5 27→28（+1，三 Boss 断言拆分）
 	#   → 52 项 / 期望 1099（1091 + 6 + 1 + 1）
-	if probe_count == 52:
-		_pass("回归 / _regression_run.py PROBES 52 项（40 + G 系列 6 + day31 死锁 1 + PS-A/B/C/E/D 技能 5）")
+	# 用户反馈出口同步（2026-08-18 · TEST_REPORT #54 观察「day31 五新探针未入 runner」→ #3 并入）：
+	#   runner +day31_boss_after(6)+charsel(12)+enemy_richness(5)+melee_sweep(9)+player_model(6)+items_atlas(58)
+	#   → 58 项 / 期望 1195（1099 + 96）
+	if probe_count == 58:
+		_pass("回归 / _regression_run.py PROBES 58 项（52 + 用户反馈出口 6）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 52" % probe_count)
-	if expect_sum == 1099:
-		_pass("回归 / 期望断言合计 1099（1091 + day31_chapter §4/§5 6 + day16 add_node 1 + day18_feedback5 三 Boss 1）")
+		_fail("回归: PROBES 项数 %d ≠ 58" % probe_count)
+	if expect_sum == 1195:
+		_pass("回归 / 期望断言合计 1195（1099 + 用户反馈出口 96）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1099" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1195" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

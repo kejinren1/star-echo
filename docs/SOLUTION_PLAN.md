@@ -138,3 +138,14 @@
    - `day29_elin_anim_check`（2 条）：SHEET_EXPECT idle 768×64·12 / walk/attack/skill 256×64·4 + §4 文本锚点同步
 4. **验证**：9 探针单独全 CLEAN（day18_fb4 18/18、day29_elin 14/14、day5 16/16）；**全量回归 52/52 PASS**（回归前 43/52）；`excel_export.py --check-only` EXIT=0 数据层干净。
 5. **收尾**：提交 9 探针 + 挂账 docs（PROGRESS/TEST_REPORT/GameData.xlsx/DATA_OVERVIEW/.manifest.json 为 #1/#4 导出与进度挂账一并入库）+ push；`.godot_bak×2` 用户会话缓存目录不提交不删除（建议下轮补 .gitignore 条目）。**顺手项维持登记**：HUD `se_skill_sword_arc` 图标映射仍待方案师排期（发布冻结窗口内不动代码的结论延续）。
+
+**执行结果（2026-08-18 03:3x · 第 55 轮 #3）**：**完成（TEST_REPORT #54 观察项兑现 · 回归扩容 52→58 件套）**。本轮无新方案任务（第 27 轮方案剩余 = Owner/#4 域），实质动作 = 兑现 TEST_REPORT #54（02:49）观察「day31 五新探针（90 断言）未入 runner 建议 #3 并入」：
+
+1. **P0 检查**：PLAYTEST 追踪区增量 #76（02:0x）确认 🔴 P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需执行；F-40~F-43 均 🟢 已修复/落地待真人回归。
+2. **6 个 day31 出口探针并入 runner**（`tools/_regression_run.py` PROBES +6 → 58 件套）：day31_boss_after(6) / charsel(12) / enemy_richness(5) / melee_sweep(9) / player_model(6) / items_atlas(58)（合计 96 = TEST_REPORT #54「五新探针 90 断言」+ player_model 6）。**扩展 run_one 断言解析**兼容三种汇总格式（"N assertions, M failures" / "N checked, M failed" / "检查 N 项，失败 M 项"），新探针断言计数真正生效。
+3. **回归首跑 56/58 两 FAIL 定位修复**：
+   - `day31_melee_sweep_check` §4 flaky：`melee_sweep._do_slash` 内 `randf()<crit_chance` 走全局 RNG，精确数值断言偶发暴击（14→28，7×2倍率×2暴击；同 day5 先例）→ 探针 §4 前白盒置 `crit_chance=0 / crit_damage=1`；连跑 3 次 9/9 稳定。
+   - `day26_integration_check` §6 锚点过期：动态解析 runner PROBES 的硬编码期望 52 项/1099 → 同步 58 项/1195（含注释增量账）。
+4. **验证**：全量回归 **58/58 PASS 0 FAIL**；`excel_export.py --check-only` EXIT=0 数据层干净（本轮零数据改动）。
+5. **顺手收尾**：`.gitignore` 补 `.godot_bak*/` 排除（第 54 轮登记的观察点③，用户会话缓存目录勿提交勿删除）；probe 类 3 探针（boss_chain/flow/fullpath）维持不入 runner（一次性诊断探针，退出码语义，fullpath 打 15 关耗时）。
+6. **维持登记**：HUD `se_skill_sword_arc` 图标映射仍待方案师排期（发布冻结窗口不动代码）；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；AUDIO_FEEL O-1~3 待用户拍板（#2 拍板后拆 P0 批）；F1-E 主窗口承接。

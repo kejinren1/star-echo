@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #53（08-18 00:49 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **43/52**，9 FAIL 全部定性为**探针锚点过时非游戏缺陷**（6 orbit 15 条 + 3 换装尺寸 4 条）；新探针 5 件 90 断言全 PASS；08-18 超时反馈修复已实证
+- **最近轮次 #54（08-18 02:49 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **52/52 全绿**（#53 的 9 FAIL 已由 `093f370` 锚点同步兑现，action item 全关闭）；day31 五件套 90 断言补跑全 PASS
 - **基线**：`BASELINE CLEAN` ｜ JSON **15 文件** · **2449 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 良性泄漏**
-- **探针回归**：**43/52（1099 条登记期望）**；9 FAIL = day5×3/day8×1/day10×2/day18_fb2×6/day18_fb4×2/day18_fb5×1（orbit 语义，#52 遗留）+ **day21_22×1/day26×1/day29_elin×2（8-16 定稿换装尺寸锚点：192×32/640×64→实得 256×64·4 帧，#53 新增）**
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**27f5a05**（8-16 定稿换装 + 缓存自愈工具）
-- **在途 action item（2 项）**：交 #3 同步 9 个旧探针锚点（orbit 15 条 + 尺寸 4 条，同步后恢复 52/52）；在途 9 文件建议尽快 commit（08-18 超时修复 wave_manager + day18_fb5 同步 + LevelUpPanel layer=10）
-- **观察**：day31_spawner_deadlock 46× warning 刷屏维持（mock 未装 enemy_scene，非缺陷）；HUD 待补 `se_skill_sword_arc` 图标映射；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；.godot_bak×2 缓存目录未跟踪
+- **探针回归**：**52/52（1099 条登记期望）0 FAIL / 0 script_errors**；stderr 全部历史口径一致，**day29_elin 越界 ERROR 消失（锚点同步实证）**；day31_spawner_deadlock 5440B 维持
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**9d88f1a**（#2 第54轮回执；链含 093f370 锚点同步 + defe1cf 呼吸动画）
+- **在途 action item（0 项）**：#53 两项均已关闭（锚点同步 9d88f1a 链已入库、在途 9 文件已 commit）；工作区仅 docs/PROGRESS.md + .godot_bak×2 缓存
+- **观察**：day31 五新探针（90 断言）未入 runner 建议 #3 并入；day31_spawner_deadlock mock 未装 enemy_scene 非缺陷；HUD 待补 `se_skill_sword_arc` 图标映射；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；AUDIO_FEEL O-1~3 待用户拍板
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3496,6 +3496,38 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - **在途 9 项建议尽快 commit 入库**（08-18 超时修复 wave_manager + day18_fb5 探针同步 + LevelUpPanel layer=10 + docs×3 + .manifest.json；.godot_bak×2 缓存目录确认后清理）。
 
 **✅ 2026-08-18 00:49 自动化测试轮次 #53：PASS（43/52，9 FAIL 全部定性为探针锚点过时非游戏缺陷；08-18 超时反馈修复已实证收口）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；待 9 个旧探针锚点同步后回归恢复全绿。
+
+---
+
+## §7.54 轮次 #54 · 2026-08-18 02:49（自动化测试 · 回归恢复全绿轮）
+
+**验证快照 = HEAD=9d88f1a（#2 第 54 轮拆解回执）+ 工作区在途 docs/PROGRESS.md + .godot_bak×2 缓存目录**。HEAD 链（较 #53 的 27f5a05 +6 提交）：`093f370`（**Day31 探针锚点同步：9 旧探针 orbit→扇形挥砍 + 换装尺寸 256×64/768×64，TEST_REPORT #53 action item 兑现，回归 43/52→52/52**）→ `defe1cf`（08-18 用户反馈：4 角色默认呼吸动画改 12 帧波浪呼吸，play_idle_demo 同款，day31_player_model 6/6）→ `42baea5`（反馈专员 #76）→ `9d88f1a`（#2 第 54 轮拆解回执）。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** **52 件套回归 52/52 全 PASS（1099 条登记断言）**——#53 的 9 个 FAIL（orbit 语义 15 条 + 换装尺寸 4 条）已由 `093f370` 锚点同步兑现修复，**#53 action item ①关闭**；在途 9 文件（08-18 超时修复 + 探针同步 + layer=10）已随 3f9dbe4/093f370 等提交入库，**#53 action item ②关闭**。游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr 242B，headless 音频退出良性泄漏，按既有白名单判定。
+- **数据层**：`data/*.json` **15/15 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2449**（与 #53 持平零变更），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10；items.png 图集 54 帧与 icon_atlas 声明匹配维持。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件已清理）。
+- **探针回归**：`tools/_regression_run.py` **52/52 PASS（1099 条登记期望），0 FAIL / 0 script_errors**（65s）。
+- **补跑 runner 外 day31 五件套（#53 先例维持，单独验证）**：day31_player_model 6/6、day31_melee_sweep 9/9、day31_charsel 12/12、day31_enemy_richness 5/5、day31_items_atlas 58 断言——合计 90 断言全 PASS，全 EXIT 0、0 script_errors。
+
+### 3. WARNING / 观察
+
+- **stderr 口径**：全部与历史一致无新增。**锚点同步实证**：day29_elin_anim_check 由 #53 的越界 ERROR 态（旧帧宽遍历伴随产物）→ **242B 纯音频**，越界 ERROR 消失；day5 154B / day10 374B / day18_feedback2 571B / day18_feedback5 621B / day21_22 564B / day26 402B 均与历史口径一致；day31_items_atlas 364B = 1 条主动越界保护 WARNING + 242B；day31_spawner_deadlock 5440B（46× enemy_scene 未设置 push_warning 刷屏）维持，mock 未装配非缺陷。
+- **观察项维持**：day31 五新探针（player_model/melee_sweep/charsel/enemy_richness/items_atlas 共 90 断言）未入 runner PROBES（本轮单独补跑，建议 #3 并入）；HUD 待补 `se_skill_sword_arc` 图标映射；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；.godot_bak×2 缓存目录未跟踪待确认后清理；AUDIO_FEEL_SPEC 开放决策 O-1~3 待用户拍板。
+
+### 4. action item（0 项新增）
+
+- **#53 两项 action item 均已关闭**：① 9 探针 19 条锚点同步 → `093f370` 已兑现（回归恢复 52/52，实证：day29_elin 越界 ERROR 消失）；② 在途 9 文件 → 已随 3f9dbe4/093f370 等提交入库（工作区现仅 docs/PROGRESS.md + .godot_bak×2）。
+- **观察（非阻断）**：day31 五件套 90 断言建议并入 runner PROBES（同 #32/#36 day26/day18_fb4 并入先例），使一键回归覆盖完整。
+
+**✅ 2026-08-18 02:49 自动化测试轮次 #54：PASS（52/52，0 阻断 / 0 功能缺陷）。** 工程可导入、可运行，15 张数据表与 25 个场景验证通过；#53 的 9 个探针锚点 FAIL 已由 `093f370` 同步兑现，回归恢复全绿；0 游戏侧 SCRIPT ERROR。
 
 ---
 

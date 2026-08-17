@@ -28,11 +28,17 @@ desktop.ini
 # 旧版 PNG 备份等全部归档于此隐藏目录，Godot 不扫描，也不入库）
 .godot_tmp_backup/
 
+# 用户会话 Godot 缓存备份（2026-08-18 起：自动化轮次勿提交勿删除，等用户确认后自行清理）
+.godot_bak*/
+
 # Tool scratch files, test outputs & logs.
 # 约定：tools/ 下以下划线开头 = 一次性临时产物，永不入库；
 # 正式工具无下划线（pixelate_batch.py / baseline_check.py / build_release.py），
 # 属于交接工作流的一部分，必须入库。
 tools/_*
+# 例外（2026-08-18 补：全量回归驱动 _regression_run.py 此前被 tools/_* 误忽略、从未入库，
+# clean clone 无法跑 58 件套回归 → 强制入库；其余下划线产物维持忽略）
+!tools/_regression_run.py
 tools/*.log
 tools/tpz_extract/
 
