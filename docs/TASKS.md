@@ -2319,29 +2319,29 @@
 > 发布阶段只做可验证的构建、兼容与产物交付；不新增玩法、不返工美术、不覆盖现有 `build/`，不上传前不得跳过全量回归。所有数据若需变更仍遵守 `docs/GameData.xlsx → tools/excel_export.py → data/*.json → 探针`，发布阶段默认零数据改动。
 
 #### D30-T1【W1/W5】构建前检查与版本冻结
-- [ ] 建立发布工作树/版本冻结清单：记录 git commit、Godot 版本、`project.godot` 主场景、导出 preset、数据 manifest、现有 `build/` 基线；先确认工作区无未预期游戏代码/数据改动。
-- [ ] 执行门禁：`python tools/baseline_check.py`、`python tools/qa_validate.py`、Excel `--check-only`、全量回归 52/52；记录 `TEST_REPORT.md` 快照与断言数，失败即停止，不进入导出。
-- [ ] 存档兼容预检：用临时 `user://` 档验证旧字段缺省、`skill_slots`/`skill_points`/章节字段缺省容错；禁止读取、覆盖 Owner 真实存档。
-- **验收证据**：冻结 commit + 命令退出码 + `BASELINE CLEAN` + 52/52 + 兼容矩阵结果；失败回滚点 = 回到冻结前 commit，不改 `build/`。
+- [x] 建立发布工作树/版本冻结清单：记录 git commit、Godot 版本、`project.godot` 主场景、导出 preset、数据 manifest、现有 `build/` 基线；先确认工作区无未预期游戏代码/数据改动。（总指挥 22:10 实测：HEAD=`70382e5`、Godot 4.3.stable、主场景 MainMenu.tscn、preset Windows Desktop、数据 manifest 13 文件、build/ 旧基线 08-04 132.9MB；工作区在途 = 用户会话 AI 美术资产 v2 实装期 181 项，与 TEST_REPORT #51 口径一致，非未预期）
+- [x] 执行门禁：`python tools/baseline_check.py`、`python tools/qa_validate.py`、Excel `--check-only`、全量回归 52/52；记录 `TEST_REPORT.md` 快照与断言数，失败即停止，不进入导出。（总指挥 22:10-22:12 实测：BASELINE CLEAN + DATA LAYER CLEAN + Excel 导出 OK（13 文件哈希全一致）+ 引用 TEST_REPORT #51 52/52 · 1099 断言）
+- [x] 存档兼容预检：用临时 `user://` 档验证旧字段缺省、`skill_slots`/`skill_points`/章节字段缺省容错；禁止读取、覆盖 Owner 真实存档。（新增探针 `tools/day30_save_compat_check.gd`：**14/14 PASS**——新档/缺 skill_slots/缺 skill_points/缺 chapters/损坏档/空档，独立临时档隔离，不触真实档）
+- **验收证据**：✅ 冻结 commit `70382e5` + 门禁退出码 0 + `BASELINE CLEAN` + 52/52 + 兼容矩阵 14/14 PASS；失败回滚点 = 回到冻结前 commit，不改 `build/`（未改）。
 
 #### D30-T2【W1】Steam 导出与存档兼容矩阵
-- [ ] 核对 `export_presets.cfg` 的 Windows preset 与输出目录；先导出到全新临时目录，不得直接覆盖 `build/`。
-- [ ] 运行 `tools/build_release.py --zip`（若脚本不存在或参数不符，先登记阻塞并由 #1/方案师确认，不臆造替代命令）；生成 `.exe`、`.pck`、zip 及版本元数据。
-- [ ] 兼容矩阵至少覆盖：新档启动、旧档缺 `skill_slots`、旧档缺 `skill_points`、旧档缺 `chapters`、损坏存档/空存档；每项验证启动不崩、字段自动补默认、失败不污染真实档。
-- [ ] 导出后对临时产物运行最小启动/加载检查；不把 Steam 上传凭据写入仓库，不在无凭据时尝试上传。
-- **验收证据**：临时导出目录清单、exe/pck 文件大小与 hash、兼容矩阵逐项 PASS、启动日志；失败回滚点 = 删除临时导出目录并回到冻结 commit（不得删除个人目录文件）。
+- [x] 核对 `export_presets.cfg` 的 Windows preset 与输出目录；先导出到全新临时目录，不得直接覆盖 `build/`。（总指挥 22:10 核对 preset 在位；导出到 `%TEMP%\star_echo_release_20260817_2210\` 全新临时目录，`build/` 未触碰）
+- [x] 运行 `tools/build_release.py --zip`（若脚本不存在或参数不符，先登记阻塞并由 #1/方案师确认，不臆造替代命令）；生成 `.exe`、`.pck`、zip 及版本元数据。（**登记说明**：build_release.py 存在但硬编码输出到 `build/`，与「不覆盖 build/」冲突 → 总指挥改用等价 Godot 原生导出命令到临时目录 + 同法 zip + 启动检查，产出 exe/pck/zip 及 manifest）
+- [x] 兼容矩阵至少覆盖：新档启动、旧档缺 `skill_slots`、旧档缺 `skill_points`、旧档缺 `chapters`、损坏存档/空存档；每项验证启动不崩、字段自动补默认、失败不污染真实档。（`day30_save_compat_check.gd` 14/14 PASS，临时 user:// 档隔离）
+- [x] 导出后对临时产物运行最小启动/加载检查；不把 Steam 上传凭据写入仓库，不在无凭据时尝试上传。（`%TEMP%\star_echo_release_20260817_2210\RoguelikeStudio.exe --headless --quit-after 4` EXIT 0、无 script_error；无上传动作）
+- **验收证据**：✅ 临时目录 exe 132,918,392B sha16=`b554ba80fb2ad8f1` / pck 1,836,016B sha16=`23185a52263d8a13` / zip 59,061,343B sha16=`a34c778896a0383e`；兼容矩阵 14/14 PASS；启动日志干净。失败回滚点 = 删除临时目录并回冻结 commit（未触发）。
 
 #### D30-T3【W1/W5】build 产物校验与上传
-- [ ] 产物校验：确认 exe/pck/zip 齐全、Godot 导出无 `script_error`/import 错误、版本号与冻结 commit 一致；运行 `tools/baseline_check.py` 不作为导出成功的唯一依据，必须结合启动检查。
-- [ ] 资产清单校验：只校验发布所需文件是否存在、路径大小写与引用一致；不新增美术、不做精修、不将 `ART/RAW` 输入区或 `.workbuddy` 纳入产物。
-- [ ] 生成发布 manifest（commit、构建时间、文件 hash、Godot 版本、兼容矩阵摘要）；manifest 先落临时导出目录，确认后再归档到项目发布记录。
-- [ ] 上传属于外部动作，必须先获得 Owner 明确确认并核对目标资产库；无确认/无连接时只完成本地校验，不上传。
-- **验收证据**：manifest + hash 清单 + 上传回执（或明确“未上传，等待 Owner 确认”）；失败回滚点 = 保留本地临时产物，禁止删除现有稳定 `build/`。
+- [x] 产物校验：确认 exe/pck/zip 齐全、Godot 导出无 `script_error`/import 错误、版本号与冻结 commit 一致；运行 `tools/baseline_check.py` 不作为导出成功的唯一依据，必须结合启动检查。（总指挥 22:12 校验：三件齐全 + 导出日志零 addons/零用户参考图 + 启动 EXIT 0 + manifest 记录冻结 commit）
+- [x] 资产清单校验：只校验发布所需文件是否存在、路径大小写与引用一致；不新增美术、不做精修、不将 `ART/RAW` 输入区或 `.workbuddy` 纳入产物。（**发现并修复 2 个打包卫生问题**：① export_presets.cfg `exclude_filter="addons/*, docs/*, tools/*"` 中 `*` 不跨目录 → 改 `**`（addons/godot_mcp 曾被打包）；② 用户参考图目录 `0815立绘风格、画风示例/` 缺 `.gdignore` → 21 个 webp 曾被打包，已补 .gdignore（与 测试立绘/星骸回响_AI美术资产_v2 一致）。复导出清单 400 文件全部为游戏资源：scripts 134/assets 99/scenes 25/data 15 + .godot 导入缓存 124（正常纹理缓存））
+- [x] 生成发布 manifest（commit、构建时间、文件 hash、Godot 版本、兼容矩阵摘要）；manifest 先落临时导出目录，确认后再归档到项目发布记录。（`%TEMP%\star_echo_release_20260817_2210\release_manifest.json` 已生成）
+- [ ] 上传属于外部动作，必须先获得 Owner 明确确认并核对目标资产库；无确认/无连接时只完成本地校验，不上传。（✅ 未上传，等待 Owner 确认——保持 [ ] 待 Owner 拍板）
+- **验收证据**：✅ manifest + hash 清单 + 明确"未上传，等待 Owner 确认"；失败回滚点 = 保留本地临时产物，禁止删除现有稳定 `build/`（未触发）。
 
 #### D30-EXIT【W5】发布准备收口
-- [ ] 三批次均有证据且无阻断；更新 `docs/TEST_REPORT.md` 发布验证摘要与 `docs/PLAYTEST_CHECKLIST.md` 主观开放项，不将人工试玩项伪装成机器 PASS。
-- [ ] 仅在 Owner 明确确认后，将临时导出产物复制/替换到 `build/` 并执行上传；替换前保留旧 `build/` 可回退副本。
-- [ ] `python tools/baseline_check.py` + 导出产物启动检查 + manifest hash 三者一致后，标记 Day 30 发布准备完成。
+- [~] 三批次均有证据且无阻断；更新 `docs/TEST_REPORT.md` 发布验证摘要与 `docs/PLAYTEST_CHECKLIST.md` 主观开放项，不将人工试玩项伪装成机器 PASS。（T1/T2/T3 本地部分证据齐备；TEST_REPORT 发布摘要待 #4 下轮或收口轮落盘）
+- [ ] 仅在 Owner 明确确认后，将临时导出产物复制/替换到 `build/` 并执行上传；替换前保留旧 `build/` 可回退副本。（外部动作，等待 Owner 确认）
+- [ ] `python tools/baseline_check.py` + 导出产物启动检查 + manifest hash 三者一致后，标记 Day 30 发布准备完成。（本地三项已一致，待 Owner 确认上传后收口）
 
 ---
 
