@@ -81,7 +81,7 @@ var meta_progress: Dictionary = {}
 var meta_save_path: String = "user://save_meta.json"
 
 # D14-15-T3：路线模式状态（route 空 = 旧波次制；非空 = 随机节点地图模式）
-var route: Dictionary = {}                 ## 本局路线（{seed, layers, modifiers, flags}）
+var route: Dictionary = {}                 ## 本局路线（{seed, layers, modifiers, flags, boss_layers, chapters}）
 var route_enabled: bool = true             ## 路线模式开关（默认开启；注入 false = 完全旧行为）
 var current_layer: int = 0                 ## 当前层索引（0 起）
 var current_node: Dictionary = {}          ## 当前节点（{type, wave_index}）
@@ -329,15 +329,16 @@ func close_shop() -> void:
 func _start_route_select() -> void:
 	_transition(GameState.ROUTE_SELECT)
 	if _route_select_panel == null or not is_instance_valid(_route_select_panel):
-		_route_select_panel = RouteSelectPanelScene.instantiate()
+		var panel := RouteSelectPanelScene.instantiate()
+		_route_select_panel = panel
 		# 身份校验防误清：旧面板 tree_exited 时 _route_select_panel 可能已指向新面板
 		# （reset() 先 queue_free 旧面板、后建新面板的时序 → 旧回调不得清新引用）
-		_route_select_panel.tree_exited.connect(func() -> void:
-			if _route_select_panel == self:
+		panel.tree_exited.connect(func() -> void:
+			if _route_select_panel == panel:
 				_route_select_panel = null
 		)
 		# F2-T6：面板挂载统一走 UIPanelFactory 静态方法（原 _add_to_ui_layer 迁移）
-		UIPanelFactoryScript.add_to_ui_layer(get_tree(), _route_select_panel)
+		UIPanelFactoryScript.add_to_ui_layer(get_tree(), panel)
 	if _route_select_panel.has_method("setup"):
 		_route_select_panel.setup(route, current_layer)
 
@@ -384,6 +385,7 @@ func _enter_node(node_type: String, wave_index: int) -> void:
 
 ## Day 17 · D17-T4：精英节点进入轻量横幅「⚔ 精英来袭」（1.5s 淡出上浮后自毁，
 ## 仿 enemy.gd _spawn_exp_popup 范式；容器缺失静默跳过不崩）
+## PS（2026-08-17）：坐标动态化（视口 960×540，原 320,90 硬编码偏左上）
 func _show_elite_banner() -> void:
 	var container: Node = vfx_container if vfx_container else null
 	if container == null:
@@ -398,7 +400,8 @@ func _show_elite_banner() -> void:
 	label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.35))
 	banner.add_child(label)
 	container.add_child(banner)
-	banner.global_position = Vector2(320.0, 90.0)
+	var vs: Vector2 = get_viewport().get_visible_rect().size
+	banner.global_position = Vector2(vs.x * 0.5, vs.y * 0.25)
 	var tween := banner.create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(label, "modulate:a", 0.0, 1.5)
@@ -421,7 +424,8 @@ func _show_boss_banner() -> void:
 	label.add_theme_color_override("font_color", Color(0.95, 0.35, 0.35))
 	banner.add_child(label)
 	container.add_child(banner)
-	banner.global_position = Vector2(320.0, 90.0)
+	var vs: Vector2 = get_viewport().get_visible_rect().size
+	banner.global_position = Vector2(vs.x * 0.5, vs.y * 0.25)
 	var tween := banner.create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(label, "modulate:a", 0.0, 1.5)

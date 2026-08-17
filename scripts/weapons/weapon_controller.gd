@@ -13,6 +13,8 @@ const ProjectileScene: PackedScene = preload("res://scenes/Projectile.tscn")
 ## preload 而非依赖 class_name：无头 `--script` 模式（main.gd:20 同策略）对新类
 ## 首次引入更稳；orbit_weapon.gd 的 class_name OrbitWeapon 保留供其它引用
 const OrbitWeaponScript: GDScript = preload("res://scripts/weapons/orbit_weapon.gd")
+## 近战扇形挥砍（PS 2026-08-17）：arc_angle>0 的近战武器 → MeleeSweep 独立驱动节点
+const MeleeSweepScript: GDScript = preload("res://scripts/weapons/melee_sweep.gd")
 
 # ========== 常量 ==========
 
@@ -28,6 +30,7 @@ var owner_node: Node2D                        ## 武器所有者（玩家）
 var equipped_weapons: Array[Resource] = []    ## 已装备武器列表
 var _projectile_container: Node2D             ## 弹丸容器
 var orbit_node: Node2D = null                 ## 环绕武器节点（D5-T4，运行时创建，挂 Player 子节点）
+var sweep_node: Node2D = null                 ## 近战扇形挥砍节点（PS 2026-08-17，运行时创建，挂 Player 子节点）
 
 # ========== 生命周期 ==========
 
@@ -82,6 +85,9 @@ func _process(delta: float) -> void:
 		# 环绕武器不自发弹丸（D5-T4：由 OrbitWeapon 节点独立驱动旋转 + 接触伤害）
 		if weapon.orbit_data and not weapon.orbit_data.is_empty():
 			continue
+		# 扇形挥砍武器不自发弹丸（PS 2026-08-17：由 MeleeSweep 节点独立驱动周期挥砍）
+		if weapon.arc_angle > 0.0:
+			continue
 		if weapon.can_fire(delta * atk_mult):
 			# F-32（08-09 用户反馈）：射程内无存活敌人不实际开火（冷却已递减、武器保持
 			# ready，敌人进入射程立即响应）——角色不再全程播攻击动画，idle/walk 正常显示
@@ -99,6 +105,7 @@ func equip_weapon(weapon: Resource) -> bool:
 		return false
 	equipped_weapons.append(weapon)
 	_sync_orbit_weapon()
+	_sync_melee_sweep()
 	# D13-T2：战斗副本变化 → 同步 inventory（HUD 读数源；进局/商店双写幂等）
 	sync_inventory_weapons()
 	return true
@@ -107,6 +114,7 @@ func equip_weapon(weapon: Resource) -> bool:
 func unequip_weapon(weapon: Resource) -> void:
 	equipped_weapons.erase(weapon)
 	_sync_orbit_weapon()
+	_sync_melee_sweep()
 	# D13-T2：同步 inventory（同上）
 	sync_inventory_weapons()
 
@@ -163,6 +171,8 @@ func build_weapon_from_data(weapon_id: String) -> Weapon:
 			"orbit_radius": float(data.get("orbit_radius", 110.0)),
 			"orbit_speed": float(data.get("orbit_speed", 180.0)),
 		}
+	# PS（2026-08-17）：扇形挥砍角度（莱恩普攻改造；>0 时近战武器走 MeleeSweep 节点）
+	w.arc_angle = float(data.get("arc_angle", 0.0))
 	w.set_meta(META_SOURCE_ID, weapon_id)
 	# F-22（用户拍板 2026-08-08）：进化形态标志透传（weapons.json evolution_result 字段，
 	# 仅结果武器为 true）——orbit_weapon 据此给进化武器换渲染色/尺寸，补「进化无直观感受」
@@ -205,6 +215,7 @@ func replace_weapon(target: Resource, replacement_id: String) -> Weapon:
 		w.upgrade()
 	equipped_weapons[idx] = w
 	_sync_orbit_weapon()
+	_sync_melee_sweep()
 	# D11-12-T5：同步 inventory.weapons（进化后 HUD 读 inventory 显示结果武器；无匹配跳过不崩）
 	_sync_inventory_weapon(target, w)
 	return w
@@ -406,3 +417,25 @@ func _sync_orbit_weapon() -> void:
 		owner_node.add_child(orbit_node)
 		orbit_node.name = "OrbitWeapon"
 	orbit_node.setup(orbit_weapon, owner_node)
+
+# ========== 近战扇形挥砍（PS · 2026-08-17） ==========
+
+## 扫描已装备武器，维护 MeleeSweep 节点（挂 Player 子节点，跟随移动）：
+##   无 arc_angle>0 武器 → 清理已有节点；有 → 创建/复用节点并 setup
+## 由 equip_weapon / unequip_weapon / replace_weapon 末尾调用（与 _sync_orbit_weapon 同范式）
+func _sync_melee_sweep() -> void:
+	var sweep_weapon: Resource = null
+	for weapon in equipped_weapons:
+		if weapon and weapon.arc_angle > 0.0:
+			sweep_weapon = weapon
+			break
+	if sweep_weapon == null:
+		if sweep_node and is_instance_valid(sweep_node):
+			sweep_node.queue_free()
+		sweep_node = null
+		return
+	if sweep_node == null or not is_instance_valid(sweep_node):
+		sweep_node = MeleeSweepScript.new()
+		owner_node.add_child(sweep_node)
+		sweep_node.name = "MeleeSweep"
+	sweep_node.setup(sweep_weapon, owner_node)

@@ -183,6 +183,11 @@ func _setup_animation() -> void:
 	death_frame_count = cfg["death_frames"]
 	move_fps = cfg["move_fps"]
 	death_fps = cfg["death_fps"]
+	# PS（2026-08-17 丰富性）：tint 色调区分 / scale 体型区分（Boss 保持 ×1 零回归）
+	if cfg.has("tint"):
+		_anim.modulate = cfg["tint"]
+	if cfg.has("scale"):
+		scale = Vector2(float(cfg["scale"]), float(cfg["scale"]))
 	if not move_texture:
 		return
 	# 构建 SpriteFrames

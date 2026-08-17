@@ -26,6 +26,50 @@ func _ready() -> void:
 		var c := Node2D.new()
 		c.name = str(CONTAINER_MAP["projectiles"])
 		add_child(c)
+	# PS（2026-08-17 · 大地图）：相机 limit = 竞技场边界（防画面滚出墙体；
+	# Godot limit 语义 = 视图边缘极限：left/top = 竞技场左/上，right/bottom = 右/下）
+	var camera := get_node_or_null("MainCamera") as Camera2D
+	if camera:
+		var rect := get_ground_rect()
+		if rect.size.x > 0.0 and rect.size.y > 0.0:
+			camera.limit_left = int(rect.position.x)
+			camera.limit_top = int(rect.position.y)
+			camera.limit_right = int(rect.position.x + rect.size.x)
+			camera.limit_bottom = int(rect.position.y + rect.size.y)
+
+# ========== 相机跟随（PS 2026-08-17 用户拍板：大地图） ==========
+
+## 每帧把 MainCamera 平滑跟随玩家（玩家可走出视野；limit 钳制在竞技场内）
+## 探针环境（无 MainCamera/无玩家）静默跳过不崩
+func _process(delta: float) -> void:
+	if GameManager == null or GameManager.player == null:
+		return
+	var camera := get_node_or_null("MainCamera") as Camera2D
+	if camera == null:
+		return
+	var target: Vector2 = GameManager.player.global_position
+	camera.global_position = camera.global_position.lerp(target, minf(1.0, delta * 6.0))
+
+# ========== 竞技场查询（PS：spawner 生成范围 clamp 用） ==========
+
+## 竞技场世界矩形（Ground 缺失 → 全视口兜底）
+func get_ground_rect() -> Rect2:
+	var ground := get_node_or_null("Ground")
+	if ground != null and ground.has_method("get_arena_rect"):
+		return ground.get_arena_rect()
+	var vs := get_viewport_rect().size
+	return Rect2(Vector2.ZERO, vs)
+
+## 把点钳制到竞技场内（含墙体余量；Ground 缺失原样返回）
+func clamp_to_ground(pos: Vector2) -> Vector2:
+	var rect := get_ground_rect()
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return pos
+	var m := 24.0
+	return Vector2(
+		clampf(pos.x, rect.position.x + m, rect.position.x + rect.size.x - m),
+		clampf(pos.y, rect.position.y + m, rect.position.y + rect.size.y - m)
+	)
 
 ## 按 key 取容器节点；未知 key / 节点缺失 → null + push_warning（消费点判空防崩）
 func get_container(key: String) -> Node:

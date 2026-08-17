@@ -36,8 +36,11 @@ func _ready() -> void:
 func _start_event() -> void:
 	if gm == null:
 		return
-	if gm._event_panel != null and is_instance_valid(gm._event_panel):
-		return  # 面板已在显示，防重复实例化
+	if gm._event_panel != null:
+		# 防悬挂：引用已失效（面板异常释放）→ 清理后继续；仅有效面板才拦截（防重复实例化）
+		if is_instance_valid(gm._event_panel):
+			return
+		gm._event_panel = null
 	AudioManager.play_sfx("event")   # D24-T3-⑨：事件节点 SFX
 	var events: Array = DataLoader.get_events()
 	if events.is_empty():
@@ -234,6 +237,8 @@ func _apply_unlock_node(strategy: String) -> void:
 			push_warning("[EventManager] 未知 unlock_node 策略: %s" % strategy)
 
 ## add_node：当前层 +2 追加 event 节点（不超末层前一层；末层 boss 层不可追加）
+## PS-D2a-1（2026-08-17）：boss 层 / 章末 event 层（单节点特殊层）一律拒绝追加——
+## 与 reroute/force_node_type 对特殊层的保护同构（防章末「休息+奖励」层被破坏）
 func _apply_add_node() -> void:
 	if gm == null:
 		return
@@ -241,7 +246,21 @@ func _apply_add_node() -> void:
 	if layers.size() < 2:
 		return
 	var target: int = mini(gm.current_layer + 2, layers.size() - 2)
+	if _is_special_layer(target):
+		push_warning("[EventManager] add_node 目标层 %d 为特殊层（boss/章末 event），拒绝追加" % target)
+		return
 	(layers[target] as Array).append({"type": "event", "wave_index": 0})
+
+## 特殊层判定：boss_layers 或章末 event 层（0-based；与 route_generator 守卫同构）
+func _is_special_layer(li: int) -> bool:
+	var boss_layers: Array = []
+	for bl in gm.route.get("boss_layers", []):
+		boss_layers.append(int(bl))
+	if li in boss_layers:
+		return true
+	if RouteGeneratorScript != null and RouteGeneratorScript.has_method("get_chapter_event_layers"):
+		return li in RouteGeneratorScript.get_chapter_event_layers(gm.route)
+	return false
 
 ## 事件道具 id → Item 资源（仿 shop._build_item_resource / inventory.add_item_from_data 字段装载）
 func _build_event_item(item_id: String) -> Resource:

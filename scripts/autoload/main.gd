@@ -82,6 +82,16 @@ func _ready() -> void:
 	# F2-T0：World 容器服务（弹丸/炮台/召唤物工厂 + 统一容器注册表）
 	GameManager.world = world
 
+	# PS（2026-08-17 用户拍板 · 大地图）：玩家出生移到竞技场中心 + 相机初始位
+	# （Ground._ready 已完成居中；无 Ground 时保持场景预设位置）
+	var ground: Node = world.get_node_or_null("Ground") if world else null
+	if player and ground != null and ground.has_method("get_arena_center"):
+		var center: Vector2 = ground.get_arena_center()
+		player.global_position = center
+		var camera := world.get_node_or_null("MainCamera") as Camera2D
+		if camera:
+			camera.global_position = center
+
 	# D4-T1：升级 → 暂停 + 弹强化面板（GameManager 侧消费）
 	if player and player.has_signal("level_up") and not player.level_up.is_connected(GameManager._on_player_level_up):
 		player.level_up.connect(GameManager._on_player_level_up)

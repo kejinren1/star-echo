@@ -46,22 +46,17 @@ theme_override_font_sizes/font_size = 8
 text = "SELECT YOUR ECHOER"
 horizontal_alignment = 1
 
-[node name="CardRow" type="HBoxContainer" parent="Root"]
+[node name="Spacer" type="Control" parent="Root"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
-alignment = 1
 
-[node name="DetailLabel" type="Label" parent="Root"]
-custom_minimum_size = Vector2(0, 40)
+[node name="CardRow" type="HBoxContainer" parent="Root"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
+theme_override_constants/separation = 14
+alignment = 1
 
 [node name="HintLabel" type="Label" parent="Root"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 7
-text = "LEFT / RIGHT to browse   -   ENTER or CLICK to confirm"
+text = "悬停头像预览   -   点击确认出战"
 horizontal_alignment = 1

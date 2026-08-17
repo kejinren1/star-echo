@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-16T01:10:58",
-  "fingerprint": "c665430498d272ea",
+  "generated_at": "2026-08-17T22:10:08",
+  "fingerprint": "f17c1937968bc68f",
   "files": {
     "boss_patterns.json": "5abf9172db00",
     "boss_skills.json": "2615d0b1a757",
@@ -9,11 +9,11 @@
     "enemies.json": "94dd2b9fdf40",
     "events.json": "9cb6b6b5389f",
     "items.json": "1a958ac3abf0",
-    "routes.json": "5237c87015f5",
+    "routes.json": "e430cbd43c6d",
     "skill_relics.json": "2e6d622aeb6f",
     "skill_unlocks.json": "dd22cdfa8eeb",
     "stats.json": "569ddefe8a64",
     "waves.json": "edb17bc94f05",
-    "weapons.json": "97a1f492f78f"
+    "weapons.json": "a0bfabee7f79"
   }
 }

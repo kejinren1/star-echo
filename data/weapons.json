@@ -557,16 +557,14 @@
         "crit_damage": 1.8,
         "knockback": 8,
         "life_steal": 1,
-        "special": "环绕玩家旋转的星刃, 持续对接触敌人造成伤害",
+        "special": "周期性扇形挥砍, 对前方扇形范围内的敌人造成伤害",
         "icon_index": 7,
         "max_level": 8,
         "scaling": {
           "melee_damage": 1
         },
         "slot": "weapon",
-        "blade_count": 1,
-        "orbit_radius": 40,
-        "orbit_speed": 180,
+        "arc_angle": 100,
         "star_echo": true,
         "signature_of": "se_ren",
         "evolution": {
@@ -574,7 +572,7 @@
           "requires_level": 8,
           "result_id": "se_blade_storm",
           "result_name": "星刃风暴",
-          "description": "环绕刃群强化: 6 刃环绕"
+          "description": "挥砍进化: 超大扇形剑气, 范围与伤害质变"
         },
         "levels": [
           {
@@ -582,72 +580,56 @@
             "damage": 7,
             "cooldown": 0.45,
             "upgrade": "基础形态",
-            "blade_count": 1,
-            "orbit_radius": 40,
-            "orbit_speed": 180
+            "arc_angle": 100
           },
           {
             "level": 2,
             "damage": 9,
             "cooldown": 0.45,
             "upgrade": "伤害 +2",
-            "blade_count": 1,
-            "orbit_radius": 44,
-            "orbit_speed": 190
+            "arc_angle": 105
           },
           {
             "level": 3,
             "damage": 11,
             "cooldown": 0.42,
-            "upgrade": "星刃数量 +1",
-            "blade_count": 2,
-            "orbit_radius": 48,
-            "orbit_speed": 200
+            "upgrade": "扇形角 +5°, 伤害 +2",
+            "arc_angle": 110
           },
           {
             "level": 4,
             "damage": 14,
             "cooldown": 0.42,
             "upgrade": "伤害 +3",
-            "blade_count": 2,
-            "orbit_radius": 52,
-            "orbit_speed": 210
+            "arc_angle": 115
           },
           {
             "level": 5,
             "damage": 17,
             "cooldown": 0.38,
-            "upgrade": "星刃数量 +1, 转速提升",
-            "blade_count": 3,
-            "orbit_radius": 56,
-            "orbit_speed": 220
+            "upgrade": "扇形角 +5°, 攻速提升",
+            "arc_angle": 120
           },
           {
             "level": 6,
             "damage": 21,
             "cooldown": 0.38,
-            "upgrade": "伤害 +4, 半径扩大",
-            "blade_count": 3,
-            "orbit_radius": 60,
-            "orbit_speed": 235
+            "upgrade": "伤害 +4, 扇形角 +5°",
+            "arc_angle": 125
           },
           {
             "level": 7,
             "damage": 26,
             "cooldown": 0.34,
-            "upgrade": "星刃数量 +1",
-            "blade_count": 4,
-            "orbit_radius": 64,
-            "orbit_speed": 250
+            "upgrade": "扇形角 +5°, 攻速提升",
+            "arc_angle": 130
           },
           {
             "level": 8,
             "damage": 32,
             "cooldown": 0.3,
             "upgrade": "满级: 可进化(需对应核心)",
-            "blade_count": 4,
-            "orbit_radius": 68,
-            "orbit_speed": 270
+            "arc_angle": 135
           }
         ]
       },
@@ -658,12 +640,10 @@
         "damage": 45,
         "cooldown": 0.9,
         "range": 150,
-        "special": "环绕刃群强化: 6 刃环绕",
+        "special": "超大扇形挥砍: 剑气范围扩大, 一刀横扫大片敌人",
         "icon_index": 35,
         "max_level": 8,
-        "blade_count": 6,
-        "orbit_radius": 68,
-        "orbit_speed": 220,
+        "arc_angle": 150,
         "star_echo": true,
         "evolution_result": true,
         "levels": [
@@ -672,56 +652,64 @@
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态"
+            "upgrade": "进化形态: 超大扇形",
+            "arc_angle": 150
           },
           {
             "level": 2,
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态"
+            "upgrade": "进化形态",
+            "arc_angle": 150
           },
           {
             "level": 3,
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态"
+            "upgrade": "进化形态",
+            "arc_angle": 150
           },
           {
             "level": 4,
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态"
+            "upgrade": "进化形态",
+            "arc_angle": 150
           },
           {
             "level": 5,
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态"
+            "upgrade": "进化形态",
+            "arc_angle": 150
           },
           {
             "level": 6,
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态"
+            "upgrade": "进化形态",
+            "arc_angle": 150
           },
           {
             "level": 7,
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态"
+            "upgrade": "进化形态",
+            "arc_angle": 150
           },
           {
             "level": 8,
             "damage": 45,
             "cooldown": 0.9,
             "range": 150,
-            "upgrade": "进化形态（满级）"
+            "upgrade": "进化形态（满级）: 超大扇形",
+            "arc_angle": 150
           }
         ]
       }

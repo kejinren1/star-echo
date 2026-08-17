@@ -1,11 +1,13 @@
 ## 地面与墙体生成器
 ## 程序化创建 TileSet，填充地面 4 变体，放置墙体边界，添加碰撞
+## PS（2026-08-17 用户拍板）：视口 960×540 + 大地图——竞技场 48×27 格（1536×864 ≈ 1.6 屏），
+## 相机跟随玩家（world.gd），玩家可走出视野与敌人拉开距离（Boss 战不再贴脸绕圈）
 extends Node2D
 
 # ========== 导出属性 ==========
 
-@export var arena_width: int = 20                ## 竞技场宽度（格）
-@export var arena_height: int = 12               ## 竞技场高度（格）
+@export var arena_width: int = 48                ## 竞技场宽度（格）
+@export var arena_height: int = 27               ## 竞技场高度（格）
 @export var tile_size: int = 32                  ## 单格尺寸（像素）
 
 # ========== 内部常量 ==========

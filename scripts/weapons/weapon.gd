@@ -37,6 +37,8 @@ signal weapon_fired
 @export var explosion_radius: float = 0.0
 ## 爆炸伤害（<=0 时装配层兜底 = base_damage）
 @export var explosion_damage: float = 0.0
+## 扇形挥砍角度（度；>0 时近战武器为扇形 AOE 挥砍，PS-2026-08-17 用户拍板莱恩普攻改造）
+@export var arc_angle: float = 0.0
 
 @export_group("成长属性")
 @export var level: int = 1                      ## 武器等级
@@ -111,6 +113,9 @@ func _on_upgrade() -> void:
 		orbit_data["blade_count"] = int(entry.get("blade_count", orbit_data.get("blade_count", 1)))
 		orbit_data["orbit_radius"] = float(entry.get("orbit_radius", orbit_data.get("orbit_radius", 110.0)))
 		orbit_data["orbit_speed"] = float(entry.get("orbit_speed", orbit_data.get("orbit_speed", 180.0)))
+	# 扇形挥砍角度（PS：莱恩普攻改造；levels 可递增角度）
+	if entry.has("arc_angle"):
+		arc_angle = float(entry["arc_angle"])
 	# D7-T2：消费 levels 中可选进阶键（crit_chance/crit_damage/pierce）——
 	# 本日 11 把 levels 未放进阶键，兼容未来 Day 8-9 放键不漏消费（2 行级低风险）
 	if entry.has("crit_chance"):

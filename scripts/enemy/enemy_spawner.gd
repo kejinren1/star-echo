@@ -166,26 +166,34 @@ func _create_enemy(enemy_id_raw: String, wave: int, special: Variant) -> Node:
 		enemy.set_target(GameManager.player)
 	return enemy
 
-## 在屏幕内随机位置生成（尽量在可视区域内，且离玩家保持最小距离，避免刷脸）
+## 在玩家周围随机位置生成（尽量在可视区域内，且离玩家保持最小距离，避免刷脸）
+## PS（2026-08-17 用户拍板 · 大地图）：原「全视口随机」在玩家远离竞技场中心时会把敌人
+## 生成到墙外 → 改为以玩家为中心、±半视口矩形内随机，并钳制回竞技场内
 func _get_random_spawn_position() -> Vector2:
 	var viewport_size := get_viewport_rect().size
 	var min_dist: float = 110.0   # 离玩家的最小刷新距离，防止一出生就贴脸
 	var player_pos := Vector2.ZERO
 	if GameManager.player:
 		player_pos = GameManager.player.global_position
-	# 多次尝试找一个既在屏幕内、又离玩家足够远的点
+	# 多次尝试既在玩家周围视口内、又离玩家足够远的点
 	for i in range(40):
 		var pos := Vector2(
-			randf_range(16.0, viewport_size.x - 16.0),
-			randf_range(16.0, viewport_size.y - 16.0)
+			player_pos.x + randf_range(-viewport_size.x * 0.5, viewport_size.x * 0.5),
+			player_pos.y + randf_range(-viewport_size.y * 0.5, viewport_size.y * 0.5)
 		)
 		if pos.distance_to(player_pos) >= min_dist:
-			return pos
-	# 兜底：直接随机一个点（极端情况下可能偏近，但仍在屏幕内）
-	return Vector2(
-		randf_range(16.0, viewport_size.x - 16.0),
-		randf_range(16.0, viewport_size.y - 16.0)
-	)
+			return _clamp_to_ground(pos)
+	# 兜底：直接玩家周围随机一个点（极端情况下可能偏近，但仍在场内）
+	return _clamp_to_ground(Vector2(
+		player_pos.x + randf_range(-160.0, 160.0),
+		player_pos.y + randf_range(-160.0, 160.0)
+	))
+
+## 钳制到竞技场内（World 缺失时原样返回）
+func _clamp_to_ground(pos: Vector2) -> Vector2:
+	if GameManager and GameManager.world and GameManager.world.has_method("clamp_to_ground"):
+		return GameManager.world.clamp_to_ground(pos)
+	return pos
 
 ## 获取当前存活敌人数量
 func get_alive_count() -> int:
