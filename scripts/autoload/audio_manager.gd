@@ -148,6 +148,17 @@ func play_sfx(sfx_name: String) -> bool:
 	return true
 
 
+## AUDIO_FEEL（AF-P0-C1 · SPEC F5 音画同步）：延迟播放 SFX（SceneTreeTimer 调度，复用 SFX_POOL）
+## delay <= 0 → 立即播放（与 play_sfx 同路径）；delay > 0 → timer 到点后播放——
+## hitstop 顿帧期间（time_scale=0）默认 timer 停摆，画面恢复后声音响起 = 音画同步语义。
+## 键契约红线 2：SFX_MAP 零新增零删改（hit/crit/death/skill 已全齐，无新键）。
+func play_sfx_delayed(sfx_name: String, delay: float) -> void:
+	if delay <= 0.0:
+		play_sfx(sfx_name)
+		return
+	get_tree().create_timer(delay).timeout.connect(func() -> void: play_sfx(sfx_name))
+
+
 func set_bgm_volume(db: float) -> void:
 	bgm_volume_db = db
 	if _bgm_player != null:

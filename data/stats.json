@@ -282,5 +282,17 @@
     "fireball_lifetime": 1.4,
     "fireball_pierce": 3,
     "fireball_radius": 90
+  },
+  "feel": {
+    "hitstop_melee": 0.15,
+    "hitstop_ranged": 0.05,
+    "hitstop_crit_bonus": 0.1,
+    "hitstop_boss_kill": 0.15,
+    "shake_light_duration": 0.15,
+    "shake_light_magnitude": 4,
+    "shake_medium_duration": 0.2,
+    "shake_medium_magnitude": 6,
+    "shake_heavy_duration": 0.3,
+    "shake_heavy_magnitude": 9
   }
 }

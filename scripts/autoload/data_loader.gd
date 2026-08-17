@@ -50,6 +50,8 @@ var _physics: Dictionary = {}           ## 弹丸物理参数（碰撞层/半径
 var _skills: Dictionary = {}            ## 技能参数（火球 speed/lifetime/pierce/radius）
 var _routes: Dictionary = {}            ## 随机节点路线参数（routes.json）
 var _events: Array = []                 ## 事件列表（events.json，Day 16：GameManager 随机取）
+## AUDIO_FEEL（2026-08-18 AF-P0）：打击感参数段（stats.json feel 键——hitstop 顿帧 + 震屏分级）
+var _feel: Dictionary = {}
 ## BS-C1（2026-08-13）：Boss 技能表 + pattern 引用表（boss_skills.json / boss_patterns.json）
 var _boss_skills: Dictionary = {}       ## { skill_id → 技能定义 }
 var _boss_patterns: Array = []          ## [{boss_id, skill_id, weight, phase, override, min_interval}]
@@ -79,6 +81,21 @@ const SKILLS_DEFAULTS: Dictionary = {
 	"fireball_lifetime": 1.4,        # T-012 火球寿命
 	"fireball_pierce": 3,            # T-012 火球穿透（F-07）
 	"fireball_radius": 90.0,         # T-012 火球爆炸半径兜底
+}
+## AUDIO_FEEL（2026-08-18 AF-P0 批 A/B · O-2 拍板「近重远轻」）：打击感参数兜底
+## （缺段时 get_stats_feel 返回的默认值 = 方案拍板值，防 Excel 未导出行为漂移；
+##  批 A 先 4 键 hitstop，批 B 扩展 6 键 shake——键齐后 Excel 与 const 双向一致）
+const FEEL_DEFAULTS: Dictionary = {
+	"hitstop_melee": 0.15,           # AF-P0-A1 近战顿帧（重，O-2 拍板）
+	"hitstop_ranged": 0.05,          # AF-P0-A1 远程顿帧（轻，O-2 拍板）
+	"hitstop_crit_bonus": 0.1,       # AF-P0-A1 暴击追加顿帧
+	"hitstop_boss_kill": 0.15,       # AF-P0-A1 Boss 击杀顿帧
+	"shake_light_duration": 0.15,    # AF-P0-B1 震屏轻档时长（= F-03 现值零漂移）
+	"shake_light_magnitude": 4.0,    # AF-P0-B1 震屏轻档幅度（= F-03 现值零漂移）
+	"shake_medium_duration": 0.2,    # AF-P0-B1 震屏中档时长（暴击/普通击杀）
+	"shake_medium_magnitude": 6.0,   # AF-P0-B1 震屏中档幅度
+	"shake_heavy_duration": 0.3,     # AF-P0-B1 震屏重档时长（Boss 死亡）
+	"shake_heavy_magnitude": 9.0,    # AF-P0-B1 震屏重档幅度
 }
 
 var _loaded: bool = false               ## 是否已加载
@@ -191,6 +208,7 @@ func _load_stats() -> void:
 	_combat = data.get("combat", {})
 	_physics = data.get("physics", {})
 	_skills = data.get("skills", {})
+	_feel = data.get("feel", {})
 
 ## 加载路线参数（routes.json；缺失返回空字典 → 生成器走默认参数）
 func _load_routes() -> void:
@@ -537,6 +555,14 @@ func get_stats_skills() -> Dictionary:
 	var out: Dictionary = SKILLS_DEFAULTS.duplicate()
 	for k in _skills:
 		out[k] = _skills[k]
+	return out
+
+## AUDIO_FEEL（2026-08-18 AF-P0）：打击感参数（stats.json feel 段——hitstop 顿帧 + 震屏分级）
+## 缺段/缺键 → 兜底默认值 = 方案拍板值（O-2 近重远轻 / F-03 现值），防 Excel 未导出时行为漂移
+func get_stats_feel() -> Dictionary:
+	var out: Dictionary = FEEL_DEFAULTS.duplicate()
+	for k in _feel:
+		out[k] = _feel[k]
 	return out
 
 # ========== 路线接口（Day 14-15 · D14-15-T3） ==========

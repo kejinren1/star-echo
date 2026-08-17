@@ -81,6 +81,8 @@ PROBES = [
     ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 246),
     # 总指挥 2026-08-18：技能图标映射闭环（skills.png 5 帧 + SKILL_ICON_MAP 全量覆盖 + 越界防护）
     ("day31_skill_icon_check", ["--script", "res://tools/day31_skill_icon_check.gd"], 22),
+    # AUDIO_FEEL（2026-08-18 AF-P0 批 A-C）：hitstop 顿帧 + 震屏分级 + 音画同步（day31_feel_check）
+    ("day31_feel_check", ["--script", "res://tools/day31_feel_check.gd"], 26),
 ]
 
 

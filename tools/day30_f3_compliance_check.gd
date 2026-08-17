@@ -38,6 +38,9 @@ const BOOL_WHITELIST: Dictionary = {
 	"scripts/boss/exec_buff.gd": ["_resolved"],
 	# PS-B4 探针辅助：dummy_target（测试桩，非游戏逻辑）
 	"scripts/dummy_target.gd": ["is_alive", "invulnerable"],
+	# AUDIO_FEEL（2026-08-18 AF-P0 批 A）：hitstop 顿帧冻结标记（防旧 timer 回调误恢复，
+	# time_scale=0 恢复链的必要状态；非行为分支开关）
+	"scripts/systems/hitstop_controller.gd": ["_freezing"],
 }
 
 var _sub: int = 0

@@ -513,7 +513,8 @@ func _part_regression() -> void:
 	var ln: int = rr.find("PROBES = [")
 	if ln >= 0:
 		# 限制在 PROBES 数组区域内解析（截至下一个 ']' 行）
-		var seg: String = rr.substr(ln, 6000)
+		# 2026-08-18：61 条条目已超 6000 字符 → 扩到 12000（day31_feel 在数组尾部被截断导致解析 60 项）
+		var seg: String = rr.substr(ln, 12000)
 		var end: int = seg.find("\n]")
 		if end > 0:
 			seg = seg.substr(0, end)
@@ -552,14 +553,16 @@ func _part_regression() -> void:
 	#   → 58 项 / 期望 1195（1099 + 96）
 	# 总指挥 F1-E 同步（2026-08-18 · 第 4 轮）：runner +day31_presentation(246)+skill_icon(22)
 	#   → 60 项 / 期望 1463（1195 + 268）
-	if probe_count == 60:
-		_pass("回归 / _regression_run.py PROBES 60 项（58 + 总指挥 F1-E 2）")
+	# AUDIO_FEEL 同步（2026-08-18 · AF-P0 批 A-C）：runner +day31_feel(26)
+	#   → 61 项 / 期望 1489（1463 + 26）
+	if probe_count == 61:
+		_pass("回归 / _regression_run.py PROBES 61 项（60 + AUDIO_FEEL day31_feel 1）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 60" % probe_count)
-	if expect_sum == 1463:
-		_pass("回归 / 期望断言合计 1463（1195 + 总指挥 F1-E 268）")
+		_fail("回归: PROBES 项数 %d ≠ 61" % probe_count)
+	if expect_sum == 1489:
+		_pass("回归 / 期望断言合计 1489（1463 + AUDIO_FEEL 26）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1463" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1489" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

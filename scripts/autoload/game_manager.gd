@@ -100,6 +100,9 @@ var enemies_container: Node = null
 ## F2-T0：World 容器服务（main._ready 注入；get_world() 是敌人等无 World 父级实体
 ## 获取 world 的唯一途径——enemy 挂 Enemies 容器下 get_parent()≠World）
 var world: Node = null
+## AUDIO_FEEL（2026-08-18 AF-P0 批 A）：hitstop 顿帧控制器（main._ready 创建注入；
+## 探针独立实例化时直接赋值/判空跳过；缺失 = 零顿帧零回归）
+var hitstop_controller: Node = null
 
 ## F2-T0：取 World 容器服务节点（未注入/已释放 → null，调用方判空兜底；
 ## 探针实例化 Main 场景后释放时 world 悬空，is_instance_valid 防 freed instance 调用）

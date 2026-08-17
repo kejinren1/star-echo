@@ -31,6 +31,10 @@ extends Area2D
 @export var bullet_color: Color = Color(1.0, 0.92, 0.2)  ## 弹体颜色（默认霓虹黄）
 @export var bullet_radius: float = 3.4                   ## 弹体半径（默认 3.4 = 8px 纹理）
 
+@export_group("顿帧（AUDIO_FEEL AF-P0-A2 · 2026-08-18）")
+## 武器系（melee/ranged；weapon_controller._spawn_projectile 透传，缺省 "" = 远程轻档）
+@export var weapon_type: String = ""
+
 # ========== 内部状态 ==========
 
 var direction: Vector2 = Vector2.ZERO
@@ -81,6 +85,13 @@ func _on_body_entered(body: Node) -> void:
 		# F-11（用户拍板 2026-08-06）：伤害数字子系统——命中时透传暴击态（enemy 侧展示）
 		body.take_damage(final_damage, _is_crit_hit())
 		_apply_life_steal(final_damage)
+		# AUDIO_FEEL（AF-P0-A2/B2 · O-2 近重远轻 + F2 分级）：命中 → hitstop 顿帧 + 相机震屏
+		_hitstop_on_hit()
+		_shake_on_hit()
+		# AF-P0-C2（SPEC F5 音画同步）：暴击命中 → crit 音（非爆炸弹丸补缺——
+		# 爆炸弹丸 _do_explosion 已播 crit 音（D24-T3-③），此处跳过防双播）
+		if _is_crit_hit() and explosion_radius <= 0.0:
+			AudioManager.play_sfx("crit")
 		# D24-F13-2（F-13 on_crit）：暴击命中 → 连锁伤害（overload_capacitor，_is_crit_hit 依赖 _last_crit 须在 _roll_crit 后）
 		if _is_crit_hit():
 			_trigger_on_crit_chain(body.global_position, final_damage)
@@ -100,6 +111,30 @@ func _on_body_entered(body: Node) -> void:
 			return
 		if explosion_radius > 0.0:
 			_do_explosion()
+
+# ========== 顿帧（AUDIO_FEEL AF-P0-A2 · 2026-08-18） ==========
+
+## 命中顿帧：近战重 0.15 / 远程轻 0.05（O-2 拍板）；暴击追加 +0.1（取 max 合并）
+## 控制器经 GameManager.hitstop_controller（main._ready 注入；缺失 = 零顿帧零回归）
+func _hitstop_on_hit() -> void:
+	var hs: Node = GameManager.hitstop_controller if GameManager else null
+	if hs == null or not is_instance_valid(hs):
+		return
+	var feel: Dictionary = DataLoader.get_stats_feel()
+	var dur: float = float(feel.get("hitstop_melee", 0.15)) if weapon_type == "melee" \
+		else float(feel.get("hitstop_ranged", 0.05))
+	if _is_crit_hit():
+		dur = maxf(dur, float(feel.get("hitstop_crit_bonus", 0.1)))
+	hs.call("trigger", dur)
+
+## AF-P0-B2（2026-08-18 · SPEC F2 震屏分级）：命中 → 相机震动（非暴击 light / 暴击 medium）
+## main._trigger_camera_shake 经 /root/Main 调用（探针无 Main 场景 → 静默跳过零回归）
+func _shake_on_hit() -> void:
+	var main: Node = get_node_or_null("/root/Main")
+	if main == null or not main.has_method("_trigger_camera_shake"):
+		return
+	main.call("_trigger_camera_shake", "medium" if _is_crit_hit() else "light")
+
 
 # ========== 爆炸 AOE 与元素附着（Day 3 · D3-T2） ==========
 
@@ -279,3 +314,6 @@ func initialize(props: Dictionary) -> void:
 		crit_chance = props["crit_chance"]
 	if props.has("crit_mult"):
 		crit_mult = props["crit_mult"]
+	# AUDIO_FEEL（AF-P0-A2 · O-2 近重远轻）：武器系透传（melee 重 / 其余轻）
+	if props.has("weapon_type"):
+		weapon_type = str(props["weapon_type"])

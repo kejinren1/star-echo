@@ -132,6 +132,12 @@ COLUMN_ZH = {
     # ---- stats_skills（F1-散 T-012 火球参数） ----
     "fireball_speed": "火球速度", "fireball_lifetime": "火球寿命(秒)",
     "fireball_pierce": "火球穿透数", "fireball_radius": "火球爆炸半径",
+    # ---- stats_feel（AUDIO_FEEL AF-P0 2026-08-18 · hitstop 顿帧 + 震屏分级） ----
+    "hitstop_melee": "顿帧-近战(秒)", "hitstop_ranged": "顿帧-远程(秒)",
+    "hitstop_crit_bonus": "顿帧-暴击追加(秒)", "hitstop_boss_kill": "顿帧-Boss击杀(秒)",
+    "shake_light_duration": "震屏-轻-时长(秒)", "shake_light_magnitude": "震屏-轻-幅度",
+    "shake_medium_duration": "震屏-中-时长(秒)", "shake_medium_magnitude": "震屏-中-幅度",
+    "shake_heavy_duration": "震屏-重-时长(秒)", "shake_heavy_magnitude": "震屏-重-幅度",
     # ---- enemy_scaling 扩展（F1-散 T-009 冲锋参数） ----
     "charge_speed_mult": "冲锋倍率", "charge_windup": "蓄力间隔(秒)",
     "charge_duration": "冲锋持续(秒)",
@@ -300,6 +306,14 @@ SHEETS = {
     },
     "stats_skills": {
         "sheet": "stats_skills", "file": "stats.json", "root": "skills",
+        "key": None, "category": None, "kind": "flat_dict",
+        "json_cols": [], "child": None,
+    },
+    # AUDIO_FEEL（2026-08-18 第 57 轮 AF-P0 批 A/B）：打击感参数表（flat_dict 单行，
+    # 仿 stats_combat F1-散先例；stats.json 顶层新增 feel 键，消费点 DataLoader.get_stats_feel
+    # 读，缺段兜底 = 默认值防漂移；hitstop 四键 + 震屏六键随批 A/B 渐进扩展）
+    "stats_feel": {
+        "sheet": "stats_feel", "file": "stats.json", "root": "feel",
         "key": None, "category": None, "kind": "flat_dict",
         "json_cols": [], "child": None,
     },

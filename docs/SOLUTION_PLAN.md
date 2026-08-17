@@ -177,3 +177,15 @@
 4. **验证**：探针 day31_presentation_check **261/261 PASS**（+15 断言：条数一致/键集合双向/逐条枚举值对比/消费 3 项含未知行为兜底 CHASE）；全量回归 **60/60 PASS**；`excel_export.py --check-only` EXIT=0。
 5. **收尾**：检查点 `b515e17`（挂账 docs #1/#4 在途一并入库）→ 批次 commit → push。
 6. **维持登记**：F1-E 剩余批次 = BGM/SFX → FX → SHEET_CONFIG → 初始武器 → 炮台默认（每批 Excel→导出→消费→探针→回归，const 兜底）；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；AUDIO_FEEL O-1~3 已由总指挥拍板（M1+M2/近重远轻/H1 挂 P2）待 #2 拆 P0 批；PS-EXIT 五组真人观察待 #5。
+
+**执行结果（2026-08-18 07:2x · 第 57 轮 #3）**：**完成（AUDIO_FEEL AF-P0 批 A-C 全收口 · 61/61 回归 1489 断言全绿）**。本轮方案 = 总指挥第 4 轮拍板（AUDIO_FEEL O-1~3）+ #2 第 56 轮函数级拆解（AF-P0 批 A hitstop / 批 B 震屏 / 批 C 音画同步）：
+
+1. **P0 检查**：PLAYTEST 追踪区增量 #78（05:5x）🔴 无新增机器可验证 P0 / 🟠 无用户拍板调度指令 → 无 P0 需执行；方案头部（总指挥第 4 轮）AUDIO_FEEL 已拍板 + TASKS 第 56 轮拆解完成即解锁 → 本轮执行 AF-P0。
+2. **数据层（A3）**：GameData.xlsx 新增 `stats_feel` sheet（flat_dict 10 键：hitstop 4 + shake 6）→ data_schema.py 注册 `stats_feel`（SHEETS + COLUMN_ZH 10 中文注释）→ excel_export.py stats 构建段 +feel → stats.json 顶层 feel 键（**其余 13 JSON 零 diff**）→ data_loader.gd `get_stats_feel()`（FEEL_DEFAULTS 10 键兜底 + _feel 加载）。
+3. **批 A hitstop（F1）**：新建 `scripts/systems/hitstop_controller.gd`（trigger 取 max + `create_timer(ignore_time_scale=true)` 恢复回调 + 累计超 0.5s 强制恢复 + _exit_tree 归 1.0）；main.gd 挂载 `$HitstopController` + GameManager.hitstop_controller 注入；接线 4 点——projectile（weapon_type 透传 melee 0.15/其余 0.05 + 暴击 +0.1）、melee_sweep（近战挥砍命中 + 暴击合并，**执行登记：arc_angle>0 武器不发弹丸 → 近战真实命中点补接**）、enemy_damage.die（Boss 0.15 重顿帧）。
+4. **批 B 震屏（F2）**：main.gd `_SHAKE_DURATION/_SHAKE_MAGNITUDE` const → 实例变量表化 + `_trigger_camera_shake(level)`（light=0.15/4.0 现值零漂移 / medium=0.2/6.0 / heavy=0.3/9.0）；调用点：projectile（非暴击 light/暴击 medium）、melee_sweep（同档）、enemy_damage.die（普通 medium/Boss heavy）、_on_player_hit 改调 light。
+5. **批 C 音画（F5）**：audio_manager `play_sfx_delayed()`（SFX_MAP 零新增红线 2）；projectile 暴击（非爆炸弹丸）追加 crit 音；**核对登记 2 处**：death 音已有（main._on_enemy_died D24-T3-①）与 skill 音已有（skill_controller:132 D24-T3-⑧）→ 防双播不重复接线。
+6. **验证**：探针 day31_feel_check **26/26 PASS**（§1 hitstop 6 断言含 600 帧深探 + §4 震屏 6 断言白盒直调 + §5 音画 8 断言 + §2 数据驱动 + §3 回归）；**踩坑 2 个**——① `Object.get()` 只收 1 参（weapon.get("weapon_type","") → 改 "weapon_type" in weapon 判断）② **`get_tree()` 返回 SceneTree 无 get_node_or_null（Node 方法）**——melee_sweep/enemy_damage 改直接 `player/_enemy.get_node_or_null`（此坑致回归 56/60，修复后恢复）；F3 合规 `_freezing` 白名单 +1（hitstop 冻结标记必要状态）；day26 §6 解析窗口 6000→12000 字符（PROBES 61 条超长截断 day31_feel）。
+7. **回归**：全量 **61/61 PASS（1489 断言）**（runner +day31_feel 26 → 61 件套；day26 锚点同步 61/1489）+ baseline **BASELINE CLEAN** + `excel_export --check-only` EXIT=0。
+8. **收尾**：TASKS AF-P0 批 A/B/C 全 [x]（A-EXIT/B-EXIT/C-EXIT 均过）；PLAYTEST 新增 AF-P0 主观回归面行（hitstop 节奏/震屏层次/音画同步 → #5）；提交 + push。
+9. **维持登记**：AF-M1（CC0 素材替换 · P1）未动——网络采集需总指挥/Owner 域，不阻塞 P0；AF-P1 预留（F3 命中粒子/数字）待拆；F1-E 剩余 5/7 批（BGM/SFX→FX→SHEET_CONFIG→初始武器→炮台默认）维持总指挥承接；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；PS-EXIT 五组真人观察待 #5。

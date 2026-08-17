@@ -371,6 +371,9 @@ func _spawn_projectile(weapon: Resource, aim_dir: Vector2) -> void:
 		"lifetime": travel_time,
 		"pierce": weapon.pierce,
 		"knockback": kb,
+		# AUDIO_FEEL（AF-P0-A2 · O-2 近重远轻）：武器系透传——projectile 命中点按
+		# weapon_type 分档顿帧（melee 重 0.15 / 其余轻 0.05）；⚠️ Object.get() 只收 1 参
+		"weapon_type": str(weapon.get("weapon_type")) if "weapon_type" in weapon else "",
 		# D10-T3：爆炸 AOE 透传（projectile.initialize 已支持 :155-158）；
 		# explosion_damage 兜底 = base_damage；radius <= 0 时 projectile 不爆炸，零回归
 		"explosion_radius": weapon.explosion_radius,

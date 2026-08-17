@@ -22,6 +22,8 @@ extends Node2D
 
 ## 直接 preload 而非依赖 class_name：无头 `--script` 模式不注册全局类名
 const CharacterSelectScript: GDScript = preload("res://scripts/character_select.gd")
+## AUDIO_FEEL（AF-P0-A1）：hitstop 顿帧控制器（系统级挂载，同 preload 策略）
+const HitstopControllerScript: GDScript = preload("res://scripts/systems/hitstop_controller.gd")
 
 ## 未经角色选择直接运行 Main.tscn（调试路径）时的兜底英雄
 const FALLBACK_CHARACTER_ID: String = "well_rounded"
@@ -31,10 +33,11 @@ const FALLBACK_CHARACTER_ID: String = "well_rounded"
 var current_character_id: String = ""    ## 本局英雄 id
 ## F-04（金手指）：↑+↓ 同按边缘触发检测（上一帧状态防按住连发）
 var _debug_keys_prev: bool = false
-## F-03（用户拍板 2026-08-06）：相机震动状态（took_damage 触发；随时间衰减归位）
+## F-03（用户拍板 2026-08-06）+ AF-P0-B1（2026-08-18）：相机震动状态（分级参数表化——
+## light 命中·玩家受伤 / medium 暴击·普通击杀 / heavy Boss 死亡；light = F-03 现值零漂移）
 var _shake_time: float = 0.0
-const _SHAKE_DURATION: float = 0.15
-const _SHAKE_MAGNITUDE: float = 4.0
+var _shake_duration: float = 0.15
+var _shake_magnitude: float = 4.0
 
 # ========== 生命周期 ==========
 
@@ -48,12 +51,13 @@ func _process(delta: float) -> void:
 	# G-D（2026-08-14）：Esc 暂停菜单（已暂停时跳过——升级/商店/事件弹窗均为暂停式）
 	if Input.is_action_just_pressed("ui_cancel") and not get_tree().paused:
 		_open_pause_menu()
-	# F-03（用户拍板 2026-08-06）：相机震动衰减（每帧随机偏移 × 剩余强度）
+	# F-03（用户拍板 2026-08-06）+ AF-P0-B1：相机震动衰减（每帧随机偏移 × 剩余强度；
+	# 时长/幅度为实例变量 = _trigger_camera_shake 按级别表化赋值）
 	if _shake_time > 0.0:
 		_shake_time -= delta
 		if camera and is_instance_valid(camera):
-			var t: float = maxf(_shake_time / _SHAKE_DURATION, 0.0)
-			camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _SHAKE_MAGNITUDE * t
+			var t: float = maxf(_shake_time / maxf(_shake_duration, 0.001), 0.0)
+			camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _shake_magnitude * t
 			if _shake_time <= 0.0:
 				camera.offset = Vector2.ZERO
 
@@ -81,6 +85,13 @@ func _ready() -> void:
 	GameManager.enemies_container = enemies_container
 	# F2-T0：World 容器服务（弹丸/炮台/召唤物工厂 + 统一容器注册表）
 	GameManager.world = world
+	# AUDIO_FEEL（AF-P0-A1 · F2 边界原则系统级）：挂载 hitstop 顿帧控制器（幂等防重）
+	var hitstop: Node = get_node_or_null("HitstopController")
+	if hitstop == null:
+		hitstop = HitstopControllerScript.new()
+		hitstop.name = "HitstopController"
+		add_child(hitstop)
+	GameManager.hitstop_controller = hitstop
 
 	# PS（2026-08-17 用户拍板 · 大地图）：玩家出生移到竞技场中心 + 相机初始位
 	# （Ground._ready 已完成居中；无 Ground 时保持场景预设位置）
@@ -219,9 +230,26 @@ func _equip_starting_weapon(weapon_id: String) -> void:
 
 # ========== 信号处理 ==========
 
-## F-03（用户拍板 2026-08-06）：玩家受伤 → 触发相机震动（0.15s 随机抖动后归位）
+## F-03（用户拍板 2026-08-06）+ AF-P0-B2：玩家受伤 → 触发相机震动（light 档 = 0.15s/4.0 现值）
 func _on_player_hit(_amount: float) -> void:
-	_shake_time = _SHAKE_DURATION
+	_trigger_camera_shake("light")
+
+## AF-P0-B1（2026-08-18 · SPEC F2 震屏分级）：按级别设置相机震动
+## light=命中·玩家受伤（0.15s/4.0 = F-03 现值零漂移）/ medium=暴击·普通击杀 / heavy=Boss 死亡
+## 参数读 DataLoader.get_stats_feel() 缺键兜底默认（Excel stats_feel 段 → 数据驱动）
+func _trigger_camera_shake(level: String) -> void:
+	var feel: Dictionary = DataLoader.get_stats_feel()
+	match level:
+		"medium":
+			_shake_duration = float(feel.get("shake_medium_duration", 0.2))
+			_shake_magnitude = float(feel.get("shake_medium_magnitude", 6.0))
+		"heavy":
+			_shake_duration = float(feel.get("shake_heavy_duration", 0.3))
+			_shake_magnitude = float(feel.get("shake_heavy_magnitude", 9.0))
+		_:  # light 兜底（含未知级别）
+			_shake_duration = float(feel.get("shake_light_duration", 0.15))
+			_shake_magnitude = float(feel.get("shake_light_magnitude", 4.0))
+	_shake_time = _shake_duration
 
 ## 敌人生成时连接死亡信号
 func _on_enemy_spawned(enemy: Node) -> void:
