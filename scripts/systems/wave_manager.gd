@@ -67,8 +67,15 @@ func start_wave(wave_number: int) -> void:
 
 	var config := load_wave_config(wave_number)
 	time_remaining = config.get("duration", default_wave_duration)
-	# F-46（用户 08-18 拍板）：本关总生成数缓存——HUD 分数制「已击杀/总数」右侧分母
-	_wave_total = int(config.get("total_enemies", 0))
+	# F-47（2026-08-18 用户反馈「打完 32 还出新怪」）：本关总生成数 = composition 合计 ×
+	# swarm 倍率——与 spawner.spawn_wave 同口径（swarm_wave 翻倍），HUD 分母永远 = 实际生成数。
+	# （Excel total_enemies 手填曾未翻倍：wave5 32 vs 实际 60 → 打完表定数还分批出新怪）
+	var _total_calc: int = 0
+	var _special: Variant = config.get("special", null)
+	for entry in config.get("composition", []):
+		var c: int = int(entry.get("count", 0))
+		_total_calc += c * (2 if _special == "swarm_wave" else 1)
+	_wave_total = _total_calc
 
 	wave_started.emit(wave_number)
 

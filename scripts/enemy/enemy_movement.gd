@@ -26,6 +26,9 @@ const LEASH_RADIUS: float = 420.0
 ## 宿主 enemy 实例（enemy._ensure_components 挂载时注入）
 var _enemy: CharacterBody2D = null
 
+## F-47：精英召唤（mom）已产卵批数（max_spawns 上限计数；0 = 无上限旧行为）
+var _spawn_batches: int = 0
+
 func setup(enemy: CharacterBody2D) -> void:
 	_enemy = enemy
 
@@ -244,12 +247,17 @@ func _elite_self_heal(delta: float) -> void:
 	_enemy._ability_timer = float(_enemy.ability.get("interval", 1.0))
 
 ## 产卵（mom）：周期生成 count 只 minion（用自身 wave_number 同波缩放）
+## F-47（2026-08-18 用户反馈「每关怪物固定」）：max_spawns 产卵批数上限——
+## 达上限停止产卵（精英召唤物无限产 → 敌全灭判定永不成立 → 关卡永不结束的同类隐患）
 func _elite_spawn(delta: float) -> void:
 	if _enemy.ability.is_empty():
 		return
 	_enemy._ability_timer -= delta
 	if _enemy._ability_timer > 0.0:
 		return
+	var max_spawns: int = int(_enemy.ability.get("max_spawns", 0))
+	if max_spawns > 0 and _spawn_batches >= max_spawns:
+		return  # F-47：达产卵上限，静默停止（此后每帧 timer 不再递减，零开销）
 	var minion: String = str(_enemy.ability.get("minion", ""))
 	var count: int = maxi(int(_enemy.ability.get("count", 0)), 0)
 	if minion.is_empty() or count <= 0:
@@ -283,4 +291,6 @@ func _elite_spawn(delta: float) -> void:
 			return
 		if GameManager and GameManager.player and minion_node.has_method("set_target"):
 			minion_node.set_target(GameManager.player)
+	# F-47：产卵成功 → 批次计数 +1（达 max_spawns 后停止）
+	_spawn_batches += 1
 	_enemy._ability_timer = float(_enemy.ability.get("interval", 1.0))

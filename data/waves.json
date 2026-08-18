@@ -85,7 +85,7 @@
     {
       "wave": 5,
       "duration": 35,
-      "total_enemies": 32,
+      "total_enemies": 60,
       "composition": [
         {
           "enemy": "fly",
@@ -358,7 +358,7 @@
     {
       "wave": 15,
       "duration": 50,
-      "total_enemies": 60,
+      "total_enemies": 120,
       "composition": [
         {
           "enemy": "mixed",

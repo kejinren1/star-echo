@@ -70,6 +70,9 @@ COLUMN_ZH = {
     "ability.type": "技能.类型", "ability.radius": "技能.半径", "ability.interval": "技能.间隔",
     "ability.damage_mult": "技能.伤害倍率", "ability.threshold": "技能.阈值",
     "ability.heal_percent": "技能.治疗%", "ability.minion": "技能.召唤物", "ability.count": "技能.数量",
+    # F-47（2026-08-18 用户反馈「每关怪物固定」）：精英召唤（mom）最大产卵批数——
+    # 达上限停止产卵，防「召唤物无限产 → 敌全灭判定永不成立 → 关卡永不结束」
+    "ability.max_spawns": "技能.最大产卵批数",
     "speed_growth_per_wave": "速度每波成长", "speed_growth_cap": "速度成长上限",
     "speed_reduction": "速度削减", "elite_hp_mult_per_wave": "精英生命每波倍率",
     "elite_dmg_mult_per_wave": "精英伤害每波倍率",

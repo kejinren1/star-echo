@@ -286,7 +286,8 @@
           "type": "spawn",
           "interval": 5,
           "minion": "chaser",
-          "count": 2
+          "count": 2,
+          "max_spawns": 4
         }
       }
     ],

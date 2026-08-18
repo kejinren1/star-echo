@@ -243,6 +243,28 @@ func _advance(sub: int) -> int:
 			mom.queue_free()
 			spawn_container.queue_free()
 			_gm.set("enemies_container", null)
+			# F-47（2026-08-18 用户拍板「每关怪物固定」）：max_spawns 产卵批数上限——
+			# 达上限停止产卵（防召唤物无限产 → 敌全灭永不成立 → 关卡永不结束）
+			var mom_cap_stats := {
+				"id": "mom", "category": "elite", "max_health": 250.0, "damage": 6.0,
+				"move_speed": 200.0, "behavior": "spawn", "armor": 0, "wave_number": 15,
+				"ability": {"type": "spawn", "minion": "chaser", "count": 2, "interval": 1.0, "max_spawns": 2},
+			}
+			var cap_container := Node2D.new()
+			cap_container.name = "CapContainer"
+			root.add_child(cap_container)
+			_gm.set("enemies_container", cap_container)
+			var mom_cap: Node = _build_enemy(mom_cap_stats)
+			mom_cap.call("_elite_spawn", 1.1)  # 第 1 批（timer 1.0 到点）
+			mom_cap.call("_elite_spawn", 1.1)  # 第 2 批（达上限）
+			mom_cap.call("_elite_spawn", 1.1)  # 第 3 批（超上限 → 停止）
+			_ok(cap_container.get_child_count() == 4, "能力/产卵上限: max_spawns=2 → 共 4 只（实得 %d）" % cap_container.get_child_count())
+			# 数据断言：Excel 导出 mom 含 max_spawns=4
+			var mom_data2: Dictionary = _loader.call("get_enemy", "mom")
+			_ok(int(mom_data2.get("ability", {}).get("max_spawns", 0)) == 4, "数据: Excel 导出 mom ability.max_spawns == 4")
+			mom_cap.queue_free()
+			cap_container.queue_free()
+			_gm.set("enemies_container", null)
 			return 4
 		4:
 			# 无 ability → 零新行为（AOE/自愈/产卵全部立即 return）
