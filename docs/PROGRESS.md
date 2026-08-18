@@ -9,10 +9,10 @@
 
 ## 📌 顶部摘要（滚动 · #1 每轮刷新 · 其他岗位只读本区）
 
-- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **执行者回应 TEST_REPORT #59 观察（presentation 261 同步 + day5 flaky 修复）在途 + F1-E 第三批 BGM/SFX 已拆待落地**｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
-- **阶段完成度**：A 100% ｜ B 100% ｜ C 100% ｜ D 100% ｜ **E ≈90%（3.6/4：Day 27 1.0 + Day 28 1.0 + Day 29 0.6 待真人回归 + Day 30 1.0）**；阶段 F 全闭（**F1-E 2/7 批闭环：SPRITE_MAP ✓ + BEHAVIOR_MAP ✓，第三批 BGM/SFX 已拆解 `dc6a7c1` 未见落地，剩余 FX→SHEET_CONFIG→初始武器→炮台默认**）
-- **基线**：`BASELINE CLEAN`（TEST_REPORT #59 · **61/61 全绿 · 1489 断言** · 0 阻断/0 功能缺陷 · 空轮次 · 首跑 60/61 一次 flaky 未复现）；JSON 16 文件 2723 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
-- **本轮要点**：git 实测 HEAD=`af6b24e`（#2 第 58 轮回执，62 轮后 +2 提交 = 反馈专员 #80 + #2 回执，**零游戏代码**）；⚠️ **工作区 5 项在途（62 轮零在途后回升）** = 3 tools（`_regression_run.py` presentation expect 246→261 同步 + `day5_weapon_check.gd` crit_damage=1.0 flaky 双保险 + `day26` 锚点 1489→1504 配套 = **执行者响应 #59 两条观察，预计下一提交收口**）+ TEST_REPORT.md M（#4 #59 报告）+ `~$T_REQUEST` WPS 临时锁删除（清理）；下段推进线 = **F1-E 第三批 BGM/SFX（`dc6a7c1` 已拆解，仍无落地提交）** + AF-M1 CC0（P1 网络依赖）；🔄 build/ 仍 08-18 00:13/00:14 产物（早于全部最新代码）→ **D30-T3 上传 + build/ 来源核实待 Owner**；👤 真人回归面 = **E-0 终审完整局 + F-01~F-43 全链 + AF-P0 打击感主观面 + PS-EXIT + #73 build/ 复测**（不阻塞机器侧）。
+- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **总指挥第 5 轮三连收口（F1-E 批三 BGM/SFX + AF-M1 CC0 音乐 + F-44 修复+build 补冻）+ 批四 FX 已拆**｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
+- **阶段完成度**：A 100% ｜ B 100% ｜ C 100% ｜ D 100% ｜ **E ≈90%（3.6/4：Day 27 1.0 + Day 28 1.0 + Day 29 0.6 待真人回归 + Day 30 1.0）**；阶段 F 全闭（**F1-E 3/7 批闭环：SPRITE_MAP ✓ + BEHAVIOR_MAP ✓ + BGM/SFX ✓ `3d6ee4f`；批四 FX 已拆解 `afc5ba6` 待落地，剩余 SHEET_CONFIG→初始武器→炮台默认**）
+- **基线**：`BASELINE CLEAN`（TEST_REPORT #60 · **62/62 全绿 · 1534 断言** · 0 阻断/0 功能缺陷 · 空轮次 · #59 flaky 已根治、观察兑现关闭）；JSON 16 文件 2723 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
+- **本轮要点**：git 实测 HEAD=`afc5ba6`（#2 第 60 轮，63 轮后 +7 提交含实质游戏代码——`498a836` 执行者 #59 观察兑现+flaky 根治 / `3d6ee4f` F1-E3 抽表 / `03da9f9` AF-M1 CC0 音乐 / `5fd5bda` F-44+build 补冻）；✅ **build/ 已补冻**（pck 08-18 19:56 含 F1-E3/AF-M1/F-44，归档旧产物）→ **D30-T3 上传待 Owner 确认**；⚠️ 工作区 **6 项 docs 在途**（4 M = 方案师 SOLUTION_PLAN/BOSS_SKILL_SPEC + #2 TASKS + #4 TEST_REPORT #60；2 新规格 = **RELIC_EXPANSION_SPEC / ROGUELIKE_SWEETSPOT_ANALYSIS 待用户拍板**）；下段推进线 = **F1-E 批四 FX（`afc5ba6` 已拆，主窗口承接）** + AF-P1 批（F3/F4/H2~H4 待排）；👤 真人回归面 = **E-0 终审完整局 + F-01~F-44 全链 + AF-P0 主观面（用户已确认震屏 OK）+ PS-EXIT + #73 build/ 复测（补冻后可闭环）**（不阻塞机器侧）。
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3787,5 +3787,28 @@
 - 进行中：**执行者 #59 观察响应收口**（3 tools 在途 → 提交后回归 61/61 1504 断言）；**F1-E 剩余 4/7 批**（BGM/SFX 已拆 `dc6a7c1` 待落地 → FX → SHEET_CONFIG → 初始武器 → 炮台默认，每批 Excel→导出→消费→探针→回归，const 兜底）；**AF-M1 CC0 替换（P1 已拆、网络依赖）**；**D30-T3 上传资产库（外部动作待 Owner 确认）** + build/ 来源核实；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
 - 风险：**工作区 5 项在途**（3 tools 为执行者响应中，预计快速收口；TEST_REPORT.md 为 #4 在途）；冻结 HEAD `70382e5` vs 现 HEAD `af6b24e` 漂移（冻结后 **+55 提交**）→ 是否按现 HEAD 补冻由 Owner 拍板；F1-E 第三批"已拆未开工"跨 2 轮（62→63）观察中；day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别。
 - 下一步：执行者收口 3 tools 在途（#59 观察兑现 → 回归 61/61 1504 断言）；#4 #60 刷新快照（含在途同步后口径）；执行者落地 F1-E 第三批 BGM/SFX（`dc6a7c1` 已函数级拆解）；总指挥推进 AF-M1 CC0 采集（或登记阻塞）；Owner 确认 D30 上传 / build/ 核实 / 冻结 HEAD 补冻；随后真人完整局回归（E-0 最高优先）。
+
+> 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
+
+---
+
+## 2026-08-18 21:1x · Day 30 / 总指挥三连收口（F1-E 批三 + AF-M1 + F-44/build 补冻）+ 批四已拆（第 64 轮）
+
+**本轮结论：总指挥第 5 轮三连收口（F1-E 批三 BGM/SFX 抽表 `3d6ee4f` + AF-M1 CC0 音乐替换 `03da9f9` + F-44 小怪逃离修复与 build 补冻 `5fd5bda`），回归套件实测 62/62（1534 断言）全绿，build/ 已补冻，工作区 6 项 docs 在途（含 2 份方案师新规格待用户拍板），整体进度持平 ≈99.3%，剩余 = F1-E 4/7 批（批四 FX 已拆待落地）+ Owner 上传确认 + 真人验收面。**
+
+- Git 实测 HEAD=`afc5ba6`（`#2 第60轮拆解回执` @08-18 20:0x）；自第 63 轮（`c45f011` @19:1x）起 **+7 提交，今日累计 36 提交，总 256**：
+  - **`498a836` 执行者第 59 轮**——兑现 TEST_REPORT #59 两条观察（runner 元数据 presentation expect 246→261 + day26 锚点 1489→1504）+ **day5 flaky 根治**（melee_sweep 暴击 = player+weapon 双源、星刃 crit 0.08 走全局 RNG 偶发 ×1.8 → crit_damage=1.0 双保险对齐 day31 §4 先例）+ WPS 锁 `~$*` 移出跟踪 + gitignore + 回归 **61/61 · 1504 断言**首跑全绿
+  - **`b26fffa` 反馈专员 #81**——无待处理反馈（增量 #80 后无新 🟠/🔴，F-01~F-43/AF-P0 全 🟢 待真人回归）+ TEST_REPORT #59 核查
+  - **`c8a014b` #2 第 59 轮**——P0 无新增 + Day 30 仍纯 Owner/#4 域无 #2 可拆 + 方案师第 29 轮挂账 docs 一并入库
+  - **`3d6ee4f` F1-E 批三 BGM/SFX 抽表收口（总指挥第 5 轮 · 跨 3 轮挂账解除）**——audio_config sheet 12 行 → presentation.json audio_map → DataLoader.get_audio_config 懒加载 → audio_manager 消费改读（BGM_MAP/SFX_MAP const 保留兜底，红线 2 键契约零破坏）→ 探针 **273/273** + day24_audio 14/14 零改动 + 回归 **61/61 · 1504 断言** + TASKS F1-E 行 3/7 批
+  - **`03da9f9` AF-M1 CC0 音乐替换落地（总指挥第 5 轮续 · 跨 2 轮挂账解除）**——bgm_menu←Illusionist（CC0-1.0）/ bgm_battle←Fury，文件名不变零代码改动 + tools/af_m1_analyze.py（RMS 稳定区截 10s 循环）+ docs/AUDIO_CREDITS.md 来源标注 + day24 14/14 + 回归 61/61
+  - **`5fd5bda` F-44 小怪逃离修复 + build 补冻（总指挥第 5 轮续 2）**——根因双（_move_ranged 太近反向后退 + Enemy.tscn mask 不含墙层穿墙出界）→ 三层修复（ranged 永不后退改横向绕圈 / 边界钳制 1536×864 / 出界即死兜底 rect.grow64）→ day31_flee_bound 18/18 + runner 62 件套 + 回归 **62/62 · 1534 断言** + baseline CLEAN + build/ 旧产物归档 `RoguelikeStudio_20260818_archive.*` + 补冻导出 **RELEASE OK**
+  - **`afc5ba6` #2 第 60 轮（本轮拆解）**——P0 无新增 + **F1-E 批四 FX 函数级拆解（F1-E-4-1~4+EXIT）**：fx_config sheet 10 行 → presentation.json fx_config（size_w/size_h → {x,y}）→ get_fx_config（懒加载 + Vector2i 组装 + const 兜底）→ vfx_player.set_effect 消费改读（**FX_CONFIG const 保留 = day23_vfx_check §1 10 键断言零改动硬门槛**）→ day31_presentation +§6 fx 段 → 回归 62 件套，**标主窗口承接**
+- **磁盘实测**：工作区 **6 项在途（全 docs，零游戏代码）**——4 M（`BOSS_SKILL_SPEC.md` @20:35 / `SOLUTION_PLAN.md` @20:40 = 方案师第 30 轮产出 / `TASKS.md` @20:40 = #2 第 60 轮 / `TEST_REPORT.md` @20:28 = #4 #60 报告未 commit）+ 2 未跟踪（**`RELIC_EXPANSION_SPEC.md` @20:47 遗物扩展规格 + `ROGUELIKE_SWEETSPOT_ANALYSIS.md` @19:53 肉鸽甜点区分析 = 方案师新规格，按 08-12「未拍板禁动工」惯例待用户拍板**）。**build/ 已补冻**：RoguelikeStudio.pck **4.86MB @08-18 19:56**（含 F1-E3/AF-M1/F-44 最新代码）+ exe 132.9MB @08-15（Godot 导出模板复用，内容在 pck）+ 归档 @08-18 00:13/00:14 → **#73 用户 build/ 复测条件已满足**。
+- TEST_REPORT **#60**（08-18 20:25）：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1534 断言首跑全绿**（扩容轮：HEAD=`afc5ba6` +8 提交含实质游戏代码；#59 间歇 flaky 已根治、两条观察兑现关闭）；`BASELINE CLEAN`、JSON 16 文件 2723 字段零缺陷、场景 25/25、600 帧 EXIT 0、stderr 242B 音频良性；观察 = F1-E 批四 FX 已拆解待执行 + MainMenu 待真人确认 + E-0/F-01~F-44 真人回归面。
+- PLAYTEST 追踪区（增量 #81）：无待处理反馈；F-01~F-44 全 🟢 已落地·待真人回归；**AF-P0 主观回归面**（用户 08-18 确认震屏 OK / 打击感现阶段可以）；开放项维持 = **E-0 终审完整局**（最高优先）、F-01~F-44 全链真人回归、F-37 G 系列 UI、F-39 节点选择、PS-EXIT 玩家侧技能五组主观观察、**#73 build/ 复测闭环（补冻后可复测）**、MainMenu 待真人确认。
+- 进行中：**F1-E 剩余 4/7 批**（批四 FX 已拆 `afc5ba6` 待落地 → SHEET_CONFIG → 初始武器 → 炮台默认，每批 Excel→导出→消费→探针→回归，const 兜底）；**AUDIO_FEEL P1 批**（F3 命中粒子 / F4 敌人僵直 / H2~H4 手感待排）；**D30-T3 上传资产库（外部动作待 Owner 确认）** + D30-EXIT 发布摘要（#4 待落盘）；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
+- 风险：**工作区 6 项在途**（4 M 为方案师/#2/#4 在途文档预计下一提交收口；2 新规格 RELIC_EXPANSION / SWEETSPOT 待用户拍板，拍板后入拆解管线）；冻结 HEAD `70382e5` vs 现 HEAD `afc5ba6` 漂移（**+45 提交，rev-list 实测**）→ 是否按现 HEAD 补冻由 Owner 拍板；TEST_REPORT #60 未 commit；day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别。
+- 下一步：#4 提交 #60 报告；总指挥/主窗口推进 F1-E 批四 FX（`afc5ba6` 已函数级拆解，探针 +§6 fx 段 + 回归 62 件套）；方案师 2 份新规格交 Owner 拍板（拍板后 #2 拆解）；Owner 确认 D30 上传 / 冻结 HEAD 补冻；随后真人完整局回归（E-0 最高优先 + #73 build/ 复测）。
 
 > 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
