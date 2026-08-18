@@ -9,10 +9,10 @@
 
 ## 📌 顶部摘要（滚动 · #1 每轮刷新 · 其他岗位只读本区）
 
-- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **用户直派修复链 F-45~F-49 五连全落地 + F1-E 批四 4-1 数据侧收口（4-2~EXIT 待 #3）+ RELIC 拆解/方案已定（Day31+ 待开工）+ LEVEL_DESIGN_SPEC 待 #2 00:05 拆**｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
-- **阶段完成度**：A/B/C/D 100% ｜ **E ≈90%**（Day 27/28/30 各 1.0 + Day 29 0.6 待真人回归）；**F1-E 3/7 批 + 批四 4-1**（SPRITE_MAP ✓ + BEHAVIOR_MAP ✓ + BGM/SFX ✓ `3d6ee4f` → **FX 数据侧 4-1 ✓ `716a9d8`，4-2~EXIT 待 #3**；剩余 SHEET_CONFIG→初始武器→炮台默认）
-- **基线**：`BASELINE CLEAN`（TEST_REPORT #61 · **62/62 全绿 · 1534 断言** · 0 阻断/0 功能缺陷；**#62 未落盘**——F-48 wave5_repro + F-49 portal 两新探针待 #4 纳入 runner）；JSON 16 文件 2723 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
-- **本轮要点**：git 实测 HEAD=`144321a`（反馈专员 #89 @08-18 23:43，总 ≈284 提交）——**F-45 用户二次调档（震屏三档调小 `ebdac5e`）→ F-46 追踪重写/HUD 分数制 `5556cb3` → F-47 第五关卡关 `bb0faaf` → F-48 死角生成 `a58d28f` → F-49 通关传送门+宝箱 `4f1e791`（RELIC-E 地基）五连全落地（各带全量回归 62/62）**；F1-E-4-1 FX 数据侧收口 `716a9d8`；**LEVEL_DESIGN_SPEC 入库 `57ff1d8`（用户 22:57 拍板，待 #2 00:05 拆）**；D-016 build 常设授权已执行（build 08-18 23:22 导出 HEAD=2aeb717 含 F-45~48，**⚠️ 缺 F-49**）+ D-017 审批制落档（33 提交实盘）+ D-018 反馈专员 2h→4h + D-019 复用铁律；✅ 工作区 **0 项在途**；下段推进线 = **#3 续做 F1-E-4-2~EXIT + RELIC 执行序（A 先行）**、#2 00:05 拆 LEVEL_DESIGN_SPEC；👤 真人回归面 = **E-0 终审 + F-01~F-49 全链 + F-45 手感三面 + F-46~49 新四面 + AF-P0 主观面 + PS-EXIT + MainMenu + #73 build/ 复测**（不阻塞机器侧）。
+- **目标开发日**：Day 30+（收尾 & 独立目标日窗口）｜ 实际重心 = **F1-E 批四 FX 全收口（4/7 批）+ LEVEL_DESIGN_SPEC 已拆解 + RELIC（拆解/方案已定 Day31+ 待 #3 开工）**｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
+- **阶段完成度**：A/B/C/D 100% ｜ **E ≈90%**（Day 27/28/30 各 1.0 + Day 29 0.6 待真人回归）；**F1-E 4/7 批**（SPRITE_MAP ✓ + BEHAVIOR_MAP ✓ + BGM/SFX ✓ + **FX 全收口 ✓ `f67630b`+`681ab36`**；剩余 SHEET_CONFIG→初始武器→炮台默认）
+- **基线**：`BASELINE CLEAN`（TEST_REPORT #62 · **62/62 全绿 · 1541 断言** · 0 阻断/0 功能缺陷；**#63 待 #4 落盘**——回归已扩 **63 件套 · 1578 断言**，portal 探针并入 runner #62 观察已兑现）；JSON 16 文件 2784 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
+- **本轮要点**：git 实测 HEAD=`681ab36`（执行者第 63 轮 @08-19 01:0x，总 290 提交）——**F1-E 批四 FX 抽表消费端全收口**：`f67630b` F1-E-4-2~4-4（DataLoader.get_fx_config 懒加载仿 get_audio_config 范式 + vfx_player.set_effect 改读 FX_CONFIG const 兜底 = day23 零改动 + day31_presentation §6 fx 段 13 断言）→ `681ab36` 收口（T-019 收口 + **回归 63/63 · 1578 断言** + portal 并入 runner）；**LEVEL_DESIGN_SPEC 函数级拆解 `9ebbf5f`**（#2 第 62 轮：批 A 数据地基→B 出生点→C 演出→E attr→D 特殊波可选，Day31+ 与 RELIC 同窗口，承接 #3）；✅ 工作区非零在途（**用户会话 AI 美术实装期**：lain 攻击/技能帧 + anchor + ref_sheets + make_* 工具 + 人物动画/ 素材 + **player_anim.gd / sprite_frame_factory.gd 2 脚本 M**——不碰，待会话收口）；下段推进线 = **#3 续做 F1-E 批五 SHEET_CONFIG + RELIC 执行序（A 先行）**、LEVEL_DESIGN 批 A；👤 真人回归面 = **E-0 终审 + F-01~F-49 全链 + F-45 手感三面 + F-46~49 新四面 + AF-P0 主观面 + PS-EXIT + MainMenu + #73 build/ 复测**（不阻塞机器侧）。
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3851,5 +3851,22 @@
 - 进行中：**F1-E 剩余 4/7 批**（批四 4-1 数据侧 ✓ `716a9d8` → **4-2~4-4+EXIT 待 #3**（用户 08-18 23:1x 拍板解除「#3 勿自行开工」→ 直接按拆解执行，每批 Excel→导出→消费→探针→回归，const 兜底）→ SHEET_CONFIG → 初始武器 → 炮台默认）；**RELIC_EXPANSION（Day31+ 独立目标日 · 拆解 `f19447c` + 方案已定（SOLUTION_PLAN 第 31 轮），执行序 A→0→F/E→B/C/D→EXIT，承接方 = #3，待开工）**；**LEVEL_DESIGN_SPEC 待 #2 00:05 拆**（D-014 已拍板）；**AUDIO_FEEL P1 批**（F3 命中粒子 / F4 敌人僵直 / H2~H4 待排）；**D30-T3 上传资产库（外部动作待 Owner 确认）** + D30-EXIT 发布摘要（#4 域）。
 - 风险：**build/ 缺 F-49**（新功能未打包，下次导出纳入即可）；**TEST_REPORT #62 未落盘**（#4 在途/待跑，含 F-46~49 新探针快照）；冻结 HEAD 补冻（D-016 后 build 已按 HEAD=2aeb717 导出，是否冻结最新 HEAD 由 Owner 拍板）；D30-T3 上传仍未确认；RELIC/LEVEL_DESIGN 均为新拍板调度指令（RELIC 拆解+方案已齐待 #3 开工；LEVEL_DESIGN 待 #2 本轮拆，拆解即解锁）；真人回归面持续扩大（F-45~49 新增五面，主观项不阻塞机器侧）；`docs/art_ai/.ssh_tmp/` 入库前甄别（老账维持）。
 - 下一步：#2 00:05 拆 LEVEL_DESIGN_SPEC（D-014 已拍板）；#3 续做 F1-E-4-2~EXIT + RELIC 执行序开工（A 低成本先行）；#4 落盘 #62（纳入 F-46~49 新探针 + 快照 `144321a`）；总指挥下次打包纳入 F-49；Owner 确认 D30 上传 / 冻结 HEAD 补冻；随后真人完整局回归（E-0 最高优先 + F-01~F-49 全链 + #73 build/ 复测）。
+
+> 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
+
+## 2026-08-19 02:0x · Day 30+ / F1-E 批四 FX 全收口（4/7 批）+ LEVEL_DESIGN 已拆解 + 工作区用户会话在途（第 67 轮）
+
+**本轮结论：F1-E 批四 FX 抽表消费端全收口（`f67630b` F1-E-4-2~4-4 + `681ab36` 执行者第 63 轮收口，回归 63/63 · 1578 断言，portal 探针并入 runner 兑现 TEST_REPORT #62 观察）；LEVEL_DESIGN_SPEC 已由 #2 函数级拆解（`9ebbf5f`，Day31+ 与 RELIC 同窗口）；整体进度持平 ≈99.3%（29.8/30），F1-E 4/7 批闭环（剩 SHEET_CONFIG→初始武器→炮台默认）。⚠️ 工作区出现用户会话在途（莱恩 lain 攻击/技能帧 + AI 美术工具 + 人物动画/ 素材 + 2 个游戏脚本 M），本岗不碰待会话收口。build/ 维持 08-18 23:22 产物（缺 F-49 + F1-E-4，D-016 下次导出自动替换）。** 
+
+- Git 实测 HEAD=`681ab36`（执行者第 63 轮 @08-19 01:0x）；自第 66 轮（`e49eb5b` @00:0x）起 **+3 提交，总 290**：
+  - **`9ebbf5f` #2 第 62 轮：LEVEL_DESIGN_SPEC 函数级拆解**（用户 08-18 22:57 拍板 · 总指挥第 6 轮明示交 #2 00:05）——固定出生点 `spawn_points` 表 + `boss_phase_events` 演出表 + 正向属性状态 attr；拆批序 = **批 A 数据地基 → B 出生点 → C 演出 → E attr → D 特殊波（可选，挂 TECH_DEBT）**；独立目标日 **Day31+ 与 RELIC 同窗口**，承接方 #3；同轮刷新 F1-E 批四 4-1 [x] + F-49 落地确认 + D-016 build 自动替换确认（HEAD=2aeb717 不含 F-49）
+  - **`f67630b` F1-E-4-2~4-4 FX 抽表消费端收口（#3 执行）**——DataLoader `get_fx_config` 懒加载 + Vector2i 组装（仿 get_audio_config 范式）+ vfx_player.set_effect 改读（**FX_CONFIG const 兜底 = day23 零改动**）+ day31_presentation §6 fx 段 13 断言（10 键零漂移 / E2E 双跑 / 空表兜底 / 未知键保留）→ 286/286
+  - **`681ab36` 执行者第 63 轮收口**——F1-E 批四 FX 全收口 + T-019 收口 + **回归 63/63 · 1578 断言**（portal 探针并入 runner = TEST_REPORT #62 观察兑现）+ 方案师第 32 轮 LEVEL_DESIGN 方案挂账一并入库 → **F1-E 4/7 批闭环**
+- **磁盘实测（⚠️ 工作区非零在途 = 用户会话 AI 美术实装期）**：M `docs/art_ai/perfect_pixel_noCV2.py` + M `scripts/player/player_anim.gd` + M `scripts/utils/sprite_frame_factory.gd` + ?? `assets/sprites/characters/lain_attack_1~4.png` + `lain_attack_anchor.json` + `lain_skill_1~4.png` + `lain_skill_anchor.json`（**莱恩攻击/技能帧 4+4**）+ ?? `docs/art_ai/ref_sheets/`（bosses_final_ref.png + heroes_final_ref.png）+ ?? tools `make_action_frames.py`/`make_char_ref_sheet.py`/`make_final_ref_sheet.py`/`probe_day19_anchor_frames.gd` + ?? `人物动画/`（4帧版.png + 切帧/完美像素/锚点实验目录）——**与 08-08「用户主动提供的真实动画素材照常实装」例外一致，属用户会话在途，零游戏提交由会话负责，本岗不碰**。scenes 25 / scripts 70 .gd / data 15 JSON / 音频 12 WAV（bgm 2 + sfx 10，上轮计数口径修正）。build/ 维持 08-18 23:22（exe 132.9MB / pck 4.86MB，含 F-45~48 + F1-E-4-1，**缺 F-49 + F1-E-4-2~4-4**）。
+- TEST_REPORT **#62**（08-19 00:00）：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1541 断言首跑全绿（75s）**（F-49 验证轮 · HEAD=`144321a`）；JSON 2784 字段零缺陷（+61：F-47 waves/mom + fx_config 10 键）；观察 = day31_portal_check(24) 未入 runner → **已由 `681ab36` 兑现（63 件套 1578 断言），#63 待 #4 落盘**。
+- PLAYTEST 追踪区（增量 #89 @23:4x，无新增量）：开放项维持 = **E-0 终审完整局**（最高优先）+ **F-16~F-49 真人回归** + F-45 手感三面 + F-46 追踪/计数四面 + F-47 通关/上限三面 + F-48 视野双保险四面 + F-49 传送门/宝箱五面 + AF-P0 主观面 + PS-EXIT + MainMenu + **#73 build/ 复测（F-49 打包后可闭环）**。
+- 进行中：**F1-E 剩余 3/7 批**（批五 SHEET_CONFIG → 初始武器 → 炮台默认，每批 Excel→导出→消费→探针→回归，const 兜底）；**RELIC_EXPANSION（Day31+ 独立目标日 · 拆解 `f19447c` + 方案已定，执行序 A→0→F/E→B/C/D→EXIT，承接方 = #3，待开工）**；**LEVEL_DESIGN_SPEC（已拆 `9ebbf5f`，批 A→B→C→E→D 可选，承接 #3 与 RELIC 同窗口）**；**AUDIO_FEEL P1 批**（F3 命中粒子 / F4 敌人僵直 / H2~H4 待排）；**D30-T3 上传资产库（外部动作待 Owner 确认）** + D30-EXIT 发布摘要（#4 域）。
+- 风险：**build/ 缺 F-49 + F1-E-4**（下次导出自动纳入，D-016 已授权）；**TEST_REPORT #63 未落盘**（#4 待跑，63 件套 1578 断言口径）；**工作区用户会话在途 14+ 项含 2 游戏脚本 M**（待会话自行收口，若回滚需同步探针锚点——仿 08-15 前例）；冻结 HEAD 补冻由 Owner 拍板；D30-T3 上传未确认；RELIC/LEVEL_DESIGN 双规格待 #3 开工；真人回归面持续扩大（主观项不阻塞机器侧）；`docs/art_ai/.ssh_tmp/` 入库前甄别（老账维持）。
+- 下一步：#3 续做 F1-E 批五 SHEET_CONFIG（批四已收口）+ RELIC 执行序 A 先行 / LEVEL_DESIGN 批 A（双规格 Day31+ 窗口，拆解+方案齐备可直接执行）；#4 落盘 #63（63 件套 1578 断言 + 快照 `681ab36`）；总指挥下次打包纳入 F-49 + F1-E-4；Owner 确认 D30 上传 / 冻结 HEAD 补冻；随后真人完整局回归（E-0 最高优先 + F-01~F-49 全链 + #73 build/ 复测）。
 
 > 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
