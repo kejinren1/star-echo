@@ -133,3 +133,64 @@ func _run() -> void:
 		_check(int(loader.call("get_enemy_behavior", "chase")) == int(EnemyEnums.Behavior.CHASE), "消费 chase 行为错误")
 		_check(int(loader.call("get_enemy_behavior", "aoe_attack")) == int(EnemyEnums.Behavior.AOE_ATTACK), "消费 aoe_attack 行为错误")
 		_check(int(loader.call("get_enemy_behavior", "unknown_behavior")) == int(EnemyEnums.Behavior.CHASE), "未知行为未兜底 CHASE")
+
+	# ⑤ audio_map（F1-E-3 第三批 2026-08-18 总指挥：BGM/SFX 路径抽表，原 audio_manager.gd
+	# BGM_MAP/SFX_MAP 数据化 → presentation.json audio_map；category bgm(2)/sfx(10)；
+	# path 与 const 现值逐一一致（抽表零漂移）；消费端 DataLoader.get_audio_config +
+	# audio_manager._resolve_audio_path（命中优先/空表回退 const/未知键 push_warning 保留））
+	var am_map: Dictionary = {}
+	if raw is Dictionary and (raw as Dictionary).get("audio_map") is Dictionary:
+		am_map = (raw as Dictionary)["audio_map"]
+	var audio_node: Node = root.get_node_or_null("AudioManager")
+	var const_bgm2: Dictionary = {}
+	var const_sfx: Dictionary = {}
+	if audio_node != null:
+		const_bgm2 = audio_node.get("BGM_MAP")
+		const_sfx = audio_node.get("SFX_MAP")
+	_check(audio_node != null, "AudioManager Autoload 缺失（path 零漂移对比不可用）")
+	_check(am_map.size() == 12, "audio_map 条数 %d != 12" % am_map.size())
+	var bgm_keys: Array = ["menu", "battle"]
+	var sfx_keys: Array = ["hit", "crit", "death", "levelup", "coin",
+		"shop", "skill", "heal", "event", "boss"]
+	var bgm_cat_ok: bool = true
+	for k in bgm_keys:
+		if not (am_map.has(k) and str(am_map[k].get("category", "")) == "bgm"):
+			bgm_cat_ok = false
+	_check(bgm_cat_ok, "audio_map 缺 bgm 键或类别错: menu/battle")
+	var sfx_cat_ok: bool = true
+	for k in sfx_keys:
+		if not (am_map.has(k) and str(am_map[k].get("category", "")) == "sfx"):
+			sfx_cat_ok = false
+	_check(sfx_cat_ok, "audio_map 缺 sfx 键或类别错（10 键）")
+	if audio_node != null:
+		var drift_bgm := []
+		for k in bgm_keys:
+			if str(am_map.get(k, {}).get("path", "")) != str(const_bgm2.get(k, "")):
+				drift_bgm.append("bgm/%s" % k)
+		_check(drift_bgm.is_empty(), "audio_map bgm path 与 const 漂移: %s" % str(drift_bgm))
+		var drift_sfx := []
+		for k in sfx_keys:
+			if str(am_map.get(k, {}).get("path", "")) != str(const_sfx.get(k, "")):
+				drift_sfx.append("sfx/%s" % k)
+		_check(drift_sfx.is_empty(), "audio_map sfx path 与 const 漂移: %s" % str(drift_sfx))
+	# 消费接口：get_audio_config 白盒 12 键
+	if loader != null:
+		var am_cfg: Dictionary = loader.call("get_audio_config")
+		_check(am_cfg.size() == 12, "get_audio_config 键数 %d != 12" % am_cfg.size())
+		_check(str(am_cfg.get("hit", {}).get("path", "")) == "res://assets/audio/sfx/hit.wav", "get_audio_config hit path 错误")
+		# 兜底语义：_audio_map 仅含 1 键（模拟数据表缺 menu）→ 未命中回退 const；
+		# 命中键优先走 audio_map（两分支各一断言）
+		var am_partial: Dictionary = {"hit": {"category": "sfx", "path": "res://assets/audio/sfx/hit.wav"}}
+		loader.set("_audio_map", am_partial)
+		if audio_node != null:
+			var fb: String = audio_node.call("_resolve_audio_path", "menu", const_bgm2)
+			_check(fb == "res://assets/audio/bgm/bgm_menu.wav", "数据缺键兜底回退 const 失败: %s" % fb)
+			var fb_ok: String = audio_node.call("_resolve_audio_path", "hit", const_sfx)
+			_check(fb_ok == "res://assets/audio/sfx/hit.wav", "数据命中应优先 audio_map: %s" % fb_ok)
+		loader.set("_audio_map", am_cfg)  # 还原缓存防污染
+		# 未知键 push_warning 保留（play_sfx 未知名返回 false）
+		if audio_node != null:
+			_check(not bool(audio_node.call("play_sfx", "no_such_sfx")), "未知 SFX 应返回 false（push_warning 保留）")
+			# 两源均缺失 → 空串（_ensure_stream load("") 失败 push_warning 零崩兜底路径）
+			var fb_miss: String = audio_node.call("_resolve_audio_path", "no_such_key", {})
+			_check(fb_miss == "", "两源均缺失应返回空串: %s" % fb_miss)

@@ -107,6 +107,22 @@ func _play_bgm_if_needed(track: String) -> void:
 	play_bgm(track)
 
 
+## F1-E-3（2026-08-18 总指挥 · 表现抽表第三批）：解析音频资源路径——DataLoader
+## get_audio_config()（presentation.json audio_map）命中优先，未命中/空表 → fallback
+## const（BGM_MAP/SFX_MAP 保留为兜底，F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 返回 res:// 路径字符串；两源均缺失 → 空串（_ensure_stream load("") 失败 push_warning 零崩）。
+func _resolve_audio_path(key: String, fallback: Dictionary) -> String:
+	var loader: Node = get_node_or_null("/root/DataLoader")
+	if loader != null and loader.has_method("get_audio_config"):
+		var am: Dictionary = loader.get_audio_config()
+		var entry: Variant = am.get(key, null)
+		if entry is Dictionary:
+			var p: Variant = (entry as Dictionary).get("path", null)
+			if p is String and (p as String) != "":
+				return p
+	return fallback.get(key, "")
+
+
 ## 播放 BGM（同轨不重播；未知轨 push_warning 零崩溃）
 func play_bgm(track: String) -> void:
 	if not BGM_MAP.has(track):
@@ -114,7 +130,7 @@ func play_bgm(track: String) -> void:
 		return
 	if _current_bgm == track and _bgm_player.playing:
 		return
-	var stream: AudioStream = _ensure_stream(_bgm_streams, BGM_MAP[track], track)
+	var stream: AudioStream = _ensure_stream(_bgm_streams, _resolve_audio_path(track, BGM_MAP), track)
 	if stream == null:
 		return
 	_bgm_player.stream = stream
@@ -138,7 +154,7 @@ func play_sfx(sfx_name: String) -> bool:
 	if not SFX_MAP.has(sfx_name):
 		push_warning("[AudioManager] 未知 SFX: %s" % sfx_name)
 		return false
-	var stream: AudioStream = _ensure_stream(_sfx_streams, SFX_MAP[sfx_name], sfx_name)
+	var stream: AudioStream = _ensure_stream(_sfx_streams, _resolve_audio_path(sfx_name, SFX_MAP), sfx_name)
 	if stream == null:
 		return false
 	var p: AudioStreamPlayer = _sfx_pool[_sfx_idx]

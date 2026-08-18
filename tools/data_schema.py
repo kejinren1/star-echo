@@ -141,6 +141,8 @@ COLUMN_ZH = {
     # ---- enemy_scaling 扩展（F1-散 T-009 冲锋参数） ----
     "charge_speed_mult": "冲锋倍率", "charge_windup": "蓄力间隔(秒)",
     "charge_duration": "冲锋持续(秒)",
+    # ---- audio_config（F1-E-3 2026-08-18 总指挥 · BGM/SFX 路径抽表） ----
+    "category": "类别(bgm/sfx)", "path": "资源路径",
     # ---- elements / element_reactions / reaction_rules ----
     "effect": "效果", "dot": "持续伤害", "dot_scaling": "持续伤害成长",
     "slow_percent": "减速%", "stun": "眩晕",
@@ -229,6 +231,15 @@ SHEETS = {
     # behavior 列存枚举名（大写字符串），消费端 EnemyEnums.Behavior.get(name) 解析，非法名兜底 CHASE
     "enemy_behavior": {
         "sheet": "enemy_behavior", "file": "presentation.json", "root": "behavior_map",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": [], "child": None,
+    },
+    # F1-E（2026-08-18 总指挥第三批）：BGM/SFX 路径抽表——原 audio_manager.gd BGM_MAP/SFX_MAP
+    # 12 条数据化（id 主键 dict 形，导出 data/presentation.json audio_map），消费端 DataLoader
+    # get_audio_config 优先读 JSON、未命中/空表回退 const BGM_MAP/SFX_MAP（F 系列缺省兜底约定）；
+    # category 列 = bgm(2)/sfx(10)，path 列 = res:// 资源路径（与 const 现值逐一一致零漂移）
+    "audio_config": {
+        "sheet": "audio_config", "file": "presentation.json", "root": "audio_map",
         "key": "id", "category": None, "kind": "dict",
         "json_cols": [], "child": None,
     },

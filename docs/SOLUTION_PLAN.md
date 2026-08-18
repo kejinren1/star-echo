@@ -1,3 +1,20 @@
+# 方案计划（2026-08-18 19:3x · 总指挥第 5 轮 · F1-E 第三批 BGM/SFX 抽表闭环）
+
+## 📌 总指挥拍板决策段（2026-08-18 19:3x · 第 5 轮）
+
+> **总指挥拍板：F1-E 第三批 BGM/SFX 抽表不再等承接方——总指挥直接动工，本轮全链闭环（F1-E-3-1~4 + EXIT）。**
+> 理由一行：该批自 #2 第 57 轮拆解（`dc6a7c1`）起跨 4 轮零开工、方案师连续 3 轮挂账观察「承接方持续未开工」，拆解/方案/锚点三方已核实一致、const 兜底零回归，属用户未表态事项（08-17 授权内自主拍板先干）。
+
+**本轮已执行（总指挥第 5 轮 · 19:3x）：**
+- **F1-E-3-1 ✅**：`docs/GameData.xlsx` 新增 `audio_config` sheet（12 行 × id/category/path 双行表头）+ `data_schema.py` 注册（presentation.json / audio_map / dict / id）+ `excel_export.py` presentation 段追加 audio_map 构建 → 导出 audio_map 12 键（2 bgm + 10 sfx）零漂移、其余 13 JSON 零 diff。
+- **F1-E-3-2 ✅**：`data_loader.gd` 新增 `get_audio_config()`（懒加载 + _audio_map 空表重试标记，仿 get_enemy_sprite_config/get_enemy_behavior 范式；缺表 → 空字典零崩）。
+- **F1-E-3-3 ✅**：`audio_manager.gd` 新增 `_resolve_audio_path(key, fallback)`（audio_map 命中优先 / 未命中·空表回退 const）；`play_bgm`/`play_sfx` 改走（BGM_MAP/SFX_MAP const 保留兜底，AUDIO_FEEL 红线 2 键契约零破坏）；`play_sfx_delayed` 复用 play_sfx 自动继承；未知键 push_warning 不变。
+- **F1-E-3-4 ✅**：`day31_presentation_check.gd` +§3 audio 段 12 断言 → **273/273 PASS**（261+12）；day24_audio_check **14/14 零改动**（硬门槛）；端到端双跑（改 Excel → 导出 → 变化 → 恢复零残留）PASS。
+- **F1-E-3-EXIT ✅**：全量回归 **61/61（1504 断言）** + baseline **BASELINE CLEAN**；TASKS F1-E-3 全 [x] + F1-E 行 3/7 批；TECH_DEBT_ISSUES T-016/017/018 转已收口。
+- **遗留**：F1-E 剩余批次 = FX → SHEET_CONFIG → 初始武器 → 炮台默认（总指挥/主窗口按批推进）；D30-T3/EXIT 待 Owner（外部动作）。
+
+---
+
 # 方案计划（2026-08-18 19:2x · 方案师第 29 轮 · 无新任务需方案 · 状态与第 28 轮一致，F1-E 批三仍待开工观察·跨 3 轮）
 
 ## 📌 本轮判定（方案师第 29 轮）

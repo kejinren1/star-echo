@@ -130,3 +130,28 @@
 4. 两探针并入 runner（58→60 件套）；全量回归后台跑（k595ma，预计 ~1.5-2h）。
 5. 探针驱动范式修正：extends SceneTree 探针必须 `_process` 首帧驱动（Autoload 挂载后 root 可见）+ 显式 `quit()`——_init 直跑会拿不到 DataLoader 且进程挂起（工作记忆「--script 探针三坑」再踩，已内化）。
 6. **待回归结果**：60/60 全绿后提交（Day31-xxx 摘要）+ push；若有 FAIL → 回退对应改动。
+
+---
+
+## 2026-08-18 19:3x · 第 5 轮
+
+### 决策 D-010：F1-E 第三批 BGM/SFX 抽表 = 总指挥直接动工（跨 4 轮挂账，不再等承接方）
+
+- **内容**：F1-E-3（BGM/SFX 路径抽表，拆解 `dc6a7c1` 自 #2 第 57 轮起已跨 4 轮零开工，方案师第 27~29 轮连续挂账观察「承接方持续未开工」）——按 08-17 授权由总指挥直接落地，不再等主窗口。
+- **理由一行**：阶段 F 唯一 [~] 行内最后一个数据化批次，拆解/方案/锚点三方核实一致可立即执行；每步保留 const 兜底零回归，风险低。
+- **动作与结果**：全链闭环见下方执行链。
+
+### 本轮执行链（F1-E-3 全五子任务 + EXIT）
+
+1. **F1-E-3-1 数据侧 ✅**：`docs/GameData.xlsx` 新增 `audio_config` sheet（12 行 × id/category/path，双行表头，值逐一抄自 audio_manager.gd BGM_MAP/SFX_MAP）；`tools/data_schema.py` 注册 `audio_config`（file=presentation.json / root=audio_map / kind=dict / key=id，仿 enemy_behavior）+ COLUMN_ZH（category/path）；`tools/excel_export.py` presentation 构建段追加 audio_map 解析（id 主键 → {category, path}）；导出 `data/presentation.json` +audio_map 12 键（2 bgm + 10 sfx），**其余 13 JSON 零 diff**。
+2. **F1-E-3-2 DataLoader 接口 ✅**：`data_loader.gd` 新增 `get_audio_config() -> Dictionary`（懒加载 audio_map + `_audio_map` 空表重试标记——F3 §4 禁新增 bool）；缺表/损坏 → 空字典（消费端 const 兜底零崩）。
+3. **F1-E-3-3 消费改读 ✅**：`audio_manager.gd` 新增私有 `_resolve_audio_path(key, fallback)`（get_audio_config 命中 audio_map[key].path → 用之；未命中/空表 → fallback const）；`play_bgm`/`play_sfx` 路径解析改走（**BGM_MAP/SFX_MAP const 保留为兜底**）；`play_sfx_delayed` 复用 play_sfx 自动继承；未知键 push_warning 行为不变。
+4. **F1-E-3-4 探针 ✅**：`day31_presentation_check.gd` +§3 audio 段 **12 断言**（12 键齐 / category 2 bgm+10 sfx / path 与 const 逐一一致零漂移 / get_audio_config 白盒 / 数据缺键回退 const / 命中优先 / 未知 SFX false + 两源均缺失空串）→ **273/273 PASS**；端到端双跑（改 Excel hit path → 导出 → audio_map 变化 → 改回 → 恢复零残留）PASS；day24_audio_check **14/14 零改动**（硬门槛）。
+5. **EXIT 收口 ✅**：全量回归 **61/61（1504 断言）** + baseline **BASELINE CLEAN**；TASKS F1-E-3-1~4+EXIT 全 [x] + F1-E 行 3/7 批；TECH_DEBT_ISSUES T-016/017/018 转已收口（三批全闭环，前两批台账滞后一并修正）；SOLUTION_PLAN 决策段本段。
+6. **调度健康 ✅**：automation_update list = 7/7 岗位全部 ACTIVE，无 PAUSED 无异常。
+7. 收尾：git commit（Day31-F1-E3-BGM/SFX 抽表收口）+ push。
+
+### 遗留（维持）
+
+- F1-E 剩余批次：**FX → SHEET_CONFIG → 初始武器 → 炮台默认**（总指挥/主窗口按批推进）。
+- 待 Owner：D30-T3 上传 + build/ 替换 + D30-EXIT（外部动作）；E-0/PS-EXIT/AF-P0 真人回归（主观项）；AF-M1 CC0 采集（网络依赖）。

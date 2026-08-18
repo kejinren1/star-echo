@@ -31,6 +31,8 @@ var _enemy_sprites: Dictionary = {}     ## F1-E：敌人精灵表现（presentat
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _behavior_map: Dictionary = {}      ## F1-E：行为字符串→枚举名映射（presentation.json behavior_map，懒加载；
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记）
+var _audio_map: Dictionary = {}         ## F1-E-3：BGM/SFX 路径抽表（presentation.json audio_map，懒加载；
+                                        ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _enemy_scaling: Dictionary = {}     ## 敌人成长公式参数
 var _weapons: Dictionary = {}           ## 武器数据 { id → data } (含 category 标记)
 var _items: Dictionary = {}             ## 道具数据 { id → data }
@@ -628,6 +630,20 @@ func get_enemy_behavior(behav_str: String) -> int:
 		if ename is String:
 			return int(EnemyEnums.Behavior.get(ename, EnemyEnums.Behavior.CHASE))
 	return int(EnemyEnums.BEHAVIOR_MAP.get(behav_str, EnemyEnums.Behavior.CHASE))
+
+# ========== 音频路径接口（F1-E-3 第三批 · 2026-08-18 总指挥承接） ==========
+
+## 获取音频路径抽表（presentation.json audio_map 优先——原 audio_manager.gd const
+## BGM_MAP/SFX_MAP 数据化；未命中/空表由消费端 audio_manager 回退 const 兜底，
+## F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 返回 {音频id: {"category": "bgm|sfx", "path": "res://..."}} 整表字典；
+## 数据表缺失或损坏 → 空字典（消费端 const 兜底，零崩）。
+func get_audio_config() -> Dictionary:
+	if _audio_map.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/presentation.json"))
+		if raw is Dictionary and (raw as Dictionary).get("audio_map") is Dictionary:
+			_audio_map = (raw as Dictionary)["audio_map"]
+	return _audio_map
 
 # ========== 技能树接口（G-E · 2026-08-14） ==========
 

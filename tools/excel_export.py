@@ -420,7 +420,18 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
             continue
         rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
         bm_map[sid] = rec
-    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map}
+
+    # audio_map（F1-E-3 第三批 2026-08-18 总指挥 · BGM/SFX 路径抽表 dict 形
+    # {audio_map: {音频id: {"category": "bgm|sfx", "path": "res://..."}}}；消费端
+    # DataLoader.get_audio_config 命中优先，未命中/空表 → audio_manager const 兜底）
+    am_map: dict = {}
+    for r in tables.get("audio_config", []):
+        sid = str(r.get("id", ""))
+        if not sid:
+            continue
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
+        am_map[sid] = rec
+    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map}
     return files
 
 

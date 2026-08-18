@@ -467,5 +467,55 @@
     "self_heal": {
       "behavior": "SELF_HEAL"
     }
+  },
+  "audio_map": {
+    "menu": {
+      "category": "bgm",
+      "path": "res://assets/audio/bgm/bgm_menu.wav"
+    },
+    "battle": {
+      "category": "bgm",
+      "path": "res://assets/audio/bgm/bgm_battle.wav"
+    },
+    "hit": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/hit.wav"
+    },
+    "crit": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/crit.wav"
+    },
+    "death": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/death.wav"
+    },
+    "levelup": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/levelup.wav"
+    },
+    "coin": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/coin.wav"
+    },
+    "shop": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/shop.wav"
+    },
+    "skill": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/skill.wav"
+    },
+    "heal": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/heal.wav"
+    },
+    "event": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/event.wav"
+    },
+    "boss": {
+      "category": "sfx",
+      "path": "res://assets/audio/sfx/boss.wav"
+    }
   }
 }
