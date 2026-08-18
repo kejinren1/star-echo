@@ -23,7 +23,8 @@ PROBES = [
     ("day13_build_check", ["--script", "res://tools/day13_build_check.gd"], 36),
     ("day14_15_route_check", ["--script", "res://tools/day14_15_route_check.gd"], 54),
     ("day16_event_check", ["--script", "res://tools/day16_event_check.gd"], 42),
-    ("day17_elite_check", ["--script", "res://tools/day17_elite_check.gd"], 39),
+    # F-47 同步（2026-08-18 执行者第 62 轮）：mom max_spawns 上限行为+数据 +2 断言 → 39→41
+    ("day17_elite_check", ["--script", "res://tools/day17_elite_check.gd"], 41),
     ("day17_p0_check", ["--script", "res://tools/day17_p0_check.gd"], 20),
     # F-46 同步（2026-08-18 执行者第 62 轮）：§4 分数制 +3 断言 → 16→17
     ("day18_feedback_check", ["--script", "res://tools/day18_feedback_check.gd"], 17),

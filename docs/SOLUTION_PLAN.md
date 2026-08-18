@@ -339,15 +339,15 @@
 >
 > **三方一致核实（通过）**：方案师第 31 轮（22:4x）**RELIC 方案正式定稿**（实测复核锚点：stats.json .stats.offensive[2]/.stats.economy[3] + desc_builder.gd:32-33 + items relic 2 件 + data_loader:437 范式 + save_system 缺省容错）→ 承接方 = 总指挥/主窗口按执行序推进（**独立目标日 Day 31+，不插入 D30 收尾窗口**）；F1-E 批四 FX **跨 2 轮挂账观察维持**（git 实测 HEAD=`144b2bb` 最近 12 提交无 fx_config/get_fx_config/vfx_player 改读）；D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域（F-45/F-46 未进 build 交 Owner/总指挥核实）；TEST_REPORT #61（22:00）= **62/62 · 1534 断言首跑全绿 · 0 action item**（快照 HEAD=`980aa7d`，其后 F-45×3/F-46/#2/#1/反馈专员提交未覆盖，属 #4 下轮 #62 快照域）。
 >
-> **锚点漂移识别（本轮实质产出）**：F-46（`5556cb3`，5 文件未含 `_regression_run.py`/`day26_integration_check.gd`）使两探针断言数变化但 runner 元数据与 day26 锚点未同步——day31_flee_bound_check 实际 **22**（runner expect=18）/ day18_feedback_check 实际 **17**（runner expect=16）→ 62 项合计实际 1539 vs day26 锚点 1534（软判掩盖、口径失真，第 55/57/59 轮「探针断言数变化必须同步 runner + day26」纪律触发）。
+> **锚点漂移识别（本轮实质产出）**：F-46（`5556cb3`，5 文件未含 `_regression_run.py`/`day26_integration_check.gd`）使两探针断言数变化但 runner 元数据与 day26 锚点未同步——day31_flee_bound_check 实际 **22**（runner expect=18）/ day18_feedback_check 实际 **17**（runner expect=16）→ 62 项合计实际 1539 vs day26 锚点 1534（软判掩盖、口径失真，第 55/57/59 轮「探针断言数变化必须同步 runner + day26」纪律触发）；**轮次中并发 F-47（`bb0faaf` · 22:40 总指挥）再 +2**（day17_elite 39→41，mom max_spawns 上限行为+数据）→ 最终口径 **1541**。
 
 **执行结果：[完成]（纯工具侧锚点同步 · 零游戏代码/零数据改动）**
 
-1. **runner 元数据同步**：`tools/_regression_run.py` day18_feedback_check expect **16→17**（F-46 §4 分数制）+ day31_flee_bound_check expect **18→22**（F-46 §5 Aggro Leash），附注释。
-2. **day26 锚点连锁同步**：`day26_integration_check.gd` 期望断言合计 **1534→1539**（1534 + flee §5 4 + day18 §4 1，62 项不变），注释链同步（历史第 55/57/59 轮先例）。
-3. **验证**：检查点 `36ba86f`（2 文件 +9/-5）→ day26 探针单独 **34/34 CLEAN**（62 项/1539 锚点 PASS）→ **全量回归 62/62 PASS（EXIT=0）**。
+1. **runner 元数据同步**：`tools/_regression_run.py` day18_feedback_check expect **16→17**（F-46 §4 分数制）+ day31_flee_bound_check expect **18→22**（F-46 §5 Aggro Leash）+ day17_elite_check expect **39→41**（F-47 mom max_spawns 上限），附注释。
+2. **day26 锚点连锁同步**：`day26_integration_check.gd` 期望断言合计 **1534→1541**（1534 + flee §5 4 + day18 §4 1 + day17_elite 2，62 项不变），注释链同步（历史第 55/57/59 轮先例）。
+3. **验证**：检查点 `36ba86f`（runner+day26 首轮 2 文件）→ day26 探针 **34/34 CLEAN**（62 项/1541 锚点 PASS）→ **全量回归 62/62 PASS（EXIT=0）** 双轮全绿。
 4. **git 护栏**：`excel_export --check-only` EXIT=0（时间戳刷新 manifest/DATA_OVERVIEW/GameData.xlsx 随挂账惯例入库）。
-5. **挂账入库（随收口 commit）**：方案师第 31 轮挂账（SOLUTION_PLAN 顶部新段 + TASKS RELIC「方案已定」标注 + F1-E-4 第 31 轮观察）+ #4 在途 TEST_REPORT §7.61（完整报告非半截）。
-6. **维持登记**：F1-E 批四 FX 挂账（跨 2 轮，承接方 = 总指挥/主窗口按 F1-E-4 拆解推进勿再等）；RELIC 方案已定（承接方 = 总指挥/主窗口，首拆 RELIC-A 属性改名独立低成本批，A 项 O-1 已拍板：元素伤害→魔法伤害/工程学→机械学，id 零改动）；D30-T3 上传 + D30-EXIT = Owner/#4 域（F-45/F-46 未进 build）；PS-EXIT/E-0/AF-P0/F-45/F-46 主观回归交 #5。
+5. **挂账入库（commit `2039fa7` 6 文件）**：方案师第 31 轮挂账（SOLUTION_PLAN 顶部新段 + TASKS RELIC「方案已定」标注 + F1-E-4 第 31 轮观察）+ #4 在途 TEST_REPORT §7.61（完整报告非半截）+ check-only 元数据 3 项。
+6. **维持登记**：F1-E 批四 FX 挂账（跨 2 轮，承接方 = 总指挥/主窗口按 F1-E-4 拆解推进勿再等）；RELIC 方案已定（承接方 = 总指挥/主窗口，首拆 RELIC-A 属性改名独立低成本批，A 项 O-1 已拍板：元素伤害→魔法伤害/工程学→机械学，id 零改动）；D30-T3 上传 + D30-EXIT = Owner/#4 域（F-45/F-46/F-47 未进 build）；PS-EXIT/E-0/AF-P0/F-45/F-46/F-47 主观回归交 #5。
 
-**下轮观察点**：① 总指挥/主窗口是否开工 F1-E 批四 FX（git log 出现 fx_config sheet / get_fx_config / vfx_player set_effect 改读 / day31_presentation +§6 fx 段）② 总指挥/主窗口是否开工 RELIC-A（git log 出现 stats sheet 改名「魔法伤害/机械学」/ day31_relic_* 探针）③ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口（含 F-45/F-46 是否进 build）④ #4 #62 快照刷新后 runner/day26 锚点是否漂移（62/1539 新口径）⑤ F-46 主观回归面（Leash 锁链手感 / Orbit 环绕观感 / 分数制 UI）交 #5。
+**下轮观察点**：① 总指挥/主窗口是否开工 F1-E 批四 FX（git log 出现 fx_config sheet / get_fx_config / vfx_player set_effect 改读 / day31_presentation +§6 fx 段）② 总指挥/主窗口是否开工 RELIC-A（git log 出现 stats sheet 改名「魔法伤害/机械学」/ day31_relic_* 探针）③ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口（含 F-45/F-46/F-47 是否进 build）④ #4 #62 快照刷新后 runner/day26 锚点是否漂移（62/1541 新口径）⑤ F-46/F-47 主观回归面交 #5。
