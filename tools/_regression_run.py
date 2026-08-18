@@ -25,7 +25,8 @@ PROBES = [
     ("day16_event_check", ["--script", "res://tools/day16_event_check.gd"], 42),
     ("day17_elite_check", ["--script", "res://tools/day17_elite_check.gd"], 39),
     ("day17_p0_check", ["--script", "res://tools/day17_p0_check.gd"], 20),
-    ("day18_feedback_check", ["--script", "res://tools/day18_feedback_check.gd"], 16),
+    # F-46 同步（2026-08-18 执行者第 62 轮）：§4 分数制 +3 断言 → 16→17
+    ("day18_feedback_check", ["--script", "res://tools/day18_feedback_check.gd"], 17),
     ("day18_feedback2_check", ["--script", "res://tools/day18_feedback2_check.gd"], 42),
     ("day18_feedback3_check", ["--script", "res://tools/day18_feedback3_check.gd"], 27),
     ("day18_feedback4_check", ["--script", "res://tools/day18_feedback4_check.gd"], 18),
@@ -86,7 +87,8 @@ PROBES = [
     ("day31_feel_check", ["--script", "res://tools/day31_feel_check.gd"], 26),
     # F-44（2026-08-18 总指挥 · 用户拍板）：小怪不逃离主角 + 不出地图边界 + 出界即死
     #   （ranged velocity 方向语义 + 边界钳制 + grow64 出界 die + 常规不误杀，物理无关白盒）
-    ("day31_flee_bound_check", ["--script", "res://tools/day31_flee_bound_check.gd"], 18),
+    # F-46 同步（2026-08-18 执行者第 62 轮）：+§5 Aggro Leash 4 断言 → 18→22
+    ("day31_flee_bound_check", ["--script", "res://tools/day31_flee_bound_check.gd"], 22),
 ]
 
 
