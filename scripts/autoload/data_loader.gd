@@ -84,14 +84,17 @@ const SKILLS_DEFAULTS: Dictionary = {
 	"fireball_pierce": 3,            # T-012 火球穿透（F-07）
 	"fireball_radius": 90.0,         # T-012 火球爆炸半径兜底
 }
-## AUDIO_FEEL（2026-08-18 AF-P0 批 A/B · O-2 拍板「近重远轻」）：打击感参数兜底
+## AUDIO_FEEL（2026-08-18 AF-P0 批 A/B · 08-18 F-45 用户拍板「顿帧能多小多小」）：打击感参数兜底
 ## （缺段时 get_stats_feel 返回的默认值 = 方案拍板值，防 Excel 未导出行为漂移；
 ##  批 A 先 4 键 hitstop，批 B 扩展 6 键 shake——键齐后 Excel 与 const 双向一致）
+## F-45（2026-08-18 用户反馈）：顿帧大幅调小——0.02~0.03s ≈ 1~2 帧，低频攻击（1-2 次/秒）
+## 单次顿帧占比 2-3% 肉眼不可感知；1s 5 次+ 高频攻击时连续顿帧占比 10-15% 才见节奏顿挫；
+## Boss 击杀 0.06s 保留相对重感（击杀为低频事件不频发）
 const FEEL_DEFAULTS: Dictionary = {
-	"hitstop_melee": 0.15,           # AF-P0-A1 近战顿帧（重，O-2 拍板）
-	"hitstop_ranged": 0.05,          # AF-P0-A1 远程顿帧（轻，O-2 拍板）
-	"hitstop_crit_bonus": 0.1,       # AF-P0-A1 暴击追加顿帧
-	"hitstop_boss_kill": 0.15,       # AF-P0-A1 Boss 击杀顿帧
+	"hitstop_melee": 0.03,           # F-45 近战顿帧（0.15→0.03，1 秒 5 击+才可见）
+	"hitstop_ranged": 0.02,          # F-45 远程顿帧（0.05→0.02）
+	"hitstop_crit_bonus": 0.02,      # F-45 暴击追加顿帧（0.1→0.02，不再显著加长）
+	"hitstop_boss_kill": 0.06,       # F-45 Boss 击杀顿帧（0.15→0.06，保留相对重感）
 	"shake_light_duration": 0.15,    # AF-P0-B1 震屏轻档时长（= F-03 现值零漂移）
 	"shake_light_magnitude": 4.0,    # AF-P0-B1 震屏轻档幅度（= F-03 现值零漂移）
 	"shake_medium_duration": 0.2,    # AF-P0-B1 震屏中档时长（暴击/普通击杀）

@@ -90,19 +90,17 @@ func _do_slash() -> void:
 		any_crit = any_crit or is_crit
 		var final_dmg: float = dmg * (crit_mult if is_crit else 1.0)
 		enemy.call("take_damage", final_dmg, is_crit)
-	# AUDIO_FEEL（AF-P0-A2/B2 · O-2 近战重 + F2 分级）：近战挥砍命中 → hitstop + 震屏
+	# AUDIO_FEEL（AF-P0-A2 · O-2 近战重 + F-45 调小）：近战挥砍命中 → hitstop 顿帧
 	# （扇内至少命中 1 敌；暴击追加取 max 合并）；控制器/场景缺失 = 零顿帧零回归
+	# F-45（2026-08-18 用户拍板）：近战普攻命中不再震屏（震屏仅击杀/技能命中——
+	# 击杀走 enemy_damage.die medium/heavy，技能弹丸走 projectile se_skill 判定）
 	var hs: Node = GameManager.hitstop_controller if GameManager else null
 	if hs != null and is_instance_valid(hs):
 		var feel: Dictionary = DataLoader.get_stats_feel()
-		var dur: float = float(feel.get("hitstop_melee", 0.15))
+		var dur: float = float(feel.get("hitstop_melee", 0.03))
 		if any_crit:
-			dur = maxf(dur, float(feel.get("hitstop_crit_bonus", 0.1)))
+			dur = maxf(dur, float(feel.get("hitstop_crit_bonus", 0.02)))
 		hs.call("trigger", dur)
-	# ⚠️ get_node_or_null 是 Node 方法（get_tree() 返回 SceneTree 无此方法——踩坑登记）
-	var main_node: Node = player.get_node_or_null("/root/Main") if player else null
-	if main_node != null and main_node.has_method("_trigger_camera_shake"):
-		main_node.call("_trigger_camera_shake", "medium" if any_crit else "light")
 
 ## 伤害计算：base × 玩家伤害倍率 × 近战加成 × 金手指（对齐 weapon_controller._spawn_projectile）
 func _compute_damage() -> float:

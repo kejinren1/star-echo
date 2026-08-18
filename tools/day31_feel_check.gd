@@ -90,18 +90,19 @@ func _load_mocks() -> void:
 # ========== §1 hitstop（AF-P0-A1/A2） ==========
 
 ## 立即断言部分：trigger 后 time_scale==0 + 多触发取 max
+## F-45（2026-08-18 用户拍板）：顿帧调小至 0.02~0.03s（Excel stats_feel 段），断言同步
 func _part_hitstop_immediate() -> void:
 	var feel: Dictionary = _loader.call("get_stats_feel")
 	# a. 触发 → 冻结
-	_hs.call("trigger", float(feel.get("hitstop_melee", 0.15)))
-	if Engine.time_scale == 0.0 and bool(_hs.call("is_freezing")) and absf(float(_hs.call("get_time_left")) - 0.15) <= 0.001:
-		_pass("hitstop / trigger(0.15) → time_scale==0 + 冻结标记 + 剩余 0.15")
+	_hs.call("trigger", float(feel.get("hitstop_melee", 0.03)))
+	if Engine.time_scale == 0.0 and bool(_hs.call("is_freezing")) and absf(float(_hs.call("get_time_left")) - 0.03) <= 0.001:
+		_pass("hitstop / trigger(0.03) → time_scale==0 + 冻结标记 + 剩余 0.03")
 	else:
 		_fail("hitstop: trigger 后未冻结 time_scale=%.2f" % Engine.time_scale)
 	# b. 多触发取 max：更小值不覆盖、更大值覆盖
-	_hs.call("trigger", 0.05)
-	if absf(float(_hs.call("get_time_left")) - 0.15) <= 0.001:
-		_pass("hitstop / 多触发取 max：trigger(0.05) 不覆盖 0.15")
+	_hs.call("trigger", 0.02)
+	if absf(float(_hs.call("get_time_left")) - 0.03) <= 0.001:
+		_pass("hitstop / 多触发取 max：trigger(0.02) 不覆盖 0.03")
 	else:
 		_fail("hitstop: 较小 trigger 错误覆盖 time_left=%.2f" % float(_hs.call("get_time_left")))
 	_hs.call("trigger", 0.3)
@@ -211,25 +212,25 @@ func _part_shake() -> void:
 # ========== §2 数据驱动（AF-P0-A3） ==========
 
 func _part_data_driven() -> void:
-	# a. 当前 JSON（Excel 导出）值与方案拍板一致
+	# a. 当前 JSON（Excel 导出）值与方案拍板一致（F-45 调小：0.03/0.02/0.02/0.06）
 	var feel: Dictionary = _loader.call("get_stats_feel")
 	var exp: Dictionary = {
-		"hitstop_melee": 0.15, "hitstop_ranged": 0.05,
-		"hitstop_crit_bonus": 0.1, "hitstop_boss_kill": 0.15,
+		"hitstop_melee": 0.03, "hitstop_ranged": 0.02,
+		"hitstop_crit_bonus": 0.02, "hitstop_boss_kill": 0.06,
 	}
 	var ok: bool = true
 	for k in exp:
 		if absf(float(feel.get(k, -1.0)) - float(exp[k])) > 0.001:
 			ok = false
 	if ok:
-		_pass("数据 / get_stats_feel 4 hitstop 键 == Excel 导出值（0.15/0.05/0.1/0.15）")
+		_pass("数据 / get_stats_feel 4 hitstop 键 == Excel 导出值（0.03/0.02/0.02/0.06）")
 	else:
 		_fail("数据: feel 段与拍板值不一致 %s" % str(feel))
 	# b. 缺段兜底：白盒清段 → 返回默认值（FEEL_DEFAULTS）
 	_loader.set("_feel", {})
 	var d: Dictionary = _loader.call("get_stats_feel")
-	if absf(float(d.get("hitstop_melee", -1.0)) - 0.15) <= 0.001 and absf(float(d.get("shake_medium_duration", -1.0)) - 0.2) <= 0.001:
-		_pass("数据 / 缺段兜底：清空 _feel → 返回默认（hitstop 0.15 / shake 0.2）")
+	if absf(float(d.get("hitstop_melee", -1.0)) - 0.03) <= 0.001 and absf(float(d.get("shake_medium_duration", -1.0)) - 0.2) <= 0.001:
+		_pass("数据 / 缺段兜底：清空 _feel → 返回默认（hitstop 0.03 / shake 0.2）")
 	else:
 		_fail("数据: 缺段兜底失败 %s" % str(d))
 	# c. 注入覆盖：白盒注入 → 返回值变化（数据层消费链路）

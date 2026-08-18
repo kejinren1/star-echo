@@ -86,6 +86,8 @@ func _on_body_entered(body: Node) -> void:
 		body.take_damage(final_damage, _is_crit_hit())
 		_apply_life_steal(final_damage)
 		# AUDIO_FEEL（AF-P0-A2/B2 · O-2 近重远轻 + F2 分级）：命中 → hitstop 顿帧 + 相机震屏
+		# F-45（2026-08-18 用户拍板）：震屏仅技能命中保留（_shake_on_hit 内部 se_skill 判定）；
+		# 普攻命中零震屏；顿帧全命中保留（数据已调小至 0.02~0.03s 高频才可见）
 		_hitstop_on_hit()
 		_shake_on_hit()
 		# AF-P0-C2（SPEC F5 音画同步）：暴击命中 → crit 音（非爆炸弹丸补缺——
@@ -127,9 +129,15 @@ func _hitstop_on_hit() -> void:
 		dur = maxf(dur, float(feel.get("hitstop_crit_bonus", 0.1)))
 	hs.call("trigger", dur)
 
-## AF-P0-B2（2026-08-18 · SPEC F2 震屏分级）：命中 → 相机震动（非暴击 light / 暴击 medium）
+## F-45（2026-08-18 用户拍板）：震屏仅「技能击中」保留——普攻命中不再震屏
+## （击杀震屏在 enemy_damage.die：medium/heavy；玩家受伤 light 在 main._on_player_hit）
+## 技能弹丸判定：source_id 前缀 se_skill（skill_controller 打 meta；普攻武器弹丸 = weapon_id
+## 不匹配 → 零震屏；进化陨石 se_star_fall 属普攻体系同样不震）；暴击沿用 medium 档
 ## main._trigger_camera_shake 经 /root/Main 调用（探针无 Main 场景 → 静默跳过零回归）
 func _shake_on_hit() -> void:
+	var src: String = str(get_meta(&"source_id", ""))
+	if not src.begins_with("se_skill"):
+		return  # 普攻命中不震（F-45）
 	var main: Node = get_node_or_null("/root/Main")
 	if main == null or not main.has_method("_trigger_camera_shake"):
 		return

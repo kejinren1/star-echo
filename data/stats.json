@@ -284,10 +284,10 @@
     "fireball_radius": 90
   },
   "feel": {
-    "hitstop_melee": 0.15,
-    "hitstop_ranged": 0.05,
-    "hitstop_crit_bonus": 0.1,
-    "hitstop_boss_kill": 0.15,
+    "hitstop_melee": 0.03,
+    "hitstop_ranged": 0.02,
+    "hitstop_crit_bonus": 0.02,
+    "hitstop_boss_kill": 0.06,
     "shake_light_duration": 0.15,
     "shake_light_magnitude": 4,
     "shake_medium_duration": 0.2,

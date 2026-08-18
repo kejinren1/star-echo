@@ -28,14 +28,26 @@ const FX_CONFIG: Dictionary = {
 	"shield":       {"path": "res://assets/sprites/effects/fx_shield.png",        "frames": 6, "size": Vector2i(64, 64),   "fps": 10.0},
 }
 
+## F-45（2026-08-18 用户拍板）：特效手感覆盖——不动 FX_CONFIG 键结构
+## （day23_vfx_check 10 键硬门槛），仅对指定特效叠加视觉手感：
+##   scale  整体缩放（调小）
+##   alpha  初始透明度（半透明）
+##   fade   动画播完后的渐隐时长（秒；>0 = 渐变消失，不再突然消失）
+const FX_FEEL_OVERRIDE: Dictionary = {
+	"hit": {"scale": 0.6, "alpha": 0.55, "fade": 0.25},
+}
+
+## 渐隐时长（秒；0 = 播完直接销毁，原行为）
+var _fade_time: float = 0.0
+
 # ========== 生命周期 ==========
 
 func _ready() -> void:
 	_anim = get_node_or_null("AnimatedSprite2D")
 	if _anim and autoplay and _anim.sprite_frames:
 		_anim.play("default")
-		if not _anim.animation_finished.is_connected(queue_free):
-			_anim.animation_finished.connect(queue_free)
+		if not _anim.animation_finished.is_connected(_on_anim_finished):
+			_anim.animation_finished.connect(_on_anim_finished)
 
 # ========== 接口 ==========
 
@@ -58,8 +70,23 @@ func set_effect(fx_name: String) -> void:
 	)
 	_anim.sprite_frames = sf
 	_anim.play("default")
-	if not _anim.animation_finished.is_connected(queue_free):
-		_anim.animation_finished.connect(queue_free)
+	# F-45（2026-08-18 用户拍板）：特效手感覆盖——调小/半透明/渐隐（hit 普攻命中特效）
+	var feel: Dictionary = FX_FEEL_OVERRIDE.get(fx_name, {})
+	if not feel.is_empty():
+		scale = Vector2.ONE * float(feel.get("scale", 1.0))
+		modulate = Color(1.0, 1.0, 1.0, float(feel.get("alpha", 1.0)))
+	_fade_time = float(feel.get("fade", 0.0))
+	if not _anim.animation_finished.is_connected(_on_anim_finished):
+		_anim.animation_finished.connect(_on_anim_finished)
+
+## 动画播完：fade>0 → 渐隐后销毁（渐变消失，不突然消失，F-45）；否则直接销毁（原行为）
+func _on_anim_finished() -> void:
+	if _fade_time > 0.0:
+		var tween := create_tween()
+		tween.tween_property(self, "modulate:a", 0.0, _fade_time)
+		tween.chain().tween_callback(queue_free)
+	else:
+		queue_free()
 
 ## 在指定位置播放特效（静态便捷方法）
 static func spawn(parent: Node, pos: Vector2, fx_name: String) -> Node:
