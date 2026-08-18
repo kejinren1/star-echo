@@ -241,12 +241,17 @@ func _update_boss_bar() -> void:
 			_boss_immunity_label.visible = false
 
 func _refresh_enemy_count() -> void:
-	# F2-T2：存活敌数查询接口收口（GM.get_alive_enemy_count 优先 wave_manager 方法，
-	# is_alive 语义与原容器遍历判定一致）；接口缺失兜底 0
-	if GameManager == null or not GameManager.has_method("get_alive_enemy_count"):
-		enemy_count_label.text = "剩余 0"
-		return
-	enemy_count_label.text = "剩余 %d" % GameManager.get_alive_enemy_count()
+	# F-46（用户 2026-08-18 拍板）：怪物计数改分数制「已击杀 / 本关总生成」——
+	# 左侧 = wave_manager.kill_count（每击杀 +1），右侧 = 本关生成总数（Excel wave 表固定值）；
+	# 替换原「剩余 N」存活数显示（生成批次/mom 召唤物不再造成读数跳变误解）
+	var kill: int = 0
+	var total: int = 0
+	if GameManager != null and GameManager.wave_manager != null:
+		var wm: Node = GameManager.wave_manager
+		kill = int(wm.call("get_kill_count")) if wm.has_method("get_kill_count") else int(wm.get("kill_count"))
+		total = int(wm.call("get_wave_total")) if wm.has_method("get_wave_total") else 0
+	# mom 等召唤物击杀可能使 kill > total（总数不含召唤物）→ clamp 显示满格防「负数/超格」
+	enemy_count_label.text = "%d / %d" % [mini(kill, total), total]
 
 func _on_timer_tick(time: float) -> void:
 	timer_label.text = "%d" % ceil(time)

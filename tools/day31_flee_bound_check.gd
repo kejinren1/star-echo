@@ -5,6 +5,8 @@ extends SceneTree
 ## §2 边界钳制：界外钳回界内、界内零位移、grow 内夹回界边、不误杀
 ## §3 出界即死：rect.grow(64) 外 → die（is_alive false + health 归零）；四边全验；grow 内不误杀
 ## §4 常规不误杀：界内 chase/贴边/ranged 均存活
+## §5 Aggro Leash（F-46 · 2026-08-18 用户拍板）：超战斗半径(420px)强制直追——
+##   ranged 超距也直追不绕圈；界内 ranged 保持收敛环绕；chase 超距直追
 ## 环境：--script 物理不步进（move_and_slide 无效果，实测验证）→ 全部白盒测逻辑层；
 ##       无 Ground → 注入 _arena_rect 缓存（探针自包含）
 ## 驱动范式：_process 首帧执行（Autoload 挂载后 root 可见）+ 显式 quit（--script 探针三坑规避）
@@ -32,6 +34,7 @@ func _process(_delta: float) -> bool:
 	_s2_bound_clamp()
 	_s3_out_of_bounds_die()
 	_s4_no_false_kill()
+	_s5_leash()
 	print("\n=== %d assertions, %d failures ===" % [_checked, _failures])
 	quit(_failures)
 	return true
@@ -126,6 +129,38 @@ func _s3_out_of_bounds_die() -> void:
 	e2.call("_check_out_of_bounds_die")
 	_check(bool(e2.get("is_alive")), "§3 grow 内不误杀")
 	e1.queue_free()
+	e2.queue_free()
+	t.queue_free()
+
+# ========== §5 Aggro Leash（F-46 · 2026-08-18 用户拍板） ==========
+
+## 所有行为统一：与玩家距离 > LEASH_RADIUS(420) → 强制直追（velocity ≈ 指向玩家）。
+## 根治「怪漂出屏幕找不到 → 普通关永不判通死锁」（竞技场 1536×864 比屏幕大 2.4 倍，
+## 场内远端不可见不可打——F-44 只兜了出界，F-46 补战斗锁链）。
+func _s5_leash() -> void:
+	var t := _mk_target(Vector2(900, 400))  # 玩家在远端
+	# a. ranged 超距（dist=600 > 420）→ 强制直追不绕圈
+	var e := _spawn_enemy(int(EnemyEnums.Behavior.RANGED), Vector2(300, 400), t)
+	var mv: Node = e.get("_movement")
+	e.global_position = Vector2(300, 400)
+	mv.call("_update_behavior", FRAME)
+	var dir_to_target: Vector2 = Vector2(300, 400).direction_to(t.global_position)
+	var toward: float = e.velocity.normalized().dot(dir_to_target)
+	_check(toward > 0.9, "§5 超距 ranged 强制直追（toward=%.2f）" % toward)
+	# b. 界内 ranged（dist=100 < 420）→ 正常行为分派 = 收敛环绕（非直追）
+	e.global_position = Vector2(800, 400)
+	mv.call("_update_behavior", FRAME)
+	var toward2: float = e.velocity.normalized().dot(Vector2(800, 400).direction_to(t.global_position))
+	_check(toward2 < 0.9 and toward2 > 0.1, "§5 界内 ranged 收敛环绕（toward=%.2f，非直追非逃离）" % toward2)
+	_check(bool(e.get("is_alive")), "§5 leash 不误杀")
+	# c. chase 超距同样直追
+	var e2 := _spawn_enemy(int(EnemyEnums.Behavior.CHASE), Vector2(300, 400), t)
+	var mv2: Node = e2.get("_movement")
+	e2.global_position = Vector2(300, 400)
+	mv2.call("_update_behavior", FRAME)
+	var toward3: float = e2.velocity.normalized().dot(Vector2(300, 400).direction_to(t.global_position))
+	_check(toward3 > 0.9, "§5 超距 chase 直追（toward=%.2f）" % toward3)
+	e.queue_free()
 	e2.queue_free()
 	t.queue_free()
 

@@ -4,11 +4,24 @@
 ##      + 精英能力（_elite_aoe/_elite_self_heal/_elite_spawn）
 ## 范式：无 class_name preload 范式（探针 --script 不注册全局类名，StatusComponent 先例）；
 ##      setup(enemy) 注入宿主引用，组件内全部经 _enemy 访问——行为零改动迁移
+## F-46（2026-08-18 用户反馈「怪物越跑越远找不到→无法通关」）：追踪逻辑参考成熟方案
+## （Godot 社区标准做法：Seek + Aggro Leash + Circle-Strafing with inward bias）：
+##   · Aggro Leash 战斗锁链：所有行为统一——与玩家距离 > LEASH_RADIUS 强制直追（_move_chase），
+##     无视 ranged/zigzag 等绕圈行为，保证怪永远在玩家可战视野内。根治「怪漂出屏幕 →
+##     找不到 → 普通关永不判通死锁」（F-44 只兜竞技场边界，但竞技场 1536×864 比屏幕
+##     640×360 大 2.4 倍，场内远端仍不可见不可打）
+##   · Orbit 收敛环绕（ranged）：切向绕圈 ×0.7 + 指向玩家 ×0.3 归一化——保持距离同时
+##     趋势收敛，不再纯切向漂移（原实现被边界 clamp 后贴边滑动 = 观感「厌倦玩家越跑越远」）
+##   · Seek 直追保留（chase/charge 等）；行为状态机保留（behavior 枚举 = 成熟 FSM 范式）
 extends Node
 
 ## 宿主脚本引用（取 Behavior 枚举/BEHAVIOR_MAP 常量——纯枚举文件零 Autoload 引用，
 ## 探针 --script 编译期可解析；不可 preload enemy.gd 本体，其引用 Autoload 标识符）
 const EnemyEnums: GDScript = preload("res://scripts/enemy/enemy_enums.gd")
+
+## F-46：Aggro Leash 战斗锁链半径（px）——与玩家距离超过此值 → 无视行为强制直追。
+## 420px ≈ 屏幕半宽(320)+余量，保证怪永不出玩家视野可战范围（成熟方案：aggro leash）
+const LEASH_RADIUS: float = 420.0
 
 ## 宿主 enemy 实例（enemy._ensure_components 挂载时注入）
 var _enemy: CharacterBody2D = null
@@ -36,8 +49,14 @@ func tick(delta: float) -> void:
 # ========== 行为系统 ==========
 
 ## 根据行为模式更新移动（原 enemy._update_behavior）
+## F-46：行为分派前先过 Aggro Leash——超战斗半径强制直追（含 Boss 移动段，Boss 追击
+## 玩家属直追语义零回归；防击退/绕圈漂移把怪推出玩家可战视野 → 找不到 → 无法通关）
 func _update_behavior(delta: float) -> void:
 	if not _enemy.is_target_valid():
+		return
+	# F-46 Aggro Leash：距离 > LEASH_RADIUS → 无视行为直追玩家（成熟方案：战斗锁链）
+	if _enemy.global_position.distance_to(_enemy.target.global_position) > LEASH_RADIUS:
+		_move_chase(delta)
 		return
 	# Day 18-19 · T1/T2：Boss 阶段模式（优先于行为枚举；普通/精英零影响——双条件守卫）
 	# BS-C2（2026-08-13）：新 pattern 循环优先接管技能释放；旧 attacks 指令保留为降级
@@ -116,9 +135,12 @@ func _move_zigzag(delta: float) -> void:
 	_enemy.velocity = (direction + perp * 0.6).normalized() * _enemy.move_speed
 	_enemy.move_and_slide()
 
-## 远程：保持距离（F-44 2026-08-18 用户拍板：常规绝不逃离主角——
+## 远程：保持距离（F-44 + F-46 2026-08-18 用户拍板：常规绝不逃离主角——
 ## 原「dist<200 反向逃跑」会被玩家追击一路推出地图外 → 怪在屏幕外 wave 永远清不完无法通关；
-## 改为永不后退：太远靠近 / 中近距横向绕圈（距离不增），叠加 tick 末边界钳制防出界）
+## F-44 改永不后退（太远靠近 / 中近距横向绕圈）；F-46 再改 **Orbit 收敛环绕**：
+## 绕圈速度 = 切向×0.7 + 指向玩家×0.3（归一化）——保持距离同时趋势收敛，
+## 不再纯切向漂移（纯切向被边界 clamp 后贴边滑动 = 观感「厌倦玩家越跑越远」）；
+## 叠加 tick 末边界钳制 + _update_behavior 层 Aggro Leash 双保险）
 func _move_ranged(_delta: float) -> void:
 	var dist := _enemy.global_position.distance_to(_enemy.target.global_position)
 	var direction := _enemy.global_position.direction_to(_enemy.target.global_position)
@@ -127,8 +149,8 @@ func _move_ranged(_delta: float) -> void:
 		# 太远，靠近
 		_enemy.velocity = direction * _enemy.move_speed * 0.5
 	else:
-		# 中近距：横向绕圈（不后退不逃离，与玩家距离保持不变）
-		_enemy.velocity = perp * _enemy.move_speed * 0.8
+		# 中近距：Orbit 收敛环绕（切向绕圈 ×0.7 + 指向玩家 ×0.3 归一化）
+		_enemy.velocity = (perp * 0.7 + direction * 0.3).normalized() * _enemy.move_speed * 0.8
 	_enemy.move_and_slide()
 
 ## 治疗：跟随友军并治疗

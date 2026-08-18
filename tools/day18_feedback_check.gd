@@ -9,7 +9,7 @@
 ##      最后一次 _explode 防重复（与 lifetime 到点不双爆）
 ##   §3 F-08 星刃贴身必中：敌人贴身（20px，远离刀刃轨道 110px）→ 任一刃 _process 命中；
 ##      回归锚点：非贴身非轨道敌人不命中
-##   §4 F-06 剩余怪 Label：_refresh_enemy_count 读 enemies_container 存活数 → "剩余 N"
+##   §4 F-06 怪物计数 Label（F-46 改分数制）：_refresh_enemy_count → 「已击杀/本关总数」
 ##   §5 F-11 伤害数字：take_damage(10, true) → vfx 容器 Label「10!」+ health 下降；
 ##      普通伤害 → 普通数字「10」
 ##   §6 F-03 受伤反馈：Main.tscn 含 MainCamera；took_damage → main._on_player_hit → 震动计时置位
@@ -229,29 +229,36 @@ func _advance(sub: int) -> int:
 			e_far.queue_free()
 			orbit.queue_free()
 			return 5
-		# ---------- §4 F-06 剩余怪 Label ----------
+		# ---------- §4 F-06 剩余怪 Label（F-46 改分数制：已击杀/总数） ----------
 		5:
 			var hud_scene: PackedScene = load(HUD_SCENE_PATH)
 			var hud: Node = hud_scene.instantiate()
 			root.add_child(hud)
-			# 清空敌人容器，摆 2 存活
-			for c in _enemy_container.get_children():
-				c.queue_free()
-			var alive1: Node = _spawn_enemy(Vector2(10, 0))
-			var alive2: Node = _spawn_enemy(Vector2(20, 0))
+			# F-46：注入 fake wave_manager（kill_count=1 / total=3）→ 分数制显示「1 / 3」
+			var orig_wm = _gm.get("wave_manager")
+			var fake_wm = load("res://scripts/systems/wave_manager.gd").new()
+			fake_wm.set("kill_count", 1)
+			fake_wm.set("_wave_total", 3)
+			_gm.set("wave_manager", fake_wm)
 			hud.call("_refresh_enemy_count")
 			var label: Label = hud.get_node("MarginContainer/VBoxContainer/TopBar/CenterSection/EnemyCountLabel")
-			_ok(label.text == "剩余 2",
-				"F-06/计数: 2 存活 → 「剩余 2」（实得 %s）" % label.text)
-			# 击杀一个后 → 剩余 1
-			alive1.call("die")
+			_ok(label.text == "1 / 3",
+				"F-06/分数制: 已击杀1/总数3 → 「1 / 3」（实得 %s）" % label.text)
+			# 击杀一个后 → kill=2 → 「2 / 3」
+			fake_wm.set("kill_count", 2)
 			hud.call("_refresh_enemy_count")
-			_ok(label.text == "剩余 1",
-				"F-06/递减: 击杀后 → 「剩余 1」（实得 %s）" % label.text)
-			# 清理
+			_ok(label.text == "2 / 3",
+				"F-06/分数制: 击杀后 → 「2 / 3」（实得 %s）" % label.text)
+			# 召唤物击杀超出 total（kill=5 > 3）→ clamp 显示满格「3 / 3」
+			fake_wm.set("kill_count", 5)
+			hud.call("_refresh_enemy_count")
+			_ok(label.text == "3 / 3",
+				"F-06/分数制: 召唤物超出 kill=5 → clamp 「3 / 3」（实得 %s）" % label.text)
+			# 清理 + 还原 wave_manager
 			for c in _enemy_container.get_children():
 				c.queue_free()
 			hud.queue_free()
+			_gm.set("wave_manager", orig_wm)
 			return 6
 		# ---------- §5 F-11 伤害数字 ----------
 		6:

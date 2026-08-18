@@ -20,6 +20,9 @@ var current_wave: int = 0
 var is_active: bool = false
 var time_remaining: float = 0.0
 var kill_count: int = 0
+## F-46（用户 2026-08-18 拍板）：本关总生成数（Excel wave 表固定值，start_wave 缓存）——
+## HUD 分数制「已击杀/总数」右侧分母；召唤物（mom 产卵）不计入，击杀可能超出 → HUD clamp
+var _wave_total: int = 0
 ## T-008（F1-散 2026-08-13）：max_waves 兜底参数化（主源 = get_max_waves waves 键推导）
 var max_waves: int = 20
 
@@ -64,6 +67,8 @@ func start_wave(wave_number: int) -> void:
 
 	var config := load_wave_config(wave_number)
 	time_remaining = config.get("duration", default_wave_duration)
+	# F-46（用户 08-18 拍板）：本关总生成数缓存——HUD 分数制「已击杀/总数」右侧分母
+	_wave_total = int(config.get("total_enemies", 0))
 
 	wave_started.emit(wave_number)
 
@@ -165,3 +170,11 @@ func _generate_default_wave(wave: int) -> Dictionary:
 ## 记录击杀（供外部调用）
 func register_kill() -> void:
 	kill_count += 1
+
+## F-46：本关总生成数（HUD 分数制分母；未开始波次 → 0）
+func get_wave_total() -> int:
+	return _wave_total
+
+## F-46：当前击杀数（HUD 分数制分子；Boss 召唤物击杀也计入 → HUD clamp）
+func get_kill_count() -> int:
+	return kill_count
