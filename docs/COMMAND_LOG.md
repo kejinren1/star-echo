@@ -200,3 +200,36 @@
 - **探针**：新 `tools/day31_flee_bound_check.gd` **18/18**（velocity 方向语义三距离点 / 钳制夹回 / 四边出界即死 / 常规不误杀 + 贴边存活）。⚠️ 踩坑：--script 模式物理不步进（move_and_slide 无效果，最小实验验证）→ 改测纯逻辑层（velocity 向量 + 白盒调钳制/即死函数），首个版本 §1 是「假通过」已重写。
 - **回归**：runner 61→62 件套（presentation expect 261→273 元数据同步 + flee_bound 18）→ day26 锚点 62 项/**1534 断言**（首跑 1522 算错 FAIL 修正）→ 全量回归 **62/62 PASS** + baseline **BASELINE CLEAN**。
 - **PLAYTEST**：F-44 行登记（机器侧修复 · 待真人回归：远程怪不后退 / 追到边界不越界 / 各关正常通关）。
+
+---
+
+## 2026-08-18 23:3x · 第 6 轮（自动化第 4 轮 · LEVEL_DESIGN_SPEC 拍板入库 + F1-E-4-1 收口交接）
+
+### 决策 D-014：LEVEL_DESIGN_SPEC §8 五细节决策点拍板（用户 22:57 拍板三项核心，细节点未表态）
+
+- **内容**：新规格 `docs/LEVEL_DESIGN_SPEC.md`（用户 08-18 22:57 拍板：①固定出生点 spawn_points 表驱动 ②boss_phase_events 独立演出表 ③正向属性状态 attr 通用型）状态「待 #2 拆解」，§8 五个细节决策点规格未定 → 总指挥 08-17 授权内自主拍板：
+  1. 默认 8 边缘点 inset = **40**（规格推荐值；与 F-48 修复口径 leash 320 / 生成收紧 ±200×±120 一致，点位在竞技场视野内可预判）
+  2. Boss 登场点 = **anchor(0.5, 0.3)**（采纳：中上登场视野内可预判，配合现 Boss 波单 boss 语义）
+  3. dialogue 台词框 = **本期 banner 样式占位**（复用 _show_elite_banner 范式，不新增 UI 资产；独立台词框挂 TECH_DEBT）
+  4. 特殊波参数化 = **本期不纳入挂 TECH_DEBT_PLAN**（规格 §5 自评成本 >0.5 天；F-47 已修 swarm 口径一致，核心诉求①②③已全覆盖）
+  5. attr target_attr 白名单 = **拆解时实测登记制**（damage_multiplier/move_speed/armor 消费点已验证；crit/攻速缺失则挂 TECH_DEBT 不阻塞）
+- **动作**：SOLUTION_PLAN.md 决策段落档 D-014 + LEVEL_DESIGN_SPEC 入库 git（`57ff1d8`）。
+- **结果**：解 #2 下一轮（00:05）拆解阻塞；#2 拆解后 #3 按用户 23:1x 新约定直接执行。
+
+### 决策 D-015：遵用户 08-18 23:1x 指令——「#3 勿自行开工」解除，总指挥回归调度/兜底
+
+- **内容**：用户 23:1x 拍板解除「#3 勿自行开工」历史约定（第 42 轮起 F1-E 标注「🏠 主窗口承接」口径废止）：**拆解+方案齐备任务一律由 #3 执行者直接执行，承接方 = #3；总指挥回归调度/兜底角色（仅挂账超轮时介入），自 08-19 全岗生效**。
+- **交接处理**：本轮 F1-E-4-1（GameData.xlsx fx_config sheet 10 行 + data_schema 注册 + excel_export fx_map 构建 + 导出 10 键、其余 14 JSON 零 diff）已在决策落地前动工完成 → 提交为检查点 `716a9d8`，TASKS 标 [x]；**F1-E-4-2（DataLoader 接口）→ 4-3（vfx_player 消费）→ 4-4（探针）→ EXIT 交接 #3 执行者续做**，总指挥不再直接执行拆解+方案齐备任务。
+- **理由一行**：用户明确表态的指令优先于旧约定（不推翻历史拍板，这是新拍板替代旧执行分工）。
+
+### 本轮执行链
+
+1. **F1-E-4-1 ✅**（检查点）：GameData.xlsx 新增 fx_config sheet（10 行 × id/frames/fps/path/size_w/size_h 双行表头，值逐一抄自 vfx_player.gd FX_CONFIG）+ data_schema.py 注册 fx_config（presentation.json / fx_config / dict / id）+ COLUMN_ZH 补 frames/fps + excel_export.py presentation 段追加 fx_map 构建（size_w/size_h → {"x","y"} 组装）→ 导出 fx_config 10 键零漂移、**其余 14 JSON 零 diff**（md5 实测）。
+2. **LEVEL_DESIGN_SPEC 入库**（`57ff1d8`）：新规格（未跟踪）+ 方案师第 31 轮挂账（TASKS/SOLUTION_PLAN）+ D-014/D-015 决策段 + F1-E-4-1 [x] 标记。
+3. **调度健康 ✅**：automation_update list = 7/7 岗位全部 ACTIVE 无异常。
+
+### 遗留（交接 #3 / 待 Owner）
+
+- **#3 执行者**：F1-E-4-2 → 4-3 → 4-4 → EXIT（DataLoader get_fx_config → vfx_player set_effect 消费改读 → day31_presentation_check +§6 fx 段 ≥13 断言 → 回归 62 件套 1534 断言 + baseline + T-019 收口 + F1-E 行 4/7）；RELIC 全批次（A 先行 → 0 → F/E → B/C/D → EXIT）；LEVEL_DESIGN_SPEC（#2 00:05 拆解后）。
+- **#2 拆解**：LEVEL_DESIGN_SPEC 函数级拆解（00:05，D-014 决策点已拍板不阻塞）。
+- **待 Owner**：D30-T3 上传（外部动作）；E-0/PS-EXIT/AF-P0 真人回归；F-45/F-46/F-48 手感与修复验证（build/ 未含最新三连，需复测或下次打包）。
