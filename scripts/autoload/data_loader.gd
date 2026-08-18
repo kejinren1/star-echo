@@ -35,6 +35,8 @@ var _audio_map: Dictionary = {}         ## F1-E-3：BGM/SFX 路径抽表（prese
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _fx_map: Dictionary = {}            ## F1-E-4：特效帧配置抽表（presentation.json fx_config，懒加载；
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
+var _skill_icon_map: Dictionary = {}    ## F1-E-6：技能图标映射抽表（presentation.json skill_icon_map，懒加载；
+                                        ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _spawn_points: Dictionary = {}      ## LEVEL_DESIGN（LD-A3 2026-08-19）：固定出生点表
                                         ## （spawn_points.json，懒加载；空字典 = 未加载/缺失，
                                         ## is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
@@ -676,6 +678,23 @@ func get_fx_config(fx_name: String) -> Dictionary:
 			out["size"] = Vector2i(int((size as Dictionary).get("x", 0)), int((size as Dictionary).get("y", 0)))
 		return out
 	return {}
+
+# ========== 技能图标映射接口（F1-E-6 第六批 · 2026-08-19 #3 执行） ==========
+
+## 获取技能图标帧索引（presentation.json skill_icon_map 优先——原 hud.gd const
+## SKILL_ICON_MAP 数据化；未命中/空表由消费端 hud 回退 const 兜底，
+## F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 命中 → int(icon_index)（skills.png 帧索引）；数据表缺失/损坏或 skill_id
+## 未命中 → -1（消费端 const 兜底，零崩）。
+func get_skill_icon_index(skill_id: String) -> int:
+	if _skill_icon_map.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/presentation.json"))
+		if raw is Dictionary and (raw as Dictionary).get("skill_icon_map") is Dictionary:
+			_skill_icon_map = (raw as Dictionary)["skill_icon_map"]
+	var v: Variant = _skill_icon_map.get(skill_id, null)
+	if typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT:
+		return int(v)
+	return -1
 
 # ========== 关卡设计接口（LEVEL_DESIGN · LD-A3 2026-08-19 · 规格 LEVEL_DESIGN_SPEC.md） ==========
 

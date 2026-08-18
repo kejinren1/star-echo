@@ -340,6 +340,18 @@ const SKILL_ICON_MAP: Dictionary = {
 	"se_skill_holy_shield": 3,
 	"se_skill_sword_arc": 4,   ## PS-C4 剑士剑气爆发（总指挥 08-18 补映射，skills.png 第 5 帧占位）
 }
+
+## F1-E-6（T-022）：技能图标映射解析 —— DataLoader.get_skill_icon_index 命中优先
+## （presentation.json skill_icon_map 抽表），未命中/空表/无 DataLoader →
+## const SKILL_ICON_MAP 兜底（F 系列缺省兜底约定）；SKILL_ICON_MAP const 保留
+## = day31_skill_icon_check §5 直接读 const 零改动硬门槛
+func _resolve_skill_icon_index(skill_id: String) -> int:
+	var loader: Node = get_node_or_null("/root/DataLoader")
+	if loader != null and loader.has_method("get_skill_icon_index"):
+		var v: int = int(loader.call("get_skill_icon_index", skill_id))
+		if v >= 0:
+			return v
+	return int(SKILL_ICON_MAP.get(skill_id, -1))
 func _apply_skill_icon(controller: Node) -> void:
 	if controller == null or skill_slot == null:
 		return
@@ -351,7 +363,7 @@ func _apply_skill_icon(controller: Node) -> void:
 		return
 	if not ResourceLoader.exists("res://assets/sprites/skills/skills.png"):
 		return  # 图集缺失：降级保留现有样式
-	var idx: int = int(SKILL_ICON_MAP.get(skill_id, -1))
+	var idx: int = _resolve_skill_icon_index(skill_id)
 	if idx < 0:
 		push_warning("[HUD] 未知技能 id（无图标映射，保留原样式）: %s" % skill_id)
 		return
@@ -400,7 +412,7 @@ func _apply_skill_slot_icon(controller: Node, slot: int) -> void:
 	var skill_id: String = str(entry.get("id", ""))
 	if not ResourceLoader.exists("res://assets/sprites/skills/skills.png"):
 		return
-	var idx: int = int(SKILL_ICON_MAP.get(skill_id, -1))
+	var idx: int = _resolve_skill_icon_index(skill_id)
 	if idx < 0:
 		return
 	var frame: AtlasTexture = IconAtlas.get_icon("skills", idx)
