@@ -11,6 +11,8 @@ desktop.ini
 # Editor
 *.swp
 *~
+# WPS 临时锁文件（2026-08-18 补：~$T_REQUEST_20260816.md 曾被误入库，WPS 打开文档时生成，禁止提交）
+~\$*
 .vscode/
 .idea/
 

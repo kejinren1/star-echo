@@ -555,14 +555,16 @@ func _part_regression() -> void:
 	#   → 60 项 / 期望 1463（1195 + 268）
 	# AUDIO_FEEL 同步（2026-08-18 · AF-P0 批 A-C）：runner +day31_feel(26)
 	#   → 61 项 / 期望 1489（1463 + 26）
+	# 元数据同步（2026-08-18 · TEST_REPORT #57/#58/#59 挂 #3 观察项）：day31_presentation expect 246→261（+15，实测断言数）
+	#   → 61 项 / 期望 1504（1489 + 15）
 	if probe_count == 61:
 		_pass("回归 / _regression_run.py PROBES 61 项（60 + AUDIO_FEEL day31_feel 1）")
 	else:
 		_fail("回归: PROBES 项数 %d ≠ 61" % probe_count)
-	if expect_sum == 1489:
-		_pass("回归 / 期望断言合计 1489（1463 + AUDIO_FEEL 26）")
+	if expect_sum == 1504:
+		_pass("回归 / 期望断言合计 1504（1489 + presentation 15 元数据同步）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1489" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1504" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

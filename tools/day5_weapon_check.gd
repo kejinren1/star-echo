@@ -332,8 +332,11 @@ func _check_sweep_hit() -> void:
 	var enemy: Node = (load(ENEMY_SCENE) as PackedScene).instantiate()
 	container.add_child(enemy)
 	enemy.global_position = _player.global_position + dir * 40.0
-	# 临时禁暴击（se_ren crit 23% 波动会破坏精确断言）；期望 = 7 × 倍率 × 近战加成
+	# 临时禁暴击：_do_slash 内 randf()<crit_chance 走全局 RNG，且 _compute_crit_chance = player+weapon 双源
+	# （星刃 se_star_blade crit_chance=0.08 偶发暴击 ×1.8 破坏精确断言，TEST_REPORT #59 flaky 真凶）
+	# 双保险对齐 day31_melee_sweep §4 先例：player 侧清零 + crit_damage=1.0（偶发判定暴击也 ×1.0 零伤害变化）
 	_player.set("crit_chance", 0.0)
+	_player.set("crit_damage", 1.0)
 	var hp_before: float = float(enemy.get("health"))
 	sweep.call("_do_slash")   # 直接挥砍（冷却 0 守卫放行，方向默认 RIGHT）
 	var hp_after: float = float(enemy.get("health"))

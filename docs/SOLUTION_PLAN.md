@@ -105,3 +105,25 @@
 - F1-E-3 已在 #2 第 57 轮函数级拆解 + 方案师第 27 轮锚定，**随时可开工**——交总指挥/主窗口按批推进（每任务一收口 commit 带 F1-E-3 编号）。
 - 收尾：挂账 docs（方案师第 27 轮 SOLUTION_PLAN/TASKS/overview + #4 在途 TEST_REPORT #57/#58）一并入库 push，保持远端与本地一致。
 - **下轮观察点**：① 总指挥/主窗口是否开工 F1-E-3（git log 出现 audio_config sheet / audio_map / get_audio_config / day31_presentation_check +§3 audio 段）② Owner 是否确认 D30-T3 上传 + build/ 替换 + D30-EXIT ③ 总指挥是否推进 AF-M1 CC0 采集。
+
+---
+
+# 执行结果（2026-08-18 19:2x · 执行者第 59 轮 · 兑现 #4 观察项 + flaky 根治）
+
+## 📌 本轮判定（执行者第 59 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #80 · 13:3x 反馈专员）**：无待处理反馈（F-01~F-43/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #58（12:45）/ #59（18:22 #4 已落盘）= **61/61 全绿 · 1489 断言 · BASELINE CLEAN · 0 阻断 / 0 action item** → **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需执行**。
+>
+> **方案核实**：方案师第 28 轮「无新任务需方案化」维持（F1-E 批三 BGM/SFX 已拆解+锚定，承接方 = 🏠 主窗口/总指挥，#3 勿自行开工；D30-T3/EXIT 纯 Owner/#4 域；AF-M1 网络依赖维持）——**本轮无方案任务**，执行内容 = **TEST_REPORT #57/#58/#59 连续三份挂 #3 域的观察项兑现**（runner 元数据同步 + #59 首跑间歇 flaky 真凶根治）。
+
+**执行结果：[完成]（纯工具侧 3 文件 + 卫生 2 项 · 零游戏代码/零数据改动）**
+
+1. **runner 元数据同步（#4 观察项兑现）**：`tools/_regression_run.py` day31_presentation_check expect **246→261**（探针实测 261 assertions/0 failures，此前滞后 15 断言）。
+2. **day26 锚点连锁同步**：`day26_integration_check.gd` 回归期望合计 **1489→1504**（1489 + presentation 15；动态解析 runner PROBES 合计与硬编码锚点比对，改 runner 必须同步，历史第 55/57 轮同类先例）。
+3. **day5 flaky 根治（#59 首跑 60/61 真凶）**：`day5_weapon_check.gd` sweep 伤害断言补双保险——原只 `_player.set("crit_chance", 0.0)`，但 `melee_sweep._compute_crit_chance()` = **player + weapon 双源**（星刃 se_star_blade crit_chance=0.08），全局 RNG `randf()<0.08` 偶发暴击 ×1.8 破坏精确断言（实测 15.9 vs 期望 7.9，间歇出现）；对齐 day31_melee_sweep §4 已验证先例补 `_player.set("crit_damage", 1.0)`（偶发判定暴击也 ×1.0 零伤害变化）。
+4. **WPS 锁文件卫生**：`docs/~$T_REQUEST_20260816.md`（WPS 临时锁，曾被误入库）移出 git 跟踪 + `.gitignore` 补 `~\$*` 模式防再犯（历史 F1-G-尾 WPS 锁教训）。
+5. **挂账入库**：#4 在途 `docs/TEST_REPORT.md` §7.59（18:22 #59 完整报告）一并提交。
+
+**验证**：day5 **16/16 CLEAN**（伤害精确 7.9）+ day26 **34/34 CLEAN** + **全量回归 61/61 PASS（1504 断言，EXIT=0）**——修复后全量首跑即全绿，无残留 flaky。
+
+**下轮观察点**：① 总指挥/主窗口是否开工 F1-E 批三 BGM/SFX（git log 出现 audio_config sheet / audio_map / get_audio_config / day31_presentation_check +§3）② Owner 是否确认 D30-T3 上传 + build/ 替换 + D30-EXIT ③ 总指挥是否推进 AF-M1 CC0 采集 ④ #4 #60 快照刷新（含 1504 断言新口径）后 runner/day26 锚点是否漂移。
