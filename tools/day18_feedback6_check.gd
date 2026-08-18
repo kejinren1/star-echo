@@ -110,11 +110,13 @@ func _part_spawn_check() -> void:
 	e1.is_alive = false
 	wm.call("check_wave_clear")
 	_ok(ev.is_empty(), "F-30/核心: 杀完已生成 1 个但队列 11 个未出 → 不判通（修复「第一关 1 怪就通关」）")
-	# 队列清空（生成完成）→ 敌全灭 → 通关
+	# 队列清空（生成完成）→ 敌全灭 → 开传送门（F-49），进传送门才通关
 	spawner_mock.set("_is_spawning", false)
 	spawner_mock.set("spawn_queue", [])
 	wm.call("check_wave_clear")
-	_ok(ev.size() == 1 and not bool(wm.get("is_active")), "F-30/完成: 队列空 + 敌全灭 → 通关")
+	_ok(bool(wm.get("_portal_await")), "F-49/完成: 队列空 + 敌全灭 → 开传送门（不立即结算）")
+	wm.call("enter_portal")
+	_ok(ev.size() == 1 and not bool(wm.get("is_active")), "F-30/完成: 进传送门 → 通关")
 	# 恢复
 	_gm.set("wave_manager", wm_backup)
 	_gm.set("enemy_spawner", spawner_backup)

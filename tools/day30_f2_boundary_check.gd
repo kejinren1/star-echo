@@ -262,7 +262,10 @@ func _signal_chain() -> void:
 	var enemy: Node = load(ENEMY_SCENE).instantiate()
 	enemies_container.add_child(enemy)
 	enemy.call("die")
-	_ok(cleared[0] == 1, "§4a: enemy died → check_wave_clear 通关判定（wave_cleared 计数 %d）" % cleared[0])
+	# F-49（2026-08-18）：敌全灭 → 开传送门（不立即结算），进传送门才 wave_cleared
+	_ok(bool(wm.get("_portal_await")), "§4a: enemy died → check_wave_clear → 开传送门（_portal_await true）")
+	wm.call("enter_portal")
+	_ok(cleared[0] == 1, "§4a: 进传送门 → 通关判定（wave_cleared 计数 %d）" % cleared[0])
 	enemies_container.queue_free()
 
 	# b. boss_killed 信号 → GM.register_boss_killed（route.flags.boss_defeated 登记）

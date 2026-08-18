@@ -9,6 +9,7 @@ signal wave_started(wave_number: int)
 signal wave_cleared(wave_number: int)
 signal wave_timer_tick(time_remaining: float)
 signal all_waves_done
+signal portal_ready  ## F-49：通关传送门已开启（敌全灭 → 玩家进传送门结算，期间可捡宝箱）
 
 # ========== 导出属性 ==========
 
@@ -23,6 +24,9 @@ var kill_count: int = 0
 ## F-46（用户 2026-08-18 拍板）：本关总生成数（Excel wave 表固定值，start_wave 缓存）——
 ## HUD 分数制「已击杀/总数」右侧分母；召唤物（mom 产卵）不计入，击杀可能超出 → HUD clamp
 var _wave_total: int = 0
+## F-49（2026-08-18 用户拍板）：等待进传送门状态——敌全灭后 true（停表 + 不重复开传送门），
+## 玩家 enter_portal() 后 false → _end_wave 正常结算
+var _portal_await: bool = false
 ## T-008（F1-散 2026-08-13）：max_waves 兜底参数化（主源 = get_max_waves waves 键推导）
 var max_waves: int = 20
 
@@ -35,6 +39,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if not is_active:
+		return
+	# F-49：传送门阶段停表（敌全灭已开传送门，玩家进传送门才结算；不再续时/倒计时）
+	if _portal_await:
 		return
 	time_remaining -= delta
 	wave_timer_tick.emit(time_remaining)
@@ -67,6 +74,8 @@ func start_wave(wave_number: int) -> void:
 
 	var config := load_wave_config(wave_number)
 	time_remaining = config.get("duration", default_wave_duration)
+	# F-49：新波次复位传送门状态（上一关未进传送门残留清理由 world.spawn_exit_portal 负责）
+	_portal_await = false
 	# F-47（2026-08-18 用户反馈「打完 32 还出新怪」）：本关总生成数 = composition 合计 ×
 	# swarm 倍率——与 spawner.spawn_wave 同口径（swarm_wave 翻倍），HUD 分母永远 = 实际生成数。
 	# （Excel total_enemies 手填曾未翻倍：wave5 32 vs 实际 60 → 打完表定数还分批出新怪）
@@ -83,14 +92,19 @@ func start_wave(wave_number: int) -> void:
 	if GameManager.enemy_spawner:
 		GameManager.enemy_spawner.spawn_wave(config, wave_number)
 
-## F-28（2026-08-08 用户拍板）：通关判定——敌人击杀时由 enemy.die() 调用。
-## 普通关：容器内所有敌人死亡（is_alive==false）→ 通关；Boss 关：Boss 死亡 → 通关
-## （不等 Boss 召唤物/精英——此前「Boss 死了还要缠斗精英一会儿才通」）
+## F-28（2026-08-08 用户拍板）+ F-49（2026-08-18 用户拍板「通关不突兀」）：
+## 通关判定——敌人击杀时由 enemy.die() 调用。
+## 普通关：容器内所有敌人死亡（is_alive==false）→ 开传送门（不再立即结算）
+## Boss 关：Boss 死亡 → 开传送门（不等 Boss 召唤物/精英——此前「Boss 死了还要缠斗
+## 精英一会儿才通」）；**玩家走进传送门（enter_portal）才 _end_wave 正常结算进选关，
+## 期间可捡地图上的宝箱**（F-49：通关后不立即结算 = 宝箱收获窗口）
 func check_wave_clear() -> void:
 	if not is_active:
 		return
 	if GameManager == null:
 		return
+	if _portal_await:
+		return  # F-49：传送门已开，等待玩家进入（重复击杀回调忽略）
 	if GameManager.is_boss_wave:
 		var container := _enemy_container()
 		if container == null:
@@ -98,7 +112,7 @@ func check_wave_clear() -> void:
 		for enemy in container.get_children():
 			if is_instance_valid(enemy) and enemy.get("is_boss") == true and enemy.get("is_alive") != false:
 				return  # 仍有存活 Boss → 未通关
-		_end_wave()
+		_open_exit_portal()
 		return
 	# 普通关：生成完成 + 敌全灭才通关（F-30，2026-08-08 真人反馈）
 	# 「第一关只有 1 个怪就通关」= 敌全灭判定没检查生成队列——wave 1 有 12 敌分批生成，
@@ -106,7 +120,27 @@ func check_wave_clear() -> void:
 	if _spawning_incomplete():
 		return
 	if _alive_enemy_count() == 0:
-		_end_wave()
+		_open_exit_portal()
+
+## F-49（2026-08-18 用户拍板）：敌全灭/Boss 击杀 → 不立即结算——地图中心开传送门
+## + 宝箱（world.spawn_exit_portal），玩家进入传送门（enter_portal）才 _end_wave；
+## 传送门阶段停表（玩家随时可进，宝箱可先捡）。探针白盒直调。
+func _open_exit_portal() -> void:
+	if _portal_await:
+		return
+	_portal_await = true
+	time_remaining = 0.0
+	wave_timer_tick.emit(0.0)  # HUD 倒计时归零提示
+	portal_ready.emit()
+	if GameManager and GameManager.world and GameManager.world.has_method("spawn_exit_portal"):
+		GameManager.world.call("spawn_exit_portal")
+
+## F-49：玩家进入传送门 → 正常结算（_end_wave 原链路：回血/清残敌/进选关）
+func enter_portal() -> void:
+	if not is_active or not _portal_await:
+		return
+	_portal_await = false
+	_end_wave()
 
 ## F-30：生成是否未完成（spawn_queue 非空或生成中）——敌全灭判定必须等全部敌人生成完
 ## F2-T5（T-042）：改走 spawner 显式接口（is_spawning/has_pending_spawns），

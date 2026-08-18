@@ -125,3 +125,22 @@ func spawn_minion(scene: PackedScene, stats: Dictionary) -> Node:
 		minion.initialize(stats)
 	container.add_child(minion)
 	return minion
+
+## F-49（2026-08-18 用户拍板）：通关传送门 + 宝箱——敌全灭/Boss 击杀后在地图中心生成；
+## 玩家进传送门才结算（wave_manager.enter_portal），期间可捡宝箱。
+## 视觉占位口径（08-07 拍板）：纯色几何节点，零美术资源；RELIC-E 遗物三选一后续叠加
+func spawn_exit_portal() -> void:
+	# 清旧残留（上一关未进传送门/未拾取的节点）
+	for child in get_children():
+		if child.name.begins_with("ExitPortal") or child.name.begins_with("LootChest"):
+			child.queue_free()
+	var ground := get_node_or_null("Ground")
+	var center: Vector2 = ground.call("get_arena_center") if ground and ground.has_method("get_arena_center") else Vector2.ZERO
+	var portal: Node2D = (load("res://scripts/world/exit_portal.gd") as GDScript).new()
+	portal.name = "ExitPortal"
+	add_child(portal)
+	portal.global_position = center
+	var chest: Node2D = (load("res://scripts/world/loot_chest.gd") as GDScript).new()
+	chest.name = "LootChest"
+	add_child(chest)
+	chest.global_position = center + Vector2(72.0, 0.0)

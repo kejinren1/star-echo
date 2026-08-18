@@ -22,7 +22,7 @@ const BOOL_WHITELIST: Dictionary = {
 	"scripts/enemy/enemy_spawner.gd": ["_is_spawning"],
 	"scripts/player/player.gd": ["_facing_left", "_last_stand_active", "is_alive", "stunned", "invulnerable"],
 	"scripts/player/skill_controller.gd": ["_warned_not_impl"],
-	"scripts/systems/wave_manager.gd": ["is_active"],
+	"scripts/systems/wave_manager.gd": ["is_active", "_portal_await"],
 	"scripts/ui/shop.gd": ["star_grace_available", "star_grace_used"],
 	"scripts/weapons/projectile.gd": ["_exploded", "_last_crit"],
 	"scripts/weapons/turret.gd": ["permanent"],
@@ -41,6 +41,9 @@ const BOOL_WHITELIST: Dictionary = {
 	# AUDIO_FEEL（2026-08-18 AF-P0 批 A）：hitstop 顿帧冻结标记（防旧 timer 回调误恢复，
 	# time_scale=0 恢复链的必要状态；非行为分支开关）
 	"scripts/systems/hitstop_controller.gd": ["_freezing"],
+	# F-49（2026-08-18 用户拍板「通关不突兀」）：通关传送门等待标记——敌全灭 → true
+	# （停表 + 防重复开传送门），玩家进传送门 → false → _end_wave 正常结算；流程状态非分支开关
+	"scripts/world/loot_chest.gd": ["_claimed"],
 }
 
 var _sub: int = 0

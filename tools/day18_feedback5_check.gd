@@ -276,7 +276,9 @@ func _part_clear_condition() -> void:
 	_ok(cleared_events.is_empty(), "F-28/普通: 剩 1 敌 → 未通关")
 	e2.is_alive = false
 	wm.call("check_wave_clear")
-	_ok(cleared_events.size() == 1 and not bool(wm.get("is_active")), "F-28/普通: 敌全灭 → 通关（wave_cleared 1 次）")
+	_ok(bool(wm.get("_portal_await")), "F-49/普通: 敌全灭 → 开传送门（不立即结算，可捡宝箱）")
+	wm.call("enter_portal")
+	_ok(cleared_events.size() == 1 and not bool(wm.get("is_active")), "F-28/普通: 进传送门 → 通关（wave_cleared 1 次）")
 	# ---- Boss 关：Boss 击杀即通（不等召唤物） ----
 	for c in container.get_children():
 		c.queue_free()
@@ -293,7 +295,9 @@ func _part_clear_condition() -> void:
 	_ok(cleared_events.is_empty(), "F-28/Boss: 召唤物死但 Boss 活着 → 未通关")
 	boss.is_alive = false
 	wm.call("check_wave_clear")
-	_ok(cleared_events.size() == 1, "F-28/Boss: Boss 击杀 → 立即通关（不等召唤物）")
+	_ok(bool(wm.get("_portal_await")), "F-49/Boss: Boss 击杀 → 开传送门（不等召唤物）")
+	wm.call("enter_portal")
+	_ok(cleared_events.size() == 1, "F-28/Boss: 进传送门 → 通关（不等召唤物）")
 	# ---- Boss 关倒计时不通关 ----
 	_gm.set("is_boss_wave", true)
 	wm.set("is_active", true)
@@ -306,7 +310,9 @@ func _part_clear_condition() -> void:
 	_ok(cleared_events.is_empty() and bool(wm.get("is_active")), "F-28/倒计时: Boss 关超时 → 不通关（等 Boss 击杀）")
 	boss2.is_alive = false
 	wm.call("check_wave_clear")
-	_ok(cleared_events.size() == 1, "F-28/Boss: Boss 死 → 通关")
+	_ok(bool(wm.get("_portal_await")), "F-49/Boss: 倒计时后 Boss 死 → 仍开传送门")
+	wm.call("enter_portal")
+	_ok(cleared_events.size() == 1, "F-28/Boss: 进传送门 → 通关")
 	# ---- 08-18 用户反馈：普通关超时不再兜底通关（必须生成完成 + 敌全灭） ----
 	_gm.set("is_boss_wave", false)
 	wm.set("is_active", true)
