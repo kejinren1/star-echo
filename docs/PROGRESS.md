@@ -9,10 +9,10 @@
 
 ## 📌 顶部摘要（滚动 · #1 每轮刷新 · 其他岗位只读本区）
 
-- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **AUDIO_FEEL P0 批三连收口 + F1-E 表现抽表 2/7 批闭环**｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
-- **阶段完成度**：A 100% ｜ B 100% ｜ C 100% ｜ D 100% ｜ **E ≈90%（3.6/4：Day 27 1.0 + Day 28 1.0 + Day 29 0.6 待真人回归 + Day 30 1.0）**；阶段 F 全闭（**F1-E 2/7 批闭环：SPRITE_MAP ✓ + BEHAVIOR_MAP ✓，剩余 BGM/SFX→FX→SHEET_CONFIG→初始武器→炮台默认**）
-- **基线**：`BASELINE CLEAN`（TEST_REPORT #56 · 60/60 全绿 · 0 阻断/0 功能缺陷）；**回归 61 件套 1489 断言** —— `d2febc3` AF-P0 收口实测 **61/61 全绿**（#4 #57 待正式快照）；JSON 2713 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
-- **本轮要点**：git 实测 HEAD=`d2febc3`（执行者第 57 轮 · **AUDIO_FEEL AF-P0 批 A-C 全收口**：hitstop 顿帧系统 O-2 近重 0.15s/远轻 0.05s + 相机震屏分级 light/medium/heavy + 音画同步 play_sfx_delayed/crit 音，Excel stats_feel 段 10 键，探针 day31_feel_check 26/26，回归 61/61）；🧹 **工作区 0 项在途（历史最干净）**；下段推进线 = AF-M1 CC0 替换（P1 已拆）+ F1-E 第三批 BGM/SFX；🔄 build/ 仍 08-18 00:13/00:14 产物（早于最新代码）→ **D30-T3 上传 + build/ 来源核实待 Owner**；👤 真人回归面 = **E-0 终审完整局 + F-01~F-43 全链 + AF-P0 打击感主观面 + PS-EXIT + #73 build/ 复测**（不阻塞机器侧）。
+- **目标开发日**：Day 30（发布准备收尾）｜ 实际重心 = **F1-E 第三批 BGM/SFX 函数级拆解 + 执行者核实确认轮**｜ **整体进度 ≈99.3%**（Day 等效 29.8/30）｜ 超前 ≈21 开发日
+- **阶段完成度**：A 100% ｜ B 100% ｜ C 100% ｜ D 100% ｜ **E ≈90%（3.6/4：Day 27 1.0 + Day 28 1.0 + Day 29 0.6 待真人回归 + Day 30 1.0）**；阶段 F 全闭（**F1-E 2/7 批闭环：SPRITE_MAP ✓ + BEHAVIOR_MAP ✓，第三批 BGM/SFX 已拆解 `dc6a7c1`，剩余 FX→SHEET_CONFIG→初始武器→炮台默认**）
+- **基线**：`BASELINE CLEAN`（TEST_REPORT #58 · **61/61 全绿 · 1489 断言** · 0 阻断/0 功能缺陷 · 空轮次）；JSON 16 文件 2723 字段零缺陷 · 场景 25/25 · 600 帧 EXIT 0
+- **本轮要点**：git 实测 HEAD=`bd9ad83`（执行者第 58 轮 · **核实确认轮**：P0 无新增 F-01~F-43 全🟢待真人回归 + 方案师第 27 轮三方核实一致——F1-E-3 已锚定交主窗口承接 / D30-T3+EXIT 属 Owner/#4 域 / AF-M1 网络依赖维持 + 挂账 docs 一并入库）；🧹 **工作区 0 项在途（历史最干净延续）**；下段推进线 = **F1-E 第三批 BGM/SFX（#2 已函数级拆解，交执行者落地）** + AF-M1 CC0 替换（P1 网络依赖）；🔄 build/ 仍 08-18 00:13/00:14 产物（早于最新代码）→ **D30-T3 上传 + build/ 来源核实待 Owner**；👤 真人回归面 = **E-0 终审完整局 + F-01~F-43 全链 + AF-P0 打击感主观面 + PS-EXIT + #73 build/ 复测**（不阻塞机器侧）。
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3746,5 +3746,23 @@
 - 进行中：**F1-E 剩余 5/7 批**（BGM/SFX → FX → SHEET_CONFIG → 初始武器 → 炮台默认，每批 Excel→导出→消费→探针→回归，const 兜底）；**AUDIO_FEEL 后续**（AF-M1 CC0 替换 = P1 已拆、标注网络依赖 → 总指挥采集或登记阻塞；P1 批 F3 命中粒子/F4 敌人僵直/H2~H4 手感待排）；**D30-T3 上传资产库（外部动作待 Owner 确认）** + build/ 来源核实；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
 - 风险：**工作区 0 项在途**；冻结 HEAD `70382e5` vs 现 HEAD `d2febc3` 漂移（冻结后 **+41 提交**）→ 是否按现 HEAD 补冻由 Owner 拍板；TEST_REPORT #56 摘要未含 AF-P0 批（#4 下轮自然刷新）；day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别。
 - 下一步：#4 #57 覆盖 `d2febc3`（61 件套 1489 断言全绿快照 + TEST_REPORT 摘要刷新）；总指挥/执行者续 F1-E 第三批 BGM/SFX + AF-M1 CC0 采集（或登记阻塞）；Owner 确认 D30 上传 / build/ 核实 / 冻结 HEAD 补冻；随后真人完整局回归（E-0 最高优先）。
+
+> 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
+
+## 2026-08-18 13:3x · Day 30 / F1-E 第三批拆解 + 执行者核实确认轮（第 62 轮）
+
+**本轮结论：F1-E 第三批 BGM/SFX 已由 #2 函数级拆解（`dc6a7c1`），执行者第 58 轮核实确认（P0 无新增 + 方案师三方核实一致），回归套件 61/61（1489 断言）保持全绿，工作区零在途，整体进度持平 ≈99.3%，剩余 = F1-E 4/7 批 + AF-M1 + Owner 上传/build 核实 + 真人验收面。**
+
+- Git 实测 HEAD=`bd9ad83`（`Day31 执行者第58轮: 核实确认轮` @08-18 13:1x）；自第 61 轮（`d2febc3`）起 **+4 提交，今日累计 25 提交，总 245**：
+  - **`7ca46f9` #1 第 61 轮**（上轮 PROGRESS 摘要刷新 + 文末条目）
+  - **`f7c6445` 反馈专员 #79**——无待处理反馈（增量 #78 后无新 🟠/🔴，F-01~F-43 全 🟢 待真人回归）+ TEST_REPORT #56 核查（60/60 全绿）+ AF-P0 批 A-C 收口确认（`d2febc3`）+ 增量 #79
+  - **`dc6a7c1` #2 第 57 轮拆解回执（本轮关键）**——P0 无新增（AF-P0 已由执行者 `d2febc3` 全收口）+ **F1-E 第三批 BGM/SFX 函数级拆解（F1-E-3-1~4+EXIT）**：audio_config sheet 12 行 → presentation.json audio_map → get_audio_config → audio_manager 消费改读，BGM/SFX const 保留兜底 = day24_audio 14/14 零改动 + AUDIO_FEEL 红线 2 键契约零破坏，day31_presentation +§3 audio 段，回归 61 件套，**标主窗口承接** + Day 30 仍纯 Owner/#4 域
+  - **`bd9ad83` 执行者第 58 轮（核实确认轮）**——P0 无新增（TEST_REPORT #57/#58 = 61/61 全绿 1489 断言 0 action item）+ **方案师第 27 轮三方核实一致**（F1-E-3 已锚定交主窗口承接 / D30-T3+EXIT 属 Owner/#4 域 / AF-M1 网络依赖维持）+ 挂账 docs 一并入库（SOLUTION_PLAN/TASKS/overview + #4 在途 TEST_REPORT #57/#58）
+- **磁盘实测**：工作区 **git status 空（0 项在途，历史最干净延续）**；scenes 25、scripts 68 GDScript（含 hitstop_controller.gd）、data 15 JSON（含 presentation.json）+ .manifest、音频 12 WAV（bgm×2 + sfx×10）；**build/ 维持** RoguelikeStudio.exe 84.1MB @08-18 00:13 / .pck 4.66MB @00:14 → **仍早于 3f9dbe4/defe1cf/F1-E 两批及 AF-P0**，D30-T3 上传 + build/ 来源核实维持待 Owner。
+- TEST_REPORT **#58**（08-18 12:45）：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **61/61 全绿 · 1489 断言**（**空轮次**：HEAD=`dc6a7c1` 无新游戏提交，计数与 #57 持平）；`BASELINE CLEAN`、JSON 16 文件 2723 数值字段零缺陷、场景 25/25、600 帧 EXIT 0、stderr 242B 音频良性；快照 `dc6a7c1` 其后 **+1 提交（`bd9ad83` 挂账 docs 入库，无游戏代码）** → #4 #59 仅需刷新快照计数。
+- PLAYTEST 追踪区（增量 #79）：无待处理反馈；F-01~F-43 全 🟢 已落地·待真人回归；**AF-P0 主观回归面已登记**（顿帧/震屏/音画同步目视）；开放项维持 = **E-0 终审完整局**（最高优先）、F-01~F-43 全链真人回归、F-37 G 系列 UI、F-39 节点选择、PS-EXIT 玩家侧技能五组主观观察、#73 build/ 复测闭环、MainMenu 待真人确认。
+- 进行中：**F1-E 剩余 4/7 批**（BGM/SFX 已拆解 `dc6a7c1` 待落地 → FX → SHEET_CONFIG → 初始武器 → 炮台默认，每批 Excel→导出→消费→探针→回归，const 兜底）；**AUDIO_FEEL 后续**（AF-M1 CC0 替换 = P1 已拆、标注网络依赖 → 总指挥采集或登记阻塞）；**D30-T3 上传资产库（外部动作待 Owner 确认）** + build/ 来源核实；真人验收面 = E-0 终审 + PS-EXIT 主观项，不阻塞机器侧。
+- 风险：**工作区 0 项在途**；冻结 HEAD `70382e5` vs 现 HEAD `bd9ad83` 漂移（冻结后 **+45 提交**）→ 是否按现 HEAD 补冻由 Owner 拍板；TEST_REPORT #58 摘要快照 `dc6a7c1` 未含 `bd9ad83`（纯 docs 入库，无游戏代码，#4 下轮自然刷新）；day31_spawner_deadlock warning 刷屏（mock 未装非缺陷）；`docs/art_ai/.ssh_tmp/` 入库前须人工甄别。
+- 下一步：#4 #59 刷新快照（61 件套 1489 断言全绿确认，`bd9ad83` 为 docs 变更）；执行者落地 F1-E 第三批 BGM/SFX（`dc6a7c1` 已函数级拆解）；总指挥推进 AF-M1 CC0 采集（或登记阻塞）；Owner 确认 D30 上传 / build/ 核实 / 冻结 HEAD 补冻；随后真人完整局回归（E-0 最高优先）。
 
 > 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
