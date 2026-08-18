@@ -1,3 +1,93 @@
+# 方案计划（2026-08-19 02:4x · 方案师第 33 轮 · F1-E 批五 SHEET_CONFIG 正式方案（#2 第 63 轮拆解完成兑现）+ RELIC/LD 挂账观察 + build 观察）
+
+## 📌 本轮判定（方案师第 33 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #89 之后无新增量 · 反馈专员已改 2h→4h 一轮，下一轮 02:38）**：F-45~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域（非机器可执行）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需纳入本轮**。
+>
+> **🟠 关键调度输入（本轮兑现上轮承诺）**：`docs/TASKS.md` F1-E-5 段（**#2 第 63 轮 `95752eb` 02:0x 函数级拆解**）——F1-E 第五批 **SHEET_CONFIG 图标配置抽表**（T-020）：icon_config sheet 3 行（weapons 40 / items 54 / skills 5）→ data_schema 注册 → excel_export 构建 presentation.json icon_config → DataLoader `get_icon_config`（懒加载 + Vector2i 组装）→ IconAtlas.get_icon/get_frame_count 消费改读（**SHEET_CONFIG const 保留兜底** = day31_items_atlas_check/day31_skill_icon_check 直接读 const 零改动硬门槛）+ **static 类经 `Engine.get_main_loop()` 访问 Autoload 技术要点** + day31_presentation_check +§7 icon 段 13 断言 → 回归 63 件套。承接方 = #3 执行者（D-015 交接）。→ **本轮方案师按拆解写批五正式方案（实测复核锚点，见任务 1-5）**。
+>
+> **git 实测**：HEAD=`95752eb`（#2 第 63 轮 · 02:0x；第 62 轮后 +3 = `f67630b` **F1-E-4-2~4-4 消费端收口**（get_fx_config 懒加载 + vfx_player.set_effect 改读 + day31_presentation +§6 fx 段 13 断言 286/286）/ `681ab36` **第 63 轮收口**（回归 **63/63 · 1578 断言**全绿 + T-019 转已收口 + **F1-E 4/7 批** + portal 并入 runner = TEST_REPORT #62 观察兑现）/ `95752eb` **批五拆解**）；**工作区在途 = 用户会话美术资产（lain 动画帧 ×8 + tools/make_*_frame.py + player_anim.gd + sprite_frame_factory.gd M + 人物动画/）——美术域非本岗改动面，红线内不碰**。
+>
+> **锚点实测复核结论（本轮核心产出，供执行者直接使用）**——与 #2 第 63 轮拆解文本**逐一一致（3 处路径/行号细化已确认）**：
+> 1. **icon_atlas.gd**（`scripts/utils/icon_atlas.gd`）：SHEET_CONFIG 3 键 **:8-24**（weapons 40 / items 54 / skills 5，各含 path/frame_count/frame_size **Vector2i(32,32)** 三行同值）——与拆解一致；`get_icon` 函数体 :32-57（拆解写 :37-49 为关键行为行：:37-39 SHEET_CONFIG.has 未知 sheet push_warning / :41 `var config: Dictionary = SHEET_CONFIG[sheet_name]`（**改造落点**）/ :42-44 _get_texture load(path) null 返回 / :46-49 index 越界 push_warning）/ `get_frame_count` :71-74（:72 SHEET_CONFIG.has → frame_count / 未知 0，**改造落点**）/ `clear_cache` :77-79——**全链一致**；
+> 2. **硬门槛探针（const 直读确认）**：`day31_items_atlas_check.gd:27` `IconAtlas.SHEET_CONFIG["items"]`（+ :36 get_icon 54 帧遍历 + :57 越界 54 拦截）/ `day31_skill_icon_check.gd:28` `IconAtlas.SHEET_CONFIG["skills"]` + :37 `cfg["frame_count"]==5` + :38 `get_frame_count("skills")==5`——**SHEET_CONFIG const 保留 = 两探针零改动**；**get_frame_count 动态读消费面 3 探针**：day11_12_passive_check.gd:482 / day20_relic_check.gd:369 / day24_f13_check.gd:338（`atlas_script.call("get_frame_count", "items")`，抽表命中返回现值 54 = 行为保持，改 Excel 帧数则三探针自动跟随）；`day7_weapon_data_check.gd:240-250` 仅注释提及类常量（零影响）；
+> 3. **data_loader.gd 实际路径 = `scripts/autoload/data_loader.gd`**（拆解文本省略子目录）：`_fx_map` 缓存字段 :36 / `get_fx_config` **:661-673** 仿写范式（:662 is_empty 懒加载重试标记 → :666 cfg 取用 → :668 duplicate → :670-671 size JSON → Vector2i 组装 → :673 未命中空字典）——**get_icon_config 仿此（frame_size 组装同 :670-671 先例）**；
+> 4. **excel_export.py :435-449** fx_config 构建段（:440-448 id 主键 + size_w/size_h → `{"x","y"}` 组装）+ **:449 `files["presentation.json"]` 现 5 根键**（enemy_sprites/behavior_map/audio_map/fx_config）——**批五追加 icon_map 构建 + :449 加第 6 键 "icon_config"（勿覆盖既有键）**；**data_schema.py :252-258** fx_config 注册范式（file: presentation.json / root: fx_config / kind: dict / key: id / json_cols: []）——icon_config 注册仿此；
+> 5. **day31_presentation_check.gd 结构确认**：单 `_run()` 顺序执行 + 注释分段（① 键集一致 :33-50 / ② 逐条零漂移 :52-82 / ③ DataLoader 消费 :84-105 / ④ behavior_map :107-135 / ⑤ audio_map :137-16x / ⑥ fx_config :202-尾，**286/286**）——**+§7 icon 段直接仿 ⑥ fx 段模式**（键集一致/逐键 path·frame_count·frame_size 零漂移/get_icon_config 消费/白盒 E2E 双跑/空表兜底/未知键 push_warning）；
+> 6. **static 类访问 Autoload 技术要点确认**：vfx_player（实例节点）用 `get_node_or_null("/root/DataLoader")`（:97）；**IconAtlas 为 `class_name extends RefCounted` 全静态工具类（:4-5），实例节点路径不可用 → 须 `Engine.get_main_loop().root.get_node_or_null("DataLoader")`**（拆解技术要点成立，无现成 static 先例 = 新范式）；`--script` 探针环境 get_node_or_null 返回 null → 回退 const 兜底天然兼容（直接读 const 的 day31_items_atlas/skill_icon 两探针不受影响）。
+>
+> **结论**：① **F1-E 批五 SHEET_CONFIG = 本轮方案主产出**（拆解完成即解锁，方案师按纪律写正式方案，承接方 = #3 执行者，执行序 5-1→5-2→5-3→5-4→EXIT 每任务一收口 commit 带 F1-E-5 编号）；② **F1-E 批四 FX 全收口确认**（`681ab36`：4/7 批，T-019 转已收口）→ 上轮「4-2~4-4 待 #3」挂账**全解除**；③ **RELIC 方案已定（第 31 轮）git 实测仍零开工**（HEAD 无 day31_relic_*/stats 改名提交）→ 挂账观察维持（**跨 2 轮**）；④ **LEVEL_DESIGN 方案已定（第 32 轮）拆解后首轮观察仍零开工**（HEAD 无 spawn_points/boss_phase_events sheet / get_spawn_points / day31_level_design_* 提交）→ 新挂账（跨 1 轮）；⑤ D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域维持；⚠️ **build/ = 08-18 23:22 产物（HEAD=`2aeb717` 授权导出：含 F-45~48 + F1-E-4-1，不含其后 F-49 传送门 + F1-E-4 消费端）→ 传送门/宝箱/批四抽表验证需最新代码或下次打包**（交 Owner/总指挥）。**回归硬门槛口径 = 63 件套 · 1578 断言**（`681ab36` 实证，批五 EXIT 以 63/1578 为准）。
+
+## 当前开发日：Day 31（LEVEL_DESIGN + RELIC 同窗口 · F1-E 批五承接方 #3 · 拆解 `95752eb` F1-E-5 段唯一事实源）
+
+### 任务1：F1-E-5-1【W2】Excel 抽表（数据侧）· 风险：低-中
+
+- **改动**：① `docs/GameData.xlsx` 新增 `icon_config` sheet（**3 行 × id/path/frame_count/frame_size_w/frame_size_h 双行表头**：id = weapons/items/skills（与 SHEET_CONFIG 键一致）；path = `res://assets/sprites/ui/weapons.png` / `res://assets/sprites/ui/items.png` / `res://assets/sprites/skills/skills.png` **与 const 现值逐一一致**；frame_count = 40/54/5；frame_size_w/h = 32/32 三行（拆列仿 fx_config size_w/size_h 先例 :445-447））② `tools/data_schema.py` 注册 `icon_config`（file: presentation.json / root: "icon_config" / kind: "dict" / key: id / json_cols: []，仿 fx_config :255-258）③ `tools/excel_export.py` presentation 构建段（:435-449 后）追加 icon_map 解析（id 主键 → {path, frame_count, frame_size: {"x": int(frame_size_w), "y": int(frame_size_h)}}，仿 fx_config 段 :440-448）+ **:449 files dict 追加第 6 键 "icon_config": icon_map** ④ 导出 → presentation.json +icon_config 3 项，**其余 16 JSON 零 diff 断言**。
+- **风险**：**低-中**。数据面常规（3 行 sheet + 注册 + 构建三小点）；**硬门槛 = 其余 16 JSON 零 diff**（前四批先例）+ icon_config 3 键 path/frame_count/frame_size 与 IconAtlas const 现值**零漂移**（漏一项 = §7 探针红）。⚠️ **WPS 锁坑**：Excel 被 WPS 打开时导出写回总览报 PermissionError（F1-G-尾教训），执行者注意。
+- **验证**：excel_export --check-only EXIT=0 + JSON 校验通过 + icon_config 3 键齐 + 与 const 现值一致（零漂移）+ 其余 16 JSON 零 diff。
+
+### 任务2：F1-E-5-2【W1】DataLoader 接口 · 风险：低
+
+- **改动**：`scripts/autoload/data_loader.gd` 新增 `get_icon_config(sheet_name: String) -> Dictionary`（**仿 get_fx_config :661-673 范式**）：字段区补 `var _icon_map: Dictionary = {}`（:36 附近，注释 F1-E-5）；懒加载 presentation.json icon_config 缓存（is_empty 重试标记）+ 命中 → duplicate + frame_size JSON → Vector2i 组装（**仿 :670-671 先例**）+ 未命中/损坏 → 空字典（消费端 const 兜底零崩）。
+- **风险**：**低**。纯新增函数零连锁（不触碰既有接口）；`_icon_map` 命名与拆解一致，勿与既有 `_fx_map`/`_audio_map` 混淆。
+- **验证**：白盒读 get_icon_config("items") → 键齐全（path/frame_count/frame_size: Vector2i(32,32)）；改 Excel frame_count 一例 → 导出 → 返回值变化（**端到端双跑**，F1-散 §1 先例）。
+
+### 任务3：F1-E-5-3【W1】IconAtlas 消费改读 · 风险：低-中（static 类访问 Autoload 新范式）
+
+- **改动**：`scripts/utils/icon_atlas.gd` 新增静态私有 `_resolve_icon_config(sheet_name: String) -> Dictionary`：`Engine.get_main_loop().root.get_node_or_null("DataLoader")` → 非空则 `get_icon_config(sheet_name)` 命中（非空 + has path/frame_count/frame_size）优先返回；未命中/空表/无 DataLoader → `SHEET_CONFIG.get(sheet_name, {})` const 兜底；`get_icon` :41 `SHEET_CONFIG[sheet_name]` → `_resolve_icon_config(sheet_name)`（**前置 :37 SHEET_CONFIG.has 未知 sheet push_warning 保留**，_resolve 空字典分支按原样 warn+return）；`get_frame_count` :72-73 改走（SHEET_CONFIG.has → `_resolve_icon_config` 取 frame_count / 未知 0）；**SHEET_CONFIG const 保留为兜底**。
+- **风险**：**低-中**。双硬门槛：① **day31_items_atlas_check.gd:27 + day31_skill_icon_check.gd:28/:37-38 直接读 const 零改动**（const 保留即满足）；② **get_frame_count 行为保持**（day11_12 :482 / day20 :369 / day24_f13 :338 动态读，抽表命中返回现值 = 行为一致）。⚠️ **唯一新增风险 = static 类经 Engine.get_main_loop() 访问 Autoload 为新范式**（无现成先例）：若特定环境（如 --script 探针）Engine 主循环不可达 → get_node_or_null 返回 null → 回退 const 零崩（**拆解已注明天然兼容**）。**替代方案**：若实测 Engine 访问在消费场景异常，退回仅 const（现状即等价零回归，抽表只走数据侧探针验证）。
+- **验证**：白盒 get_icon("items", 0) 走 icon_config 路径（返回值非空）；_icon_map 清空 → 回退 const 仍可 get_icon（load 不崩）；未知 sheet 仍 push_warning；get_frame_count 未知 sheet 仍 0；**外部调用方（hud/shop/level_up_panel 等经 IconAtlas.get_icon）零改动**（解析内聚在 icon_atlas 内部，拆解定案）。
+
+### 任务4：F1-E-5-4【W1】探针扩展 · 风险：低
+
+- **改动**：`tools/day31_presentation_check.gd` 尾部（⑥ fx 段后）**+§7 icon 段 ≥13 断言**（仿 ⑥ 模式）：icon_config 3 键齐 / 键集合与 SHEET_CONFIG 一致（零多余零缺失）/ 逐键 path·frame_count·frame_size 与 const 现值逐一一致（**抽表零漂移**）/ get_icon_config 消费（items 键齐 + frame_size == Vector2i(32,32) + 未知名空字典）/ 白盒改 _icon_map frame_count → 返回值变化（E2E 双跑还原）/ 空表兜底 const 仍可 get_icon（白盒 IconAtlas）/ 未知 sheet_name push_warning 保留 / get_frame_count 行为一致。
+- **风险**：**低**。纯探针扩展；**回归硬门槛 = day31_items_atlas_check + day31_skill_icon_check 零改动** + 63 件套 1578 断言 + baseline CLEAN。
+- **验证**：day31_presentation_check **≥299/299**（286+13）。
+
+### 任务5：F1-E-5-EXIT【W5】收口 · 风险：低
+
+- **验证**：回归 **63 件套（1578 断言）** + day31_presentation ≥299 + baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0 + F1-E 行 **5/7 批**标记 + TECH_DEBT_ISSUES **T-020（SHEET_CONFIG 抽表）转已收口**。
+
+### 任务6：RELIC 遗物扩展（全批已拆 + 方案已定第 31 轮）——挂账观察维持（跨 2 轮）
+
+- **现状**：方案已定（SOLUTION_PLAN 第 31 轮，锚点实测复核：stats.json .stats.offensive[2]/.stats.economy[3] + desc_builder.gd:32-33 + items relic 2 件 + data_loader:437 + save_system 缺省容错）；**本轮 git 实测确认仍未开工**（HEAD=`95752eb` 无 day31_relic_*/stats 改名提交）→ **挂账观察维持（跨 2 轮）**，承接方 = #3 执行者（D-015 交接，拆解+方案齐备即开工）。
+- **执行序**（第 31 轮定案不变）：RELIC-A（独立低成本先行）→ RELIC-0（数据地基）→ RELIC-F/RELIC-E（P0 独立）→ RELIC-B/C/D（依赖 0）→ RELIC-EXIT。
+
+### 任务7：LEVEL_DESIGN 关卡设计扩展（全批已拆 + 方案已定第 32 轮）——挂账观察（拆解后首轮）
+
+- **现状**：方案已定（SOLUTION_PLAN 第 32 轮，锚点实测复核 9 项一致）；**本轮 git 实测确认仍未开工**（HEAD=`95752eb` 无 spawn_points/boss_phase_events sheet / get_spawn_points / day31_level_design_* 探针提交）→ **挂账观察（跨 1 轮）**，承接方 = #3 执行者（D-015 交接）。
+- **执行序**（第 32 轮定案不变）：LD-A 数据地基（前置）→ LD-B 出生点 → LD-C Boss 演出 → LD-E attr（D 可选挂 TECH_DEBT_PLAN）。
+
+### 任务8：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出）。D30-T3 上传 [ ] = 等 Owner 明确确认（目标资产库）；D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘 + 最终标记。⚠️ **build/ 观察维持：08-18 23:22 产物（`2aeb717`）含 F-45~48 + F1-E-4-1，不含其后 F-49 + F1-E-4 消费端** → 传送门/宝箱/批四抽表验证需最新代码或下次打包（交 Owner/总指挥）。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| F1-E-5-1 数据侧 | 低-中 | 3 行 sheet + 注册 + 构建；16 JSON 零 diff + 3 键零漂移硬门槛；WPS 锁坑 |
+| F1-E-5-2 DataLoader 接口 | 低 | 仿 get_fx_config :661-673 纯新增函数；_icon_map 命名勿混 |
+| F1-E-5-3 IconAtlas 改读 | 低-中 | const 兜底双硬门槛（items_atlas/skill_icon 直读 const + get_frame_count 行为保持）；**static 类 Engine 访问新范式**，异常回退 const 零崩；替代 = 仅 const 现状等价 |
+| F1-E-5-4 探针扩展 | 低 | 仿 ⑥ fx 段；两图标探针零改动 + 63 件套 1578 断言 |
+| F1-E-5-EXIT | 低 | 5/7 批标记 + T-020 转收口 |
+| RELIC 全批 | 低-中 | 方案已定第 31 轮；**唯一风险 = 承接方持续未开工（跨 2 轮挂账观察）** |
+| LEVEL_DESIGN 全批 | 中 | 方案已定第 32 轮；**风险 = 承接方未开工（拆解后首轮观察）+ LD-A 数据地基前置依赖** |
+| D30-T3/EXIT | 低 | Owner/#4 域；build/ 不含 F-49 + F1-E-4 消费端交 Owner/总指挥核实 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 批六~七**（初始武器 → 炮台默认）：沿前五批范式 + 各批先例推进，承接方开工时按需拆解（批五收口后再拆批六）。
+- **F-49（传送门+宝箱）**：已落地（`4f1e791` 闭环 + day31_portal_check 24/24）——非本岗方案对象；真人回归（传送门显眼度 / 先捡宝箱再进 / Boss 关同流程）交 #5。
+- **F-45~F-49 主观回归面 / E-0 终审完整局 / AF-P0 / PS-EXIT**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-44 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md`（顶部新第 33 轮段，历史段完整保留）+ 在 `docs/TASKS.md` 标注（F1-E-5 段「方案已定（SOLUTION_PLAN.md 第 33 轮）」+ 批四收口确认 + RELIC/LD 挂账观察 + 第 63 轮状态块后补方案师第 33 轮确认块）。工作区在途用户会话美术资产（lain 帧/AI 美术工具/2 脚本 M）不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-19 00:4x · 方案师第 32 轮 · LEVEL_DESIGN 关卡设计扩展正式方案（#2 第 62 轮拆解完成兑现）+ F1-E 批四 4-1 收口确认 + RELIC 挂账观察）
 
 ## 📌 本轮判定（方案师第 32 轮）
@@ -499,3 +589,28 @@
 **维持登记**：F1-E 批五~七（SHEET_CONFIG→初始武器→炮台默认）= #3 执行者承接（拆解+方案齐备即开工）；**LEVEL_DESIGN 批 A→B→C→E（D 可选）** = #3 执行者承接（方案师第 32 轮正式方案已定，LD-A 数据地基为前置批）；RELIC 方案已定挂账观察（承接方 = #3）；D30-T3 上传 + D30-EXIT = Owner/#4 域（F-49 未进 build 交 Owner/总指挥核实）；PS-EXIT/E-0/AF-P0/F-45~F-49 主观回归交 #5。
 
 **下轮观察点**：① 方案师第 33 轮是否排 LEVEL_DESIGN-A 开工（git log 出现 spawn_points/boss_phase_events sheet / get_spawn_points / day31_level_design_* 探针）② #3 是否按方案师第 32 轮执行序开 LD-A（数据地基）或 RELIC-A（独立低成本批）③ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口（含 F-49 是否进 build）④ #4 #63 快照刷新后 runner/day26 锚点是否漂移（63/1578 新口径）。
+
+---
+
+# 执行结果（2026-08-19 02:5x · 执行者第 64 轮 · LEVEL_DESIGN LD-A 数据地基收口 + 回归阻塞登记）
+
+## 📌 本轮判定（执行者第 64 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #89 后无新增量 · 反馈专员下一轮 02:38）**：F-01~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域 → **🔴P0 无新增 / 🟠 无用户拍板调度指令需本岗处理**。
+>
+> **方案核实（三方一致）**：方案师第 32 轮 LEVEL_DESIGN 正式方案（LD-A 数据地基前置批）+ 方案师第 33 轮（02:4x）F1-E 批五 SHEET_CONFIG 方案定稿（承接方 = #3）+ git 实测 HEAD=`95752eb`（#2 第 63 轮拆解）一致 → **本轮执行 = LEVEL_DESIGN LD-A 数据地基**（前置批，B/C/E 全依赖，拆解 `9ebbf5f` + 方案第 32 轮）。
+
+**执行结果：[部分完成]（LD-A1/A2/A3 全 [x] + LD-A-EXIT [~] 回归门槛被用户会话在途代码阻塞）**
+
+1. **LD-A1 数据侧（commit `96e4cd5`）**：Excel 新增 `spawn_points` sheet（**11 行 8 列**：8 边缘点 edge/inset40 + boss_top edge/north/inset60 + arena_center anchor 0.5/0.45 + ring_outer ring/300）+ `boss_phase_events` sheet（**7 行 6 列**：invoker 100 banner / 60 banner+buff / 40 camera + predator 100 dialogue / 66 vfx / 33 sfx = 6 类型全覆盖，vfx/sfx 用现有 blade_burst/boss 键开箱可用）+ waves 加 spawn_set/spawn_order 列（wave 1/10/20 示例填值，其余 17 波留空 = 缺省边缘均匀组零行为变化）。
+2. **LD-A2 管线（commit `96e4cd5`）**：data_schema 注册两新表（spawn_points dict/point_id + boss_phase_events dict/key None（boss_id 非唯一）+ param json_cols + waves json_cols 补 spawn_set）；excel_export 构建段（spawn_points 平铺 + boss_phase_events 按 boss_id 分组、组内 hp_threshold+seq 排序）+ **FK 校验新段**（spawn_set→point_id / boss_id→boss_pattern∪enemies(boss) 双源并集，**三态实测通过**：合法 EXIT=0 + 坏 point_id 报错 + 坏 boss_id 报错）+ **顺手修 --check-only 已知缺陷**（check_only 参数此前未消费 = 校验路径仍全量导出写盘 → 改为校验+roundtrip 自检后直接返回不写盘，纯只读回归护栏）；导出 **15 旧 JSON 零 diff** + 2 新文件（spawn_points.json 11 键 / boss_phase_events.json invoker 4+predator 3 分组排序）。
+3. **LD-A3 DataLoader 接口（commit `96e4cd5`）**：`get_spawn_points()`（懒加载 + is_empty 重试标记）/ `get_spawn_set(wave)`（读 spawn_set/spawn_order，空/缺失 → {spawn_set:[], spawn_order:"sequence"} 缺省回退）/ `get_boss_phase_events(boss_id)`（懒加载分组，缺失 → 空数组零崩），仿 get_fx_config/get_audio_config 范式。
+4. **LD-A-EXIT 探针（commit `96e4cd5`）**：新 `tools/day31_level_design_data_check.gd` **24/24 PASS**（§1 点位 11 键三型 + §2 分组排序/6 类型/param/once + §3 三接口/缺省/零崩 + §4 FK 数据侧 + §5 waves 示例/缺省）；runner 并入 **64 件套** + day26 锚点 **63/1578 → 64/1602** 同步。
+5. **⚠️ 回归硬门槛 = 59/64（5 FAIL：day2_hero/day3_skill/day5_weapon/day31_charsel/day31_player_model）——全部根因 = 用户会话在途代码，与 LD-A 零关联**：工作区未提交 `player_anim.gd`（D-26 `_add_anim_from_frames` 在 `_setup_animation` 无条件调用）+ `sprite_frame_factory.gd`（新 `create_from_frames` 内 `SpriteFrames.set_frame_offset` = **Godot 4.3 无此 API**）→ 角色动画链 SCRIPT ERROR 连锁 5 探针 FAIL；LD-A 探针 24/24 + day31_presentation 286/286 + day26 34/34 均 PASS（回归内验证）。**红线遵守：未触碰任何用户会话在途文件**（player_anim.gd / sprite_frame_factory.gd / lain_* / art_ai 工具）。
+6. **环境修复（非代码）**：`.godot/imported/` 缓存整体缺失（0 文件，UI/音频 ctex 找不到 → baseline BROKEN）→ `--headless --import` 重建（0→392 文件）→ **BASELINE CLEAN 恢复**。
+
+**验证**：day31_level_design_data_check **24/24** + FK 三态实测 + 15 JSON 零 diff + baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0 且只读不写盘（缺陷修复验证）；回归 **59/64**（阻塞登记，5 FAIL 根因 = 用户会话在途 set_frame_offset API 不兼容，待用户会话收口后复跑恢复 64/64）。
+
+**维持登记**：**LD-B（固定出生点生成）/ LD-C（Boss 演出）/ LD-E（attr 状态）** = #3 承接（依赖 LD-A 已就绪，LD-B 下轮开工）；F1-E 批五 SHEET_CONFIG（方案师第 33 轮已定案）= #3 承接；RELIC 方案已定挂账观察（承接方 = #3）；D30-T3 上传 + D30-EXIT = Owner/#4 域；PS-EXIT/E-0/AF-P0/F-45~F-49 主观回归交 #5。**回归口径更新 = 64 件套 · 1602 断言**（LD-A 并入后 runner/day26 新锚点；全绿复跑待用户会话收口）。
+
+**下轮观察点**：① 用户会话是否收口 D-26 动画链（set_frame_offset Godot 4.3 兼容修复）→ 复跑回归恢复 64/64 ② #3 是否开 LD-B（enemy_spawner 按点位生成，git log 出现 _get_spawn_position / spawn_set 消费）③ 方案师/各岗对回归阻塞的登记反应 ④ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口 ⑤ #4 #64 快照刷新后 runner/day26 锚点是否漂移（64/1602 新口径）。

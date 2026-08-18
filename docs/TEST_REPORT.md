@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #62（08-19 00:00 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1541 断言首跑全绿（75s）**（F-49 通关传送门+宝箱验证轮：HEAD=144321a，4f1e791 F-49 打完不立即结算/进传送门才结算/宝箱拾取 + day31_portal_check 24/24 单独验证，F-46/47/48 锚点同步零回归实证）
-- **基线**：`BASELINE CLEAN` ｜ JSON **16 文件** · **2784 数值字段**零缺陷（较 #61 +61：F-47 waves/mom + F1-E-4-1 fx_config 10 键）｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 音频良性**
-- **探针回归**：**62/62（1541 条登记期望）0 FAIL / 0 script_errors**；stderr 全历史口径无新增异常（feel 372B=130B+242B 音频波动回 #57-59 口径非回归；day24_f13 860B 维持）
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**144321a**（F-46~F-49 + F1-E-4-1 数据侧已入库，F1-E 批四 FX 4-2~EXIT 待 #3）
-- **在途 action item（0 项）**：工作区 **CLEAN 零在途**；本轮新增 docs/TEST_REPORT.md §7.62（本岗报告未 commit）
-- **观察**：day31_portal_check(24) 未入 runner 建议 #3 并入（63 件套 1565）；F1-E 批四 FX 4-2~EXIT 待执行；RELIC_EXPANSION 待 #2 拆解；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-45/F-48/F-49 主观面待真人回归
+- **最近轮次 #63（08-19 02:00 · 自动化测试）**：⚠️ WARN · 0 阻断 / HEAD 提交侧 0 功能缺陷；回归 **63 件套 58/63**——5 FAIL（day2/day3/day5/charsel/player_model）全由**在途 D-26 动画改动**引入：`sprite_frame_factory.gd:92`/`player_anim.gd:99,101` 调 **`set_frame_offset/get_frame_offset`=Godot 4.4 API，4.3 引擎无此方法** → 每探针 4 SCRIPT ERROR（断言 0 失败）；交 #3 修复
+- **基线**：`BASELINE CLEAN` ｜ JSON **16 文件** · **2784 数值字段**零缺陷（与 #62 持平）｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 音频良性**
+- **探针回归**：**58/63（1578 登记期望）**；5 FAIL 断言全过仅 script_errors 触发；其余 58 探针 0 script_errors 全 PASS，stderr 全历史口径（presentation 479B=2 主动兜底、day24_f13 1220B 回 #57 方法学、feel 372B、portal 242B 纯音频首入 runner）
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵；HEAD=**681ab36**（**F1-E 批四 4-2~4-4 FX 消费端收口 `f67630b`** + #62 观察兑现：portal 并入 runner 63 件套 1578）
+- **在途 action item（1 项）**：工作区 **D-26 独立帧序列动画在途未提交**（M player_anim/sprite_frame_factory + ?? lain_attack/skill 帧+锚点 json+工具）→ 交 #3 修 4.4 API 误用 + null 判空 + commit 后复跑确认 63/63
+- **观察**：LEVEL_DESIGN_SPEC 已拆解（9ebbf5f 待 Day31+ 与 RELIC 同窗口）；F1-E 4/7 批（批四 EXIT）；RELIC_EXPANSION 待执行；MainMenu/Day 28 性能段/PS-D 映射/E-0 终审待决；F-48/F-49 主观面待真人
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3716,6 +3716,37 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - 无新增 action item；工作区 **CLEAN 零在途**（git status 空）；本岗报告 docs/TEST_REPORT.md §7.62（历史惯例由后续岗/收口处理）。
 
 **✅ 2026-08-19 00:00 自动化测试轮次 #62：PASS（62/62，0 阻断 / 0 功能缺陷）。** F-49 通关传送门+宝箱验证轮：HEAD=144321a（较 #61 +12 提交，4f1e791 F-49 打完不立即结算/进传送门结算/宝箱拾取 + a58d28f F-48 + bb0faaf F-47 + 716a9d8 F1-E-4-1 数据侧），16 张数据表（2784 字段）与 25 个场景验证通过，62 件套 1541 条登记断言首跑全绿 + F-49 新探针 day31_portal_check 24/24 单独验证全过（零回归实证），600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
+
+---
+
+## §7.63 轮次 #63 · 2026-08-19 02:00（自动化测试 · 在途 D-26 动画 4.4 API 误用发现轮）
+
+**验证快照 = HEAD=681ab36（#3 第63轮收口）+ 工作区在途 D-26「独立帧序列 + anchor_meta.json」动画改动（未提交）**。HEAD 链（较 #62 的 144321a +4 提交）：`e49eb5b`（#1 进度第66轮：F-45~F-49 五连落地确认 + F1-E-4-1 收口）→ `9ebbf5f`（**#2 第62轮拆解：LEVEL_DESIGN_SPEC 函数级拆解**，用户 08-18 22:57 拍板，Day31+ 执行）→ `f67630b`（**F1-E 批四 4-2~4-4 FX 消费端收口**：DataLoader.get_fx_config 懒加载 + vfx_player.set_effect 改读（FX_CONFIG const 兜底=day23 零改动）+ day31_presentation §6 fx 段 13 断言（10 键零漂移/E2E 双跑/空表兜底/未知键保留）→ 286/286）→ `681ab36`（第63轮收口：**#62 观察兑现——day31_portal_check 并入 runner → 63 件套 1578 断言** + F1-E 4/7 批 + LEVEL_DESIGN 挂账入库）。工作区在途（本岗观测时点）：M `scripts/player/player_anim.gd` / `scripts/utils/sprite_frame_factory.gd` / `docs/art_ai/perfect_pixel_noCV2.py` + ?? `assets/sprites/characters/lain_attack_1~4.png` + `lain_skill_1~4.png` + 2× anchor.json + `tools/make_action_frames.py` / `make_char_ref_sheet.py` / `make_final_ref_sheet.py` / `probe_day19_anchor_frames.gd` + `docs/art_ai/ref_sheets/` + `人物动画/`（= #3 开发中的 D-26 独立帧动画，**未提交**）。本轮仅测试与报告，未修改游戏代码。
+
+### 1. 结论
+
+**WARN（0 阻断 / HEAD 提交侧 0 功能缺陷 / 在途 1 个真实代码缺陷 / action item 1 项）。** 63 件套回归 **58/63**——5 FAIL 全部由**在途未提交**的 D-26 动画改动引入：`sprite_frame_factory.gd:92` 与 `player_anim.gd:99/101` 调用 **`SpriteFrames.set_frame_offset()/get_frame_offset()` = Godot 4.4 新增 API，项目引擎 4.3 stable 无此方法** → 运行时 `Invalid call` 中断 → create_from_frames 返回 null → get_frame_count null 级联（2 错误 × 2 实例 = 4 SCRIPT ERROR/探针）。**5 个 FAIL 探针断言 0 失败（32/16/16/12/6 全 CLEAN）**，仅 script_errors 触发 FAIL 判定；HEAD 提交侧（F1-E 批四 FX 收口）零回归。**baseline/smoke 全绿为假象**：默认 fighter/elin sheet 路径不触发 `_add_anim_from_frames`（需 `<prefix>_<anim>_anchor.json` 存在才启用，仅 lain 命中）。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr **242B** = 音频退出良性泄漏（历史常态口径）。
+- **数据层**：`data/*.json` **16/16 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2784**（与 #62 持平零变更）；39 负值、0 非豁免零伤害、2 哨兵、crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：**25/25 load + instantiate 成功**，stderr 242B 良性，0 SCRIPT ERROR（临时 smoke 文件 os.remove 清理无残留）。
+- **探针回归**：`tools/_regression_run.py` **58/63（1578 登记期望）**——5 FAIL（day2_hero/day3_skill/day5_weapon/day31_charsel/day31_player_model）各 `exit=0 script_errors=4`，**断言全过**；根因 = 在途 D-26 的 4.4-only API 误用（见 §1）；其余 58 探针 0 script_errors 全 PASS。
+
+### 3. WARNING / 观察
+
+- **stderr 口径：58 个 PASS 探针全历史口径，无新增异常**：day31_presentation **479B**（=2 主动兜底「未知 SFX」+「未知特效类型」——后者为 f67630b fx 段新增测试预期 + 242B 音频；#62 354B 口径增量解释）；day24_f13 **1220B**=3× C++ get_node 探针方法学（回 #57 口径，#62 860B 系时序差异非回归）；day31_feel 372B 维持；day31_portal **242B 纯音频首入 runner**；day31_spawner_deadlock 5440B 维持；day30_boss_skill 368B/day29_elin 242B/day26 402B 全历史口径。
+- **缺陷详情（交 #3，未入库）**：D-26 独立帧动画两文件 3 处 4.4-only 调用——`sprite_frame_factory.gd:92` `set_frame_offset` / `player_anim.gd:99/101` `get_frame_offset`+`set_frame_offset`；Godot 4.3 SpriteFrames 无 per-frame offset，须改消费端偏移（AnimatedSprite2D.offset 每帧设置 / 烘焙锚点进纹理）或整体 offset；且 create_from_frames 报错返回 null 后 `player_anim.gd:99` 未判空 → 建议加 `if frame_sf == null: return` 防御。**真机影响**：选 lain（带 attack/skill 独立帧序列）时动画构建中断、帧序列未实装（回退空动画），属 P1 面缺陷（在途未提交未波及 HEAD 基线）。
+- **观察项更新**：**#62 观察关闭**——day31_portal_check 已并入 runner（63 件套 1578）；**F1-E 批四 4-2~EXIT 已由 f67630b 收口**（F1-E 4/7 批）；LEVEL_DESIGN_SPEC 已拆解（9ebbf5f，Day31+ 与 RELIC 同窗口）；RELIC_EXPANSION 待执行；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-45/F-48/F-49 主观面待真人回归。
+
+### 4. action item（1 项新增）
+
+- **交 #3（P1）**：修复在途 D-26 的 4.4 API 误用（`set_frame_offset`/`get_frame_offset` 共 3 处）→ 4.3 兼容方案（消费端 offset / 烘焙锚点）+ `player_anim.gd:99` null 判空防御 → commit 后复跑回归确认 **63/63 恢复全绿**。在途 D-26 未 commit 期间，5 个探针将持续 FAIL（当前 HEAD 基线健康不受影响）。
+
+**✅ 2026-08-19 02:00 自动化测试轮次 #63：WARN（58/63，0 阻断 / HEAD 提交侧 0 功能缺陷 / 在途 1 个真实缺陷 / action item 1 项）。** 本轮发现：工作区在途 D-26「独立帧序列动画」（未提交）在 `sprite_frame_factory.gd:92` + `player_anim.gd:99/101` 调用了 **Godot 4.4 才有的 `SpriteFrames.set_frame_offset/get_frame_offset`** → 4.3 引擎运行时 Invalid call → 5 个角色/动画探针各 4 条 SCRIPT ERROR（断言 0 失败）；HEAD=681ab36（F1-E 批四 FX 消费端收口 + portal 并入 runner 63 件套 1578）提交侧零回归；16 张数据表（2784 字段）与 25 个场景全绿；已交 #3 修复。
 
 ---
 
