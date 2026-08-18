@@ -12,7 +12,7 @@
 | T-001 | data_loader.gd:198-199 | 精英 HP/伤害乘数硬编码 → scaling 参数化（elite_hp/dmg_mult_per_wave），改 Excel enemy_scaling 即生效 | 已收口(F1) | F1 |
 | T-002 | data_loader.gd:191,194 | 移速公式 + F-01 减速 0.5 → scaling 参数化（speed_growth_per_wave/cap/reduction），验证改 0.5→0.4 移速 176→140.8 生效 | 已收口(F1) | F1 |
 | T-003 | enemy_spawner.gd:45 | 生成间隔公式 → generation 参数化（spawn_interval_min/decay）接入 spawner | 已收口(F1) | F1 |
-| T-004 | weapon_controller.gd:50-62 | 初始枪内联配置，不在 weapons.json | F1-E 主窗口承接 | F1 |
+| T-004 | weapon_controller.gd:50-62 | 初始枪内联配置，不在 weapons.json | ✅ 已收口(F1-E-6 2026-08-19 · #3 `38f7c2e`/`80fc19d`：weapons.json +starting_gun 行 + 消费端改走 build_weapon_from_data，补设 360/1.5 + remove_meta 保 day13 硬门槛) | F1 |
 | T-005 | audio_manager.gd:89-96 | int 字面量匹配 GameState，枚举增删即静默错乱 | ✅ 已收口(F3 2026-08-13) | F3 |
 | T-006 | player.gd:417 / enemy.gd:762 | 护甲两套算法并存（平直减 vs 百分比），stats.json.formulas 零消费 | 已收口(F1) | F1 |
 | T-007 | game_manager.gd:184 | F-05 通关回血 50% 硬编码 | 已收口(F1-散) | F1 |
@@ -35,7 +35,7 @@
 | T-019 | vfx_player.gd:17-29 | FX_CONFIG（特效帧配置） | ✅ 已收口(F1-E 第四批 2026-08-19 #3 执行：fx_config sheet 10 键 → get_fx_config → set_effect 改读，const 兜底) | F1 |
 | T-020 | icon_atlas.gd:8-24 | SHEET_CONFIG（图标帧数） | F1-E 主窗口承接 | F1 |
 | T-021 | player.gd:56-74 | STAT_MAP 17 键 vs items.json 39 键（P0-Bug2 已修收口，余无消费方键另登记） | 已收口(F0) | 已修 |
-| T-022 | hud.gd:240-245 | SKILL_ICON_MAP（技能 id→图标帧索引） | F1-E 主窗口承接 | F1 |
+| T-022 | hud.gd:240-245 | SKILL_ICON_MAP（技能 id→图标帧索引） | ✅ 已收口(F1-E-6 2026-08-19 · #3 `3b3aff8`/`20b03f9`：skill_icon_map 独立表 5 行 + get_skill_icon_index + hud 消费改走，const 兜底保留) | F1 |
 | T-023 | route_generator.gd:24-40 / base_station.gd:9-13 | 默认参数 + RESEARCH_ITEMS（研究倍率与 game_manager.gd:705-718 重复） | F1-E 主窗口承接 | F1 |
 | T-024 | turret.gd:13-15 | 炮台默认值与 se_auto_turret 数据重复 | F1-E 主窗口承接 | F1 |
 
