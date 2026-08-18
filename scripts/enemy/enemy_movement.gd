@@ -116,19 +116,18 @@ func _move_zigzag(delta: float) -> void:
 	_enemy.velocity = (direction + perp * 0.6).normalized() * _enemy.move_speed
 	_enemy.move_and_slide()
 
-## 远程：保持距离
+## 远程：保持距离（F-44 2026-08-18 用户拍板：常规绝不逃离主角——
+## 原「dist<200 反向逃跑」会被玩家追击一路推出地图外 → 怪在屏幕外 wave 永远清不完无法通关；
+## 改为永不后退：太远靠近 / 中近距横向绕圈（距离不增），叠加 tick 末边界钳制防出界）
 func _move_ranged(_delta: float) -> void:
 	var dist := _enemy.global_position.distance_to(_enemy.target.global_position)
 	var direction := _enemy.global_position.direction_to(_enemy.target.global_position)
-	if dist < 200.0:
-		# 太近，后退
-		_enemy.velocity = -direction * _enemy.move_speed
-	elif dist > 300.0:
+	var perp := Vector2(-direction.y, direction.x)
+	if dist > 300.0:
 		# 太远，靠近
 		_enemy.velocity = direction * _enemy.move_speed * 0.5
 	else:
-		# 在射程内，横向移动
-		var perp := Vector2(-direction.y, direction.x)
+		# 中近距：横向绕圈（不后退不逃离，与玩家距离保持不变）
 		_enemy.velocity = perp * _enemy.move_speed * 0.8
 	_enemy.move_and_slide()
 

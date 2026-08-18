@@ -78,12 +78,15 @@ PROBES = [
     ("day31_player_model_check", ["--script", "res://tools/day31_player_model_check.gd"], 6),
     ("day31_items_atlas_check", ["--script", "res://tools/day31_items_atlas_check.gd"], 58),
     # 总指挥 2026-08-18 F1-E 第一批：敌人精灵表现抽表闭环（presentation.json ↔ const 一致性 + DataLoader 消费）
-    # expect 261 = 2026-08-18 #59 实测同步（此前 246 滞后 15 断言，TEST_REPORT #57/#58/#59 挂 #3 观察项）
-    ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 261),
+    # expect 273 = 2026-08-18 总指挥第 5 轮 F1-E-3 BGM/SFX 抽表 +§3 audio 段（261 + 12，元数据同步）
+    ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 273),
     # 总指挥 2026-08-18：技能图标映射闭环（skills.png 5 帧 + SKILL_ICON_MAP 全量覆盖 + 越界防护）
     ("day31_skill_icon_check", ["--script", "res://tools/day31_skill_icon_check.gd"], 22),
     # AUDIO_FEEL（2026-08-18 AF-P0 批 A-C）：hitstop 顿帧 + 震屏分级 + 音画同步（day31_feel_check）
     ("day31_feel_check", ["--script", "res://tools/day31_feel_check.gd"], 26),
+    # F-44（2026-08-18 总指挥 · 用户拍板）：小怪不逃离主角 + 不出地图边界 + 出界即死
+    #   （ranged velocity 方向语义 + 边界钳制 + grow64 出界 die + 常规不误杀，物理无关白盒）
+    ("day31_flee_bound_check", ["--script", "res://tools/day31_flee_bound_check.gd"], 18),
 ]
 
 

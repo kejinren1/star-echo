@@ -125,6 +125,10 @@ var _movement: Node = null
 var _boss_ctrl: Node = null
 var _damage: Node = null
 
+## F-44（2026-08-18 用户拍板）：竞技场边界缓存（懒加载自 GameManager.world → Ground.get_arena_rect()；
+## null = 未加载/无 Ground（纯单测场景跳过钳制零回归）；Variant 承载——F3 §4 禁新增 bool 成员）
+var _arena_rect: Variant = null
+
 # ========== 生命周期 ==========
 
 func _ready() -> void:
@@ -165,6 +169,48 @@ func _physics_process(delta: float) -> void:
 	# F4-A：行为/接触/击退 → movement 组件
 	if _movement:
 		_movement.tick(delta)
+	# F-44（2026-08-18 用户拍板）：出界即死兜底 + 边界钳制——
+	# 常规绝不逃离主角（ranged 已改横向绕圈）+ 永不越出地图 + 万一出界（未来击飞技）按死亡处理
+	_check_out_of_bounds_die()
+	if not is_alive:
+		return
+	_clamp_to_arena()
+
+# ========== F-44 竞技场边界（2026-08-18 用户拍板 · 防怪逃出地图导致无法通关） ==========
+
+## 懒加载竞技场矩形（GameManager.world → Ground.get_arena_rect()；无 Ground/未就绪 → null 跳过）
+func _get_arena_rect() -> Variant:
+	if _arena_rect == null:
+		var world: Node = GameManager.world if GameManager else null
+		var ground: Node = world.get_node_or_null("Ground") if world else null
+		if ground != null and ground.has_method("get_arena_rect"):
+			_arena_rect = ground.get_arena_rect()
+	return _arena_rect
+
+## 出界即死兜底：位置超出竞技场外扩 64px（≈ 怪半身+余量）→ 直接死亡。
+## 防未来击飞技能等把怪推出地图后 wave 无法清完（用户拍板「超出地图就按他死」）；
+## 正常贴边怪在 grow(64) 内零误杀。
+func _check_out_of_bounds_die() -> void:
+	if not is_alive:
+		return
+	var rect: Variant = _get_arena_rect()
+	if not (rect is Rect2):
+		return
+	var r: Rect2 = (rect as Rect2).grow(64.0)
+	if not r.has_point(global_position):
+		die()
+
+## 边界钳制：敌人中心永不越出竞技场矩形（配合 ranged 不逃离，从根上杜绝「逃出地图」；
+## 物理墙对敌人本不阻挡——碰撞层敌人 mask=2 仅互撞，故逻辑钳制为统一护栏）
+func _clamp_to_arena() -> void:
+	var rect: Variant = _get_arena_rect()
+	if not (rect is Rect2):
+		return
+	var r: Rect2 = rect as Rect2
+	global_position = Vector2(
+		clampf(global_position.x, r.position.x, r.end.x),
+		clampf(global_position.y, r.position.y, r.end.y)
+	)
 
 # ========== 动画 ==========
 

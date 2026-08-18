@@ -182,3 +182,21 @@
   6. 校验：day24_audio_check **14/14**（BGM 10.00s mono 22050 16bit 全合规）+ 全量回归（后台跑，结果待确认）
 - **理由一行**：O-1 已拍板 M1 CC0 先行；网络实测通；替换可逆（git + 备份）；听感不满意可换候选曲（工具已留）。
 - **待听感**：替换后听感属主观项，交用户试玩时确认（不满意 → 候选清单换曲重跑工具即可）。
+
+---
+
+## 2026-08-18 19:5x · 第 5 轮续 2（build 归档补冻 + F-44 小怪逃离修复）
+
+### 决策 D-012：build/ 旧产物归档命名日期版 + 补冻重新导出（用户拍板「旧 build 保存，命名几月几号」）
+
+- **内容**：用户拍板旧 build 保留（不删、不占多少空间），按日期命名归档 → `build/RoguelikeStudio_20260818_archive.exe/.pck`（08-18 00:13/00:14 旧产物）；随后 `tools/build_release.py` 重新导出最新代码 → `build/RoguelikeStudio.exe/.pck`（4,744.8 KB pck / 126.8 MB exe）。
+- **工具缺陷修复**：build_release.py verify 首次运行 FAIL——stderr 有 `ObjectDB leaked + 1 resources still in use`（bgm_menu.wav）。根因 = **verify 未同步 baseline_check.py 的 BENIGN 白名单**（2026-08-08 已定性的 headless Dummy 音频驱动退出释放时序良性警告，真机零警告）→ verify 同步 BENIGN（ObjectDB leak / resources still in use / cleanup 行忽略）→ 重跑 **RELEASE OK**（boot exit 0 + 无显著 stderr）。
+- **验证**：headless 启动 EXIT 0（--verbose 定位泄漏对象 = bgm_menu.wav 播放中退出的良性音频泄漏，非 F-44/AF-M1 引入——baseline_check 白名单 08-08 即收录）。
+
+### 决策 D-013：F-44 小怪逃离修复（用户拍板「常规绝不逃离主角 + 不出地图 + 出界即死」）
+
+- **根因双**：① `enemy_movement._move_ranged`「dist<200 反向后退」= 远程怪被玩家追击一路退到地图外（屏外打不到 + wave 永远清不完 = 无法通关）② `Enemy.tscn` collision_mask=2 不含墙层（层1）→ 敌人无视物理墙穿墙出界（玩家 mask=1 会撞墙，敌人不会）。
+- **修复三层**：① ranged 永不后退（太近改横向绕圈，velocity 与「远离方向」点积 ≤ 0——常规绝不逃离主角）② `enemy.gd _clamp_to_arena` 边界钳制（敌人中心永不越出竞技场 1536×864；`_arena_rect` 懒加载自 GameManager.world→Ground，无 Ground 纯单测跳过，F3 §4 零新增 bool）③ `_check_out_of_bounds_die` 出界即死兜底（rect.grow(64) 外 → die + health 归零——用户拍板「超出地图就按他死」，为未来击飞技能预留）。
+- **探针**：新 `tools/day31_flee_bound_check.gd` **18/18**（velocity 方向语义三距离点 / 钳制夹回 / 四边出界即死 / 常规不误杀 + 贴边存活）。⚠️ 踩坑：--script 模式物理不步进（move_and_slide 无效果，最小实验验证）→ 改测纯逻辑层（velocity 向量 + 白盒调钳制/即死函数），首个版本 §1 是「假通过」已重写。
+- **回归**：runner 61→62 件套（presentation expect 261→273 元数据同步 + flee_bound 18）→ day26 锚点 62 项/**1534 断言**（首跑 1522 算错 FAIL 修正）→ 全量回归 **62/62 PASS** + baseline **BASELINE CLEAN**。
+- **PLAYTEST**：F-44 行登记（机器侧修复 · 待真人回归：远程怪不后退 / 追到边界不越界 / 各关正常通关）。
