@@ -1419,6 +1419,18 @@
             "projectiles": 3
           }
         ]
+      },
+      {
+        "id": "starting_gun",
+        "name": "初始枪",
+        "name_en": "Starting Gun",
+        "tier": 1,
+        "damage": 8,
+        "cooldown": 0.4,
+        "range": 180,
+        "knockback": 0,
+        "max_level": 1,
+        "levels": []
       }
     ],
     "elemental": [

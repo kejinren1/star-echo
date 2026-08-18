@@ -1,14 +1,14 @@
 # 数据分布总览（DATA_OVERVIEW）
 
-- 生成时间：2026-08-19 02:40
+- 生成时间：2026-08-19 06:40
 - 来源：docs/GameData.xlsx（tools/excel_export.py 导出时自动刷新）
 
-## weapons（36 行）
-- 分类分布：{'melee': 9, 'ranged': 9, 'elemental': 10, 'engineering': 8}
+## weapons（37 行）
+- 分类分布：{'melee': 9, 'ranged': 10, 'elemental': 10, 'engineering': 8}
 - 等级条目：288（36 把 × 8 级）
-- 基础 damage：min 0.0 / max 45.0 / 均值 11.9
+- 基础 damage：min 0.0 / max 45.0 / 均值 11.8
 - 基础 cooldown：min 0.05 / max 2.0 / 均值 0.6
-- 基础 range：min 100.0 / max 400.0 / 均值 214.4
+- 基础 range：min 100.0 / max 400.0 / 均值 213.5
 
 ## items（54 行）
 - 稀有度分布：{'common': 15, 'uncommon': 12, 'rare': 12, 'legendary': 13, 'epic': 2}

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-19T02:40:04",
-  "fingerprint": "3e34b6110cf7fb0d",
+  "generated_at": "2026-08-19T06:40:30",
+  "fingerprint": "9ae5e72919116077",
   "files": {
     "boss_patterns.json": "5abf9172db00",
     "boss_phase_events.json": "c51425f67cc2",
@@ -17,6 +17,6 @@
     "spawn_points.json": "4be4a100006c",
     "stats.json": "96d77122d3fb",
     "waves.json": "099a092a27d7",
-    "weapons.json": "a0bfabee7f79"
+    "weapons.json": "bd49c876ecb3"
   }
 }
