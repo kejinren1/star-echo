@@ -517,5 +517,117 @@
       "category": "sfx",
       "path": "res://assets/audio/sfx/boss.wav"
     }
+  },
+  "fx_config": {
+    "hit": {
+      "frames": 4,
+      "fps": 12,
+      "path": "res://assets/sprites/effects/fx_hit.png",
+      "size_w": 32,
+      "size_h": 32,
+      "size": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "crit": {
+      "frames": 6,
+      "fps": 12,
+      "path": "res://assets/sprites/effects/fx_crit.png",
+      "size_w": 32,
+      "size_h": 32,
+      "size": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "death": {
+      "frames": 4,
+      "fps": 10,
+      "path": "res://assets/sprites/effects/fx_death.png",
+      "size_w": 32,
+      "size_h": 32,
+      "size": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "levelup": {
+      "frames": 6,
+      "fps": 10,
+      "path": "res://assets/sprites/effects/fx_levelup.png",
+      "size_w": 32,
+      "size_h": 32,
+      "size": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "pickup": {
+      "frames": 4,
+      "fps": 10,
+      "path": "res://assets/sprites/effects/fx_pickup.png",
+      "size_w": 16,
+      "size_h": 16,
+      "size": {
+        "x": 16,
+        "y": 16
+      }
+    },
+    "fireball": {
+      "frames": 6,
+      "fps": 12,
+      "path": "res://assets/sprites/effects/fx_fireball.png",
+      "size_w": 64,
+      "size_h": 64,
+      "size": {
+        "x": 64,
+        "y": 64
+      }
+    },
+    "turret_deploy": {
+      "frames": 4,
+      "fps": 10,
+      "path": "res://assets/sprites/effects/fx_turret_deploy.png",
+      "size_w": 64,
+      "size_h": 64,
+      "size": {
+        "x": 64,
+        "y": 64
+      }
+    },
+    "blade_burst": {
+      "frames": 6,
+      "fps": 12,
+      "path": "res://assets/sprites/effects/fx_blade_burst.png",
+      "size_w": 64,
+      "size_h": 64,
+      "size": {
+        "x": 64,
+        "y": 64
+      }
+    },
+    "meteor": {
+      "frames": 6,
+      "fps": 12,
+      "path": "res://assets/sprites/effects/fx_meteor.png",
+      "size_w": 128,
+      "size_h": 128,
+      "size": {
+        "x": 128,
+        "y": 128
+      }
+    },
+    "shield": {
+      "frames": 6,
+      "fps": 10,
+      "path": "res://assets/sprites/effects/fx_shield.png",
+      "size_w": 64,
+      "size_h": 64,
+      "size": {
+        "x": 64,
+        "y": 64
+      }
+    }
   }
 }

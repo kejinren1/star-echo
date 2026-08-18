@@ -431,7 +431,22 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
             continue
         rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
         am_map[sid] = rec
-    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map}
+
+    # fx_config（F1-E-4 第四批 2026-08-18 总指挥 · 特效帧配置抽表 dict 形
+    # {fx_config: {特效id: {"path": "res://...", "frames": n, "fps": n, "size": {"x": w, "y": h}}}}；
+    # size 由 size_w/size_h 两列组装；消费端 DataLoader.get_fx_config 命中优先，
+    # 未命中/空表 → vfx_player const FX_CONFIG 兜底）
+    fx_map: dict = {}
+    for r in tables.get("fx_config", []):
+        sid = str(r.get("id", ""))
+        if not sid:
+            continue
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
+        w = coerce_num(r.get("size_w")); h = coerce_num(r.get("size_h"))
+        if w and h:
+            rec["size"] = {"x": int(w), "y": int(h)}
+        fx_map[sid] = rec
+    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map, "fx_config": fx_map}
     return files
 
 

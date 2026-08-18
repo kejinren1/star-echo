@@ -146,6 +146,8 @@ COLUMN_ZH = {
     "charge_duration": "冲锋持续(秒)",
     # ---- audio_config（F1-E-3 2026-08-18 总指挥 · BGM/SFX 路径抽表） ----
     "category": "类别(bgm/sfx)", "path": "资源路径",
+    # ---- fx_config（F1-E-4 2026-08-18 总指挥 · 特效帧配置抽表，原 vfx_player.gd FX_CONFIG 数据化） ----
+    "frames": "帧数", "fps": "帧率(fps)",
     # ---- elements / element_reactions / reaction_rules ----
     "effect": "效果", "dot": "持续伤害", "dot_scaling": "持续伤害成长",
     "slow_percent": "减速%", "stun": "眩晕",
@@ -243,6 +245,15 @@ SHEETS = {
     # category 列 = bgm(2)/sfx(10)，path 列 = res:// 资源路径（与 const 现值逐一一致零漂移）
     "audio_config": {
         "sheet": "audio_config", "file": "presentation.json", "root": "audio_map",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": [], "child": None,
+    },
+    # F1-E（2026-08-18 总指挥第四批）：特效帧配置抽表——原 vfx_player.gd FX_CONFIG
+    # 10 条数据化（id 主键 dict 形，导出 data/presentation.json fx_config），消费端 DataLoader
+    # get_fx_config 命中优先、未命中/空表回退 const FX_CONFIG（F 系列缺省兜底约定）；
+    # size 拆 size_w/size_h 两列便于策划填写，导出时组装 {"x","y"} 供消费端 Vector2i()
+    "fx_config": {
+        "sheet": "fx_config", "file": "presentation.json", "root": "fx_config",
         "key": "id", "category": None, "kind": "dict",
         "json_cols": [], "child": None,
     },
