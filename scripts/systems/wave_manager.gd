@@ -90,7 +90,14 @@ func start_wave(wave_number: int) -> void:
 
 	# 通知生成器生成敌人
 	if GameManager.enemy_spawner:
-		GameManager.enemy_spawner.spawn_wave(config, wave_number)
+		# LD-B（2026-08-19 · LEVEL_DESIGN 规格）：透传本波固定出生点组
+		# （waves 行 spawn_set/spawn_order；缺省空字典 = 生成器缺省回退原随机路径零回归；
+		#  day14_15 路线/精英/Boss 各波统一走本透传）
+		var spawn_override: Dictionary = {
+			"spawn_set": config.get("spawn_set", []),
+			"spawn_order": config.get("spawn_order", "sequence"),
+		}
+		GameManager.enemy_spawner.spawn_wave(config, wave_number, spawn_override)
 
 ## F-28（2026-08-08 用户拍板）+ F-49（2026-08-18 用户拍板「通关不突兀」）：
 ## 通关判定——敌人击杀时由 enemy.die() 调用。

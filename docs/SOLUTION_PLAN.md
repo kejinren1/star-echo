@@ -1,3 +1,104 @@
+# 方案计划（2026-08-19 04:3x · 方案师第 34 轮 · F1-E 批六 初始武器+SKILL_ICON_MAP 正式方案（#2 第 64 轮拆解完成兑现 · 含 1 处新阻塞点裁决）+ LD-A 收口确认 + 批五/RELIC 挂账观察）
+
+## 📌 本轮判定（方案师第 34 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #89 之后无新增量 · 反馈专员已改 4h 一轮，02:38 轮空转零产出符合 D-018「无反馈轮不写增量不 commit」）**：F-45~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域（非机器可执行）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需纳入本轮**。
+>
+> **🟠 关键调度输入（本轮兑现 #2 第 64 轮拆解）**：`docs/TASKS.md` F1-E-6 段（**#2 第 64 轮 `6636889` 04:00 函数级拆解**）——F1-E 第六批 **初始武器 + SKILL_ICON_MAP 抽表**（两子项合并批）：T-004 `_equip_default_weapon` 内联初始枪抽表（weapons sheet +starting_gun 行，**source_id 留空保 day13 硬门槛**）+ T-022 hud SKILL_ICON_MAP 抽表（**独立 skill_icon_map 表 5 行**，否决 characters 点号列备选 = blade_burst 历史键无主 + 掉落技能槽覆盖不全；**SKILL_ICON_MAP const 保留兜底** = day31_skill_icon_check §5 直接读 const 零改动硬门槛）→ day31_presentation_check +§8 skill_icon 段 → 回归 64 件套。承接方 = #3 执行者（D-015 交接，拆解+方案齐备即开工）。→ **本轮方案师按拆解写批六正式方案（实测复核锚点 8 项 + 1 处新阻塞点裁决，见任务 1-6）**。
+>
+> **git 实测**：HEAD=`6636889`（#2 第 64 轮 · 04:00；第 33 轮方案后 +6 = `96e4cd5` **LD-A1~A3+EXIT LEVEL_DESIGN 数据地基收口**（spawn_points 11 行三型 + boss_phase_events 7 行 6 类型 + waves spawn_set/spawn_order 列 + FK 校验三态 + **--check-only 只读缺陷顺手修** + DataLoader 三接口 + day31_level_design_data_check **24/24** + runner 63→**64 件套**/day26 1578→**1602 锚点**）/ `3509b74` 执行者第 64 轮收口（**回归阻塞登记 59/64：5 FAIL = 用户会话在途 D-26 `set_frame_offset` Godot 4.4 API 误用**，与 LD-A 零关联）/ `5c306b1` 总指挥第 7 轮（**D-020 处置：不代修待收口，EXIT 门槛统一挂等复跑**）/ `c32a13f` #1 第 68 轮 / `6636889` **批六拆解**）；**工作区在途 = 用户会话美术资产（lain 动画帧 ×8 + art_ai 工具 ×4 + `player_anim.gd`/`sprite_frame_factory.gd` M = **D-26 回归阻塞源**）+ `docs/TEST_REPORT.md` M（#4 在途）——非本岗改动面，红线内不碰**。
+>
+> **锚点实测复核结论（本轮核心产出，供执行者直接使用）**——与 #2 第 64 轮拆解文本**逐一一致（2 处微差修正 + 1 处新阻塞点裁决）**：
+> 1. **weapon_controller.gd**（`scripts/weapons/weapon_controller.gd`）：`_equip_default_weapon()` **:59-71**（拆解写 :59-76，实测函数体 :59-71 + 字段实为 **9 项**非 7：weapon_name=初始枪/weapon_type=ranged/base_damage=8.0/fire_rate=2.5/projectile_speed=360.0/attack_range=180.0/lifetime=1.5/pierce=0/knockback=0.0），调用点 :40 `_ready`；`equip_from_data(weapon_id)` :187（:185 注释「按 id 装备数据驱动武器，覆盖 _ready() 装上的占位『初始枪』」= 数据驱动装配语义已有）；
+> 2. **⭐ 新阻塞点裁决（拆解未覆盖）**：`build_weapon_from_data(weapon_id)` :134-166 实际消费键 = **name→weapon_name / category→weapon_type（DataLoader.get_weapon_category）/ damage→base_damage / cooldown→fire_rate（fire_rate=1.0/cooldown 换算，:146-147）/ range→attack_range / knockback / pierce / crit_chance / crit_damage / icon_index / price / max_level / levels**；而 **:162 注释明确「projectile_speed 保留 Weapon 默认 400；lifetime 由 _spawn_projectile() 按 range/speed 推导，不手设」= 数据驱动路径下 projectile_speed=360.0 与 lifetime=1.5 两项不会装配**（weapons.json 实测 36 武器零 projectile_speed/lifetime 键，非历史遗漏而是设计如此）→ **拆解「starting_gun 数值零变化 8.0/2.5/360/180/1.5/0/0 逐键断言零漂移」隐含的两键可装配假设不成立**。**裁决（方案师）**：① starting_gun 表行**只填可消费键**（name/weapon_type/damage=8/cooldown=0.4（↔fire_rate 2.5）/range=180/knockback=0/pierce=0/max_level=1，**projectile_speed/lifetime 两键不进表**——进了即 F1-G 无消费方死键先例违规）② 消费端改走 `build_weapon_from_data("starting_gun")` 命中后**补两句 `w.projectile_speed = 360.0; w.lifetime = 1.5`（对齐内联现值零行为变化）**再 equip_weapon；null/异常 → 保留现内联构造兜底（拆解已定）③ 探针断言 9 键逐一对等（含补设后两键相等）+ E2E 改 damage=9 → 导出 → base_damage=9 → 强制改回 8 重导出。**备选 C（不强制）**：build_weapon_from_data :162 补 `projectile_speed` 消费键（默认 400 兜底 + 其他 36 武器零漂移）→ 两键可全进表，更彻底数据驱动；影响面 = 共享构建函数，风险可控但非必须，执行者二选一登记；
+> 3. **hud.gd**：`SKILL_ICON_MAP` const **:336-342**（**5 键**：se_skill_fireball=0/deploy_turret=1/blade_burst=2/holy_shield=3/sword_arc=4，sword_arc 带 PS-C4 注释）+ `_apply_skill_icon` :343-360（**消费点 :354** `int(SKILL_ICON_MAP.get(skill_id, -1))` + 未知 id push_warning :356-357）/ `_apply_skill_slot_icon` :388-409（**消费点 :403** + 未映射 :404-405 灰显）——**与拆解一致**；
+> 4. **硬门槛探针（const 直读确认）**：`day31_skill_icon_check.gd` §5 **:57-81**（:61 `hud_script.SKILL_ICON_MAP` 直接读 const + :73-80 data 全 se_skill_* id 覆盖/帧索引有效 + :81 sword_arc==4）——**SKILL_ICON_MAP const 保留 = 该探针零改动**；`day13_build_check.gd:617-625`「无 source_id 占位武器跳过 inventory」（初始枪不污染 HUD）——**starting_gun source_id 留空 = 该断言零改动**；
+> 5. **data_schema.py**：`weapons` 注册 :199-204（category_map + child weapons_levels）——**T-004 零新注册**；`fx_config` :261-265 注册范式（file: presentation.json / root: fx_config / kind: dict / key: id / json_cols: []）——**icon_config/skill_icon_map 注册仿此**；`characters` :286-292（:290 注释「skill 为 dict → 点号宽列自动」= 拆解否决的备选确实存在，否决成立）；
+> 6. **excel_export.py**：presentation 构建段 :462-512（enemy_sprites :464-474 / behavior_map :479-485 / audio_map :490-496 / fx_config :502-511），**files dict 现于 :512 且仅 4 根键** `{"enemy_sprites","behavior_map","audio_map","fx_config"}`（LD-A 两新表走独立文件 spawn_points.json :438-445 / boss_phase_events.json :450-460，不并入 presentation.json）→ **行号修正：第 33 轮方案记「:449 现 5 根键」已随 LD-A 插入漂移 → 现 :512 4 根键**（批五加 icon_config 成 5 → 批六加 skill_icon_map 成 6，追加勿覆盖既有键）；skill_icon_map 构建仿 fx_config 段（id 主键 → int(icon_index)，无 size 组装）；
+> 7. **data_loader.gd**（`scripts/autoload/data_loader.gd`）：缓存字段区 :29-42（`_fx_map` :36 / `_spawn_points` :38-40 / `_boss_phase_events` :41-42，空字典 = is_empty 重试标记范式）——**`_icon_map`/`_skill_icon_map` 仿此加在 :36 后**；`get_fx_config` :666-678 懒加载范式（raw parse → 命中缓存 → 组装 Vector2i）——**get_skill_icon_index 仿此（无 Vector2i，命中 → int 值 / 未命中 → -1）**；`get_icon_config`（批五）+ `get_skill_icon_index`（批六）两接口同域可合并建段；
+> 8. **回归硬门槛口径 = 64 件套 · 1602 锚点**（LD-A runner 扩容；**当前 59/64 5 FAIL 挂 D-26 用户会话在途，D-020 处置 = 不代修待收口，批六 EXIT 门槛统一挂等 D-26 复跑恢复 64/64 后全绿**）。
+>
+> **结论**：① **F1-E 批六 = 本轮方案主产出**（拆解完成即解锁，方案师按纪律写正式方案，承接方 = #3 执行者，执行序 6-1→6-2→6-3→6-4→6-5→EXIT 每任务一收口 commit 带 F1-E-6 编号）；② **LEVEL_DESIGN LD-A 收口确认**（`96e4cd5`：LD-A1/A2/A3 [x] + LD-A-EXIT [~] 仅回归挂 D-26）→ 上轮「LD-A 待执行」挂账解除，**LD-B（固定出生点）/LD-C（Boss 演出）/LD-E（attr）/LD-D（可选）已拆已定案（第 32 轮）待 #3 续做**；③ **F1-E 批五 SHEET_CONFIG 方案已定（第 33 轮）git 实测仍零开工**（HEAD 无 icon_config/get_icon_config/§7 icon 段提交）→ 挂账观察（**跨 1 轮**）；④ **RELIC 全批方案已定（第 31 轮）git 实测仍零开工** → 挂账观察（**跨 3 轮**）；⑤ D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域维持；⚠️ **build/ = 08-18 23:22 产物（`2aeb717` 授权导出：含 F-45~48 + F1-E-4-1，不含其后 F-49 + F1-E-4 消费端 + LD-A）→ 传送门/宝箱/批四抽表/LD 验证需最新代码或下次打包**（交 Owner/总指挥）。
+
+## 当前开发日：Day 31（LEVEL_DESIGN + RELIC 同窗口 · F1-E 批六承接方 #3 · 拆解 `6636889` F1-E-6 段唯一事实源）
+
+### 任务1：F1-E-6-1【W2】T-004 初始枪抽表（数据侧）· 风险：低
+
+- **改动**：① `docs/GameData.xlsx` weapons sheet 加 1 行 `starting_gun`（**9 字段与 `_equip_default_weapon()` 内联现值逐一一致**：id=starting_gun / name=初始枪 / weapon_type=ranged（category 归 ranged 列）/ **damage=8**（消费键为 damage 非 base_damage）/ **cooldown=0.4**（↔ fire_rate 2.5，消费端 1.0/cooldown 换算）/ **range=180**（消费键为 range 非 attack_range）/ knockback=0 / pierce=0 / max_level=1 单级（levels 子表可不填或填 Lv1 行与基础字段一致）；**projectile_speed/lifetime 两键不进表**（build_weapon_from_data :162 无消费点，进了即死键——F1-G 先例违规）；**source_id 留空** = day13 硬门槛）② data_schema **零新注册**（weapons :199-204 已有）③ excel_export **零改动**（weapons 构建已有）④ 导出 → weapons.json +starting_gun 条目（ranged 分类），**其余 JSON 零 diff 断言**（前五批先例）。
+- **风险**：**低**。数据面常规（1 行 sheet）；硬门槛 = starting_gun 9 键与内联现值零漂移（漏一项 = 探针红）+ source_id 缺失 + 其余 JSON 零 diff。⚠️ **WPS 锁坑**：Excel 被 WPS 打开时导出写回总览报 PermissionError（F1-G-尾教训），执行者注意。
+- **验证**：excel_export --check-only EXIT=0 + JSON 校验通过 + weapons.json ranged 类含 starting_gun 且键与内联现值一致（零漂移）+ source_id 缺失 + 其余 JSON 零 diff。
+
+### 任务2：F1-E-6-2【W1】T-004 消费端改读 · 风险：低-中（⭐ 新阻塞点裁决落地）
+
+- **改动**：`scripts/weapons/weapon_controller.gd` `_equip_default_weapon()`（:59-71）改走：`var w := build_weapon_from_data("starting_gun")`（:134 同文件方法，内部 DataLoader.get_weapon 读表 :135）→ **非 null：补 `w.projectile_speed = 360.0` + `w.lifetime = 1.5`（对齐内联现值零行为变化，⭐第 34 轮裁决）** → `equip_weapon(w)`；**null/异常 → 保留现内联构造兜底**（防 Excel 未导出/数据缺失零崩，F 系列缺省兜底约定）；⚠️ 装配后 9 键逐键核对（与内联现值一致，抽表零数值变化）。**备选 C（可选）**：build_weapon_from_data :162 补 `projectile_speed`/`lifetime` 消费键（默认 400/推导兜底，其他 36 武器零漂移）→ 两键可进表，执行者二选一登记。
+- **风险**：**低-中**。唯一新增风险 = **build_weapon_from_data 数据驱动路径不装配 projectile_speed/lifetime（:162 实证）** → 已裁决补设两键；硬门槛 = **day13_build_check :617-625 零改动**（starting_gun source_id 留空 → 无 source_id 占位武器不写 inventory）。⚠️ fire_rate 换算注意：表 cooldown=0.4 → 装配 fire_rate=2.5（断言按换算后值）；未装配数据缺失 → 内联兜底 weapon_name 仍「初始枪」。**替代方案**：若实测 build_weapon_from_data 返回异常（如 DataLoader.get_weapon 对 starting_gun 分类解析失败），退回纯内联现状 + 仅数据侧探针验证（等价零回归）。
+- **验证**：白盒 `_equip_default_weapon` → weapon 9 键与内联现值逐一相等（含补设两键）；Excel 改 damage=9 → 导出 → 装配 base_damage=9（端到端双跑，F1-散 §1 先例）→ 强制改回 8 重导出；删表行/未知 id → 内联兜底仍可装备（weapon_name 仍「初始枪」）；day13 :617-625 零改动复跑。
+
+### 任务3：F1-E-6-3【W2】T-022 skill_icon_map 抽表（数据侧）· 风险：低
+
+- **改动**：① `docs/GameData.xlsx` 新增 `skill_icon_map` sheet（**5 行 × id/icon_index 双行表头**：id = se_skill_fireball/se_skill_deploy_turret/se_skill_blade_burst/se_skill_holy_shield/se_skill_sword_arc，icon_index = 0/1/2/3/4 **与 SKILL_ICON_MAP const 现值逐一一致**）② `tools/data_schema.py` 注册 `skill_icon_map`（file: presentation.json / root: "skill_icon_map" / kind: "dict" / key: id / json_cols: []，仿 fx_config :261-265 先例）③ `tools/excel_export.py` presentation 构建段（fx_config 段 :502-511 后）追加 skill_icon_map 解析（id 主键 → int(icon_index)，仿 fx_config 段模式）+ **:512 files dict 追加第 6 键 "skill_icon_map"（勿覆盖既有 4 键 + 批五 icon_config 第 5 键）** ④ 导出 → presentation.json +skill_icon_map 5 项，**其余 16 JSON 零 diff 断言**。
+- **风险**：**低**。数据面常规（5 行 sheet + 注册 + 构建三小点）；硬门槛 = skill_icon_map 5 键 icon_index 与 const 现值零漂移 + 其余 JSON 零 diff。⚠️ 执行序注意：批五（icon_config）尚未收口 → 若 #3 先做批六再补批五，:512 files dict 键序会先 5 后 6，两批各自 commit 各自断言，勿混批。
+- **验证**：excel_export --check-only EXIT=0 + JSON 校验通过 + skill_icon_map 5 键齐 + icon_index 与 const 现值一致（零漂移）+ 其余 16 JSON 零 diff。
+
+### 任务4：F1-E-6-4【W1】T-022 消费端改读 · 风险：低
+
+- **改动**：① `scripts/autoload/data_loader.gd` 新增 `get_skill_icon_index(skill_id: String) -> int`（懒加载 presentation.json skill_icon_map 缓存 + `_skill_icon_map` 空表标记仿 :36 后字段区，**is_empty 重试标记 F3 §4 禁新增 bool**；命中 → int 值 / 未命中·空表 → -1，仿 get_fx_config :666-678 范式）；② `scripts/ui/hud.gd` `_apply_skill_icon` :354 与 `_apply_skill_slot_icon` :403 的 `SKILL_ICON_MAP.get(skill_id, -1)` 改走 `get_skill_icon_index(skill_id)`（**DataLoader 接口命中优先，未命中 → 回退 `SKILL_ICON_MAP.get(skill_id, -1)` const 兜底**；hud 为实例节点 → `get_node_or_null("/root/DataLoader")` 先例 vfx_player :97，不可达 → 直接 const 查值）；**SKILL_ICON_MAP const 保留为兜底**（day31_skill_icon_check §5 :57-81 直接读 const 零改动硬门槛）；未知 id push_warning（:356-357 槽 0 路径）行为不变。**⚠️ 零行为变化**（仅映射来源数据化）。槽 1/2 掉落技能未映射 → 灰显现状不变（T-022 只抽现 const 5 键，掉落技能图标 = 技能遗物扩展域，登记 TECH_DEBT 或留 PS-EXIT）。
+- **风险**：**低**。纯新增接口 + 两处消费点替换；硬门槛 = day31_skill_icon_check 零改动 + 未知 id 行为不变。
+- **验证**：白盒 `_apply_skill_icon` 走 skill_icon_map 路径（帧纹理非空）；表清空 → 回退 const 仍映射（帧纹理非空）；未知 id 仍 push_warning（槽 0）；槽 1/2 掉落技能未映射 → 灰显不变；get_skill_icon_index("se_skill_fireball")==0 / 未知名==-1。
+
+### 任务5：F1-E-6-5【W1】探针扩展 · 风险：低
+
+- **改动**：`tools/day31_presentation_check.gd` 尾部（批五 §7 icon 段后，若批五未先行则按当前尾段追加）**+§8 skill_icon 段 ≥8 断言**（仿 ⑥ fx 段模式）：skill_icon_map 5 键齐 / 键集合与 SKILL_ICON_MAP 一致（零多余零缺失）/ 逐键 icon_index 与 const 现值一致（抽表零漂移）/ 改 Excel 一例 icon_index → 导出 → get_skill_icon_index 变化（端到端双跑）/ 空表兜底 const 仍映射（白盒）/ 未知 id push_warning 保留 / 槽 1/2 掉落技能灰显不变 / T-004 侧：weapons.json starting_gun 9 键零漂移 + source_id 缺失断言（可并入 §8 或独立段，执行者定）。
+- **风险**：**低**。纯探针扩展；**回归硬门槛 = day31_skill_icon_check（直接读 const）+ day13_build_check :617-625（无 source_id 不污染 inventory）零改动** + 64 件套 1602 锚点 + baseline CLEAN。
+- **验证**：day31_presentation_check **≥307/307**（299+8，批五未先行时按实际尾段计数）+ 全量回归（当前 59/64 挂 D-26，EXIT 门槛统一挂等复跑）。
+
+### 任务6：F1-E-6-EXIT【W5】收口 · 风险：低
+
+- **验证**：回归 **64 件套（1602 锚点）**（当前 59/64 5 FAIL 挂 D-26，**收口以 D-26 复跑恢复后全绿为准**）+ day31_presentation ≥307（299+8）+ baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0 + F1-E 行 **6/7 批**标记 + TECH_DEBT_ISSUES **T-004/T-022 转已收口**。
+
+### 任务7：LEVEL_DESIGN LD-B/C/E/D——LD-A 已收口解锁，挂账观察（拆解后首轮起算）
+
+- **现状**：LD-A1/A2/A3 [x]（`96e4cd5` 数据地基 + FK 三态 + --check-only 修复 + 三接口 + 探针 24/24）+ LD-A-EXIT [~]（仅回归挂 D-26，D-020 不代修待收口）→ **LD-B（固定出生点）/ LD-C（Boss 演出）/ LD-E（attr）/ LD-D（可选）仍 [ ] 待 #3 执行**（方案已定 SOLUTION_PLAN 第 32 轮，锚点复核 9 项一致）；**本轮 git 实测确认 LD-B 仍未开工**（HEAD 无 spawn 消费点/_get_spawn_position 提交）→ 挂账观察（LD-A 收口后首轮），承接方 = #3 执行者。
+- **执行序**（第 32 轮定案不变）：LD-B 出生点（F-48 不回归：day31_flee_bound 18/18 零改动）→ LD-C Boss 演出 → LD-E attr → LD-D 可选挂 TECH_DEBT_PLAN。
+
+### 任务8：F1-E 批五 SHEET_CONFIG + RELIC 全批——挂账观察（批五跨 1 轮 / RELIC 跨 3 轮）
+
+- **批五**：方案已定（SOLUTION_PLAN 第 33 轮，锚点复核 6 项一致）；**本轮 git 实测确认仍未开工**（HEAD=`6636889` 无 icon_config/get_icon_config/§7 icon 段提交）→ **挂账观察（跨 1 轮）**，承接方 = #3 执行者；硬门槛 = day31_items_atlas/skill_icon 直接读 const 零改动 + get_frame_count 三探针行为保持 + 63 件套口径（现 64 件套）。
+- **RELIC**：方案已定（SOLUTION_PLAN 第 31 轮）；**本轮 git 实测确认仍零开工**（HEAD 无 day31_relic_*/stats 改名提交）→ **挂账观察（跨 3 轮）**，承接方 = #3 执行者；执行序 = RELIC-A（独立低成本先行）→ RELIC-0（数据地基）→ RELIC-F/E → RELIC-B/C/D → EXIT。
+- **风险提示**：两批均为「拆解+方案齐备」状态，唯一风险 = 承接方持续未开工（#3 第 64 轮优先做 LD-A，本窗口可连续推进 LD-B→批五/批六→RELIC-A，执行序由 #3 排）。
+
+### 任务9：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出）。D30-T3 上传 [ ] = 等 Owner 明确确认（目标资产库）；D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘 + 最终标记。⚠️ **build/ 观察维持：08-18 23:22 产物（`2aeb717`）含 F-45~48 + F1-E-4-1，不含其后 F-49 + F1-E-4 消费端 + LD-A** → 传送门/宝箱/批四抽表/LD 验证需最新代码或下次打包（交 Owner/总指挥）。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| F1-E-6-1 T-004 数据侧 | 低 | 1 行 sheet + 零注册零构建改动；9 键零漂移 + source_id 缺失 + 其余 JSON 零 diff；WPS 锁坑 |
+| F1-E-6-2 T-004 消费端 | 低-中 | ⭐ build_weapon_from_data :162 不消费 projectile_speed/lifetime = 新阻塞点已裁决（两键不进表 + 消费端补设 360/1.5）；备选 C（builder 补消费键默认兜底）可选；替代 = 纯内联现状等价零回归 |
+| F1-E-6-3 T-022 数据侧 | 低 | 5 行 sheet + 注册 + 构建；零漂移 + 16 JSON 零 diff；勿与批五 icon_config 混批 |
+| F1-E-6-4 T-022 消费端 | 低 | get_skill_icon_index 纯新增 + 两处替换；day31_skill_icon_check 零改动硬门槛 |
+| F1-E-6-5 探针扩展 | 低 | ≥8 断言；两探针零改动 + 64 件套 1602 锚点 |
+| F1-E-6-EXIT | 低 | 6/7 批标记 + T-004/T-022 转收口；EXIT 挂 D-26 复跑 |
+| LD-B/C/E/D | 中 | 方案已定第 32 轮；LD-A 收口已解锁；风险 = LD-B 消费端与 F-48 不回归面（flee_bound 18/18 零改动） |
+| 批五 / RELIC | 低-中 | 方案已定（33/31 轮）；唯一风险 = 承接方未开工（跨 1/3 轮挂账观察） |
+| D30-T3/EXIT | 低 | Owner/#4 域；build/ 不含 F-49 + F1-E-4 消费端 + LD-A 交 Owner/总指挥核实 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 批七**（炮台默认）：沿前六批范式 + 各批先例推进，承接方开工时按需拆解（批六收口后再拆批七）。
+- **LD-B/C/E/D**：方案已定（SOLUTION_PLAN 第 32 轮）不重写，执行按 32 轮执行序。
+- **F-49（传送门+宝箱）**：已落地（`4f1e791` 闭环 + day31_portal_check 24/24）——非本岗方案对象；真人回归面交 #5；RELIC-E 落地时宝箱奖励升级三选一（本机制为地基）。
+- **F-45~F-49 主观回归面 / E-0 终审完整局 / AF-P0 / PS-EXIT**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-44 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md`（顶部新第 34 轮段，历史段完整保留）+ 在 `docs/TASKS.md` 标注（F1-E-6 段「方案已定（SOLUTION_PLAN.md 第 34 轮）」+ LD-A 收口确认 + 批五/RELIC 挂账观察 + 第 64 轮状态块后补方案师第 34 轮确认块）。工作区在途用户会话美术资产（lain 帧/AI 美术工具/2 脚本 M = D-26 阻塞源）+ #4 TEST_REPORT.md 不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-19 02:4x · 方案师第 33 轮 · F1-E 批五 SHEET_CONFIG 正式方案（#2 第 63 轮拆解完成兑现）+ RELIC/LD 挂账观察 + build 观察）
 
 ## 📌 本轮判定（方案师第 33 轮）
@@ -614,3 +715,28 @@
 **维持登记**：**LD-B（固定出生点生成）/ LD-C（Boss 演出）/ LD-E（attr 状态）** = #3 承接（依赖 LD-A 已就绪，LD-B 下轮开工）；F1-E 批五 SHEET_CONFIG（方案师第 33 轮已定案）= #3 承接；RELIC 方案已定挂账观察（承接方 = #3）；D30-T3 上传 + D30-EXIT = Owner/#4 域；PS-EXIT/E-0/AF-P0/F-45~F-49 主观回归交 #5。**回归口径更新 = 64 件套 · 1602 断言**（LD-A 并入后 runner/day26 新锚点；全绿复跑待用户会话收口）。
 
 **下轮观察点**：① 用户会话是否收口 D-26 动画链（set_frame_offset Godot 4.3 兼容修复）→ 复跑回归恢复 64/64 ② #3 是否开 LD-B（enemy_spawner 按点位生成，git log 出现 _get_spawn_position / spawn_set 消费）③ 方案师/各岗对回归阻塞的登记反应 ④ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口 ⑤ #4 #64 快照刷新后 runner/day26 锚点是否漂移（64/1602 新口径）。
+
+---
+
+# 执行结果（2026-08-19 04:5x · 执行者第 65 轮 · LEVEL_DESIGN LD-B 固定出生点生成收口）
+
+## 📌 本轮判定（执行者第 65 轮）
+
+> **高峰检查**：04:37 不在 09-12/14-18 → 正常执行。
+> **P0 检查（PLAYTEST 追踪区增量 #89 后无新增量）**：F-01~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域 → **🔴P0 无新增 / 🟠 无用户拍板调度指令需本岗处理**。
+> **方案核实（三方一致）**：方案师第 32 轮 LEVEL_DESIGN 正式方案（LD-A 已收口 `96e4cd5` → LD-B 下轮开工）+ 第 64 轮拆解回执（LD-B→C→E 执行序 + F1-E 批五→批六连续推进）+ git 实测 HEAD=`6636889`（#2 第 64 轮拆解）一致 → **本轮执行 = LEVEL_DESIGN LD-B 固定出生点生成**（依赖 LD-A 已就绪，方案第 32 轮任务 2 + TASKS LD-B1/B2/B3/EXIT）。
+
+**执行结果：[部分完成]（LD-B1/B2/B3 全 [x] + LD-B-EXIT [~] 回归门槛被 D-26 用户会话在途代码阻塞，与上轮 LD-A-EXIT 同口径）**
+
+1. **LD-B1 消费端（enemy_spawner.gd）**：新增 `_get_spawn_position()` 表驱动主路径——`_spawn_override` 点位组 + `spawn_order` 轮换（sequence 数组循环 index 递增 / random `_rng` 实例组内随机，同角落不堆叠）+ edge/anchor/ring 三型解析（edge 8 向边缘/角落 + inset 内缩（仿 F-44 边界语义）；anchor x/y 比例 × 竞技场尺寸；ring 圆周均分按已生成数取角）+ min_dist_player 尝试换点（≥3 次或组全覆盖）仍过近**原样生成不静默丢弃** + `_clamp_to_ground` 钳制；`_get_arena_rect()`（world→ground `get_ground_rect`；world/ground 缺失 → 缺省 1536×864 原点对齐 = 探针环境确定性）；`spawn_wave` 加第三可选参 `spawn_override: Dictionary = {}`（缺省空 = 兼容旧调用零回归）；`_create_enemy` 位置改走 `_get_spawn_position()`；**`_get_random_spawn_position` 原函数保留**（缺省回退路径 + day31_wave5_repro_check:119 直接调用零破坏）。
+2. **LD-B2 透传（wave_manager.gd）**：`spawn_wave` 调用点（:92-99）显式组装 `spawn_override`（config 的 spawn_set/spawn_order，缺省空数组/sequence → 生成器缺省回退零回归）；day14_15 路线/精英/Boss 各波统一走该透传（唯一调用点）。
+3. **LD-B3 探针扩展**：day31_level_design_data_check +§6 出生点消费 **12 断言**（>8 要求：GameManager 在位 / edge north 内缩 (768,40) / anchor 比例 (768,388.8) / ring 首角 0° + 次角 45° 推进 / sequence north→south→north 循环 / random 组内随机（种子 42）/ 缺省回退 F-48 门 ≤233.5 + 盒内 ±200×±120 / point_id 不存在随机兜底 / min_dist 过近原样生成（注入 mock player）/ _clamp_to_ground 接线（注入 mock world clamp+10 偏移验证）+ 探针卫生还原）；runner 预期 24→**36** + day26 锚点 **64/1602 → 64/1614** 同步（注释链 + 断言双更新）。
+4. **护栏全绿**：day31_level_design_data_check **36/36** + flee_bound **22/22** 零改动（F-48 不回归硬门槛）+ wave5_repro **9/9** + day26 **34/34**（64 项/1614）+ excel_export --check-only EXIT=0（本轮纯消费端，零数据改动）。
+5. **⚠️ 回归硬门槛 = 59/64（5 FAIL：day2_hero/day3_skill/day5_weapon/day31_charsel/day31_player_model）——与上轮 FAIL 清单完全一致零新增，根因 = D-26 用户会话在途代码**（工作区未提交 `sprite_frame_factory.gd:92` `SpriteFrames.set_frame_offset` = Godot 4.4 API 4.3 无此方法 + `player_anim.gd:99` `get_frame_count` 连锁 null → 角色动画链 SCRIPT ERROR，与 LD-B 零关联）。**红线遵守：未触碰任何用户会话在途文件**（player_anim.gd / sprite_frame_factory.gd / lain_* / art_ai 工具 / 人物动画/ 均保持 M/?? 不动）。
+6. **PLAYTEST 主观项登记**：追踪区表格新增 **LD-B 固定出生点行**（🟢 机器侧已落地·待真人回归：怪从可预判方向涌入 wave1 北/东/环交替 / Boss 正上方登场 wave10 boss_top / F-48 不回归 / 点位观感），交 #5 试玩收集。
+
+**验证**：day31_level_design_data_check **36/36** + flee_bound 22/22 + wave5_repro 9/9 + day26 34/34 + excel_export --check-only EXIT=0（只读不写盘）+ 回归 **59/64**（阻塞登记，5 FAIL 根因 = D-26 用户会话在途 set_frame_offset API 不兼容，待用户会话收口后复跑恢复 64/64 即 LD-B-EXIT 转 [x]）。
+
+**维持登记**：**LD-C（Boss 演出）/ LD-E（attr 状态）/ LD-D（可选）** = #3 承接（LD-B 已收口解锁 LD-C）；F1-E 批五 SHEET_CONFIG（方案师第 33 轮已定案）= #3 承接（批五→批六连续推进，第 64 轮拆解已备好）；RELIC 全批挂账观察（承接方 = #3）；D30-T3 上传 + D30-EXIT = Owner/#4 域。**回归口径更新 = 64 件套 · 1614 断言**（LD-B §6 并入后 day26 新锚点；全绿复跑待用户会话收口）。
+
+**下轮观察点**：① 用户会话是否收口 D-26 动画链（set_frame_offset Godot 4.3 兼容修复）→ 复跑回归恢复 64/64 ② #3 是否开 LD-C（git log 出现 boss_phase_player.gd / play_events / enemy_damage 相位链接线）③ 是否推进 F1-E 批五 SHEET_CONFIG（icon_config sheet / get_icon_config / §7 icon 段）④ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口 ⑤ #4 #65 快照刷新后 runner/day26 锚点是否漂移（64/1614 新口径）。

@@ -5,6 +5,9 @@ extends SceneTree
 ## §3 DataLoader 三接口：get_spawn_points / get_spawn_set / get_boss_phase_events（缺省回退 + 零崩）
 ## §4 FK 引用合法性：waves.spawn_set→point_id / boss_phase_events.boss_id→合法集
 ## §5 waves 示例填值（wave10 boss_top）+ 缺省（wave2 无 spawn_set 键）
+## §6 LD-B 出生点消费（enemy_spawner._get_spawn_position 白盒：edge/anchor/ring 三型解析 +
+##   sequence 轮换 / random 组内随机 / 缺省回退 F-48 门 / point_id 不存在兜底 /
+##   min_dist 过近原样生成 / _clamp_to_ground 接线——注入 mock world/player，测后还原）
 ## 驱动：_process 首帧执行 + 显式 quit（--script 探针三坑规避）
 ## 数据来源：excel_export.py 导出产物（data/*.json 为 generated，禁手改——改数据走 Excel）
 
@@ -29,6 +32,7 @@ func _process(_delta: float) -> bool:
 		_s3_interfaces()
 		_s4_fk()
 		_s5_waves()
+		_s6_spawn_points()
 		print("\n=== %d assertions, %d failures ===" % [_checked, _failures])
 		quit(_failures)
 		return true
@@ -186,3 +190,98 @@ func _s5_waves() -> void:
 	_check(ss10 is Array and (ss10 as Array).size() == 1 and str((ss10 as Array)[0]) == "boss_top",
 			"§5 wave10 Boss 波 spawn_set=[boss_top]（Boss 正上方登场示例）")
 	_check(not w2.has("spawn_set"), "§5 wave2 无 spawn_set 键（缺省边缘均匀组零行为变化）")
+
+## LD-B（2026-08-19 · 规格 docs/LEVEL_DESIGN_SPEC.md）：出生点消费白盒——构造生成器
+## 注入 _spawn_override 逐型解析（--script 环境 GameManager.world/player 缺失 → 走
+## _get_arena_rect 缺省 1536×864 原点对齐 + 玩家距原点测距；部分用例注入 mock 后还原）
+func _s6_spawn_points() -> void:
+	var spawner := Node2D.new()  # enemy_spawner.gd extends Node2D
+	spawner.set_script(load("res://scripts/enemy/enemy_spawner.gd"))
+	root.add_child(spawner)
+	var gm: Node = root.get_node_or_null("GameManager")
+	_check(gm != null, "§6 GameManager Autoload 在位（player/world 注入用）")
+
+	# 1. edge north 内缩（缺省 arena 原点对齐 → north = (768, 40)，inset 40 生效）
+	spawner.set("_spawn_override", {"spawn_set": ["north"], "spawn_order": "sequence"})
+	spawner.set("_spawn_index", 0)
+	var p1: Vector2 = spawner.call("_get_spawn_position")
+	_check(p1.distance_to(Vector2(768, 40)) < 0.5, "§6 edge north 内缩生效（实得 %s）" % [p1])
+
+	# 2. anchor 比例换算（arena_center = anchor(0.5, 0.45) → (768, 388.8)）
+	spawner.set("_spawn_override", {"spawn_set": ["arena_center"], "spawn_order": "sequence"})
+	spawner.set("_spawn_index", 0)
+	var p2: Vector2 = spawner.call("_get_spawn_position")
+	_check(p2.distance_to(Vector2(768, 388.8)) < 0.5, "§6 anchor 比例换算正确（实得 %s）" % [p2])
+
+	# 3. ring 圆周均分（首生成序角 0° → (1068, 432)；次生成序角 TAU/8 推进不重叠）
+	spawner.set("_spawn_override", {"spawn_set": ["ring_outer"], "spawn_order": "sequence"})
+	spawner.set("_spawn_index", 0)
+	var p3a: Vector2 = spawner.call("_get_spawn_position")
+	spawner.set("_spawn_index", 1)
+	var p3b: Vector2 = spawner.call("_get_spawn_position")
+	_check(p3a.distance_to(Vector2(1068, 432)) < 0.5, "§6 ring 首角 0°（实得 %s）" % [p3a])
+	var ring_expect: Vector2 = Vector2(768 + 300 * cos(TAU / 8.0), 432 + 300 * sin(TAU / 8.0))
+	_check(p3b.distance_to(ring_expect) < 0.5, "§6 ring 次角 45° 推进（实得 %s）" % [p3b])
+
+	# 4. sequence 轮换 index 推进（north → south → north 循环，同角落不堆叠）
+	spawner.set("_spawn_override", {"spawn_set": ["north", "south"], "spawn_order": "sequence"})
+	spawner.set("_spawn_index", 0)
+	var s1: Vector2 = spawner.call("_get_spawn_position")
+	spawner.set("_spawn_index", 1)
+	var s2: Vector2 = spawner.call("_get_spawn_position")
+	spawner.set("_spawn_index", 2)
+	var s3: Vector2 = spawner.call("_get_spawn_position")
+	_check(s1.distance_to(Vector2(768, 40)) < 0.5 and s2.distance_to(Vector2(768, 824)) < 0.5
+			and s3.distance_to(Vector2(768, 40)) < 0.5, "§6 sequence 轮换 north→south→north 循环")
+
+	# 5. random 组内随机（固定种子 → 结果 ∈ 组内两解析点）
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 42
+	spawner.set("_rng", rng)
+	spawner.set("_spawn_override", {"spawn_set": ["north", "south"], "spawn_order": "random"})
+	spawner.set("_spawn_index", 0)
+	var pr: Vector2 = spawner.call("_get_spawn_position")
+	_check(pr.distance_to(Vector2(768, 40)) < 0.5 or pr.distance_to(Vector2(768, 824)) < 0.5,
+			"§6 random 组内随机（实得 %s）" % [pr])
+
+	# 6. 缺省回退随机路径（override 空 → F-48 门：距玩家 ≤233.5 对角线 + 盒内 ±200×±120）
+	spawner.set("_spawn_override", {})
+	var pf: Vector2 = spawner.call("_get_spawn_position")
+	_check(pf.distance_to(Vector2.ZERO) <= 233.5, "§6 缺省回退 F-48 视野门（距 %.1f ≤ 233.5）" % pf.distance_to(Vector2.ZERO))
+	_check(absf(pf.x) <= 200.0 and absf(pf.y) <= 120.0, "§6 缺省回退盒内 ±200×±120（实得 %s）" % [pf])
+
+	# 7. point_id 不存在 → 换点全无效 → 随机兜底（F-48 门保持）
+	spawner.set("_spawn_override", {"spawn_set": ["ghost_point"], "spawn_order": "sequence"})
+	spawner.set("_spawn_index", 0)
+	var pg: Vector2 = spawner.call("_get_spawn_position")
+	_check(pg.distance_to(Vector2.ZERO) <= 233.5, "§6 point_id 不存在 → 随机兜底（距 %.1f ≤ 233.5）" % pg.distance_to(Vector2.ZERO))
+
+	# 8. min_dist 过近 → 原样生成不静默丢弃（注入 player (768, 90)，north 距 50 < 110）
+	var player_mock := Node2D.new()
+	player_mock.position = Vector2(768, 90)
+	root.add_child(player_mock)
+	gm.set("player", player_mock)
+	spawner.set("_spawn_override", {"spawn_set": ["north"], "spawn_order": "sequence"})
+	spawner.set("_spawn_index", 0)
+	var pm: Vector2 = spawner.call("_get_spawn_position")
+	_check(pm.distance_to(Vector2(768, 40)) < 0.5, "§6 min_dist 过近原样生成（实得 %s）" % [pm])
+
+	# 9. _clamp_to_ground 接线（注入 mock world：get_ground_rect + clamp +10 → 结果偏移验证）
+	var mock_world := Node.new()
+	var scr := GDScript.new()
+	scr.source_code = "extends Node\nfunc get_ground_rect() -> Rect2:\n\treturn Rect2(0, 0, 1536, 864)\nfunc clamp_to_ground(pos: Vector2) -> Vector2:\n\treturn pos + Vector2(10, 10)\n"
+	scr.reload()
+	mock_world.set_script(scr)
+	root.add_child(mock_world)
+	gm.set("world", mock_world)
+	spawner.set("_spawn_override", {"spawn_set": ["north"], "spawn_order": "sequence"})
+	spawner.set("_spawn_index", 0)
+	var pc: Vector2 = spawner.call("_get_spawn_position")
+	_check(pc.distance_to(Vector2(778, 50)) < 0.5, "§6 _clamp_to_ground 兜底接线（实得 %s）" % [pc])
+
+	# 探针卫生：还原注入（player/world 回 null，防污染后续探针）
+	gm.set("player", null)
+	gm.set("world", null)
+	player_mock.queue_free()
+	mock_world.queue_free()
+	spawner.queue_free()

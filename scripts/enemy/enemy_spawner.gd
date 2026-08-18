@@ -25,6 +25,13 @@ var _current_wave: int = 1
 ## （探针可注 _rng.seed 固定序列；禁全局 RNG 洗牌——D11-12/D14-15 铁律；
 ##  仅影响「抽哪个敌人」，不影响位置随机 randf_range）
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+## LD-B（2026-08-19 · LEVEL_DESIGN 规格 docs/LEVEL_DESIGN_SPEC.md）：本波固定出生点组
+## （wave_manager 从 waves 行透传 spawn_set/spawn_order；空字典 = 缺省回退原随机路径，
+##  F-48 修复零回归）
+var _spawn_override: Dictionary = {}
+## LD-B：点位轮换/圆周均分游标——sequence 按组循环推进防同角落堆叠；
+## ring 圆周均分按已生成数取角（与轮换游标同源）
+var _spawn_index: int = 0
 
 # ========== 生命周期 ==========
 
@@ -67,8 +74,12 @@ func set_container(container: Node) -> void:
 ## 根据波次配置开始生成敌人
 ## wave_config: DataLoader.get_wave() 返回的字典
 ## wave_number: 当前波次号 (用于敌人成长计算)
-func spawn_wave(wave_config: Dictionary, wave_number: int = 1) -> void:
+## spawn_override: LD-B 固定出生点组（{"spawn_set": Array, "spawn_order": String}；
+## 缺省空 = 兼容旧调用 + 缺省随机路径零回归）
+func spawn_wave(wave_config: Dictionary, wave_number: int = 1, spawn_override: Dictionary = {}) -> void:
 	_current_wave = wave_number
+	_spawn_override = spawn_override
+	_spawn_index = 0
 	spawn_queue.clear()
 
 	var composition: Array = wave_config.get("composition", [])
@@ -160,7 +171,7 @@ func _create_enemy(enemy_id_raw: String, wave: int, special: Variant) -> Node:
 
 	# 设置生成位置
 	if enemy is Node2D:
-		enemy.global_position = _get_random_spawn_position()
+		enemy.global_position = _get_spawn_position()
 	# 设置追踪目标
 	if GameManager.player and enemy.has_method("set_target"):
 		enemy.set_target(GameManager.player)
@@ -191,6 +202,92 @@ func _get_random_spawn_position() -> Vector2:
 		player_pos.x + randf_range(-160.0, 160.0),
 		player_pos.y + randf_range(-160.0, 160.0)
 	))
+
+## LD-B（2026-08-19 · LEVEL_DESIGN 规格）：本波按固定出生点表驱动生成——表驱动主路径。
+## 点位队列按 spawn_order 轮换（sequence = 数组循环 index 递增 / random = 组内随机）；
+## 单只连续生成多只时 index 推进防同一角落堆叠；ring 圆周均分按已生成数取角。
+## min_dist_player 兜底：尝试换点（sequence 循环覆盖 / random 重抽），仍过近则原样生成
+## 不静默丢弃（沿用现兜底语义）。缺省回退：override 空 / 点位表空 / point_id 不存在 →
+## 保留现 _get_random_spawn_position（±200×±120）路径零回归（F-48 视野内双保险：
+## inset 40 点位 + Aggro Leash 320）。
+func _get_spawn_position() -> Vector2:
+	var points_raw: Variant = _spawn_override.get("spawn_set", [])
+	var points: Array = points_raw if points_raw is Array else []
+	if points.is_empty():
+		return _get_random_spawn_position()
+	var order: String = str(_spawn_override.get("spawn_order", "sequence"))
+	var spawn_table: Dictionary = DataLoader.get_spawn_points()
+	var player_pos := Vector2.ZERO
+	if GameManager.player:
+		player_pos = GameManager.player.global_position
+	var last_resolved: Vector2 = Vector2.ZERO
+	var resolved_any := false
+	# 尝试换点（sequence 轮换全覆盖，至少 3 次；全部过近 → 原样生成不静默丢弃）
+	for attempt in range(max(3, points.size())):
+		var point_id: String
+		if order == "random":
+			point_id = str(points[_rng.randi_range(0, points.size() - 1)])
+		else:
+			point_id = str(points[_spawn_index % points.size()])
+		var cfg: Dictionary = spawn_table.get(point_id, {})
+		if cfg.is_empty():
+			_spawn_index += 1  # 无效点位：推进轮换游标（sequence 防卡死同点）
+			continue  # point_id 不存在 → 换下一个（全无效 → 随机兜底）
+		var pos := _resolve_point(cfg)  # ring 角度 = 本次生成序（当前 _spawn_index）
+		_spawn_index += 1
+		last_resolved = pos
+		resolved_any = true
+		if pos.distance_to(player_pos) >= float(cfg.get("min_dist_player", 110.0)):
+			return _clamp_to_ground(pos)
+	# 兜底：尝试后仍过近 → 原样生成不静默丢弃；无有效点位 → 原随机路径
+	if resolved_any:
+		return _clamp_to_ground(last_resolved)
+	return _get_random_spawn_position()
+
+## LD-B：点位类型解析——edge（direction 8 向映射竞技场边缘/角落 + inset 内缩，
+## 仿 F-44 _clamp_to_arena 边界语义）/ anchor（x/y 比例 × 竞技场尺寸）/
+## ring（center + radius 圆周均分，按已生成数取角）。
+func _resolve_point(cfg: Dictionary) -> Vector2:
+	var ptype := str(cfg.get("type", "edge"))
+	var arena := _get_arena_rect()
+	if ptype == "anchor":
+		return Vector2(
+			arena.position.x + float(cfg.get("x", 0.5)) * arena.size.x,
+			arena.position.y + float(cfg.get("y", 0.5)) * arena.size.y
+		)
+	if ptype == "ring":
+		var radius := float(cfg.get("radius", 300.0))
+		var angle := float(_spawn_index % 8) * TAU / 8.0
+		return arena.get_center() + Vector2(cos(angle), sin(angle)) * radius
+	# edge（缺省）：方向 → 边缘/角落 + inset 内缩
+	var dir := str(cfg.get("direction", "north"))
+	var inset := float(cfg.get("inset", 40.0))
+	var cx: float = arena.position.x + arena.size.x * 0.5
+	var cy: float = arena.position.y + arena.size.y * 0.5
+	match dir:
+		"south":
+			return Vector2(cx, arena.end.y - inset)
+		"east":
+			return Vector2(arena.end.x - inset, cy)
+		"west":
+			return Vector2(arena.position.x + inset, cy)
+		"ne":
+			return Vector2(arena.end.x - inset, arena.position.y + inset)
+		"nw":
+			return Vector2(arena.position.x + inset, arena.position.y + inset)
+		"se":
+			return Vector2(arena.end.x - inset, arena.end.y - inset)
+		"sw":
+			return Vector2(arena.position.x + inset, arena.end.y - inset)
+		_:
+			return Vector2(cx, arena.position.y + inset)  # north 及未知方向
+
+## LD-B：竞技场矩形（world → ground 查询接口；world/ground 缺失 → 默认 1536×864
+## 原点对齐——探针环境确定性 + 真实世界零影响）
+func _get_arena_rect() -> Rect2:
+	if GameManager and GameManager.world and GameManager.world.has_method("get_ground_rect"):
+		return GameManager.world.get_ground_rect()
+	return Rect2(Vector2.ZERO, Vector2(1536.0, 864.0))
 
 ## 钳制到竞技场内（World 缺失时原样返回）
 func _clamp_to_ground(pos: Vector2) -> Vector2:

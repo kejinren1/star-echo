@@ -95,7 +95,8 @@ PROBES = [
     ("day31_portal_check", ["--script", "res://tools/day31_portal_check.gd"], 24),
     # LEVEL_DESIGN LD-A 同步（2026-08-19 #3 执行 · 规格 LEVEL_DESIGN_SPEC.md · 数据地基批）：
     # spawn_points/boss_phase_events 两新表导出 + 三接口 + FK 数据侧合法性 + waves 示例填值
-    ("day31_level_design_data_check", ["--script", "res://tools/day31_level_design_data_check.gd"], 24),
+    # + §6 LD-B 出生点消费白盒（2026-08-19 · edge/anchor/ring 三型 + 轮换/随机/兜底 + clamp）
+    ("day31_level_design_data_check", ["--script", "res://tools/day31_level_design_data_check.gd"], 36),
 ]
 
 
