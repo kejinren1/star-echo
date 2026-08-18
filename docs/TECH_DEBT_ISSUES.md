@@ -32,7 +32,7 @@
 | T-016 | enemy.gd:76-110 | SPRITE_MAP（26 条敌人精灵路径/尺寸/FPS/hit_radius）+ FALLBACK_SPRITES | ✅ 已收口(F1-E 第一批 2026-08-18 总指挥) | F1 |
 | T-017 | enemy.gd:32-42 | BEHAVIOR_MAP（行为字符串→枚举） | ✅ 已收口(F1-E 第二批 2026-08-18 执行者 `b410a8b`) | F1 |
 | T-018 | audio_manager.gd:8-23 | BGM_MAP / SFX_MAP | ✅ 已收口(F1-E 第三批 2026-08-18 总指挥) | F1 |
-| T-019 | vfx_player.gd:17-29 | FX_CONFIG（特效帧配置） | F1-E 主窗口承接 | F1 |
+| T-019 | vfx_player.gd:17-29 | FX_CONFIG（特效帧配置） | 📋 已拆解(F1-E 第四批 2026-08-18 第 60 轮，待执行) | F1 |
 | T-020 | icon_atlas.gd:8-24 | SHEET_CONFIG（图标帧数） | F1-E 主窗口承接 | F1 |
 | T-021 | player.gd:56-74 | STAT_MAP 17 键 vs items.json 39 键（P0-Bug2 已修收口，余无消费方键另登记） | 已收口(F0) | 已修 |
 | T-022 | hud.gd:240-245 | SKILL_ICON_MAP（技能 id→图标帧索引） | F1-E 主窗口承接 | F1 |
