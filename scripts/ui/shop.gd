@@ -187,11 +187,13 @@ func _clear_star_grace_ui() -> void:
 ## F31-3：铁砧 anvil 服务池入池（effects.shop_weapon_upgrade true = 唯一服务商品）
 func _build_shop_pool() -> Array:
 	var pool: Array = []
-	# 武器池：36 把 - 3 把结果武器 - 10 把初始武器 = 23 把（build_weapon_from_data 构建 Weapon 资源）
+	# 武器池：37 把 - 3 把结果武器 - 10 把初始武器 - 1 把占位初始枪 = 23 把
+	# （build_weapon_from_data 构建 Weapon 资源；starting_gun 为 F1-E-6 T-004 抽表入表的占位初始枪，
+	# 遵循 F31-1「初始武器出商店池」用户拍板同构排除——max_level=1 不可升级，不应上架）
 	var starting_ids: Array = DataLoader.get_starting_weapon_ids()
 	for wid in DataLoader.get_all_weapon_ids():
 		var wdata: Dictionary = DataLoader.get_weapon(wid)
-		if wdata.is_empty() or wdata.has("evolution_result") or starting_ids.has(wid):
+		if wdata.is_empty() or wdata.has("evolution_result") or starting_ids.has(wid) or wid == "starting_gun":
 			continue
 		var w: Resource = _build_weapon_resource(wid)
 		if w != null:

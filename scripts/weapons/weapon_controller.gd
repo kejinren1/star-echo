@@ -56,18 +56,31 @@ func _resolve_projectile_container() -> Node2D:
 	return null
 
 ## 初版固定给玩家一把初始远程武器（武器/道具系统完善后由 Inventory 接管）
+## F1-E-6（T-004 抽表）：数据驱动路径优先（weapons.json starting_gun），
+## null/异常 → 内联构造兜底（防 Excel 未导出/数据缺失零崩，F 系列缺省兜底约定）
 func _equip_default_weapon() -> void:
-	var w := Weapon.new()
-	w.weapon_name = "初始枪"
-	w.weapon_type = "ranged"
-	w.base_damage = 8.0
-	w.fire_rate = 2.5
-	w.projectile_speed = 360.0
-	# 测试武器射程 = 半屏左右（内部分辨率 640x360，取短边一半 ≈ 180）
-	w.attack_range = 180.0
-	w.lifetime = 1.5
-	w.pierce = 0
-	w.knockback = 0.0
+	var w := build_weapon_from_data("starting_gun")
+	if w == null:
+		w = Weapon.new()
+		w.weapon_name = "初始枪"
+		w.weapon_type = "ranged"
+		w.base_damage = 8.0
+		w.fire_rate = 2.5
+		w.projectile_speed = 360.0
+		# 测试武器射程 = 半屏左右（内部分辨率 640x360，取短边一半 ≈ 180）
+		w.attack_range = 180.0
+		w.lifetime = 1.5
+		w.pierce = 0
+		w.knockback = 0.0
+	else:
+		# 补设 build_weapon_from_data 不装配的两键（:162 注释：projectile_speed 保留
+		# Weapon 默认 400 / lifetime 由 _spawn_projectile 按 range/speed 推导）——
+		# 对齐内联现值零行为变化（⭐方案师第 34 轮裁决）
+		w.projectile_speed = 360.0
+		w.lifetime = 1.5
+		# source_id 留空（F1-E-6 拆解）：数据驱动路径会自动写入 source_id meta，
+		# 移除之保持「无 source_id 占位武器跳过 inventory」语义（day13 硬门槛 :617-625 零改动）
+		w.remove_meta(META_SOURCE_ID)
 	equip_weapon(w)
 
 func _process(delta: float) -> void:
