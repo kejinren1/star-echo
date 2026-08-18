@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #59（08-18 18:22 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **61/61 · 1489 断言**（空轮次：HEAD=af6b24e 仅 4 个 docs/回执提交，无游戏代码改动；**首跑 60/61 一次间歇 flaky 未复现**——连过 2 轮全量 + 6 嫌疑探针双轮，非回归）
+- **最近轮次 #60（08-18 20:25 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1534 断言首跑全绿**（扩容轮：HEAD=afc5ba6 +8 提交含实质游戏代码——F1-E3 BGM/SFX 抽表 + AF-M1 CC0 音乐 + F-44 逃离修复 + build 补冻；#59 间歇 flaky 已根治、两条观察兑现关闭）
 - **基线**：`BASELINE CLEAN` ｜ JSON **16 文件** · **2723 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 音频良性**
-- **探针回归**：**61/61（1489 条登记期望）0 FAIL / 0 script_errors**；stderr 与 #58 逐一一致（feel 372B=1 主动兜底；spawner_deadlock 5440B 维持；day24_f13 1219B±1B 波动；presentation 0B 音频波动、实际 261 断言维持）
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**af6b24e**（#2 第58轮回执，无新游戏提交）
-- **在途 action item（0 项）**：工作区 CLEAN；本轮仅新增 docs/TEST_REPORT.md §7.59（本岗报告未 commit）
-- **观察**：间歇 flaky 首跑 60/61 一次（探针自 #58 零改动，3 次复跑全绿，建议 #3 如再现捕获 FAIL 名）；presentation 261 > expect 246 维持；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；build/ 产物交 Owner
+- **探针回归**：**62/62（1534 条登记期望）0 FAIL / 0 script_errors**；stderr 全历史口径（presentation 354B 音频波动+1 主动；flee_bound 242B 纯音频首记录；spawner_deadlock 5440B 维持；day24_f13 1220B±1B 波动）
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**afc5ba6**（#2 第60轮回执，F1-E 批四 FX 已拆解待执行）
+- **在途 action item（0 项）**：工作区仅 1 个未跟踪 docs 文件（非本岗）；本轮新增 docs/TEST_REPORT.md §7.60（本岗报告未 commit）
+- **观察**：#59 两条观察已由 498a836 兑现关闭（presentation expect 同步 + day5 flaky 根治）；build/ 已补冻（5fd5bda RELEASE OK）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-01~F-43 全链 + AF-P0 主观面待真人回归
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3655,6 +3655,36 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - **观察（非阻断）**：间歇 flaky 未复现——如再现捕获 FAIL 名称交 #3 定性（RNG/时序先例见 §7.11/§7.12/§7.27）。
 
 **✅ 2026-08-18 18:22 自动化测试轮次 #59：PASS（61/61，0 阻断 / 0 功能缺陷）。** 空轮次验证：HEAD=af6b24e 无新游戏提交，16 张数据表（2723 字段）与 25 个场景验证通过，61 件套 1489 条登记断言全绿（首跑 1 次间歇 flaky 未复现，非回归），600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
+
+---
+
+## §7.60 轮次 #60 · 2026-08-18 20:25（自动化测试 · 扩容轮：runner 62 件套 1534 断言首跑全绿）
+
+**验证快照 = HEAD=afc5ba6（#2 第 60 轮拆解回执）+ 工作区在途仅 1 个未跟踪 docs 文件（docs/ROGUELIKE_SWEETSPOT_ANALYSIS.md，非本岗）**。HEAD 链（较 #59 的 af6b24e +8 提交，含实质游戏代码）：`c45f011`（#1 进度第 63 轮）→ `498a836`（**执行者第 59 轮：兑现 #59 两条观察**——runner 元数据 presentation 246→261 + day26 锚点 1489→1504 + **day5 flaky 根治** crit_damage=1.0 双保险 + WPS 锁清理）→ `b26fffa`（反馈专员 #81）→ `c8a014b`（#2 第 59 轮回执）→ `3d6ee4f`（**F1-E 批三 BGM/SFX 抽表收口**：audio_config sheet 12 行 + get_audio_config 懒加载 + audio_manager 消费改读 + presentation +§3 273 断言）→ `03da9f9`（**AF-M1 CC0 音乐替换**：bgm_menu/bgm_battle CC0 曲目 + AUDIO_CREDITS.md）→ `5fd5bda`（**F-44 小怪逃离修复 + build 补冻**：ranged 横向绕圈 + 边界钳制 + 出界即死 + 新探针 day31_flee_bound 18/18 + runner 62 件套 1534 断言 + 旧产物归档 + RELEASE OK）→ `afc5ba6`（#2 第 60 轮回执，F1-E 批四 FX 函数级已拆解）。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** 62 件套回归 **62/62 全 PASS（1534 条登记断言）首跑即全绿**——扩容（+day31_flee_bound 18、presentation expect 246→273）后无 flaky、无 FAIL；**#59 间歇 flaky 由 498a836 根治实证（day5 melee_sweep 暴击双源 → crit_damage=1.0 双保险），两条观察全部兑现关闭**。游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr **242B** = 音频退出良性泄漏（ObjectDB + 1 resource，历史常态口径）。
+- **数据层**：`data/*.json` **16/16 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2723**（与 #59 持平零变更——本轮游戏改动全在 tools/audio/探针侧），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件 os.remove 清理无残留）。
+- **探针回归**：`tools/_regression_run.py` **62/62 PASS（1534 条登记期望），0 FAIL / 0 script_errors，首跑即全绿（76s）**。
+
+### 3. WARNING / 观察
+
+- **stderr 口径与 #59 逐一一致，无新增异常**：day31_presentation **354B**（#59 0B = 音频退出泄漏时序波动 + 1 主动「未知 SFX」兜底 push_warning，实际 273 断言白盒消费 0 泄漏）；**day31_flee_bound 242B 首记录 = 纯音频零泄漏（新探针干净）**；day31_feel_check **372B**（1 主动 hitstop 超限兜底预期）；day31_spawner_deadlock **5440B** 维持；day24_f13 **1220B**（#59 1219B，±1B 字节级波动；3× C++ ERROR get_node 绝对路径 = 探针方法学已知项）；day31_skill_icon 363B=1 主动越界保护；day16 796B=4 主动防御分支；day18_fb 626B/day18_fb5 621B/day21_22 564B/day18_fb2 571B/day27_meta 496B/day31_skill_movement 489B/day30_f2_boundary 473B/day26 402B/day11_12 660B/day20 941B/day13 1100B/day28_f31 920B/day30_boss_skill 368B/day7 366B/day23_vfx 367B/day10 374B/day14_15 373B/day4 344B/day30_f1d 358B/day18_19 359B/day29_attack 362B/day24_audio 214B/纯音频 242B 组全历史口径。
+- **观察项更新**：**#59 两条观察已兑现关闭**（498a836：presentation expect 261 同步 + day5 flaky 根治，runner 1520→1504→1534 断言扩容全绿）；**build/ 产物补冻观察关闭**（5fd5bda：旧产物归档 + RELEASE OK）；F1-E 批四 FX 函数级已拆解（afc5ba6）待执行；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-01~F-43 全链 + AF-P0 打击感主观面真人回归面待办（不阻塞机器侧）。
+
+### 4. action item（0 项新增）
+
+- 无新增 action item；工作区在途仅 1 个未跟踪 docs 文件 + 本岗报告 docs/TEST_REPORT.md §7.60（历史惯例由后续岗/收口处理）。
+
+**✅ 2026-08-18 20:25 自动化测试轮次 #60：PASS（62/62，0 阻断 / 0 功能缺陷）。** 扩容轮验证：HEAD=afc5ba6（F1-E3 BGM/SFX 抽表 + AF-M1 CC0 + F-44 逃离修复 + build 补冻，+8 提交），16 张数据表（2723 字段）与 25 个场景验证通过，62 件套 1534 条登记断言首跑全绿（#59 间歇 flaky 已根治，两条观察兑现关闭），600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
 
 ---
 

@@ -1,3 +1,63 @@
+# 方案计划（2026-08-18 20:4x · 方案师第 30 轮 · F1-E 批四 FX 方案锚定 + 遗物扩展新规格登记）
+
+## 📌 本轮判定（方案师第 30 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #81 · 08-18 19:2x 反馈专员）**：无待处理反馈（F-01~F-43/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #59（18:22 · HEAD=`af6b24e`）= **61/61 全绿 · 1489 断言 · BASELINE CLEAN · 0 action item**（空轮次，#59 观察两条已由 `498a836` 兑现：runner presentation 246→261 + day5 flaky 根治 → 全量回归 **61/61 · 1504 断言**首跑全绿）→ **🔴P0 无新增**。
+>
+> **🟠 新用户拍板调度指令（本轮关键输入）**：`docs/RELIC_EXPANSION_SPEC.md`（**2026-08-18 20:3x 落档 · 用户 20:0x-20:3x 连续讨论拍板**，工作区 `??` 未跟踪）+ 配套调研底稿 `docs/ROGUELIKE_SWEETSPOT_ANALYSIS.md`——**遗物系统扩展 7 大块**（A 属性命名去土豆兄弟化 ⭐P1 / B 套装遗物 ⭐P1 / C 遗物图鉴+条件解锁（池子做大）/ D 流派遗物树+动态权重引导 / E Boss 战后宝箱收获环节+通关成就感 / F Boss 行为节奏（走走停停/大范围技能主导）/ G 通关·购买·获得音效特效）+ 范围声明（纳入/不纳入见规格 §1.3：不纳入 = 元素反应内部机制名 / 手感数值平衡 / 新 Boss 新武器 / 美术终稿）+ **A 项含开放决策 O-1 待用户拍板**（元素伤害→异能伤害(推荐)/能量/奥能 · 工程学→构造学(推荐)/召唤强化/机械精通）。状态 = 📋 **规格待拆解 · 文档明示「交 #2 拆解、#3 执行；禁止跳过拆解流程直接动工」** → **方案师本轮仅登记（P0 调度输入），不写方案**（08-12「未拆解禁动工」惯例）。
+>
+> **git 实测**：HEAD=`afc5ba6`（#2 第 60 轮回执 · 20:0x；第 59 轮后 +3 = 总指挥第 5 轮三连收口：`3d6ee4f` **F1-E 批三 BGM/SFX 抽表闭环**（F1-E-3-1~4+EXIT 全 [x]，探针 273/273 + 回归 61/61 1504 断言 + day24_audio 14/14 零改动）/ `03da9f9` **AF-M1 CC0 音乐替换落地**（bgm_menu←Illusionist / bgm_battle←Fury，文件名不变零代码改动，AUDIO_CREDITS.md 来源标注）/ `5fd5bda` **F-44 小怪逃离修复 + build 补冻**（ranged 横向绕圈 + 边界钳制 + 出界即死，探针 18/18 + runner 62 件套 + **全量回归 62/62 · 1534 断言** + baseline CLEAN + 旧产物归档重导出 RELEASE OK））；**工作区在途 4 项 docs** = `M docs/BOSS_SKILL_SPEC.md`（用户会话，规格关联更新）+ `M docs/TEST_REPORT.md`（#4 第 60 轮在途）+ `?? docs/RELIC_EXPANSION_SPEC.md` + `?? docs/ROGUELIKE_SWEETSPOT_ANALYSIS.md`——**全部非游戏代码，红线内不碰**。
+>
+> **结论**：Day 30 剩余客观任务 = ① **F1-E 批四 FX（F1-E-4-1~4+EXIT，#2 第 60 轮 `afc5ba6` 已函数级拆解）→ 本轮实测复核锚点与拆解文本逐一一致，方案锚定直接可执行**（承接方 = 🏠 主窗口/总指挥）；② D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域无方案（build/ 已由 `5fd5bda` 补冻，旧「产物早于最新代码」观察关闭）；③ **RELIC_EXPANSION_SPEC = 新拍板规格，待 #2 拆解，非 Day 30 客观任务**（发布收尾窗口零数据改动口径）→ 建议独立目标日。**回归硬门槛口径 = 62 件套 · 1534 断言**（`5fd5bda` runner 62 件套，批四 EXIT 以 62/1534 为准）。
+
+## 当前开发日：Day 30（发布准备 · 收尾）
+
+### 任务1：F1-E 第四批 FX 表现抽表（F1-E-4-1~4 + EXIT）——方案锚定（#2 第 60 轮已拆，勿重复拆）
+
+- **现状**：拆解就绪（#2 第 60 轮 `afc5ba6`，TECH_DEBT_ISSUES T-019 转已拆解）；本轮实测复核锚点与拆解文本**逐一一致**。
+- **锚点**（实测复核）：`scripts/effects/vfx_player.gd:17-29` FX_CONFIG **10 键**（5 旧 hit/crit/death/levelup/pickup + 5 新 fireball/turret_deploy/blade_burst/meteor/shield，各含 path/frames/size(Vector2i)/fps）/ `set_effect` :43-62（FX_CONFIG.has 未知键 push_warning → cfg 取用 → load(path) null 静默跳过 → create_from_sheet 构建）/ `spawn` :65-73 静态；`tools/data_schema.py:241-245` audio_config 注册范式（file: presentation.json / root: audio_map / key: id / kind: dict）；`tools/excel_export.py:399-434` presentation 构建段（enemy_sprites size_w/h → {"x","y"} 组装 :408-410 先例 + audio_map :424-434 先例）；`tools/day23_vfx_check.gd` §1 配置层 :138-143（FX_CONFIG 10 键 + 白名单 + 5 新特效资源 exists）+ :164-171（set_effect 未知键静默/命中 current_fx 白盒）。
+- **改动**（沿用前三批范式，勿重复拆）：Excel `fx_config` sheet（10 行 × id/frames/fps/path/size_w/size_h 6 列）→ data_schema 注册 → excel_export 构建 presentation.json `fx_config`（size_w/h → {"x","y"} 仿 enemy_sprites 先例）→ DataLoader `get_fx_config()` 懒加载 + Vector2i 组装（仿 get_enemy_sprite_config）→ vfx_player.set_effect 消费改读（**FX_CONFIG const 保留兜底**）。
+- **风险**：**低**。双硬门槛：① `day23_vfx_check` §1 零改动（FX_CONFIG const 保留兜底，仿批三 day24_audio 14/14 先例）；② 抽表零数值变化（path/frames/fps/size 与 const 现值逐一一致，仅帧配置来源数据化）。
+- **验证**：`day31_presentation_check` ≥286（273+13）+ `day23_vfx_check` 零改动 + 回归 **62 件套 · 1534 断言** + baseline **BASELINE CLEAN** + 端到端双跑（改 Excel 一例 frames → 导出 → get_fx_config 变化）+ 空表兜底白盒（set_effect 回退 const 仍可播）。
+- **承接**：🏠 主窗口/总指挥按批推进（每任务一收口 commit 带 F1-E-4 编号）。**本轮观察 = 批四尚未开工（HEAD 无 fx_config 提交）**，维持挂账观察。
+
+### 任务2：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出，方案师不写执行方案）。
+  - D30-T3 上传 [ ] = 外部动作，等 Owner 明确确认（目标资产库 + build/ 替换与否）；本地部分已由总指挥第 1 轮 ✅ + `5fd5bda` **build/ 补冻 ✅**（旧产物归档 `RoguelikeStudio_20260818_archive.*` + 最新代码重导出 RELEASE OK）→ 旧「build/ 产物早于最新代码」观察**关闭**
+  - D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘（#60 在途）+ build/ 替换（待 Owner）+ 最终标记
+- **风险**：低（无机器侧开发任务）。
+- **验证**：Owner 确认后由 #3/#4 收口，回归 62 件套（1534 断言）+ baseline CLEAN 为发布门禁口径。
+
+### 任务3：RELIC_EXPANSION_SPEC 遗物系统扩展（08-18 晚用户拍板）——待 #2 拆解，本轮仅登记不写方案
+
+- **性质**：🟠 新用户拍板调度输入（用户 20:0x-20:3x 连续讨论 → 20:3x 落档）。唯一规格来源 = `docs/RELIC_EXPANSION_SPEC.md`（状态 📋 待拆解 · 禁止跳过拆解流程直接动工）+ 调研底稿 `docs/ROGUELIKE_SWEETSPOT_ANALYSIS.md`（死亡细胞/哈迪斯/土豆兄弟/吸血鬼幸存者/方舟集成战略爽点拆解）。
+- **范围**（规格 §1.3）：纳入 = A 属性命名去土豆兄弟化（⭐P1，元素伤害/工程学展示名改世界观化，**O-1 命名候选待用户拍板**，属性 id 零改动）/ B 套装遗物（⭐P1，濒死触发·国王系列式）/ C 遗物图鉴 + 条件解锁（池子做大）/ D 流派遗物树 + 动态权重引导（低稀有基础 → 流派倾向 → 高稀有质变道具）/ E Boss 战后宝箱收获环节 + 通关成就感（仿杀戮尖塔收获环节）/ F Boss 行为节奏（走走停停、大范围技能主导，BOSS_SKILL_SPEC F 项补充）/ G 通关·购买·获得音效特效；不纳入 = 元素反应内部机制名 / 手感数值平衡 / 新 Boss 新武器内容设计 / 美术终稿（占位纯色/文字即可）。
+- **方案师预判**（供 #2/#1/总指挥参考，非替拆解）：量级大——横切 items/商店/图鉴(meta_progress.codex)/存档/GameData.xlsx/展示名/音效多域，且含 4 处用户拍板确认的现状基线（遗物 2 槽已实装 / stats.json 两属性名 / AF-P0 反馈质感已实装 / R3 图鉴未含遗物）→ **与 Day 30 发布收尾窗口「发布阶段默认零数据改动」口径冲突 → 建议排独立目标日（Day 31+ 遗物扩展）而非插入收尾窗口**；A 项 O-1 命名拍板可先行收集（拆解时可列两态实现防阻塞）。
+- **风险**：中（若插入发布收尾窗口 = 破坏冻结口径；数据/展示名改动面大；需回归 62 件套不破）。**替代方案**：维持 Day 30 收尾 → 拆解后按独立目标日推进。
+- **动作**：交 #2 下轮（22:05）优先拆解评估排期；方案师在拆解产出后（下一轮）按规格写正式方案。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| F1-E-4 FX 抽表 | 低 | day23_vfx_check §1 零改动 + 抽表零数值变化双硬门槛；FX_CONFIG const 兜底；替代方案 = 回退仅保留 const（现状即等价）；**唯一风险 = 承接方持续未开工（跨轮挂账观察）** |
+| D30-T3/EXIT | 低 | 外部动作等 Owner；无替代方案（权限边界）；build/ 已补冻（`5fd5bda`） |
+| RELIC_EXPANSION_SPEC | 中 | 新拍板规格量大；插入发布窗口会破坏冻结口径 → 建议独立目标日；A 项 O-1 命名待拍板；替代方案 = 收尾后按新目标日推进 |
+| AF-M1（已落地） | 低 | `03da9f9` 闭环（CC0 替换 + AUDIO_CREDITS.md 来源标注 + day24 14/14 + 回归全绿），挂账关闭 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 批五~七**（SHEET_CONFIG → 初始武器 → 炮台默认）：沿第 26/27 轮范式 + 各批先例（SPRITE_MAP/BEHAVIOR_MAP/BGM-SFX/FX）推进，承接方开工时按需拆解。
+- **PS-EXIT / E-0 终审完整局 / AF-P0 主观回归 / F-44 真人回归 / F-40~F-43 目视**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-43 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md` + 在 `docs/TASKS.md` 对应任务旁补「方案已定（SOLUTION_PLAN.md 第 30 轮）」标注。工作区 4 项在途 docs（#4 在途 TEST_REPORT + 用户会话 BOSS_SKILL_SPEC M + 新规格×2 未跟踪）一律不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-18 19:3x · 总指挥第 5 轮 · F1-E 第三批 BGM/SFX 抽表闭环）
 
 ## 📌 总指挥拍板决策段（2026-08-18 19:3x · 第 5 轮）
