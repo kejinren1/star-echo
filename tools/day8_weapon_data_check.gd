@@ -120,6 +120,8 @@ func _part_json_full() -> void:
 	for cat in cats:
 		var ids: Array = _loader.call("get_weapon_ids_by_category", cat)
 		for wid in ids:
+			if str(wid) == "starting_gun":
+				continue  # F1-E-6（2026-08-19）：占位初始枪豁免 levels/max_level（方案裁决 max_level=1 单级不升级）
 			total += 1
 			var data: Dictionary = _loader.call("get_weapon", wid)
 			var lv: Array = data.get("levels", [])
@@ -128,7 +130,7 @@ func _part_json_full() -> void:
 			if int(data.get("max_level", 0)) < 8:
 				_fail("JSON: %s max_level 应 >= 8, 实得 %s" % [str(wid), str(data.get("max_level"))])
 	if total == 36 and _failures == 0:
-		_pass("JSON / 36 把 levels 8 条 + max_level≥8 全部满足（D7+D10 合并：33 既有 + 3 结果武器）")
+		_pass("JSON / 36 把 levels 8 条 + max_level≥8 全部满足（D7+D10 合并：33 既有 + 3 结果武器；37 把含 starting_gun 占位豁免 F1-E-6）")
 
 	# 抽查 3 把（fist/rocket_launcher/force_field）Lv1 == 顶层
 	for wid in ["fist", "rocket_launcher", "force_field"]:

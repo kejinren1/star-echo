@@ -264,3 +264,94 @@ func _run() -> void:
 		vfx2.call("set_effect", "definitely_not_a_fx")
 		_check(str(vfx2.get("current_fx")) == "", "未知特效名不应写 current_fx（push_warning 保留）")
 		vfx2.queue_free()
+
+	# ⑦ T-004 starting_gun 数据侧（F1-E-6 第六批 2026-08-19 #3 执行：weapons.json 抽表
+	#    —— 与 _equip_default_weapon 内联现值 9 键零漂移 + source_id 缺失 +
+	#    projectile_speed/lifetime 两键不进表（build_weapon_from_data :162 无消费方）；
+	#    max_level=1 方案裁决（初始枪不升级、退出升级候选池））
+	var sg_data: Dictionary = loader.call("get_weapon", "starting_gun")
+	_check(not sg_data.is_empty(), "weapons.json 缺 starting_gun")
+	if not sg_data.is_empty():
+		_check(str(sg_data.get("name", "")) == "初始枪", "starting_gun name 漂移: %s" % str(sg_data.get("name")))
+		_check(float(sg_data.get("damage", -1)) == 8.0, "starting_gun damage != 8: %s" % str(sg_data.get("damage")))
+		_check(float(sg_data.get("cooldown", -1)) == 0.4, "starting_gun cooldown != 0.4（↔ fire_rate 2.5）")
+		_check(float(sg_data.get("range", -1)) == 180.0, "starting_gun range != 180")
+		_check(float(sg_data.get("knockback", -1)) == 0.0, "starting_gun knockback != 0")
+		_check(int(sg_data.get("max_level", -1)) == 1, "starting_gun max_level != 1（方案裁决单级）")
+		_check(not sg_data.has("projectile_speed") and not sg_data.has("lifetime"), \
+			"starting_gun 不应含 projectile_speed/lifetime 两键（builder :162 无消费方，F1-G 死键先例）")
+		_check(not sg_data.has("source_id"), "starting_gun 不应含 source_id 键（day13 硬门槛）")
+		# 装配 9 键等价（build_weapon_from_data + 补设两键 = 内联现值，⭐第 34 轮裁决）
+		var wc9: Node = (load("res://scripts/weapons/weapon_controller.gd") as GDScript).new()
+		var w9: Resource = wc9.call("build_weapon_from_data", "starting_gun")
+		_check(w9 != null, "build_weapon_from_data(starting_gun) 返回 null")
+		if w9 != null:
+			w9.projectile_speed = 360.0
+			w9.lifetime = 1.5
+			_check(str(w9.weapon_name) == "初始枪", "装配 weapon_name 漂移")
+			_check(str(w9.weapon_type) == "ranged", "装配 weapon_type != ranged")
+			_check(is_equal_approx(float(w9.base_damage), 8.0), "装配 base_damage != 8")
+			_check(is_equal_approx(float(w9.fire_rate), 2.5), "装配 fire_rate != 2.5")
+			_check(is_equal_approx(float(w9.projectile_speed), 360.0), "装配 projectile_speed != 360（补设）")
+			_check(is_equal_approx(float(w9.attack_range), 180.0), "装配 attack_range != 180")
+			_check(is_equal_approx(float(w9.lifetime), 1.5), "装配 lifetime != 1.5（补设）")
+			_check(int(w9.pierce) == 0, "装配 pierce != 0")
+			_check(is_equal_approx(float(w9.knockback), 0.0), "装配 knockback != 0")
+
+	# ⑧ skill_icon_map（F1-E-6 第六批 2026-08-19 #3 执行：技能图标映射抽表，
+	#    原 hud.gd const SKILL_ICON_MAP 数据化 → presentation.json skill_icon_map；
+	#    icon_index 与 const 现值逐一一致（抽表零漂移）；消费端 DataLoader.get_skill_icon_index
+	#    + hud._resolve_skill_icon_index（命中优先/空表回退 const/未知 id push_warning 保留）；
+	#    SKILL_ICON_MAP const 保留兜底 = day31_skill_icon_check §5 直读零改动硬门槛）
+	var sim_map: Dictionary = {}
+	if raw is Dictionary and (raw as Dictionary).get("skill_icon_map") is Dictionary:
+		sim_map = (raw as Dictionary)["skill_icon_map"]
+	var hud_script2: GDScript = load("res://scripts/ui/hud.gd")
+	var icon_const: Dictionary = hud_script2.SKILL_ICON_MAP
+	_check(sim_map.size() == icon_const.size(), "skill_icon_map 条数 %d != const SKILL_ICON_MAP %d" % [sim_map.size(), icon_const.size()])
+	var sim_missing := []
+	for k in icon_const.keys():
+		if not sim_map.has(k):
+			sim_missing.append(k)
+	_check(sim_missing.is_empty(), "skill_icon_map 缺 const 键: %s" % str(sim_missing))
+	var sim_extra := []
+	for k in sim_map.keys():
+		if not icon_const.has(k):
+			sim_extra.append(k)
+	_check(sim_extra.is_empty(), "skill_icon_map 多余键: %s" % str(sim_extra))
+	var sim_drift := []
+	for k in icon_const.keys():
+		if int(sim_map.get(k, -1)) != int(icon_const.get(k, -1)):
+			sim_drift.append(k)
+	_check(sim_drift.is_empty(), "skill_icon_map 与 const 不一致: %s" % str(sim_drift))
+	# 消费接口白盒
+	_check(int(loader.call("get_skill_icon_index", "se_skill_fireball")) == 0, "get_skill_icon_index(fireball) != 0")
+	_check(int(loader.call("get_skill_icon_index", "se_skill_sword_arc")) == 4, "get_skill_icon_index(sword_arc) != 4")
+	_check(int(loader.call("get_skill_icon_index", "relic_dash")) == -1, "get_skill_icon_index(未知名) != -1")
+	# 端到端双跑（白盒等价）：_skill_icon_map 注入改值 → 返回值变化 → 还原
+	var sim_orig: Dictionary = loader.get("_skill_icon_map")
+	var sim_mut: Dictionary = (sim_orig.duplicate(true))
+	sim_mut["se_skill_fireball"] = 3
+	loader.set("_skill_icon_map", sim_mut)
+	_check(int(loader.call("get_skill_icon_index", "se_skill_fireball")) == 3, "白盒改 icon_index 未生效（端到端双跑失败）")
+	loader.set("_skill_icon_map", sim_orig)  # 还原缓存防污染
+	# 空表兜底：_skill_icon_map 清空 → _resolve_skill_icon_index 回退 const 仍映射
+	var hud3: Node = hud_script2.new()
+	loader.set("_skill_icon_map", {})
+	_check(int(hud3.call("_resolve_skill_icon_index", "se_skill_fireball")) == 0, "空表兜底 const 仍映射 fireball==0")
+	loader.set("_skill_icon_map", sim_orig)
+	# 未知 id push_warning 保留（_apply_skill_icon 槽 0：texture 保持 null）
+	var hud4: Node = hud_script2.new()
+	hud4.set("skill_slot", TextureRect.new())
+	var sc4: Node = (load("res://scripts/player/skill_controller.gd") as GDScript).new()
+	sc4.set("skill_data", {"id": "relic_dash"})
+	hud4.call("_apply_skill_icon", sc4)
+	_check(hud4.get("skill_slot").texture == null, "未知 id 槽 0 图标保持 null（push_warning 保留）")
+	# 槽 1/2 掉落技能未映射 → 灰显不变
+	var hud5: Node = hud_script2.new()
+	var slots5: Array = [{"slot": TextureRect.new(), "label": Label.new()}]
+	hud5.set("_skill_slots", slots5)
+	var sc5: Node = (load("res://scripts/player/skill_controller.gd") as GDScript).new()
+	sc5.set("skills", [{"id": "relic_dash"}])
+	hud5.call("_apply_skill_slot_icon", sc5, 0)
+	_check(slots5[0].get("slot").texture == null, "掉落技能未映射 → 灰显不变（texture null）")

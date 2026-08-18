@@ -473,7 +473,7 @@ func _part_data_crossref() -> void:
 		_pass("T3 / items.json 54 项（含 F-13 三机制被动）")
 	else:
 		_fail("T3: items.json 项数 ≠ 54")
-	# weapons.json 嵌套累加 36（D36：勿扁平 len）
+	# weapons.json 嵌套累加 37（D36 口径 36 + F1-E-6 2026-08-19 starting_gun 抽表 1：勿扁平 len）
 	var w_total: int = -1
 	if FileAccess.file_exists("res://data/weapons.json"):
 		var parsed2: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/weapons.json"))
@@ -482,10 +482,10 @@ func _part_data_crossref() -> void:
 			w_total = 0
 			for cat in cats:
 				w_total += (cats[cat] as Array).size()
-	if w_total == 36:
-		_pass("T3 / weapons.json 36 把（嵌套累加 melee9+ranged9+elemental10+engineering8，D36 口径）")
+	if w_total == 37:
+		_pass("T3 / weapons.json 37 把（嵌套累加 melee9+ranged10+elemental10+engineering8，D36 口径 36 + starting_gun）")
 	else:
-		_fail("T3: weapons 累加 %d ≠ 36" % w_total)
+		_fail("T3: weapons 累加 %d ≠ 37" % w_total)
 	# 12 WAV 命名与 AudioManager MAP 键一致（磁盘交叉）
 	var cross_ok: bool = true
 	if _audio != null:
@@ -572,14 +572,16 @@ func _part_regression() -> void:
 	#   → 64 项 / 期望 1602（1578 + 24）
 	# LEVEL_DESIGN LD-B 同步（2026-08-19 #3 执行）：day31_level_design_data_check 24→36（+12 §6 出生点消费白盒）
 	#   → 64 项 / 期望 1614（1602 + 12）
+	# F1-E-6 同步（2026-08-19 #3 执行）：day31_presentation expect 286→316（+30，§7 T-004 17 + §8 skill_icon 13）
+	#   → 64 项 / 期望 1644（1614 + 30）
 	if probe_count == 64:
 		_pass("回归 / _regression_run.py PROBES 64 项（63 + LD-A day31_level_design_data_check 1）")
 	else:
 		_fail("回归: PROBES 项数 %d ≠ 64" % probe_count)
-	if expect_sum == 1614:
-		_pass("回归 / 期望断言合计 1614（1602 + LD-B §6 出生点 12）")
+	if expect_sum == 1644:
+		_pass("回归 / 期望断言合计 1644（1614 + F1-E-6 §7/§8 30）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1614" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1644" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",

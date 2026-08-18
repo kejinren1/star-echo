@@ -303,6 +303,8 @@ func _verify_icon_index_enum() -> void:
 	for cat in cats:
 		var ids: Array = _loader.call("get_weapon_ids_by_category", cat)
 		for wid in ids:
+			if str(wid) == "starting_gun":
+				continue  # F1-E-6（2026-08-19）：占位初始枪豁免 icon_index（方案裁决留空 = build 兜底 0，不占图集帧）
 			var data: Dictionary = _loader.call("get_weapon", wid)
 			var v: int = int(data.get("icon_index", -1))
 			if v < 0 or v > 35:
@@ -312,7 +314,7 @@ func _verify_icon_index_enum() -> void:
 			seen[v] = str(wid)
 			total += 1
 	if total == 36:
-		_pass("枚举 / 36 把武器 icon_index 互不重复且 0≤v≤35（D7+D10 合并：33 既有 + 3 结果武器）")
+		_pass("枚举 / 36 把武器 icon_index 互不重复且 0≤v≤35（D7+D10 合并：33 既有 + 3 结果武器；37 把含 starting_gun 占位豁免 F1-E-6）")
 	else:
 		_fail("icon_index: 武器总数应为 36, 实得 %d" % total)
 	# MVP 15 把索引互不重复
