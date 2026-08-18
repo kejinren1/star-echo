@@ -263,6 +263,15 @@ SHEETS = {
         "key": "id", "category": None, "kind": "dict",
         "json_cols": [], "child": None,
     },
+    # F1-E-6（2026-08-19 第 64 轮拆解 · T-022）：技能图标映射抽表——原 hud.gd
+    # SKILL_ICON_MAP 5 条数据化（id 主键 dict 形，导出 data/presentation.json skill_icon_map），
+    # 消费端 DataLoader.get_skill_icon_index 命中优先、未命中/空表回退 const SKILL_ICON_MAP
+    # （F 系列缺省兜底约定）；icon_index 列 = skills.png 帧索引（与 const 现值逐一一致零漂移）
+    "skill_icon_map": {
+        "sheet": "skill_icon_map", "file": "presentation.json", "root": "skill_icon_map",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": [], "child": None,
+    },
     # LEVEL_DESIGN（2026-08-19 LD-A1 · 用户 08-18 22:57 拍板 · 规格 LEVEL_DESIGN_SPEC.md §2）：
     # 固定出生点表——根治 F-48 随机死角（点位固定后可读可控可设计「怪从哪来」演出感）。
     # point_id 主键 dict 形，导出独立文件 data/spawn_points.json（结构同 sheet 平铺）；

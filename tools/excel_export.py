@@ -509,7 +509,20 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         if w and h:
             rec["size"] = {"x": int(w), "y": int(h)}
         fx_map[sid] = rec
-    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map, "fx_config": fx_map}
+
+    # skill_icon_map（F1-E-6 第六批 2026-08-19 · 技能图标映射抽表 dict 形
+    # {skill_icon_map: {技能id: int(icon_index)}}；消费端 DataLoader.get_skill_icon_index
+    # 命中优先，未命中/空表 → hud.gd const SKILL_ICON_MAP 兜底）
+    sim_map: dict = {}
+    for r in tables.get("skill_icon_map", []):
+        sid = str(r.get("id", ""))
+        if not sid:
+            continue
+        idx = coerce_num(r.get("icon_index"))
+        if idx is None:
+            continue
+        sim_map[sid] = int(idx)
+    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map, "fx_config": fx_map, "skill_icon_map": sim_map}
     return files
 
 

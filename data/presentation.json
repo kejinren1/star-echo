@@ -629,5 +629,12 @@
         "y": 64
       }
     }
+  },
+  "skill_icon_map": {
+    "se_skill_fireball": 0,
+    "se_skill_deploy_turret": 1,
+    "se_skill_blade_burst": 2,
+    "se_skill_holy_shield": 3,
+    "se_skill_sword_arc": 4
   }
 }
