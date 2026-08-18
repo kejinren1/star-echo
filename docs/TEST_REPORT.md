@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #61（08-18 22:00 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1534 断言首跑全绿（74s）**（F-45 手感三连修复验证轮：HEAD=980aa7d，bdd3ed5 顿帧调小/震屏收紧/命中特效渐隐，用户 08-18 直派，零回归实证）
-- **基线**：`BASELINE CLEAN` ｜ JSON **16 文件** · **2723 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 音频良性**
-- **探针回归**：**62/62（1534 条登记期望）0 FAIL / 0 script_errors**；stderr 仅 2 项良性变化（feel 372→130B F-45 同步更干净；day24_f13 1220→860B get_node ERROR 未触发回纯泄漏口径）
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**980aa7d**（F-45 已入库，F1-E 批四 FX 已拆解待执行）
-- **在途 action item（0 项）**：工作区仅 docs/GameData.xlsx（M，F-45 Excel 产物，非本岗）；本轮新增 docs/TEST_REPORT.md §7.61（本岗报告未 commit）
-- **观察**：F1-E 批四 FX 待执行；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-01~F-44 全链 + AF-P0/F-45 主观面待真人回归
+- **最近轮次 #62（08-19 00:00 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1541 断言首跑全绿（75s）**（F-49 通关传送门+宝箱验证轮：HEAD=144321a，4f1e791 F-49 打完不立即结算/进传送门才结算/宝箱拾取 + day31_portal_check 24/24 单独验证，F-46/47/48 锚点同步零回归实证）
+- **基线**：`BASELINE CLEAN` ｜ JSON **16 文件** · **2784 数值字段**零缺陷（较 #61 +61：F-47 waves/mom + F1-E-4-1 fx_config 10 键）｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 音频良性**
+- **探针回归**：**62/62（1541 条登记期望）0 FAIL / 0 script_errors**；stderr 全历史口径无新增异常（feel 372B=130B+242B 音频波动回 #57-59 口径非回归；day24_f13 860B 维持）
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**144321a**（F-46~F-49 + F1-E-4-1 数据侧已入库，F1-E 批四 FX 4-2~EXIT 待 #3）
+- **在途 action item（0 项）**：工作区 **CLEAN 零在途**；本轮新增 docs/TEST_REPORT.md §7.62（本岗报告未 commit）
+- **观察**：day31_portal_check(24) 未入 runner 建议 #3 并入（63 件套 1565）；F1-E 批四 FX 4-2~EXIT 待执行；RELIC_EXPANSION 待 #2 拆解；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-45/F-48/F-49 主观面待真人回归
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3685,6 +3685,37 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - 无新增 action item；工作区在途仅 1 个未跟踪 docs 文件 + 本岗报告 docs/TEST_REPORT.md §7.60（历史惯例由后续岗/收口处理）。
 
 **✅ 2026-08-18 20:25 自动化测试轮次 #60：PASS（62/62，0 阻断 / 0 功能缺陷）。** 扩容轮验证：HEAD=afc5ba6（F1-E3 BGM/SFX 抽表 + AF-M1 CC0 + F-44 逃离修复 + build 补冻，+8 提交），16 张数据表（2723 字段）与 25 个场景验证通过，62 件套 1534 条登记断言首跑全绿（#59 间歇 flaky 已根治，两条观察兑现关闭），600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
+
+---
+
+## §7.62 轮次 #62 · 2026-08-19 00:00（自动化测试 · F-49 通关传送门+宝箱验证轮）
+
+**验证快照 = HEAD=144321a（反馈专员记录第 89 轮）+ 工作区 CLEAN 零在途**。HEAD 链（较 #61 的 980aa7d +12 提交，含实质游戏代码）：`2039fa7`（F-46 锚点同步：runner day18_feedback 16→17 / flee_bound 18→22，总期望 1534→1539）→ `bb0faaf`（**F-47 第五关卡关修复 · 用户 08-18 直派**：wave5 total 32→60 / wave15 60→120（swarm 翻倍后实际数对齐 HUD）+ mom 精英 max_spawns=4 产卵上限（Excel 新列 + enemy_movement 计数达上限停止，防召唤物无限产→关卡永不结束）+ day17_elite 39→41）→ `a58d28f`（**F-48 最后一个敌人不出现修复 · 用户 08-18 直派**：Aggro Leash 420→320（=视口半宽杜绝死角滞留）+ 生成位置收紧 ±200×±120（对角 233px 必在视野内）+ day31_wave5_repro 9/9）→ `9e17775`（F-47 锚点同步：day17_elite 39→41 / day26 1539→1541）→ `716a9d8`（**F1-E-4-1 FX 抽表数据侧收口**：GameData.xlsx 新增 fx_config sheet 10 行 + data_schema 注册 + excel_export presentation 段追加 fx_map，导出 fx_config 10 键零漂移其余 14 JSON 零 diff）→ `4f1e791`（**F-49 通关传送门+宝箱机制 · 用户 08-18 拍板**：打完不立即结算——wave_manager 敌全灭/Boss 死不再 `_end_wave` → `_open_exit_portal`（`_portal_await` 停表 + portal_ready 信号 + world.spawn_exit_portal），玩家进传送门才结算，期间可捡宝箱；新 `exit_portal.gd`（紫色圆环占位 + Area2D 接触）+ `loot_chest.gd`（金色方块占位 + 接触拾取金币 50 经验 30，RELIC-E 三选一后续叠加）；同步探针：新 **day31_portal_check 24/24** + feedback5 28→32 + feedback6 10→11 + f2_boundary 36→37 + f3 白名单登记（_portal_await/_claimed））→ `144321a`（反馈专员记录第 89 轮登记）。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** 62 件套回归 **62/62 全 PASS（1541 条登记期望）首跑即全绿（75s）**；**F-49 传送门+宝箱机制实证**（day31_portal_check 24/24 单独验证通过，F-46/F-47/F-48 锚点同步后零回归）。游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr **242B** = 音频退出良性泄漏（历史常态口径）。
+- **数据层**：`data/*.json` **16/16 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2784**（较 #61 2723 **+61**：F-47 waves total 32→60/60→120 + mom max_spawns 新列 + F1-E-4-1 fx_config 10 键 + F-45 导出规范化连带，qa_validate 口径含全部已提交变更），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**（F-49 的 exit_portal/loot_chest 为 world 代码生成无独立 tscn，场景数维持 25），退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件 os.remove 清理无残留）。
+- **探针回归**：`tools/_regression_run.py` **62/62 PASS（1541 条登记期望 = #61 1534 + F-46/F-47 锚点同步 7），0 FAIL / 0 script_errors，首跑即全绿（75s）**；实际断言输出 ≥ 登记期望（day30_f2_boundary 37≥36、day18_feedback5 32≥28、day18_feedback6 11≥10、G 系列超量照旧）。
+- **F-49 新探针（单独验证）**：`day31_portal_check` **24/24 PASS**，stderr 242B 纯音频，0 script error——传送门开启/接触结算/宝箱拾取链路行为级收口实证。
+
+### 3. WARNING / 观察
+
+- **stderr 口径与 #61 一致，无新增异常**：**day31_feel_check 130B→372B**（= #61 的 130B 主动 hitstop 超限兜底 + 242B 音频 BENIGN 泄漏时序波动，回 #57-59 同族口径，**非回归**）；day24_f13 **860B** 维持（#61 纯泄漏 minor 口径）；**day23_vfx 251B**（1 主动「未知特效类型」兜底 + ObjectDB，历史 380B~496B 同族波动非回归）；day31_spawner_deadlock **5440B** 维持；day31_presentation 354B（1 主动「未知 SFX」兜底）维持；day31_flee_bound 242B 纯音频维持；day31_skill_icon 363B 主动越界保护维持；day16 796B=4 主动防御分支维持；其余全历史口径（day18_fb 626B/day18_fb5 621B/day21_22 564B/day18_fb2 571B/day27_meta 496B/day31_skill_movement 489B/day30_f2_boundary 473B/day26 402B/day11_12 660B/day20 941B/day28_f31 920B/day30_boss_skill 126B（368-242 音频缺席）/day7 366B/day10 132B/day14_15 373B/day4 344B/day30_f1d 358B/day18_19 117B/day29_attack 362B/day24_audio 456B/纯音频 242B 组）。
+- **观察项更新**：**day31_portal_check(24) 未入 runner PROBES**（F-49 新探针，本轮单独验证）→ 建议 #3 并入 = 63 件套 1565 断言一键跑通（同 day29/day18_fb4 并入先例）；**F1-E 批四 FX 4-2~EXIT 待 #3 续做**（716a9d8 数据侧 fx_config 10 键已收口）；**RELIC_EXPANSION 7 大块待 #2 拆解**（08-18 拍板，Day 31+ 执行）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-01~F-45 全链真人回归；**F-48/F-49 主观面（传送门/宝箱交互体验）待真人试玩确认**（不阻塞机器侧）。
+
+### 4. action item（0 项新增）
+
+- 无新增 action item；工作区 **CLEAN 零在途**（git status 空）；本岗报告 docs/TEST_REPORT.md §7.62（历史惯例由后续岗/收口处理）。
+
+**✅ 2026-08-19 00:00 自动化测试轮次 #62：PASS（62/62，0 阻断 / 0 功能缺陷）。** F-49 通关传送门+宝箱验证轮：HEAD=144321a（较 #61 +12 提交，4f1e791 F-49 打完不立即结算/进传送门结算/宝箱拾取 + a58d28f F-48 + bb0faaf F-47 + 716a9d8 F1-E-4-1 数据侧），16 张数据表（2784 字段）与 25 个场景验证通过，62 件套 1541 条登记断言首跑全绿 + F-49 新探针 day31_portal_check 24/24 单独验证全过（零回归实证），600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
 
 ---
 

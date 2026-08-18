@@ -80,8 +80,8 @@ PROBES = [
     ("day31_player_model_check", ["--script", "res://tools/day31_player_model_check.gd"], 6),
     ("day31_items_atlas_check", ["--script", "res://tools/day31_items_atlas_check.gd"], 58),
     # 总指挥 2026-08-18 F1-E 第一批：敌人精灵表现抽表闭环（presentation.json ↔ const 一致性 + DataLoader 消费）
-    # expect 273 = 2026-08-18 总指挥第 5 轮 F1-E-3 BGM/SFX 抽表 +§3 audio 段（261 + 12，元数据同步）
-    ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 273),
+    # expect 286 = 2026-08-19 #3 执行 F1-E-4 第四批 FX 抽表 +§6 fx 段（273 + 13，元数据同步）
+    ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 286),
     # 总指挥 2026-08-18：技能图标映射闭环（skills.png 5 帧 + SKILL_ICON_MAP 全量覆盖 + 越界防护）
     ("day31_skill_icon_check", ["--script", "res://tools/day31_skill_icon_check.gd"], 22),
     # AUDIO_FEEL（2026-08-18 AF-P0 批 A-C）：hitstop 顿帧 + 震屏分级 + 音画同步（day31_feel_check）
@@ -90,6 +90,9 @@ PROBES = [
     #   （ranged velocity 方向语义 + 边界钳制 + grow64 出界 die + 常规不误杀，物理无关白盒）
     # F-46 同步（2026-08-18 执行者第 62 轮）：+§5 Aggro Leash 4 断言 → 18→22
     ("day31_flee_bound_check", ["--script", "res://tools/day31_flee_bound_check.gd"], 22),
+    # F-49 同步（2026-08-19 #3 执行 · TEST_REPORT #62 观察「day31_portal_check 未入 runner」→ 并入）：
+    # 通关传送门+宝箱机制（exit_portal 开启/接触结算 + loot_chest 拾取）
+    ("day31_portal_check", ["--script", "res://tools/day31_portal_check.gd"], 24),
 ]
 
 

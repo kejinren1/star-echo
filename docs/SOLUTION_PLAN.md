@@ -1,3 +1,113 @@
+# 方案计划（2026-08-19 00:4x · 方案师第 32 轮 · LEVEL_DESIGN 关卡设计扩展正式方案（#2 第 62 轮拆解完成兑现）+ F1-E 批四 4-1 收口确认 + RELIC 挂账观察）
+
+## 📌 本轮判定（方案师第 32 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #89 · 08-18 23:4x 反馈专员 · F-49 通关传送门+宝箱落地登记）**：无新增机器可验证 P0（F-01~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；F-49（`4f1e791` 传送门延迟结算 + loot_chest 宝箱占位金币 50/经验 30，day31_portal_check 24/24 + 回归 62/62 全绿）→ **🔴P0 无新增**。
+>
+> **🟠 关键调度输入（本轮兑现上轮承诺）**：`docs/LEVEL_DESIGN_SPEC.md`（08-18 22:57 用户拍板 · 规格 15.8KB）已由 **#2 第 62 轮（`9ebbf5f` 00:05）完成函数级拆解**——三主目标：① 固定出生点 **spawn_points 表**（根治 F-48 随机死角 → 点位固定可读可控可设计演出感）② 独立 **boss_phase_events 演出表**（横幅/特效/音效/台词/震屏/buff 一表打通）③ **正向属性状态 attr**（通用 buff，金手指 = +900% 整局 attr 概念成立但本期记 TECH_DEBT）；总指挥 D-014 已拍板 §8 五决策点（inset 40 / Boss 登场 anchor(0.5,0.3) / dialogue 横幅占位 / 特殊波挂 TECH_DEBT / attr 白名单实测登记制）→ **本轮方案师按规格 + 拆解写 LEVEL_DESIGN 正式方案（实测复核锚点，见任务 1-8）**。
+>
+> **git 实测**：HEAD=`9ebbf5f`（#2 第 62 轮 · 00:05；第 61 轮后 +5 = `4f1e791` **F-49 传送门+宝箱** / `144321a` 增量 #89 / `a9a8c6f` D-019 复用铁律 / `e49eb5b` #1 第 66 轮 / `9ebbf5f` **LEVEL_DESIGN 函数级拆解**）；**工作区 = docs/TEST_REPORT.md M（#4 在途）+ `??` docs/art_ai/ref_sheets/ + tools/make_char_ref_sheet.py + tools/make_final_ref_sheet.py（美术辅助工具，非本岗域）——零游戏代码在途，红线内不碰**。
+>
+> **锚点实测复核结论（本轮核心产出，供执行者直接使用）**——与 #2 第 62 轮拆解文本**逐一一致（2 处行号微差已修正）**：
+> 1. **enemy_spawner.gd**（实际路径 `scripts/enemy/enemy_spawner.gd`，拆解文本省略子目录）：`:81-82` swarm count×2 / `:147-148` swarm HP×0.5 / `:163` 生成调用点 / `:172` `_get_random_spawn_position()`（min_dist 110 / 40 次尝试 / `_clamp_to_ground` 兜底）/ `:196` `_clamp_to_ground()`——**B 批改造落点确认**；
+> 2. **phase 链**：`enemy_damage.gd:36` `_enemy._boss_ctrl._check_phase_transition()`（存活命中路径）/ `enemy_boss.gd:85` `_check_phase_transition()`——**C 批钩子接线点确认**（拆解写 :35-36，实测存活命中调用在 :36，微差 1 行）；
+> 3. **演出消费端**：`game_manager.gd:392` `_show_elite_banner()`（Label + tween 淡出上浮 1.5s 自毁范式）/ `main.gd:240` `_trigger_camera_shake(level)`（light/medium/heavy 表化）——**LD-C1 banner/camera 复用范式确认**；
+> 4. **status_component.gd**（实际路径 `scripts/systems/status_component.gd`）：`:140` `_apply()`（slow 分支 :144）/ `:160` `_revert()`（slow 分支 :164）——**E 批 attr 分支落点确认**（拆解写 _revert :157，实测 :160，微差 3 行）；
+> 5. **DataLoader 接口范式**：`data_loader.gd:482` `get_wave()` / `:605` `get_enemy_sprite_config()`（懒加载 + 空表标记）/ `:644` `get_audio_config()`——**LD-A3 三接口仿写范式确认**（拆解写 :600-604，实测函数体 :605 起，微差 1 行）；
+> 6. **data_schema.py**：`:192` SHEETS dict / `:277` waves 注册（root "waves"）/ `:345` elements 注册（root "elemental_status"）/ `:246` audio_config / `:255` fx_config（近三批注册先例）——**LD-A2 注册范式确认**；**elements 无 type 枚举白名单硬校验**（拆解「若校验白名单需加 attr」实测 = 无校验 → attr 类型可直接入表，探针断言兜底）；
+> 7. **excel_export.py**：`:155-169` 子表 FK 校验段（child_list/child_dict parent 键存在性，如 skill_relics→skills）——**LD-A2 FK 校验仿写段确认**；`:544` `check_only = "--check-only" in sys.argv` 确认存在但**参数未消费**（已知缺陷复认，拆解建议顺手修或登记 TECH_DEBT）；
+> 8. **boss_id 合法集合**：`data/boss_patterns.json` patterns boss_id = **invoker / predator 两枚**（boss_phase_events FK 校验的合法目标来源确认）；`boss_skills.json` 顶层 = skills；`enemies.json` 顶层 = enemies/scaling（**无独立 boss 数组**——boss_id 权威来源 = boss_patterns.json 或 enemies 表 category=boss 行，FK 校验实现时以 boss_patterns 为准或双源取并，建议执行者实测登记）；
+> 9. **waves.json 现状**：wave 行 keys = wave/duration/total_enemies/composition（**无 spawn_set/spawn_order 列**，待 LD-A1 新增，与拆解一致）；elements.json elemental_status 现有 type 枚举 = armor/dot/invulnerable/slow/stun（**attr 为新增第 6 类**，消费端 status_component slow 分支完全同构）。
+>
+> **结论**：① **LEVEL_DESIGN = 本轮方案主产出**（拆解完成即解锁，方案师按纪律写正式方案，承接方 = #3 执行者 D-015 交接，执行序 A→B→C→E→D 可选→EXIT）；② **F1-E 批四 4-1 已收口**（`2aeb717`/`716a9d8` fx_config sheet 数据侧：10 行 × 6 列 + schema 注册 + export 构建，13+1 JSON 零 diff）→ 上轮「批四零开工」挂账**部分解除**（数据侧 [x]），**剩余 4-2~4-4/EXIT 消费端仍 [ ] 待 #3 续做**；③ **RELIC 方案已定（第 31 轮）git 实测仍未开工**（HEAD 无 day31_relic_* / stats 改名提交）→ 挂账观察维持（跨 1 轮）；④ D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域维持；⚠️ build/ 已含 F-45/46/47/48 + F1-E-4-1（`2aeb717` 产物）但不含 F-49 → 传送门/宝箱验证需最新代码或下次打包。**回归硬门槛口径维持 = 62 件套 · 1534 断言**。
+
+## 当前开发日：Day 30 收尾 → 新目标日 Day 31（LEVEL_DESIGN 关卡设计扩展 · 独立目标日 · 拆解 `9ebbf5f` + 规格 `LEVEL_DESIGN_SPEC.md` 唯一事实源 · 与 RELIC 同窗口）
+
+### 任务1：LD-A 数据地基（两新 sheet + 管线 + 接口 · 前置批 · B/C/E 全依赖 · ⭐ 本轮实测复核新增确认）
+
+- **实测复核结论（本轮新增 4 点，供执行者直接使用）**：
+  1. **waves.json 现无 spawn_set/spawn_order 列**（wave keys = wave/duration/total_enemies/composition）→ LD-A1 为纯新增列，无既有键冲突；20 波全部留空 = 缺省边缘组零行为变化（缺省回退语义清晰）。
+  2. **elements 表无 type 枚举白名单校验**（data_schema elements 注册 :345 仅 root/kind/key，无 VALID_TYPE 检查）→ `attr` 新类型可直接入表零阻塞；探针断言 type=attr 行兜底（拆解「若校验白名单需加 attr」实测 = 无需加）。
+  3. **boss_id 合法集合 = boss_patterns.json patterns 的 invoker/predator 两枚**（enemies.json 无独立 boss 数组）→ FK 校验 boss_phase_events.boss_id 的实现建议：以 boss_patterns.json boss_id 并集为准（或 enemies 表 category=boss 行），执行者实测登记后定（D5 实测登记制延伸）。
+  4. **FK 校验仿写段** = excel_export.py:155-169（child_list/child_dict parent 键存在性循环）——spawn_set 引用 point_id 属跨 sheet 引用，需新写校验段（非既有 child 机制），改 Excel 时 FK 报错语义与既有 rep.err 一致。
+- **改动**：Excel 两新 sheet（spawn_points ≥9 行 8 列 / boss_phase_events ≥6 行 6 列）+ waves 表 +2 列 + data_schema 注册 + excel_export 构建（spawn_points 平铺 dict / boss_phase_events 按 boss_id 分组排序）+ FK 校验新段 + **顺手修 `--check-only` 已知缺陷（check_only 参数未消费 = 校验路径仍全量导出）或登记 TECH_DEBT** + DataLoader 三接口 + 新探针 `day31_level_design_data_check.gd` ≥12 断言。
+- **风险**：**中**。数据面最广（两新 sheet + waves 列 + schema + export + FK + 三接口 + 探针七点）；**硬门槛 = 其余 16 JSON 零 diff**（新文件生成不得碰既有文件）+ FK 校验三态（合法/坏 point_id/坏 boss_id）；--check-only 缺陷修复涉既有校验路径行为（建议只修「check_only 时跳过导出写盘」语义，防误伤，或先登记 TECH_DEBT 不阻塞本批）。
+- **验证**：day31_level_design_data_check ≥12 + 回归 **62 件套 · 1534 断言** + baseline **BASELINE CLEAN** + Excel --check-only 通过（FK 新逻辑生效）。
+
+### 任务2：LD-B 固定出生点生成（enemy_spawner 按点位生成 · 依赖 LD-A · ⭐ 锚点复核确认）
+
+- **实测复核结论**：`enemy_spawner.gd:172 _get_random_spawn_position()`（min_dist 110 / 40 次尝试 / :196 `_clamp_to_ground` 兜底）/ `:163` 生成调用点——**改造落点与拆解一致**；`wave_manager` spawn_wave 透传链待执行者按 LD-B2 扩展（参数 Dictionary 缺省空 = 兼容旧调用零回归）。
+- **改动**：enemy_spawner 新增 `_get_spawn_position(entry)`（edge/anchor/ring 三型解析 + sequence/random 轮换 + min_dist 3 次兜底 + _clamp_to_ground）+ wave_manager 透传 spawn_set/spawn_order + 探针扩展 §出生点段 ≥8 断言。
+- **风险**：**中**（生成逻辑核心改动，最大隐患 = F-48 修复回归）。**硬门槛 = day31_flee_bound 18/18 零改动**（inset 40 点位 + Aggro Leash 320 双保险 = 生成点必在视野内）+ **缺省回退必须保留现 `_get_random_spawn_position` 路径**（spawn_set 空/点位表空/point_id 不存在 → 原随机兜底零回归）。**替代方案**：两阶段灰度——先只加表驱动主路径 + 全波留空走缺省（零行为变化验证回归），再 1-2 波填值端到端验证。
+- **验证**：day31_level_design_data_check §出生点段 ≥8 + day31_flee_bound 18/18 零改动 + 回归 62 件套 + PLAYTEST 主观项登记（怪从视野边缘涌入的可预判感，交 #5）。
+
+### 任务3：LD-C Boss 阶段演出（boss_phase_events 触发 + 演出执行器 · 依赖 LD-A · ⭐ 锚点复核确认）
+
+- **实测复核结论**：`enemy_damage.gd:36`（存活命中 _check_phase_transition 调用）/ `enemy_boss.gd:85`（_check_phase_transition 函数体）——**C2 钩子接线点确认**；`game_manager.gd:392 _show_elite_banner()`（Label + tween 淡出上浮 1.5s 自毁）/ `main.gd:240 _trigger_camera_shake(level)`——**C1 banner/camera 复用范式确认**。
+- **改动**：新建 `scripts/boss/boss_phase_player.gd`（注册表驱动 play_events：banner/vfx/sfx/dialogue/camera/buff 六类型 + once 语义 + 未知名 push_warning 跳过）+ enemy_damage/enemy_boss 相位链接线（阈值语义 > 上一阈值 ≤ 本阈值 / 击杀不触发 / once 防重 / 100 开局登场）。
+- **风险**：**中**（演出执行器新脚本 + 相位链接线）。**硬门槛 = day18_19_boss_check 48/48 + day30_boss_skill 49/49 零改动**（相位/技能链不动，演出为纯叠加层）+ 击杀瞬间零触发（防死亡帧残留横幅）。**替代方案**：执行器先独立白盒验证六类型，再接相位链（两阶段）。
+- **验证**：day31_level_design_data_check §演出段 ≥8 + day18_19/day30_boss_skill 零改动 + 回归 62 件套 + PLAYTEST 主观项登记（Boss 血线演出观感，交 #5）。
+
+### 任务4：LD-E attr 正向属性状态（status_component 扩展 + elements 示例行 + buff 联动 · 依赖 LD-A · ⭐ 锚点复核确认）
+
+- **实测复核结论**：`status_component.gd:140 _apply()`（slow 分支 :144-155 范式：记录 orig → 乘算 → 到期还原）/ `:160 _revert()`（slow 分支 :164）——**attr 分支完全同构落点确认**（拆解写 _revert :157，实测 :160 微差 3 行，执行者按 :160）；elements.json elemental_status 现有 5 类型（armor/dot/invulnerable/slow/stun），attr = 第 6 类。
+- **改动**：status_component `_apply`/`_revert` match 新增 `"attr"` 分支（target_attr 白名单按 D5 实测登记：damage_multiplier/move_speed/armor 消费点已验证；crit_chance/crit_damage/attack_speed 若缺失挂 TECH_DEBT）+ elements sheet 新增 ≥2 行 type=attr 示例（frenzy 狂暴 / swift 迅捷）+ buff 事件联动（LD-C1 执行器 → status_component 消费）。
+- **风险**：**中**（状态组件核心，**叠加/免疫/max_stacks/同源刷新/异源独立必须沿用现有组件规则零新增**——拆解已定，执行者不得另起炉灶）。**硬门槛 = 既有 slow/dot/stun/armor 行为零漂移**（attr 为纯新增分支，探针断言 5 旧类型行为不变）+ target_attr 不存在 warn + 跳过（防脏数据崩游戏）。
+- **验证**：新探针 `day31_level_design_attr_check.gd` ≥10 断言 + 回归 62 件套 + PLAYTEST 主观项登记（Boss 狂暴时玩家应对体感，交 #5）。
+
+### 任务5：LD-D 特殊波参数化（可选批 · 成本 >0.5 天则降级记 TECH_DEBT）
+
+- **改动**：wave_generation 表扩展（special/count_mult/hp_mult/damage_mult）+ enemy_spawner:82/:148 读表替换 if/else（缺省 1/1/1 零行为变化）+ curse/high_pressure/chest_enemy 语义核清（评估成本）。
+- **风险**：**低-中**（F-47 已修 swarm 翻倍口径一致，swarm 现行为 = count×2 + HP×0.5 探针断言零漂移；其余语义散落核清成本未知）。**总指挥 D-014 已拍板：特殊波参数化本期不纳入 → 优先登记 TECH_DEBT_PLAN**，若执行者评估 <0.5 天可顺带收 swarm 主项。
+- **验证**：day31_level_design_data_check +§特殊波段 ≥6（若做）/ 降级则 TECH_DEBT_PLAN 登记不做 EXIT。
+
+### 任务6：LD-EXIT 总收口
+
+- **验证**：全批探针全绿（day31_level_design_data_check + attr_check）+ 全量回归 **62 件套 ≥1534 断言** + baseline **BASELINE CLEAN** + Excel --check-only 通过（含 FK 新逻辑）+ DATA_DICT_GUIDE.md 补两新表说明 + PLAYTEST 主观项登记（点位可预判感 / Boss 血线演出 / attr 狂暴体感，交 #5）+ TECH_DEBT_ISSUES 新债登记（--check-only 缺陷未修则登记 / crit·攻速属性缺失）。
+
+### 任务7：F1-E 第四批 FX 表现抽表（F1-E-4-1~4 + EXIT）——4-1 已收口 · 消费端待 #3 续做
+
+- **现状更新**：**F1-E-4-1 [x]**（总指挥第 6 轮 `2aeb717`/`716a9d8`：fx_config sheet 10 行 × id/frames/fps/path/size_w/size_h + data_schema 注册 + excel_export 构建 fx_map，13+1 JSON 零 diff）→ **上轮「批四零开工」挂账部分解除**；**剩余 4-2（DataLoader.get_fx_config）~4-4（vfx_player.set_effect 改读）+ EXIT 仍 [ ]，承接方 = #3 执行者**（D-015 交接）。
+- **硬门槛**（不变）：day23_vfx_check §1 零改动（FX_CONFIG const 兜底）+ 抽表零数值变化 + 回归 **62 件套 · 1534 断言**；EXIT 口径 = day31_presentation ≥286（273+13）+ baseline CLEAN。
+- **验证/承接**：沿用前三批范式（get_fx_config 懒加载 + Vector2i 组装 → vfx_player.set_effect 消费改读 const 兜底 → day31_presentation +§6 fx 段），每任务一收口 commit 带 F1-E-4 编号。
+
+### 任务8：RELIC 遗物扩展（全批已拆解 + 方案已定第 31 轮）——挂账观察维持
+
+- **现状**：方案已定（SOLUTION_PLAN 第 31 轮，锚点实测复核：stats.json .stats.offensive[2]/.stats.economy[3] + desc_builder.gd:32-33 + items relic 2 件 + data_loader:437 + save_system 缺省容错）；**本轮 git 实测确认仍未开工**（HEAD=`9ebbf5f` 无 day31_relic_* / stats 改名提交）→ **挂账观察维持（跨 1 轮）**，承接方 = #3 执行者（D-015 交接）。
+- **执行序**（第 31 轮定案不变）：RELIC-A（低成本独立先行）→ RELIC-0（数据地基）→ RELIC-F/RELIC-E（P0 独立）→ RELIC-B/C/D（依赖 0）→ RELIC-EXIT。
+- **验证**：按第 31 轮方案逐批执行（day31_relic_name/data/boss_rhythm/harvest/affinity 五探针 + 回归 62 件套 1534 断言 + baseline CLEAN）。
+
+### 任务9：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出）。D30-T3 上传 [ ] = 等 Owner 明确确认（目标资产库）；D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘 + 最终标记。**⚠️ build/ 观察更新：D-016 授权后 build/ 已自动替换为 HEAD=`2aeb717` 产物（含 F-45/46/47/48 + F1-E-4-1）但不含其后 F-49（`4f1e791`）→ 传送门/宝箱需等下次打包验证**（交 Owner/总指挥）。
+- **风险**：低（无机器侧开发任务）。**验证**：Owner 确认后由 #3/#4 收口，回归 62 件套 + baseline CLEAN 为发布门禁口径。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| LD-A 数据地基 | 中 | 七点数据面最广；16 JSON 零 diff 硬门槛；FK 校验三态；--check-only 缺陷修复保守（只改语义或登记 TECH_DEBT） |
+| LD-B 固定出生点 | 中 | 生成逻辑核心改动；day31_flee_bound 18/18 零改动硬门槛；缺省回退保留现随机路径；替代 = 两阶段灰度（全波留空先验零回归） |
+| LD-C Boss 演出 | 中 | 新执行器 + 相位链接线；day18_19 48/48 + day30_boss_skill 49/49 零改动；击杀不触发；替代 = 执行器独立白盒先验再接线 |
+| LD-E attr 状态 | 中 | 状态组件核心；5 旧类型行为零漂移 + attr 纯新增分支；叠加/免疫规则沿用零新增；target_attr 缺失 warn 跳过 |
+| LD-D 特殊波 | 低-中 | D-014 拍板挂 TECH_DEBT_PLAN 优先；<0.5 天可顺带收 swarm 主项（swarm 现值 2/0.5 探针断言零漂移） |
+| F1-E-4 消费端 | 低 | day23_vfx_check 零改动 + 抽表零数值；4-1 数据侧已收口，剩 4-2~4-4/EXIT 待 #3 |
+| RELIC 全批 | 低-中 | 方案已定第 31 轮；**唯一风险 = 承接方持续未开工（跨 1 轮挂账观察）** |
+| D30-T3/EXIT | 低 | Owner/#4 域；build/ 不含 F-49 交 Owner/总指挥核实 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 批五~七**（SHEET_CONFIG → 初始武器 → 炮台默认）：沿前四批范式 + 各批先例推进，承接方开工时按需拆解（批四消费端收口后再拆批五）。
+- **F-49（传送门+宝箱）**：用户 08-18 23:3x 直派已落地（`4f1e791` 闭环：portal 24/24 + 回归 62/62 全绿，RELIC-E 三选一地基）——非本岗方案对象；真人回归（传送门显眼度 / 先捡宝箱再进 / Boss 关同流程）交 #5。
+- **F-45/F-46/F-47/F-48/F-49 主观回归面 / E-0 终审完整局 / AF-P0 / PS-EXIT**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-44 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md`（顶部新第 32 轮段，历史段完整保留）+ 在 `docs/TASKS.md` 标注（LEVEL_DESIGN 区块「方案已定」+ F1-E-4 状态刷新 + 第 62 轮状态块后补方案师第 32 轮确认块）。工作区在途 docs/TEST_REPORT.md（#4）+ art_ai 工具（美术域）不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-18 23:3x · 总指挥第 6 轮 · LEVEL_DESIGN_SPEC §8 五决策点拍板 + F1-E-4-1 收口交接）
 
 ## 📌 总指挥拍板决策段（2026-08-18 23:3x · 第 6 轮）
@@ -365,3 +475,27 @@
 6. **维持登记**：F1-E 批四 FX 挂账（跨 2 轮，承接方 = 总指挥/主窗口按 F1-E-4 拆解推进勿再等）；RELIC 方案已定（承接方 = 总指挥/主窗口，首拆 RELIC-A 属性改名独立低成本批，A 项 O-1 已拍板：元素伤害→魔法伤害/工程学→机械学，id 零改动）；D30-T3 上传 + D30-EXIT = Owner/#4 域（F-45/F-46/F-47 未进 build）；PS-EXIT/E-0/AF-P0/F-45/F-46/F-47 主观回归交 #5。
 
 **下轮观察点**：① 总指挥/主窗口是否开工 F1-E 批四 FX（git log 出现 fx_config sheet / get_fx_config / vfx_player set_effect 改读 / day31_presentation +§6 fx 段）② 总指挥/主窗口是否开工 RELIC-A（git log 出现 stats sheet 改名「魔法伤害/机械学」/ day31_relic_* 探针）③ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口（含 F-45/F-46/F-47 是否进 build）④ #4 #62 快照刷新后 runner/day26 锚点是否漂移（62/1541 新口径）⑤ F-46/F-47 主观回归面交 #5。
+
+---
+
+# 执行结果（2026-08-19 01:0x · 执行者第 63 轮 · F1-E-4 批四 FX 消费端收口 + runner/day26 锚点同步 63 件套）
+
+## 📌 本轮判定（执行者第 63 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #89 · 08-18 23:4x 反馈专员 · F-49 落地登记）**：无待处理机器可验证 P0（F-01~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #62（08-19 00:00 #4 已落盘）= **62/62 全绿 · 1541 断言 · BASELINE CLEAN · 0 阻断 / 0 action item** → **🔴P0 无新增 / 🟠 无新用户拍板调度指令需本岗处理**。
+>
+> **方案核实（三方一致）**：方案师第 32 轮（00:4x）**LEVEL_DESIGN 正式方案定稿**（承接方 = #3 执行者 D-015 交接，执行序 A→B→C→E→D 可选→EXIT）+ 确认 **F1-E 批四 4-1 已收口、剩余 4-2~4-4/EXIT 待 #3 续做**（D-015 用户 08-18 23:1x 拍板解除「#3 勿自行开工」）；RELIC 方案已定（第 31 轮）挂账观察维持；D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域（build/ 已含 F-45/46/47/48 + F1-E-4-1 但不含 F-49）；**TEST_REPORT #62 观察「day31_portal_check 未入 runner」= 挂 #3 域** → 本轮兑现。
+
+**执行结果：[完成]（F1-E-4 批四 FX 消费端闭环 + TEST_REPORT #62 观察兑现）**
+
+1. **F1-E-4-2【W1】DataLoader 接口**（commit `f67630b`）：`data_loader.gd` 新增 `get_fx_config(fx_name: String) -> Dictionary`（懒加载 presentation.json fx_config 缓存 + 空表重试标记，仿 get_audio_config/get_enemy_sprite_config 范式）；命中 → 组装 {path, frames, fps, size: Vector2i}（size JSON → Vector2i，仿 :610-612 先例）；未命中/损坏 → 空字典（消费端 const 兜底零崩）。
+2. **F1-E-4-3【W1】vfx_player 消费改读**（commit `f67630b`）：`vfx_player.gd` 新增 `_resolve_fx_config(fx_name)`（DataLoader.get_fx_config 命中优先/未命中·空表回退 FX_CONFIG const，仿 audio_manager._resolve_audio_path 范式）；`set_effect` 改走；**FX_CONFIG const 保留兜底 → day23_vfx_check 18/18 零改动硬门槛通过**；未知键 push_warning 行为不变。
+3. **F1-E-4-4【W1】探针扩展**（commit `f67630b`）：`day31_presentation_check.gd` +§6 fx 段 **13 断言**（fx_config 10 键齐 + 键集一致 + 逐键 path/frames/fps/size 零漂移 + get_fx_config 消费 6 项 + 白盒改值 E2E 双跑 + 空表兜底 set_effect 仍播 + 未知键 current_fx 不写）→ **286/286 PASS**（273+13）。
+4. **TEST_REPORT #62 观察兑现（runner/day26 锚点同步）**：`_regression_run.py` day31_presentation expect **273→286**（+13）+ 并入 **day31_portal_check(24)**（F-49 传送门+宝箱）→ **63 件套**；`day26_integration_check.gd` 锚点 **62 项/1541 → 63 项/1578**（1541 + 13 + 24，历史第 55/57/59/62 轮纪律）。
+5. **F1-E-4-EXIT 收口**：全量回归 **63/63 PASS（1578 断言）首跑全绿** + day26 **34/34 CLEAN** + baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0 + TASKS F1-E-4 全 [x] + F1-E 行 **4/7 批** + TECH_DEBT_ISSUES **T-019 转已收口**。
+
+**验证**：day23_vfx_check 18/18（FX_CONFIG 零改动）+ day31_presentation **286/286** + day26 **34/34**（63 项/1578）+ **全量回归 63/63（1578 断言）** 首跑全绿 + baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0。
+
+**维持登记**：F1-E 批五~七（SHEET_CONFIG→初始武器→炮台默认）= #3 执行者承接（拆解+方案齐备即开工）；**LEVEL_DESIGN 批 A→B→C→E（D 可选）** = #3 执行者承接（方案师第 32 轮正式方案已定，LD-A 数据地基为前置批）；RELIC 方案已定挂账观察（承接方 = #3）；D30-T3 上传 + D30-EXIT = Owner/#4 域（F-49 未进 build 交 Owner/总指挥核实）；PS-EXIT/E-0/AF-P0/F-45~F-49 主观回归交 #5。
+
+**下轮观察点**：① 方案师第 33 轮是否排 LEVEL_DESIGN-A 开工（git log 出现 spawn_points/boss_phase_events sheet / get_spawn_points / day31_level_design_* 探针）② #3 是否按方案师第 32 轮执行序开 LD-A（数据地基）或 RELIC-A（独立低成本批）③ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口（含 F-49 是否进 build）④ #4 #63 快照刷新后 runner/day26 锚点是否漂移（63/1578 新口径）。
