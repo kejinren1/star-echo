@@ -1,3 +1,62 @@
+# 方案计划（2026-08-18 13:2x · 方案师第 27 轮 · 无新任务需方案 · F1-E 批三锚定复核 + Day 30 边界确认）
+
+## 📌 本轮判定（方案师第 27 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #79 · 08-18 07:5x 反馈专员）**：无待处理反馈（F-01~F-43 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #56（06:48 · HEAD=`93f1be2`）= **60/60 全绿 · 1463 断言 · BASELINE CLEAN · 0 阻断 / 0 功能缺陷 / 0 action item**；AUDIO_FEEL AF-P0 批 A-C 已由执行者第 57 轮 `d2febc3` 全收口（hitstop 顿帧 / 震屏分级 / 音画同步，回归 61/61 1489 断言）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需拆。**
+>
+> **git 实测**：HEAD=`dc6a7c1`（#2 第 57 轮拆解回执，08-18 07:5x）；工作区仅 `docs/TEST_REPORT.md` M（#4 在途）——**零游戏代码在途**。
+>
+> **结论：无新任务需方案化。** 当前目标日 Day 30 的剩余客观项 = 纯 Owner/#4 域（上传/发布收口）无需方案；F1-E 第三批 BGM/SFX 已由 #2 第 57 轮函数级拆解（F1-E-3-1~4 + EXIT），方案范式第 26 轮已定，本轮方案师对拆解锚点做实测复核后**方案锚定、直接可执行**，不重复写方案。
+
+## 当前开发日：Day 30（发布准备 · 收尾）
+
+### 任务1：F1-E 第三批 BGM/SFX 表现抽表（F1-E-3-1~4 + EXIT）——方案锚定复核，无需新写
+
+- **文件**（#2 第 57 轮拆解锚点，本轮实测复核一致）：
+  - `scripts/autoload/audio_manager.gd:8-11` `BGM_MAP`（2 键 menu/battle）；`:12-23` `SFX_MAP`（10 键 hit/crit/death/levelup/coin/shop/skill/heal/event/boss）；`:112-114` play_bgm 未知轨 push_warning；`:138-140` play_sfx 未知名 push_warning；`:155` play_sfx_delayed
+  - `tools/data_schema.py:218-231` presentation 注册范式（enemy_sprites :222 / behavior_map :231 两先例，dict 形 id 主键）
+  - `tools/excel_export.py:399-423` presentation 构建段（behavior_map 段 :416-422 可仿）
+  - `docs/GameData.xlsx` 新建 `audio_config` sheet（12 行 × id/category/path）
+  - `tools/day31_presentation_check.gd` +§3 audio 段（≥12 断言）
+- **改动**（沿用第 26 轮范式：Excel → 导出 → 消费 → 探针 → 回归，const 兜底）：audio_config sheet → data_schema 注册 → excel_export 构建 `presentation.json.audio_map`（12 项，其余 13 JSON 零 diff）→ `data_loader.gd` 新增 `get_audio_config()`（懒加载 + const 兜底）→ `audio_manager.gd` 新增 `_resolve_audio_path(key, fallback)` 消费改读（BGM_MAP/SFX_MAP **const 保留为兜底**）→ `day31_presentation_check` +§3 → 回归 61 件套
+- **风险**：**低**。⚠️ 两条硬门槛：① `day24_audio_check:14/14` §2 配置层断言 SFX_MAP 键 ⊇ 10 类 + BGM_MAP 2 键 → BGM_MAP/SFX_MAP const 保留为兜底即零改动；② AUDIO_FEEL 红线 2（SFX_MAP 键契约零新增零删改）→ 抽表仅路径来源数据化、键集合不变。其余：audio_map 未命中/损坏 → 空字典 → 消费端 const 兜底零崩；零数值变化（仅路径映射）。
+- **验证**：`day31_presentation_check` ≥273（261+12）+ `day24_audio_check` 14/14 零改动 + 回归 61 件套 1489 断言 + baseline **BASELINE CLEAN**；端到端双跑（改 Excel 一例路径 → 导出 → get_audio_config 变化）。
+- **承接**：🏠 主窗口/总指挥按批推进（每任务一收口 commit 带 F1-E-3 编号）。
+
+### 任务2：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出，方案师不写执行方案）。
+  - D30-T3 上传 = 外部动作，等 Owner 明确确认（目标资产库 + build/ 替换 + 冻结 HEAD 补冻与否）
+  - D30-EXIT = TEST_REPORT 发布摘要待 #4 落盘 + build/ 替换 + 最终标记
+- **风险**：低（无机器侧开发任务；build/ 08-18 00:13/00:14 产物仍早于 `3f9dbe4`/`defe1cf` 的交办观察维持，交 Owner/总指挥核实）。
+- **验证**：Owner 确认后由 #3/#4 收口，回归 61 件套 + baseline CLEAN 为发布门禁口径。
+
+### 任务3：AF-M1（CC0 音乐替换 · P1 已拍板）——待执行，网络依赖登记维持
+
+- **改动**：无（总指挥采集 GitHub 生态或登记阻塞；M1 替换 = assets/audio 文件名不变零代码改动）。
+- **风险**：低（不阻塞 P0；网络依赖）。
+- **验证**：替换后 day24_audio_check 14/14 零改动 + 回归 61 件套。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| F1-E-3 BGM/SFX 抽表 | 低 | day24_audio 14/14 + AUDIO_FEEL 红线 2 双硬门槛；const 兜底防空表崩；替代方案 = 回退仅保留 const（现状即等价） |
+| D30-T3/EXIT | 低 | 外部动作等 Owner；无替代方案（权限边界） |
+| AF-M1 | 低 | 网络依赖；登记阻塞不阻塞 P0 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 批四~七**（FX → SHEET_CONFIG → 初始武器 → 炮台默认）：沿第 26 轮范式 + 各批先例（SPRITE_MAP/BEHAVIOR_MAP/F1-E-3）推进，承接方开工时按需拆解。
+- **PS-EXIT / E-0 终审完整局 / AF-P0 主观回归**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-43 真人回归 / MainMenu 待真人确认**：开放项清单维持。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md` + 在 `docs/TASKS.md` 对应任务旁补「方案已定（SOLUTION_PLAN.md 第 27 轮）」标注。工作区 `docs/TEST_REPORT.md` M = #4 在途，本岗不碰。
+
+---
+
 # 方案计划（2026-08-18 · 第 4 轮 · 总指挥承接 F1-E 第一批 + AUDIO_FEEL 拍板 + HUD 图标补丁）
 
 ## 📌 总指挥拍板决策段（2026-08-18 04:5x · 第 4 轮）
@@ -37,155 +96,16 @@
 
 ---
 
-## 当前开发日：Day 30（发布准备）
+# 方案计划（2026-08-18 13:2x · 执行者第 58 轮 · 核实确认轮 · 无 #3 可执行代码任务）
 
-> **本轮状态：等待任务拆解。**
-> 
-> P0 调度硬性输入已检查：`docs/PLAYTEST_CHECKLIST.md`「未解决问题追踪区」截至增量 #70，无新增机器可验证的 🔴 P0 项或用户拍板调度指令；F-01~F-39 均为已落地、待真人回归的主观项。
+## 📌 本轮判定（执行者第 58 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #79 · 07:5x 反馈专员）**：无待处理反馈（F-01~F-43 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #57/#58（08:45/12:45 #4 已落盘）= **61/61 全绿 · 1489 断言 · BASELINE CLEAN · 0 阻断 / 0 action item**；git 实测 HEAD=`dc6a7c1`（#2 第 57 轮拆解回执）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需执行**。
 >
-> `docs/30DAY_PLAN.md` 对 Day 30 的目标是“发布准备（Steam 构建 / 导出 pck+exe / 存档兼容 / 资产库上传 build）”。但 `docs/TASKS.md` 当前仍只有三条高层发布项，尚未由 #2 拆成可执行批次，缺少文件清单、命令、输入输出、回滚点和验收判据。按项目纪律，本轮不擅自把高层目标转成执行方案。
->
-> **红线遵守**：本轮不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不跑探针、不 git commit。仅覆盖本方案文档，并在 `TASKS.md` 对应台账项标注方案状态。
+> **核实确认**：方案师第 27 轮「无新任务需方案化」与 #2 第 57 轮拆解、git 实测三方一致——F1-E-3 BGM/SFX 抽表锚点（audio_manager.gd:8-23 / data_schema.py:218-231 / excel_export.py:399-423）复核一致、方案锚定可直接执行，但承接方 = 🏠 主窗口/总指挥（历史第 42 轮起约定「F1-E 主窗口承接，#3 勿自行开工」）→ 非 #3 执行任务；D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域；AF-M1 = 网络依赖登记维持。
 
-## 当前客观状态
-
-- 玩家侧技能系统 PS-D 已收口：章节/路线/反馈/大地图相关探针分别为 11/11、54/54、28/28、20/20。
-- 全量回归引用 `TEST_REPORT` #49：52/52 探针、1099 条登记期望断言、0 script_errors、`BASELINE CLEAN`。
-- PS-EXIT 剩余为真人体验出口，不是新的代码任务；需由 #5 记录“通过 / 问题 / 未测”，不得以机器 PASS 替代真人结论。
-- F1-E 表现配置抽表仍是阶段 F 唯一客观台账尾项，由主窗口按小批次承接；本轮不越权实施。
-- `TEST_REPORT` 仍提示 `se_skill_sword_arc` 图标映射、MainMenu 主场景、Day 28 性能段与 PS-D 章末 Boss 映射等观察项；其中已由 PS-D 解决的机器侧内容不重新拆任务，真人确认项继续留在开放项清单。
-
-## 任务1：PS-EXIT 真人体验出口（等待 #5 试玩记录）
-
-- 文件：`docs/PLAYTEST_CHECKLIST.md` 未解决问题追踪区；`docs/TASKS.md` PS-EXIT 条目。
-- 改动：不改游戏实现。一次完整局固定记录五组结论：
-  1. 多技能位操作：空格/鼠标左键/鼠标右键触发已解锁槽位；各技能冷却独立；暂停菜单、商店、背包不误触发。
-  2. 位移技能走位：dash/blink/leap 的距离、穿怪/落点、无敌帧、后摇是否形成可理解的走位解法。
-  3. 技能遗物掉落节奏：精英掉落、20% 替代奖励、章 Boss 招牌技必掉、三选一装配/替换可读性。
-  4. 章节节奏：章 1 末层 event 休整/奖励感；章 2-4 Boss 节奏与章界提示；`boss_layers=[6,10,14]` 与地图预见性一致。
-  5. 剑士剑气：方向、范围、命中反馈和 Build 配合相较旧星刃是否形成可感知差异。
-- 落地合理性：上述行为已有机器侧探针覆盖，剩余问题是手感、可读性和节奏判断；集中一次完整局可减少单项试玩偏差，且不把主观结果混入代码出口。
-- 风险：低。只写试玩记录，不改变运行时行为。若发现确定功能缺陷，另建反馈条目交 #2 拆解，不在试玩记录中现场改码。
-- 验证：#5 真人完整局记录；每组必须明确“通过 / 问题 / 未测”。五组全部有结论后才可关闭 PS-EXIT；“未测”不得标为通过。
-
-## 任务2：PS-D 机器证据与主观开放项隔离（继续维持）
-
-- 文件：`docs/TASKS.md` PS-D/PS-EXIT 条目；`docs/PLAYTEST_CHECKLIST.md` 未解决问题追踪区；`docs/TEST_REPORT.md` 顶部摘要由 #4 维护。
-- 改动：本轮不修改 TEST_REPORT，不重复跑测试。台账继续引用 PS-D 已收口和 52/52 回归事实；PS-EXIT、E-0、F-16~F-39、F-37 UI、F-39 节点选择、MainMenu 主场景等保留为待真人确认，不标为机器阻塞。
-- 落地合理性：TEST_REPORT #49 已覆盖当前机器面；重复增加探针或改断言口径会制造历史断言漂移。主观与客观分层符合既有护栏。
-- 风险：低。并发岗位若刷新 PLAYTEST/TASKS，编辑前必须重读对应区块，避免覆盖最新增量。
-- 验证：文档一致性检查：PS-D 四项保持 `[x]`；PS-EXIT 不声称真人已完成；开放项与 PLAYTEST 增量 #70 一致；机器证据只引用 TEST_REPORT #49。
-
-## 任务3：F1-E 表现配置抽表（主窗口承接，本轮不执行）
-
-- 文件：主窗口后续承接 `docs/GameData.xlsx` presentation sheet、`tools/data_schema.py`、`tools/excel_export.py`、相关表现消费脚本；本轮不改上述文件。
-- 改动：仅确认小批次边界，继续按 `SPRITE_MAP` → `BEHAVIOR_MAP` → `BGM/SFX` → `FX` → `SHEET_CONFIG` → 初始武器 → 炮台默认配置的顺序承接；每批保留代码默认值作为缺省兜底。
-- 落地合理性：F1-E 跨多个表现脚本、Excel schema、导出 JSON 和在途资产。一次性迁移会扩大回归面；由主窗口统一协调单一事实源更可控。
-- 风险：中。表注册、导出、默认值和资产路径可能发生跨域漂移。替代方案：主窗口暂不承接时，保留当前默认值并明确登记延期，不为追求阶段完成度临时硬改。
-- 验证：由主窗口后续逐批执行 Excel 导出检查、对应表现探针/场景 smoke、全量回归与 baseline；本轮不执行任何验证命令。
-- 交接门槛：T-016~024 均有数据源、消费点和回归证据，且导出失败时旧默认值仍能启动；满足后再关闭 F1-E。
-
-## 任务4：Day 30 发布准备（等待 #2 正式拆解）
-
-- 文件：待 #2 在 `docs/TASKS.md` 补充可执行批次后再确定；当前不改 `build/`、`export_presets.cfg`、存档或上传目录。
-- 当前高层目标：Steam 构建、导出 `pck+exe`、存档兼容、`build` 资产校验/上传。
-- 本轮决策：**等待任务拆解**。#2 至少需要拆成以下三个可验收批次后，方案师再补文件级方案：
-  1. 构建前检查与版本冻结：明确版本来源、工作区/资产快照、存档格式和构建输入。
-  2. Windows/Steam 导出与存档兼容矩阵：明确 `pck+exe` 输出、启动路径、全新存档/旧存档/异常存档的兼容判据和回滚点。
-  3. `build` 产物校验与上传：明确允许上传的文件清单、体积/哈希/启动检查、上传目标和失败回滚方式。
-- 落地合理性：发布动作具有不可逆覆盖和用户存档风险；没有批次级输入时直接执行会把高层目标误当成授权，且可能覆盖现有 `build/` 或污染用户在途资产。
-- 风险：高。风险包括错误版本导出、旧存档损坏、把调试/临时/敏感文件上传、覆盖现有发布产物。替代方案：先只做构建前只读盘点和临时目录导出，待兼容矩阵通过后再更新正式 `build`；但该替代方案也须在 #2 拆解后方可定案。
-- 验证：待拆解后补充具体命令、输入输出、人工检查和可回滚证据。本轮不执行 `build_release.py`、Godot 导出、存档迁移测试或上传。
-- 当前结论：Day 30 发布任务尚未达到可执行输入标准，#3 不得开工；方案师下一轮应在 #2 产出函数/批次级任务后重新覆盖本文件。
-
-## 执行岗交接边界
-
-- #3：本轮无 PS-EXIT 代码任务；不得为了关闭 PS-EXIT 新增功能、修改探针或把真人未测项标为通过。Day 30 发布未拆解前不得构建、覆盖 `build/` 或上传。
-- #4：若无新的代码/数据提交，只维护 TEST_REPORT 摘要；不扩大回归套件，不把主观试玩结果写成机器 PASS/FAIL。
-- #5：优先完成 PS-EXIT/E-0 真人完整局，并逐项记录五组结果；发现客观缺陷先交反馈岗和 #2，不现场改码。
-- 主窗口：按小批次承接 F1-E；不与 PS-EXIT 或 Day 30 发布出口混为一项。
-- #2：先补 Day 30 发布的批次级任务与验收输入；拆解完成后再由方案师确定文件、命令、回滚点和验证矩阵。
-
-## 未解决开放项
-
-- 等待 #2 拆解 Day 30 发布三批次：构建前检查与版本冻结、导出与存档兼容矩阵、`build` 产物校验与上传。
-- PS-EXIT 五组真人体验：多技能位、位移走位、技能遗物掉落、章节节奏、剑士剑气。
-- E-0 终审完整局及 F-16~F-39 全链真人回归；均为主观项，不阻塞机器侧。
-- F-37 G 系列 UI、F-39 节点选择、MainMenu 主场景：待真人确认；确定功能缺陷另建反馈任务。
-- F1-E 表现配置抽表：阶段 F 唯一客观尾项，由主窗口承接，本轮不实施。
-- AI 美术在途目录与提交整理：非本岗范围，仅转述，不纳入本方案实现任务。
-
-## 本轮结论
-
-**等待任务拆解。** 当前没有可由方案师安全转交执行岗的 Day 30 发布代码任务；PS-D 已收口，PS-EXIT 只等待真人记录，F1-E 由主窗口承接。除本方案文档和 `TASKS.md` 标注外，不产生游戏文件改动。
-
-## 执行结果
-
-**执行结果：部分（等待方案）**：本轮已按精简岗纪律读取方案、TASKS 头部/相关任务段、PLAYTEST 未解决区及 PROGRESS/TEST_REPORT 顶部摘要。SOLUTION_PLAN 明确要求等待 #2 将 Day 30 发布准备拆为可执行批次；当前无覆盖方案的新增机器可验证 P0，也无可执行代码/数据任务。因此未修改游戏文件、未运行探针或导出、未改动任务状态、未提交或推送代码。
-
-**执行结果（2026-08-17 21:1x · 第 52 轮 #3）**：**部分（等待方案）**。已复核方案与台账：① 方案第 26 轮仍为「等待任务拆解」，其任务 4 自述「方案师下一轮应在 #2 产出函数/批次级任务后重新覆盖本文件」；② **TASKS.md 第 50 轮（15:15 · #2）已完成 Day 30 三批次函数级拆解（D30-T1 构建前检查/版本冻结、D30-T2 Steam 导出与存档兼容矩阵、D30-T3 build 产物校验与上传 + D30-EXIT）**；③ **#2 第 51 轮（21:08 · f94cdca）进一步确认「Day 30 已拆待执行」**——门禁工具实测在位（tools/qa_validate.py / build_release.py / excel_export.py / export_presets.cfg 均存在），明确「交 #3 按 D30-T1→T2→T3→EXIT 直接执行（版本冻结 → 临时目录导出 → 产物校验 → Owner 确认后上传）」，并指示「若仍未开工：维持『已拆待执行』，按 D30 拆解直接执行勿再等」；④ 方案师尚未按 #2 拆解产出重新覆盖本文件 → **执行输入存在文档间信息差**（方案第 26 轮「不得开工」 vs #2 第 50/51 轮「直接执行」）。按纪律 0（执行依据 = 本文件，内容为「等待任务拆解」→ 输出等待方案）+ 红线「不擅自改方案」，本轮不越权开工 Day 30 发布链（涉及导出/上传等不可逆动作），零代码/零数据/零探针改动；未改动 TASKS 任务状态。**待办：方案师下一轮将本文件覆盖为「Day 30 已拆解可执行」或明确授权按 TASKS 第 50 轮拆解执行**，届时 #3 从 D30-T1 起直接执行（发布护栏：先临时目录导出、不覆盖现有 build/、上传需 Owner 确认）。转述 #2 顺手项：TEST_REPORT #51 观察「HUD 待补 se_skill_sword_arc 图标映射」（PS-C 剑气替换表现收尾）待方案覆盖后随批执行。
-
-**执行结果（2026-08-17 23:1x · 第 53 轮 #3）**：**完成（本地部分 · 核实确认轮）**。总指挥第 27 轮方案（本文件头部）已覆盖 Day 30 发布链并将本地可执行部分全部落地（commit `285dc9e`），本轮 #3 为核实确认轮，产出如下：
-
-1. **总指挥成果核实（trust but verify 全通过）**：
-   - 临时导出目录 `%TEMP%\star_echo_release_20260817_2210\` 三件产物在盘且大小与方案记录逐字节一致（exe 132,918,392B / pck 1,836,016B / zip 59,061,343B）+ export_log×2 + release_manifest.json。
-   - manifest 关键字段核对：version 0.9.0-d30-preview、frozen_commit=`70382e5`、godot 4.3.stable、main_scene MainMenu.tscn、preset Windows Desktop、三件 sha16 与方案一致、compat_matrix 14/14 PASS、gates 三连 PASS、**upload=PENDING 等待 Owner 明确确认与目标资产库**。
-   - 打包卫生 2 修复已入库：export_presets.cfg exclude_filter=`addons/**, docs/**, tools/**, .godot/**`（`**` 跨目录，`285dc9e` 内）；`0815立绘风格、画风示例/.gdignore` 已建且已 git 跟踪。
-   - `tools/day30_save_compat_check.gd` 已入库（git ls-files 命中）。
-   - TASKS.md Day 30 区状态：D30-T1/T2 全 [x]、T3 剩「上传」[ ]（外部动作正确保留）、EXIT 剩 [~]/[ ] 均为 Owner 依赖项，台账状态合理。
-2. **本轮动作**：
-   - P0 检查：PLAYTEST 追踪区增量 #72（22:05 · 反馈专员）确认 🟠/🔴 无新增机器可验证 P0（F-01~F-39 全 🟢 待真人回归），无用户拍板调度指令。
-   - 数据管线护栏：`python tools/excel_export.py --check-only` EXIT=0、13 文件导出完成，git 无 data 文件 diff = 数据层干净。
-   - **顺手项评估（登记不实施）**：TEST_REPORT #51 观察「HUD 待补 se_skill_sword_arc 图标映射」——实测 `scripts/ui/hud.gd` SKILL_ICON_MAP 仍 4 键无 `se_skill_sword_arc`（剑士剑气爆发 PS-C4 无图标映射，旧日志 `regr_day2_hero_check_err.log` 有 WARNING 佐证）。**本轮不实施**，理由：① 方案第 27 轮（最新覆盖）未列此项，纪律 3 禁擅自改方案；② 改动牵动发布冻结链（改 hud.gd/skills.png → 需重导出 → 与 manifest frozen_commit 不一致），发布窗口内动代码会污染冻结基线；③ #2 转述为「顺手补」非硬性任务。**登记建议**：随「发布后第一轮迭代」或在 PS-D 总收口（PS-EXIT 真人记录后）时由方案师排期补 SKILL_ICON_MAP 键 + skills.png 第 5 帧占位图标。
-3. **状态差异登记（重要）**：当前 HEAD=`44c4c34` ≠ manifest frozen_commit=`70382e5`——用户会话在冻结后追加了 3 提交（`31d03b8` PS 大包/`3460916` 立绘实装/`44c4c34` Day31 checkpoint），**导出的 exe/pck 不含这些最新内容**。若 Owner 要求发布产物包含用户会话内容，需重新冻结+重导出（届时 #3 按同一 D30-T2 流程重做）；否则以 `70382e5` 为发布基线。
-4. **待 Owner（本岗不越权）**：① 上传目标资产库确认 + 上传动作 ② `build/` 替换（保留旧 build 回退副本）③ D30-EXIT 收口标记。TEST_REPORT 发布验证摘要由 #4 下轮落盘。
-5. **收尾**：仅提交本文件执行结果记录；工作区唯一在途 `tools/day31_boss_fullpath_probe.gd`（用户会话，commit `44c4c34` 已注明「工作区在途为用户会话，仅建检查点不卷入」）按纪律不碰。
-
-**执行结果（2026-08-18 01:2x · 第 54 轮 #3）**：**完成（探针锚点同步 · TEST_REPORT #53 action item 兑现）**。本轮按 TEST_REPORT #53（00:49）在途 action item 执行——**同步 9 个旧探针锚点恢复 52/52**，产出如下：
-
-1. **P0 检查**：PLAYTEST 追踪区增量 #75（00:4x · 反馈专员）用户双反馈「关卡结束机制 + Boss 后不能选关」已由 `3f9dbe4` 修复落地 + 真实 GUI 探针 day31_boss_after_check 6/6，无新增机器可验证 P0 / 用户拍板调度指令。
-2. **orbit → 扇形挥砍锚点同步（6 探针 15 条）**：PS 大包 `31d03b8` 星刃从 orbit 环绕重构为扇形挥砍（arc_angle 100→135° 递增 / 进化 150°），旧探针仍断言已清零的 orbit 数据 → 全部改为新语义：
-   - `day5_weapon_check`（3 条）：OrbitWeapon 挂载/刃数/bonus 埋点 → MeleeSweep 挂载 + arc_angle≥100 + `_do_slash` 扇形伤害精确断言（踩坑：headless 下 `_get_aim_direction` 指向左上 → 敌人须摆瞄准方向；crit 波动 → 临时禁暴击 + 计入 melee_damage 8%）
-   - `day8_weapon_data_check`（1 条）：Lv8 blade_count 4 → arc_angle 135
-   - `day10_evolution_check`（2 条）：storm orbit_data.blade_count 6 → arc_angle 150；Lv8 blade_count → arc_angle 135
-   - `day18_feedback2_check`（6 条）：§2 半径 40→68 递增 → 扇形角 100→135 递增 + 武器资源 arc_angle 落地
-   - `day18_feedback4_check`（2 条）：storm blade_count 6 → arc_angle 150；F-22 渲染 orbit_weapon 手动实例 → melee_sweep 刀光颜色/扇形角断言（含 Object.get() 1 参坑修复）
-   - `day18_feedback5_check`（1 条）：tooltip「环绕玩家旋转」→「周期性扇形挥砍」
-3. **换装尺寸锚点同步（3 探针 4 条）**：8-16 定稿换装 walk 192×32/640×64 → 256×64·4 帧、idle → 768×64·12 帧（08-18 呼吸动画定稿）：
-   - `day21_22_art_check`（1 条）：§3 4 角色 walk 256×64·4 帧 + idle 768×64·12 帧
-   - `day26_integration_check`（1 条）：角色 walk 统一 256×64
-   - `day29_elin_anim_check`（2 条）：SHEET_EXPECT idle 768×64·12 / walk/attack/skill 256×64·4 + §4 文本锚点同步
-4. **验证**：9 探针单独全 CLEAN（day18_fb4 18/18、day29_elin 14/14、day5 16/16）；**全量回归 52/52 PASS**（回归前 43/52）；`excel_export.py --check-only` EXIT=0 数据层干净。
-5. **收尾**：提交 9 探针 + 挂账 docs（PROGRESS/TEST_REPORT/GameData.xlsx/DATA_OVERVIEW/.manifest.json 为 #1/#4 导出与进度挂账一并入库）+ push；`.godot_bak×2` 用户会话缓存目录不提交不删除（建议下轮补 .gitignore 条目）。**顺手项维持登记**：HUD `se_skill_sword_arc` 图标映射仍待方案师排期（发布冻结窗口内不动代码的结论延续）。
-
-**执行结果（2026-08-18 03:3x · 第 55 轮 #3）**：**完成（TEST_REPORT #54 观察项兑现 · 回归扩容 52→58 件套）**。本轮无新方案任务（第 27 轮方案剩余 = Owner/#4 域），实质动作 = 兑现 TEST_REPORT #54（02:49）观察「day31 五新探针（90 断言）未入 runner 建议 #3 并入」：
-
-1. **P0 检查**：PLAYTEST 追踪区增量 #76（02:0x）确认 🔴 P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需执行；F-40~F-43 均 🟢 已修复/落地待真人回归。
-2. **6 个 day31 出口探针并入 runner**（`tools/_regression_run.py` PROBES +6 → 58 件套）：day31_boss_after(6) / charsel(12) / enemy_richness(5) / melee_sweep(9) / player_model(6) / items_atlas(58)（合计 96 = TEST_REPORT #54「五新探针 90 断言」+ player_model 6）。**扩展 run_one 断言解析**兼容三种汇总格式（"N assertions, M failures" / "N checked, M failed" / "检查 N 项，失败 M 项"），新探针断言计数真正生效。
-3. **回归首跑 56/58 两 FAIL 定位修复**：
-   - `day31_melee_sweep_check` §4 flaky：`melee_sweep._do_slash` 内 `randf()<crit_chance` 走全局 RNG，精确数值断言偶发暴击（14→28，7×2倍率×2暴击；同 day5 先例）→ 探针 §4 前白盒置 `crit_chance=0 / crit_damage=1`；连跑 3 次 9/9 稳定。
-   - `day26_integration_check` §6 锚点过期：动态解析 runner PROBES 的硬编码期望 52 项/1099 → 同步 58 项/1195（含注释增量账）。
-4. **验证**：全量回归 **58/58 PASS 0 FAIL**；`excel_export.py --check-only` EXIT=0 数据层干净（本轮零数据改动）。
-5. **顺手收尾**：`.gitignore` 补 `.godot_bak*/` 排除（第 54 轮登记的观察点③，用户会话缓存目录勿提交勿删除）；probe 类 3 探针（boss_chain/flow/fullpath）维持不入 runner（一次性诊断探针，退出码语义，fullpath 打 15 关耗时）。
-6. **维持登记**：HUD `se_skill_sword_arc` 图标映射仍待方案师排期（发布冻结窗口不动代码）；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；AUDIO_FEEL O-1~3 待用户拍板（#2 拍板后拆 P0 批）；F1-E 主窗口承接。
-
-**执行结果（2026-08-18 05:4x · 第 56 轮 #3）**：**完成（F1-E 第二批 BEHAVIOR_MAP 抽表 · 回归 60/60 全绿）**。本轮方案 = 总指挥第 4 轮「后续批次（F1-E 剩余）· BEHAVIOR_MAP」，实质动作 = 回归确认（总指挥遗留项）+ 第二批抽表闭环：
-
-1. **P0 检查**：PLAYTEST 追踪区增量 #77（03:5x）确认 🔴 P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需执行。
-2. **回归确认（总指挥第 4 轮遗留「全量回归后台跑，结果待本轮收尾确认；FAIL 则回退不硬合」）**：全量回归 **60/60 PASS**（1463 断言，含新并入 day31_presentation_check 246 + day31_skill_icon_check 22）→ **无需回退**。
-3. **F1-E 第二批 BEHAVIOR_MAP 抽表闭环**：Excel `enemy_behavior` sheet（9 行：chase/charge/zigzag/ranged/heal/spawn/stationary/aoe_attack/self_heal → 枚举名 CHASE 等）→ `data_schema.py` 注册（COLUMN_ZH behavior=行为枚举 + SHEETS enemy_behavior root=behavior_map kind=dict）→ `excel_export.py` 构建段 → `data/presentation.json` 新增 `behavior_map` 9 条（**其余 13 JSON 零 diff**）→ `data_loader.gd` 新增 `get_enemy_behavior()`（懒加载 is_empty 重试标记 + `EnemyEnums.Behavior.get(枚举名)` 解析 + const BEHAVIOR_MAP 全量兜底 CHASE）→ `enemy.gd:371` 行为解析改读数据层（原 BEHAVIOR_MAP.get 兜底语义不变）。
-4. **验证**：探针 day31_presentation_check **261/261 PASS**（+15 断言：条数一致/键集合双向/逐条枚举值对比/消费 3 项含未知行为兜底 CHASE）；全量回归 **60/60 PASS**；`excel_export.py --check-only` EXIT=0。
-5. **收尾**：检查点 `b515e17`（挂账 docs #1/#4 在途一并入库）→ 批次 commit → push。
-6. **维持登记**：F1-E 剩余批次 = BGM/SFX → FX → SHEET_CONFIG → 初始武器 → 炮台默认（每批 Excel→导出→消费→探针→回归，const 兜底）；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；AUDIO_FEEL O-1~3 已由总指挥拍板（M1+M2/近重远轻/H1 挂 P2）待 #2 拆 P0 批；PS-EXIT 五组真人观察待 #5。
-
-**执行结果（2026-08-18 07:2x · 第 57 轮 #3）**：**完成（AUDIO_FEEL AF-P0 批 A-C 全收口 · 61/61 回归 1489 断言全绿）**。本轮方案 = 总指挥第 4 轮拍板（AUDIO_FEEL O-1~3）+ #2 第 56 轮函数级拆解（AF-P0 批 A hitstop / 批 B 震屏 / 批 C 音画同步）：
-
-1. **P0 检查**：PLAYTEST 追踪区增量 #78（05:5x）🔴 无新增机器可验证 P0 / 🟠 无用户拍板调度指令 → 无 P0 需执行；方案头部（总指挥第 4 轮）AUDIO_FEEL 已拍板 + TASKS 第 56 轮拆解完成即解锁 → 本轮执行 AF-P0。
-2. **数据层（A3）**：GameData.xlsx 新增 `stats_feel` sheet（flat_dict 10 键：hitstop 4 + shake 6）→ data_schema.py 注册 `stats_feel`（SHEETS + COLUMN_ZH 10 中文注释）→ excel_export.py stats 构建段 +feel → stats.json 顶层 feel 键（**其余 13 JSON 零 diff**）→ data_loader.gd `get_stats_feel()`（FEEL_DEFAULTS 10 键兜底 + _feel 加载）。
-3. **批 A hitstop（F1）**：新建 `scripts/systems/hitstop_controller.gd`（trigger 取 max + `create_timer(ignore_time_scale=true)` 恢复回调 + 累计超 0.5s 强制恢复 + _exit_tree 归 1.0）；main.gd 挂载 `$HitstopController` + GameManager.hitstop_controller 注入；接线 4 点——projectile（weapon_type 透传 melee 0.15/其余 0.05 + 暴击 +0.1）、melee_sweep（近战挥砍命中 + 暴击合并，**执行登记：arc_angle>0 武器不发弹丸 → 近战真实命中点补接**）、enemy_damage.die（Boss 0.15 重顿帧）。
-4. **批 B 震屏（F2）**：main.gd `_SHAKE_DURATION/_SHAKE_MAGNITUDE` const → 实例变量表化 + `_trigger_camera_shake(level)`（light=0.15/4.0 现值零漂移 / medium=0.2/6.0 / heavy=0.3/9.0）；调用点：projectile（非暴击 light/暴击 medium）、melee_sweep（同档）、enemy_damage.die（普通 medium/Boss heavy）、_on_player_hit 改调 light。
-5. **批 C 音画（F5）**：audio_manager `play_sfx_delayed()`（SFX_MAP 零新增红线 2）；projectile 暴击（非爆炸弹丸）追加 crit 音；**核对登记 2 处**：death 音已有（main._on_enemy_died D24-T3-①）与 skill 音已有（skill_controller:132 D24-T3-⑧）→ 防双播不重复接线。
-6. **验证**：探针 day31_feel_check **26/26 PASS**（§1 hitstop 6 断言含 600 帧深探 + §4 震屏 6 断言白盒直调 + §5 音画 8 断言 + §2 数据驱动 + §3 回归）；**踩坑 2 个**——① `Object.get()` 只收 1 参（weapon.get("weapon_type","") → 改 "weapon_type" in weapon 判断）② **`get_tree()` 返回 SceneTree 无 get_node_or_null（Node 方法）**——melee_sweep/enemy_damage 改直接 `player/_enemy.get_node_or_null`（此坑致回归 56/60，修复后恢复）；F3 合规 `_freezing` 白名单 +1（hitstop 冻结标记必要状态）；day26 §6 解析窗口 6000→12000 字符（PROBES 61 条超长截断 day31_feel）。
-7. **回归**：全量 **61/61 PASS（1489 断言）**（runner +day31_feel 26 → 61 件套；day26 锚点同步 61/1489）+ baseline **BASELINE CLEAN** + `excel_export --check-only` EXIT=0。
-8. **收尾**：TASKS AF-P0 批 A/B/C 全 [x]（A-EXIT/B-EXIT/C-EXIT 均过）；PLAYTEST 新增 AF-P0 主观回归面行（hitstop 节奏/震屏层次/音画同步 → #5）；提交 + push。
-9. **维持登记**：AF-M1（CC0 素材替换 · P1）未动——网络采集需总指挥/Owner 域，不阻塞 P0；AF-P1 预留（F3 命中粒子/数字）待拆；F1-E 剩余 5/7 批（BGM/SFX→FX→SHEET_CONFIG→初始武器→炮台默认）维持总指挥承接；D30 剩余 = Owner 上传确认 + build/ 替换 + EXIT 收口；PS-EXIT 五组真人观察待 #5。
+**执行结果：[完成]（核实确认轮 · 零代码零数据零探针改动）**
+- 本岗按纪律完成 P0 调度检查（无新增）+ 方案/拆解/git 三方一致性核实（一致）。
+- F1-E-3 已在 #2 第 57 轮函数级拆解 + 方案师第 27 轮锚定，**随时可开工**——交总指挥/主窗口按批推进（每任务一收口 commit 带 F1-E-3 编号）。
+- 收尾：挂账 docs（方案师第 27 轮 SOLUTION_PLAN/TASKS/overview + #4 在途 TEST_REPORT #57/#58）一并入库 push，保持远端与本地一致。
+- **下轮观察点**：① 总指挥/主窗口是否开工 F1-E-3（git log 出现 audio_config sheet / audio_map / get_audio_config / day31_presentation_check +§3 audio 段）② Owner 是否确认 D30-T3 上传 + build/ 替换 + D30-EXIT ③ 总指挥是否推进 AF-M1 CC0 采集。

@@ -12,11 +12,11 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #56（08-18 06:48 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **60/60 全绿 · 1463 断言**（`70c4f61` 并入 F1-E 两新探针扩容 58→60，扩容首跑即全绿）
-- **基线**：`BASELINE CLEAN` ｜ JSON **16 文件**（**新增 presentation.json**=F1-E 抽表产物）· **2713 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 良性泄漏**
-- **探针回归**：**60/60（1463 条登记期望）0 FAIL / 0 script_errors**；stderr 全部历史口径一致（presentation 首跑 242B 纯音频；skill_icon 363B=1 主动越界保护预期）；day31_spawner_deadlock 5198B 维持
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**93f1be2**（#2 第56轮回执；链含 d19eda3 SPRITE_MAP + 70c4f61 消费端/图标映射 + b410a8b BEHAVIOR_MAP 闭环）
-- **在途 action item（0 项）**：#55 观察（se_skill_sword_arc 图标映射）已由 `70c4f61` 兑现关闭；工作区仅 docs/PROGRESS.md
+- **最近轮次 #58（08-18 12:45 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **61/61 全绿 · 1489 断言**（空轮次：HEAD=dc6a7c1 无新游戏提交，计数与 #57 持平）
+- **基线**：`BASELINE CLEAN` ｜ JSON **16 文件** · **2723 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 音频良性**（#57 0B 为时序特例，本轮恢复常规）
+- **探针回归**：**61/61（1489 条登记期望）0 FAIL / 0 script_errors**；stderr 与 #57 逐一一致（feel 372B=1 主动兜底预期；spawner_deadlock 5440B 维持；day24_f13 1220B 探针方法学）
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**dc6a7c1**（#2 第57轮回执，无新游戏提交）
+- **在途 action item（0 项）**：工作区在途仅 docs/TEST_REPORT.md（本岗报告 #57+#58 未 commit）；无游戏代码在途
 - **观察**：runner 元数据滞后 1 处（presentation 实际 261 > expect 246，建议 #3 顺手同步）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；build/ 产物早于 3f9dbe4/defe1cf 交 Owner
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
@@ -3560,6 +3560,69 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - 无新增 action item；工作区仅 docs/PROGRESS.md 在途。
 
 **✅ 2026-08-18 06:48 自动化测试轮次 #56：PASS（60/60，0 阻断 / 0 功能缺陷）。** 工程可导入、可运行，16 张数据表（含新 presentation.json）与 25 个场景验证通过；F1-E 抽表双批闭环后回归套件扩容至 60 件套 1463 断言，首跑即全绿；0 游戏侧 SCRIPT ERROR。
+
+---
+
+## §7.57 轮次 #57 · 2026-08-18 08:45（自动化测试 · AUDIO_FEEL AF-P0 批A-C 收口 + 61 件套扩容首跑全绿轮）
+
+**验证快照 = HEAD=dc6a7c1（#2 第 57 轮拆解回执）+ 工作区 CLEAN 零在途**。HEAD 链（较 #56 的 93f1be2 +4 提交）：`d2febc3`（执行者 Day31 第57轮：**AUDIO_FEEL AF-P0 批A-C 全收口**——hitstop 顿帧系统（hitstop_controller trigger 取 max + create_timer ignore_time_scale 恢复 + 超时兜底，projectile/melee_sweep/enemy_damage 接线，O-2 近重 0.15 远轻 0.05）+ 相机震屏分级（light/medium/heavy 表化零漂移 + _trigger_camera_shake + 3 调用点）+ 音画同步（play_sfx_delayed + 暴击 crit 音，death/skill 防双播）+ Excel stats_feel 段 10 键 + get_stats_feel 兜底 + **day31_feel_check 26/26** + 回归 61/61 1489 + BASELINE CLEAN + PLAYTEST AF-P0 主观回归面）→ `a237ea9`（AF-P0 开工检查点）→ `7ca46f9`（#1 进度第61轮）→ `f7c6445`（反馈专员 #79）→ `dc6a7c1`（#2 第57轮回执：P0 无新增 + F1-E 第三批 BGM/SFX 函数级拆解 audio_map，回归 61 件套）。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** **61 件套回归 61/61 全 PASS（1489 条登记断言）**——runner 扩容至 61 件套（+day31_feel_check 26，AF-P0 批A-C 收口产物）**首跑即全绿**；AF-P0 三子项（hitstop 顿帧 / 震屏分级 / 音画同步）行为级收口实证。游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr **0 B**（#56 的 242B 良性泄漏消失，本轮更干净）。
+- **数据层**：`data/*.json` **16/16 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2723**（#56 2713 +10 = **Excel stats_feel 段 10 键**，d2febc3 产物，其余 13 JSON 零 diff），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件已清理）。
+- **探针回归**：`tools/_regression_run.py` **61/61 PASS（1489 条登记期望），0 FAIL / 0 script_errors**（74s，含 AF-P0 feel 探针首跑进 runner）。
+
+### 3. WARNING / 观察
+
+- **day31_feel_check 372B 首记录** = 1 主动 push_warning（`[Hitstop] 停帧累计 0.60s 超限 0.50s，强制恢复`=探针主动测试超时兜底分支的预期输出）+ 泄漏 minor（ObjectDB + 2 resources），非游戏缺陷。
+- **day24_f13 1220B 明细补记**（相对历史摘要 860B 增量）：3× C++ ERROR `Can't use get_node() with absolute paths from outside the active scene tree`（node.cpp:1727）= 探针实例化 main.gd（autoload 主脚本）时未入树节点调 get_node 绝对路径，同 #29/#32 get_tree() 方法学已知项（`if get_tree()` 防不住 C++ ERROR）——**探针 mock 环境 minor，真机 autoload 恒在，非游戏缺陷**；其余为已知泄漏 minor（2 Body2D+Canvas+13 CanvasItem+DummyTexture+ShapedText+Font+ObjectDB+11 resources）。
+- **day31_spawner_deadlock 5440B** 维持（#56 5198B 波动口径，46× enemy_scene 未设置 mock 刷屏）。
+- **其余全历史口径**：day31_presentation 242B 纯音频（261 断言白盒消费 0 泄漏）/ skill_icon 363B=1 主动越界保护 / day24_audio 456B / day26 402B / day10 374B / day14_15 373B / day30_boss_skill 368B / day23_vfx 367B / day7 366B / items_atlas 364B / day29_attack 362B / day18_fb3·fb6 362B / day18_19 359B / day30_f1d 358B / day4 344B / day31_boss_after 342B / day27_meta 254B / 纯音频 242B 组（day3/5/6/skill_slots/relic/levelup/elin/presentation）。
+- **观察项维持**：runner 元数据滞后 1 处（day31_presentation_check 实际 **261 断言** > PROBES expect **246**，判定 `>=expect` 通过，同 #22 先例，建议 #3 顺手同步）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；build/ 产物早于 3f9dbe4/defe1cf 交 Owner。
+
+### 4. action item（0 项新增）
+
+- 无新增 action item；工作区 CLEAN 零在途（#2 第57轮回执确认）。
+
+**✅ 2026-08-18 08:45 自动化测试轮次 #57：PASS（61/61，0 阻断 / 0 功能缺陷）。** 工程可导入、可运行，16 张数据表（2723 字段，+10 stats_feel 段）与 25 个场景验证通过；AUDIO_FEEL AF-P0 批A-C 收口后回归套件扩容至 61 件套 1489 断言，首跑即全绿；600 帧深探 stderr 0B；0 游戏侧 SCRIPT ERROR。
+
+---
+
+## §7.58 轮次 #58 · 2026-08-18 12:45（自动化测试 · 空轮次验证：HEAD 无新游戏提交，61 件套维持全绿）
+
+**验证快照 = HEAD=dc6a7c1（#2 第 57 轮拆解回执，与 #57 相同，无新游戏代码提交）+ 工作区在途仅 docs/TEST_REPORT.md（本岗报告，含 #57 未入库内容）**。HEAD 链（较 #56 的 93f1be2 +4 提交）同 #57：`d2febc3`（AF-P0 批A-C 全收口：hitstop 顿帧 + 震屏分级 + 音画同步 + stats_feel 10 键 + day31_feel_check 26/26）→ `a237ea9` → `7ca46f9` → `f7c6445` → `dc6a7c1`。本轮为**空轮次**（#2 第57轮后无新游戏提交，仅文档在途），测试侧全部检查项与 #57 持平。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** 61 件套回归 **61/61 全 PASS（1489 条登记断言）**，计数与 #57 完全一致（runner PROBES 无变更）；游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr **242B** = 音频退出良性泄漏（ObjectDB + 1 resource，历史常态口径；#57 的 0B 为时序特例，本轮恢复常规，非回归）。
+- **数据层**：`data/*.json` **16/16 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2723**（与 #57 持平零变更），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件 os.remove 清理无残留）。
+- **探针回归**：`tools/_regression_run.py` **61/61 PASS（1489 条登记期望），0 FAIL / 0 script_errors**（76s）。
+
+### 3. WARNING / 观察
+
+- **stderr 口径与 #57 逐一一致，无新增异常**：day31_feel_check **372B**（1 主动 hitstop 超限兜底 push_warning 预期）；day31_spawner_deadlock **5440B** 维持；day24_f13 **1220B**（3× C++ ERROR get_node 绝对路径 = 探针方法学已知项，非游戏缺陷）；day31_presentation **242B 纯音频**（实际 261 断言白盒消费 0 泄漏）；day31_skill_icon 363B=1 主动越界保护；day24_audio 456B / day26 402B / day10 374B / day14_15 373B / day30_boss_skill 368B / day23_vfx 367B / day7 366B / items_atlas 364B / day29_attack 362B / day18_fb3·fb6 362B / day18_19 359B / day30_f1d 358B / day4 344B / day31_boss_after 342B / day27_meta 254B / 纯音频 242B 组（day2/3/5/6/8/17_elite/17_p0/fb4/elin/effect/f1_scaling/f1_scatter/f3_compliance/f3_flow/g_archive/backpack/codex/mainmenu/map/chapter/charsel/enemy_richness/melee_sweep/player_model/skill_slots/relic/levelup/presentation）全历史口径。
+- **观察项维持**：runner 元数据滞后 1 处（day31_presentation_check 实际 **261 断言** > PROBES expect **246**，判定 `>=expect` 通过，建议 #3 顺手同步）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；build/ 产物早于 3f9dbe4/defe1cf 交 Owner。
+
+### 4. action item（0 项新增）
+
+- 无新增 action item；工作区在途仅 docs/TEST_REPORT.md（本岗报告 #57+#58 内容未 commit，历史惯例由后续岗/收口处理）。
+
+**✅ 2026-08-18 12:45 自动化测试轮次 #58：PASS（61/61，0 阻断 / 0 功能缺陷）。** 空轮次验证：HEAD=dc6a7c1 无新游戏提交，16 张数据表（2723 字段）与 25 个场景验证通过，61 件套 1489 条登记断言全绿，600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
 
 ---
 
