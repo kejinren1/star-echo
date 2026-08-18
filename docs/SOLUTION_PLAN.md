@@ -1,33 +1,29 @@
-# 方案计划（2026-08-18 13:2x · 方案师第 27 轮 · 无新任务需方案 · F1-E 批三锚定复核 + Day 30 边界确认）
+# 方案计划（2026-08-18 13:3x · 方案师第 28 轮 · 无新任务需方案 · 状态与第 27 轮一致，F1-E 批三仍待开工观察）
 
-## 📌 本轮判定（方案师第 27 轮）
+## 📌 本轮判定（方案师第 28 轮）
 
-> **P0 检查（PLAYTEST 追踪区增量 #79 · 08-18 07:5x 反馈专员）**：无待处理反馈（F-01~F-43 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #56（06:48 · HEAD=`93f1be2`）= **60/60 全绿 · 1463 断言 · BASELINE CLEAN · 0 阻断 / 0 功能缺陷 / 0 action item**；AUDIO_FEEL AF-P0 批 A-C 已由执行者第 57 轮 `d2febc3` 全收口（hitstop 顿帧 / 震屏分级 / 音画同步，回归 61/61 1489 断言）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需拆。**
+> **P0 检查（PLAYTEST 追踪区增量 #80 · 08-18 13:3x 反馈专员）**：无待处理反馈（F-01~F-43/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #58（12:45 · HEAD=`dc6a7c1`）= **61/61 全绿 · 1489 断言 · BASELINE CLEAN · 0 阻断 / 0 功能缺陷 / 0 action item**（空轮次：HEAD 无新游戏提交，计数与 #57 持平）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需拆。**
 >
-> **git 实测**：HEAD=`dc6a7c1`（#2 第 57 轮拆解回执，08-18 07:5x）；工作区仅 `docs/TEST_REPORT.md` M（#4 在途）——**零游戏代码在途**。
+> **git 实测**：HEAD=`d45ad36`（反馈专员 #80，08-18 13:3x；#79 `f7c6445` 后 +3：`dc6a7c1` #2 第 57 轮 F1-E-3 拆解 / `bd9ad83` 执行者第 58 轮核实 / `6e200b3` #1 进度第 62 轮 / `d45ad36` 增量 #80）；**工作区 CLEAN 零在途**。
 >
-> **结论：无新任务需方案化。** 当前目标日 Day 30 的剩余客观项 = 纯 Owner/#4 域（上传/发布收口）无需方案；F1-E 第三批 BGM/SFX 已由 #2 第 57 轮函数级拆解（F1-E-3-1~4 + EXIT），方案范式第 26 轮已定，本轮方案师对拆解锚点做实测复核后**方案锚定、直接可执行**，不重复写方案。
+> **结论：无新任务需方案化。** 与方案师第 27 轮判定完全一致（三方： #2 第 57 轮拆解 + 方案师第 27 轮锚定 + 执行者第 58 轮核实，状态零变化）：当前目标日 Day 30 剩余客观项 = 纯 Owner/#4 域（上传/发布收口）无需方案；F1-E 第三批 BGM/SFX（F1-E-3-1~4 + EXIT）已函数级拆解 + 方案锚定，**本轮观察：git log 仍无 audio_config sheet / audio_map / get_audio_config / day31_presentation_check +§3 提交 → 批三尚未开工，仍待 🏠 主窗口/总指挥承接**。
 
 ## 当前开发日：Day 30（发布准备 · 收尾）
 
-### 任务1：F1-E 第三批 BGM/SFX 表现抽表（F1-E-3-1~4 + EXIT）——方案锚定复核，无需新写
+### 任务1：F1-E 第三批 BGM/SFX 表现抽表（F1-E-3-1~4 + EXIT）——方案已锚定（第 27 轮），本轮维持，待承接方开工
 
-- **文件**（#2 第 57 轮拆解锚点，本轮实测复核一致）：
-  - `scripts/autoload/audio_manager.gd:8-11` `BGM_MAP`（2 键 menu/battle）；`:12-23` `SFX_MAP`（10 键 hit/crit/death/levelup/coin/shop/skill/heal/event/boss）；`:112-114` play_bgm 未知轨 push_warning；`:138-140` play_sfx 未知名 push_warning；`:155` play_sfx_delayed
-  - `tools/data_schema.py:218-231` presentation 注册范式（enemy_sprites :222 / behavior_map :231 两先例，dict 形 id 主键）
-  - `tools/excel_export.py:399-423` presentation 构建段（behavior_map 段 :416-422 可仿）
-  - `docs/GameData.xlsx` 新建 `audio_config` sheet（12 行 × id/category/path）
-  - `tools/day31_presentation_check.gd` +§3 audio 段（≥12 断言）
-- **改动**（沿用第 26 轮范式：Excel → 导出 → 消费 → 探针 → 回归，const 兜底）：audio_config sheet → data_schema 注册 → excel_export 构建 `presentation.json.audio_map`（12 项，其余 13 JSON 零 diff）→ `data_loader.gd` 新增 `get_audio_config()`（懒加载 + const 兜底）→ `audio_manager.gd` 新增 `_resolve_audio_path(key, fallback)` 消费改读（BGM_MAP/SFX_MAP **const 保留为兜底**）→ `day31_presentation_check` +§3 → 回归 61 件套
-- **风险**：**低**。⚠️ 两条硬门槛：① `day24_audio_check:14/14` §2 配置层断言 SFX_MAP 键 ⊇ 10 类 + BGM_MAP 2 键 → BGM_MAP/SFX_MAP const 保留为兜底即零改动；② AUDIO_FEEL 红线 2（SFX_MAP 键契约零新增零删改）→ 抽表仅路径来源数据化、键集合不变。其余：audio_map 未命中/损坏 → 空字典 → 消费端 const 兜底零崩；零数值变化（仅路径映射）。
-- **验证**：`day31_presentation_check` ≥273（261+12）+ `day24_audio_check` 14/14 零改动 + 回归 61 件套 1489 断言 + baseline **BASELINE CLEAN**；端到端双跑（改 Excel 一例路径 → 导出 → get_audio_config 变化）。
-- **承接**：🏠 主窗口/总指挥按批推进（每任务一收口 commit 带 F1-E-3 编号）。
+- **现状**：拆解就绪（#2 第 57 轮 `dc6a7c1`）+ 方案锚定（方案师第 27 轮实测复核锚点一致）+ 核实一致（执行者第 58 轮 `bd9ad83`）；**git 实测确认批三零开工**（HEAD 无 audio_config/audio_map/get_audio_config 相关提交）。
+- **锚点**（不变）：`audio_manager.gd:8-11` BGM_MAP（2 键）/ `:12-23` SFX_MAP（10 键）/ `:112-114` `:138-140` push_warning / `:155` play_sfx_delayed；`data_schema.py:218-231` 注册范式；`excel_export.py:399-423` presentation 构建段；`docs/GameData.xlsx` 新建 `audio_config` sheet（12 行 × id/category/path）；`day31_presentation_check` +§3 audio 段（≥12 断言）。
+- **改动**（沿用第 26/27 轮范式，勿重复拆）：Excel → 导出 → `get_audio_config()` 消费 → const 兜底 → 探针 → 回归 61 件套。
+- **风险**：**低**。双硬门槛不变：① `day24_audio_check` 14/14 §2 配置层断言（BGM_MAP 2 键 + SFX_MAP 10 类）→ const 保留兜底即零改动；② AUDIO_FEEL 红线 2（SFX_MAP 键契约零新增零删改）→ 仅路径来源数据化。
+- **验证**：`day31_presentation_check` ≥273（261+12）+ `day24_audio_check` 14/14 零改动 + 回归 61 件套 1489 断言 + baseline **BASELINE CLEAN** + 端到端双跑（改 Excel 一例路径 → 导出 → get_audio_config 变化）。
+- **承接**：🏠 主窗口/总指挥按批推进（每任务一收口 commit 带 F1-E-3 编号）。**本轮观察 = 仍未开工，持续挂账观察项**。
 
 ### 任务2：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
 
 - **改动**：无（本岗红线：外部动作 + 测试岗产出，方案师不写执行方案）。
-  - D30-T3 上传 = 外部动作，等 Owner 明确确认（目标资产库 + build/ 替换 + 冻结 HEAD 补冻与否）
-  - D30-EXIT = TEST_REPORT 发布摘要待 #4 落盘 + build/ 替换 + 最终标记
+  - D30-T3 上传 [ ] = 外部动作，等 Owner 明确确认（目标资产库 + build/ 替换 + 冻结 HEAD 补冻与否）；本地部分（冻结/门禁/导出/manifest）总指挥第 1 轮已 ✅ 落地
+  - D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘 + build/ 替换 + 最终标记
 - **风险**：低（无机器侧开发任务；build/ 08-18 00:13/00:14 产物仍早于 `3f9dbe4`/`defe1cf` 的交办观察维持，交 Owner/总指挥核实）。
 - **验证**：Owner 确认后由 #3/#4 收口，回归 61 件套 + baseline CLEAN 为发布门禁口径。
 
@@ -41,19 +37,19 @@
 
 | 任务 | 风险 | 说明 / 替代方案 |
 |---|---|---|
-| F1-E-3 BGM/SFX 抽表 | 低 | day24_audio 14/14 + AUDIO_FEEL 红线 2 双硬门槛；const 兜底防空表崩；替代方案 = 回退仅保留 const（现状即等价） |
+| F1-E-3 BGM/SFX 抽表 | 低 | day24_audio 14/14 + AUDIO_FEEL 红线 2 双硬门槛；const 兜底防空表崩；替代方案 = 回退仅保留 const（现状即等价）；**唯一风险 = 承接方持续未开工（挂账观察）** |
 | D30-T3/EXIT | 低 | 外部动作等 Owner；无替代方案（权限边界） |
 | AF-M1 | 低 | 网络依赖；登记阻塞不阻塞 P0 |
 
 ### 维持已定方案边界（不重复写）
 
-- **F1-E 批四~七**（FX → SHEET_CONFIG → 初始武器 → 炮台默认）：沿第 26 轮范式 + 各批先例（SPRITE_MAP/BEHAVIOR_MAP/F1-E-3）推进，承接方开工时按需拆解。
+- **F1-E 批四~七**（FX → SHEET_CONFIG → 初始武器 → 炮台默认）：沿第 26/27 轮范式 + 各批先例（SPRITE_MAP/BEHAVIOR_MAP/F1-E-3）推进，承接方开工时按需拆解。
 - **PS-EXIT / E-0 终审完整局 / AF-P0 主观回归**：交 #5 真人（主观项不阻塞机器侧）。
-- **F-16~F-43 真人回归 / MainMenu 待真人确认**：开放项清单维持。
+- **F-16~F-43 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
 
 ## 🔴 红线遵守（本轮）
 
-不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md` + 在 `docs/TASKS.md` 对应任务旁补「方案已定（SOLUTION_PLAN.md 第 27 轮）」标注。工作区 `docs/TEST_REPORT.md` M = #4 在途，本岗不碰。
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md` + 在 `docs/TASKS.md` 对应任务旁补「方案已定（SOLUTION_PLAN.md 第 28 轮）」标注。工作区 CLEAN 零在途。
 
 ---
 
