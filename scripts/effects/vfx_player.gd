@@ -57,7 +57,9 @@ func set_effect(fx_name: String) -> void:
 		push_warning("[VfxPlayer] 未知特效类型: %s" % fx_name)
 		return
 	current_fx = fx_name
-	var cfg: Dictionary = FX_CONFIG[fx_name]
+	# F1-E-4（2026-08-19 #3 执行）：帧配置改读 DataLoader.get_fx_config（presentation.json
+	# fx_config 优先；未命中/空表回退 FX_CONFIG const 兜底——F 系列缺省兜底约定，抽表后旧值仍可启动）
+	var cfg: Dictionary = _resolve_fx_config(fx_name)
 	var tex := load(cfg["path"]) as Texture2D
 	if not tex:
 		return
@@ -87,6 +89,17 @@ func _on_anim_finished() -> void:
 		tween.chain().tween_callback(queue_free)
 	else:
 		queue_free()
+
+## F1-E-4（2026-08-19 #3 执行）：帧配置解析——presentation.json fx_config（经
+## DataLoader.get_fx_config）命中优先；未命中/空表/无 DataLoader → 回退 FX_CONFIG
+## const 兜底（F 系列缺省兜底约定，仿 audio_manager._resolve_audio_path 范式）。
+func _resolve_fx_config(fx_name: String) -> Dictionary:
+	var loader: Node = get_node_or_null("/root/DataLoader")
+	if loader != null and loader.has_method("get_fx_config"):
+		var cfg: Dictionary = loader.get_fx_config(fx_name)
+		if not cfg.is_empty() and cfg.has("path") and cfg.has("frames"):
+			return cfg
+	return FX_CONFIG[fx_name]
 
 ## 在指定位置播放特效（静态便捷方法）
 static func spawn(parent: Node, pos: Vector2, fx_name: String) -> Node:

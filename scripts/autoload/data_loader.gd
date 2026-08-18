@@ -33,6 +33,8 @@ var _behavior_map: Dictionary = {}      ## F1-E：行为字符串→枚举名映
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记）
 var _audio_map: Dictionary = {}         ## F1-E-3：BGM/SFX 路径抽表（presentation.json audio_map，懒加载；
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
+var _fx_map: Dictionary = {}            ## F1-E-4：特效帧配置抽表（presentation.json fx_config，懒加载；
+                                        ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _enemy_scaling: Dictionary = {}     ## 敌人成长公式参数
 var _weapons: Dictionary = {}           ## 武器数据 { id → data } (含 category 标记)
 var _items: Dictionary = {}             ## 道具数据 { id → data }
@@ -647,6 +649,28 @@ func get_audio_config() -> Dictionary:
 		if raw is Dictionary and (raw as Dictionary).get("audio_map") is Dictionary:
 			_audio_map = (raw as Dictionary)["audio_map"]
 	return _audio_map
+
+# ========== 特效帧配置接口（F1-E-4 第四批 · 2026-08-19 #3 执行） ==========
+
+## 获取特效帧配置（presentation.json fx_config 优先——原 vfx_player.gd const
+## FX_CONFIG 数据化；未命中/空表由消费端 vfx_player 回退 const 兜底，
+## F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 命中 → {path, frames, fps, size: Vector2i}（size JSON → Vector2i 组装，
+## 仿 get_enemy_sprite_config :610-612 先例）；数据表缺失/损坏或 fx_name
+## 未命中 → 空字典（消费端 const 兜底，零崩）。
+func get_fx_config(fx_name: String) -> Dictionary:
+	if _fx_map.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/presentation.json"))
+		if raw is Dictionary and (raw as Dictionary).get("fx_config") is Dictionary:
+			_fx_map = (raw as Dictionary)["fx_config"]
+	var cfg: Variant = _fx_map.get(fx_name, null)
+	if cfg is Dictionary:
+		var out: Dictionary = (cfg as Dictionary).duplicate()
+		var size: Variant = out.get("size", null)
+		if size is Dictionary:
+			out["size"] = Vector2i(int((size as Dictionary).get("x", 0)), int((size as Dictionary).get("y", 0)))
+		return out
+	return {}
 
 # ========== 技能树接口（G-E · 2026-08-14） ==========
 

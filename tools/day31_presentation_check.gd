@@ -194,3 +194,73 @@ func _run() -> void:
 			# 两源均缺失 → 空串（_ensure_stream load("") 失败 push_warning 零崩兜底路径）
 			var fb_miss: String = audio_node.call("_resolve_audio_path", "no_such_key", {})
 			_check(fb_miss == "", "两源均缺失应返回空串: %s" % fb_miss)
+
+	# ⑥ fx_config（F1-E-4 第四批 2026-08-19 #3 执行：特效帧配置抽表，原 vfx_player.gd
+	# const FX_CONFIG 数据化 → presentation.json fx_config（size_w/size_h → size 组装）；
+	# path/frames/fps/size 与 const 现值逐一一致（抽表零漂移）；消费端
+	# DataLoader.get_fx_config + vfx_player.set_effect（命中优先/空表回退 const/
+	# 未知键 push_warning 保留）；FX_CONFIG const 保留兜底 = day23_vfx_check §1 零改动）
+	var fx_map: Dictionary = {}
+	if raw is Dictionary and (raw as Dictionary).get("fx_config") is Dictionary:
+		fx_map = (raw as Dictionary)["fx_config"]
+	var vfx_script: GDScript = load("res://scripts/effects/vfx_player.gd")
+	var const_fx: Dictionary = vfx_script.FX_CONFIG
+	_check(fx_map.size() == const_fx.size(), "fx_config 条数 %d != const FX_CONFIG %d" % [fx_map.size(), const_fx.size()])
+	var missing_fx := []
+	for k in const_fx.keys():
+		if not fx_map.has(k):
+			missing_fx.append(k)
+	_check(missing_fx.is_empty(), "fx_config 缺 const 键: %s" % str(missing_fx))
+	var extra_fx := []
+	for k in fx_map.keys():
+		if not const_fx.has(k):
+			extra_fx.append(k)
+	_check(extra_fx.is_empty(), "fx_config 多余键: %s" % str(extra_fx))
+	var drift_fx := []
+	for k in const_fx.keys():
+		var c: Dictionary = const_fx[k]
+		var p: Dictionary = fx_map.get(k, {})
+		if str(p.get("path", "")) != str(c.get("path", "")):
+			drift_fx.append("%s/path" % k)
+		if int(p.get("frames", -1)) != int(c.get("frames", -1)):
+			drift_fx.append("%s/frames" % k)
+		if not is_equal_approx(float(p.get("fps", -1.0)), float(c.get("fps", -1.0))):
+			drift_fx.append("%s/fps" % k)
+		var psz: Variant = p.get("size", null)
+		var csz: Vector2i = c.get("size")
+		if not (psz is Dictionary and int(psz.get("x", -1)) == csz.x and int(psz.get("y", -1)) == csz.y):
+			drift_fx.append("%s/size" % k)
+	_check(drift_fx.is_empty(), "fx_config 与 const 漂移: %s" % str(drift_fx))
+	# 消费接口：get_fx_config 命中 → {path, frames, fps, size: Vector2i} 组装
+	if loader != null:
+		var fx_hit: Dictionary = loader.call("get_fx_config", "hit")
+		_check(fx_hit.size() >= 4, "get_fx_config('hit') 键不齐: %s" % str(fx_hit))
+		_check(str(fx_hit.get("path", "")) == "res://assets/sprites/effects/fx_hit.png", "get_fx_config hit path 错误")
+		_check(int(fx_hit.get("frames", -1)) == 4, "get_fx_config hit frames 错误: %s" % str(fx_hit.get("frames")))
+		_check(fx_hit.get("size") is Vector2i and fx_hit["size"] == Vector2i(32, 32), \
+			"get_fx_config hit size 非 Vector2i(32,32): %s" % str(fx_hit.get("size")))
+		_check(loader.call("get_fx_config", "meteor").get("size") == Vector2i(128, 128), "get_fx_config meteor size 错误")
+		_check(loader.call("get_fx_config", "no_such_fx").is_empty(), "未知名 get_fx_config 应返回空字典")
+		# 端到端双跑（白盒等价）：_fx_map 注入改值 → 返回值变化 → 还原
+		var fx_orig: Dictionary = loader.get("_fx_map")
+		var fx_mut: Dictionary = (fx_orig.duplicate(true))
+		var hit_cfg: Dictionary = (fx_mut.get("hit", {}) as Dictionary).duplicate()
+		hit_cfg["frames"] = 99
+		fx_mut["hit"] = hit_cfg
+		loader.set("_fx_map", fx_mut)
+		_check(int(loader.call("get_fx_config", "hit").get("frames", -1)) == 99, "白盒改 frames 未生效（端到端双跑失败）")
+		loader.set("_fx_map", fx_orig)  # 还原缓存防污染
+		# 空表兜底：_fx_map 清空 → set_effect 回退 const 仍可播（VfxPlayer 白盒）
+		var vfx: Node = (load("res://scenes/VfxPlayer.tscn") as PackedScene).instantiate()
+		root.add_child(vfx)
+		loader.set("_fx_map", {})
+		vfx.call("set_effect", "hit")
+		_check(str(vfx.get("current_fx")) == "hit", "空表兜底 set_effect('hit') current_fx 应写入")
+		loader.set("_fx_map", fx_orig)  # 还原缓存防污染
+		vfx.queue_free()
+		# 未知键 push_warning 保留（set_effect 未知名 current_fx 不写）
+		var vfx2: Node = (load("res://scenes/VfxPlayer.tscn") as PackedScene).instantiate()
+		root.add_child(vfx2)
+		vfx2.call("set_effect", "definitely_not_a_fx")
+		_check(str(vfx2.get("current_fx")) == "", "未知特效名不应写 current_fx（push_warning 保留）")
+		vfx2.queue_free()
