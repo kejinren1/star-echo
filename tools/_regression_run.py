@@ -93,6 +93,9 @@ PROBES = [
     # F-49 同步（2026-08-19 #3 执行 · TEST_REPORT #62 观察「day31_portal_check 未入 runner」→ 并入）：
     # 通关传送门+宝箱机制（exit_portal 开启/接触结算 + loot_chest 拾取）
     ("day31_portal_check", ["--script", "res://tools/day31_portal_check.gd"], 24),
+    # LEVEL_DESIGN LD-A 同步（2026-08-19 #3 执行 · 规格 LEVEL_DESIGN_SPEC.md · 数据地基批）：
+    # spawn_points/boss_phase_events 两新表导出 + 三接口 + FK 数据侧合法性 + waves 示例填值
+    ("day31_level_design_data_check", ["--script", "res://tools/day31_level_design_data_check.gd"], 24),
 ]
 
 

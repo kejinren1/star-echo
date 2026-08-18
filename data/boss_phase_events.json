@@ -1,0 +1,79 @@
+{
+  "events": {
+    "invoker": [
+      {
+        "hp_threshold_percent": 40,
+        "seq": 1,
+        "event_type": "camera",
+        "param": {
+          "strength": "heavy",
+          "count": 2
+        },
+        "once": 1
+      },
+      {
+        "hp_threshold_percent": 60,
+        "seq": 1,
+        "event_type": "banner",
+        "param": {
+          "text": "狂怒！火力全开",
+          "color": "#E24B4A",
+          "duration": 1.5
+        },
+        "once": 1
+      },
+      {
+        "hp_threshold_percent": 60,
+        "seq": 2,
+        "event_type": "buff",
+        "param": {
+          "target": "self",
+          "effect": "frenzy",
+          "duration": 10
+        },
+        "once": 1
+      },
+      {
+        "hp_threshold_percent": 100,
+        "seq": 1,
+        "event_type": "banner",
+        "param": {
+          "text": "炼金暴君 现身！",
+          "color": "#E24B4A",
+          "duration": 1.5
+        },
+        "once": 1
+      }
+    ],
+    "predator": [
+      {
+        "hp_threshold_percent": 33,
+        "seq": 1,
+        "event_type": "sfx",
+        "param": {
+          "name": "boss"
+        },
+        "once": 1
+      },
+      {
+        "hp_threshold_percent": 66,
+        "seq": 1,
+        "event_type": "vfx",
+        "param": {
+          "name": "blade_burst"
+        },
+        "once": 1
+      },
+      {
+        "hp_threshold_percent": 100,
+        "seq": 1,
+        "event_type": "dialogue",
+        "param": {
+          "text": "猎杀开始……",
+          "speaker": "predator"
+        },
+        "once": 1
+      }
+    ]
+  }
+}

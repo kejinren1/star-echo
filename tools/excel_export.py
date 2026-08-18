@@ -192,6 +192,42 @@ def validate(wb, rep: Report) -> dict[str, list[dict]]:
         if sw and str(sw) not in weapon_ids:
             rep.err(f"characters 第 {i} 行 starting_weapon 不存在: {sw}")
 
+    # ---- LEVEL_DESIGN FK 校验（LD-A2 2026-08-19 · 规格 LEVEL_DESIGN_SPEC §2.5/§6） ----
+    # spawn_set 引用 point_id（waves → spawn_points 跨 sheet 引用，非既有 child 机制需新段）
+    point_ids = {str(r.get("point_id")) for r in tables.get("spawn_points", []) if r.get("point_id")}
+    for i, row in enumerate(tables.get("waves", []), 3):
+        ss = row.get("spawn_set")
+        if ss is None:
+            continue  # 空/缺失 = 缺省边缘均匀组（零行为变化）
+        arr = loads_json(ss)
+        if arr is None:
+            rep.err(f"waves 第 {i} 行 spawn_set JSON 解析失败: {ss}")
+            continue
+        if not isinstance(arr, list):
+            rep.err(f"waves 第 {i} 行 spawn_set 应为 JSON 数组: {ss}")
+            continue
+        for pid in arr:
+            if str(pid) not in point_ids:
+                rep.err(f"waves 第 {i} 行 spawn_set 引用了不存在的 point_id: {pid}"
+                        + (f"（合法: {sorted(point_ids)}）" if point_ids else "（spawn_points 表为空）"))
+    # boss_phase_events.boss_id 引用（合法来源 = boss_pattern.boss_id ∪ enemies category=boss id，
+    # 双源取并——enemies.json 无独立 boss 数组，实测两源并集一致 = invoker/predator）
+    boss_ids: set[str] = set()
+    for r in tables.get("boss_pattern", []):
+        if r.get("boss_id"):
+            boss_ids.add(str(r.get("boss_id")))
+    for r in tables.get("enemies", []):
+        if str(r.get("_xlsx_category", "")) == "boss" and r.get("id"):
+            boss_ids.add(str(r.get("id")))
+    for i, row in enumerate(tables.get("boss_phase_events", []), 3):
+        bid = row.get("boss_id")
+        if bid is None:
+            rep.err(f"boss_phase_events 第 {i} 行缺少 boss_id")
+            continue
+        if str(bid) not in boss_ids:
+            rep.err(f"boss_phase_events 第 {i} 行引用了不存在的 boss_id: {bid}"
+                    + (f"（合法: {sorted(boss_ids)}）" if boss_ids else "（boss_pattern/enemies(boss) 均无合法 id）"))
+
     # ---- items_effects 键白名单 ----
     for i, row in enumerate(tables.get("items_effects", []), 3):
         k = row.get("key")
@@ -396,6 +432,33 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         su_rows.append(unflatten(rec, set(SHEETS["skill_unlocks"]["json_cols"])))
     files["skill_unlocks.json"] = {"skill_unlocks": su_rows}
 
+    # spawn_points（LD-A1 2026-08-19 · LEVEL_DESIGN 规格 §2 · dict 形平铺
+    # {spawn_points: {point_id: {"type":..., "inset":..., ...}}}；point_id 主键，
+    # 空列 = 键缺失（消费端 get() 兜底），导出独立文件 data/spawn_points.json）
+    sp_map: dict = {}
+    for r in tables.get("spawn_points", []):
+        sid = str(r.get("point_id", ""))
+        if not sid:
+            continue
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "point_id" and not k.startswith("_")}
+        sp_map[sid] = rec
+    files["spawn_points.json"] = {"spawn_points": sp_map}
+
+    # boss_phase_events（LD-A1 2026-08-19 · LEVEL_DESIGN 规格 §3 · 一 boss 多行 →
+    # 按 boss_id 分组 dict 形 {events: {boss_id: [{hp_threshold_percent, seq, event_type,
+    # param(dict), once}, ...]}}，组内按 hp_threshold_percent+seq 升序；param JSON 文本列）
+    bpe_groups: dict = {}
+    for r in tables.get("boss_phase_events", []):
+        bid = str(r.get("boss_id", ""))
+        if not bid:
+            continue
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "boss_id" and not k.startswith("_")}
+        rec = unflatten(rec, set(SHEETS["boss_phase_events"]["json_cols"]))
+        bpe_groups.setdefault(bid, []).append(rec)
+    for bid in bpe_groups:
+        bpe_groups[bid].sort(key=lambda e: (int(e.get("hp_threshold_percent", 0)), int(e.get("seq", 0))))
+    files["boss_phase_events.json"] = {"events": bpe_groups}
+
     # presentation（F1-E 第一批 2026-08-18 · 敌人精灵表现 dict 形 {enemy_sprites: {id: cfg}}；
     # size 由 size_w/size_h 两列组装 {"x","y"} 供消费端 Vector2i；tint 为 JSON 数组列）
     ps_map: dict = {}
@@ -578,6 +641,19 @@ def main() -> int:
             old = json.loads(path.read_text(encoding="utf-8"))
             if not equivalent(old, content):
                 rep.warn(f"导出与现有 {name} 有差异（首次导入需人工确认；diff 见 tools/export_diff 对比）")
+
+    if check_only:
+        # 已知缺陷修复（LD-A2 2026-08-19 · 规格 §6「--check-only 只读缺陷，顺手修或登记」）：
+        # check_only 此前定义后未消费——校验路径仍全量导出写盘（含刷新总览 sheet 并保存
+        # Excel = 非真正只读，历史挂账）。改为只读：校验 + roundtrip 自检（纯读对比）后
+        # 直接返回，不写任何 JSON/manifest/总览/Excel。git 护栏用途回归纯校验。
+        print("=== 校验通过（--check-only 只读，未写盘）===")
+        for w in rep.warns:
+            print("  WARN", w)
+        return 0
+
+    # 写盘
+    for name, content in files.items():
         (DATA_DIR / name).write_text(
             json.dumps(content, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 

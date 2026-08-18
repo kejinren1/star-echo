@@ -13,7 +13,13 @@
           "enemy": "fly",
           "count": 4
         }
-      ]
+      ],
+      "spawn_set": [
+        "north",
+        "east",
+        "ring_outer"
+      ],
+      "spawn_order": "sequence"
     },
     {
       "wave": 2,
@@ -240,7 +246,11 @@
         }
       ],
       "special": "boss_wave",
-      "special_note": "Boss持续生成普通敌人"
+      "special_note": "Boss持续生成普通敌人",
+      "spawn_set": [
+        "boss_top"
+      ],
+      "spawn_order": "sequence"
     },
     {
       "wave": 11,
@@ -467,7 +477,11 @@
         }
       ],
       "special": "final_boss_wave",
-      "special_note": "最终Boss持续生成精英和普通敌人"
+      "special_note": "最终Boss持续生成精英和普通敌人",
+      "spawn_set": [
+        "arena_center"
+      ],
+      "spawn_order": "sequence"
     }
   ],
   "generation": {

@@ -110,6 +110,12 @@ COLUMN_ZH = {
     "spawn_interval_min": "生成间隔下限", "spawn_interval_decay": "生成间隔衰减",
     "wave_complete_base": "波次完成基础奖励", "harvesting_bonus": "收割加成",
     "kill_bonus": "击杀奖励",
+    # ---- spawn_points / boss_phase_events（LEVEL_DESIGN 2026-08-19 LD-A1） ----
+    "point_id": "点位ID", "direction": "方位(n/s/e/w/ne/nw/se/sw)", "radius": "半径(px)",
+    "inset": "边缘内缩(px)", "min_dist_player": "离玩家最小距离(px)",
+    "spawn_set": "出生点组(JSON数组)", "spawn_order": "点位轮换(sequence/random)",
+    "boss_id": "BossID(FK→enemies)", "hp_threshold_percent": "血线阈值%",
+    "seq": "同阈值顺序", "event_type": "演出类型", "param": "参数(JSON)", "once": "只触发一次",
     # ---- events ----
     "choiceA.text": "选项A.文本", "choiceA.reward.type": "选项A.奖励.类型",
     "choiceA.reward.value": "选项A.奖励.数值", "choiceA.reward.label": "选项A.奖励.标签",
@@ -257,6 +263,26 @@ SHEETS = {
         "key": "id", "category": None, "kind": "dict",
         "json_cols": [], "child": None,
     },
+    # LEVEL_DESIGN（2026-08-19 LD-A1 · 用户 08-18 22:57 拍板 · 规格 LEVEL_DESIGN_SPEC.md §2）：
+    # 固定出生点表——根治 F-48 随机死角（点位固定后可读可控可设计「怪从哪来」演出感）。
+    # point_id 主键 dict 形，导出独立文件 data/spawn_points.json（结构同 sheet 平铺）；
+    # type = edge（竞技场边缘方位 + inset 内缩）/ anchor（x/y 0~1 局部比例 × 竞技场尺寸）/
+    # ring（以竞技场中心为圆心 radius 圆周均分）；min_dist_player 沿用现常量 110 兜底语义
+    "spawn_points": {
+        "sheet": "spawn_points", "file": "spawn_points.json", "root": "spawn_points",
+        "key": "point_id", "category": None, "kind": "dict",
+        "json_cols": [], "child": None,
+    },
+    # LEVEL_DESIGN（2026-08-19 LD-A1 · 规格 LEVEL_DESIGN_SPEC.md §3）：Boss 阶段演出表——
+    # 一 boss 多行（100 开局登场/60/40 等血线阈值），导出时按 boss_id 分组排序，
+    # 结构 {boss_id: [events...]}（组内按 hp_threshold_percent+seq 升序）；
+    # event_type 枚举 banner/vfx/sfx/dialogue/camera/buff；param 为 JSON 文本列；
+    # once = 只触发一次标记。key 设 None（boss_id 非唯一，唯一性检查跳过，构建段自行分组）
+    "boss_phase_events": {
+        "sheet": "boss_phase_events", "file": "boss_phase_events.json", "root": "events",
+        "key": None, "category": None, "kind": "dict",
+        "json_cols": ["param"], "child": None,
+    },
     "characters": {
         "sheet": "characters", "file": "characters.json", "root": "characters",
         "key": "id", "category": None, "kind": "list",
@@ -277,7 +303,8 @@ SHEETS = {
     "waves": {
         "sheet": "waves", "file": "waves.json", "root": "waves",
         "key": "wave", "category": None, "kind": "list",
-        "json_cols": ["composition"], "child": None,
+        # LD-A1（2026-08-19）：spawn_set = JSON 数组列（本波点位组；空/缺失 = 缺省边缘均匀组）
+        "json_cols": ["composition", "spawn_set"], "child": None,
     },
     "wave_generation": {
         "sheet": "wave_generation", "file": "waves.json", "root": "generation",

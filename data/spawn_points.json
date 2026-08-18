@@ -1,0 +1,69 @@
+{
+  "spawn_points": {
+    "north": {
+      "type": "edge",
+      "direction": "north",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "south": {
+      "type": "edge",
+      "direction": "south",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "east": {
+      "type": "edge",
+      "direction": "east",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "west": {
+      "type": "edge",
+      "direction": "west",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "ne": {
+      "type": "edge",
+      "direction": "ne",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "nw": {
+      "type": "edge",
+      "direction": "nw",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "se": {
+      "type": "edge",
+      "direction": "se",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "sw": {
+      "type": "edge",
+      "direction": "sw",
+      "inset": 40,
+      "min_dist_player": 110
+    },
+    "boss_top": {
+      "type": "edge",
+      "direction": "north",
+      "inset": 60,
+      "min_dist_player": 110
+    },
+    "arena_center": {
+      "type": "anchor",
+      "x": 0.5,
+      "y": 0.45,
+      "min_dist_player": 110
+    },
+    "ring_outer": {
+      "type": "ring",
+      "radius": 300,
+      "min_dist_player": 110
+    }
+  }
+}

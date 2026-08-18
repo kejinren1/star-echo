@@ -35,6 +35,11 @@ var _audio_map: Dictionary = {}         ## F1-E-3：BGM/SFX 路径抽表（prese
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _fx_map: Dictionary = {}            ## F1-E-4：特效帧配置抽表（presentation.json fx_config，懒加载；
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
+var _spawn_points: Dictionary = {}      ## LEVEL_DESIGN（LD-A3 2026-08-19）：固定出生点表
+                                        ## （spawn_points.json，懒加载；空字典 = 未加载/缺失，
+                                        ## is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
+var _boss_phase_events: Dictionary = {} ## LEVEL_DESIGN（LD-A3 2026-08-19）：Boss 阶段演出表
+                                        ## （boss_phase_events.json，懒加载；同上 is_empty 重试标记）
 var _enemy_scaling: Dictionary = {}     ## 敌人成长公式参数
 var _weapons: Dictionary = {}           ## 武器数据 { id → data } (含 category 标记)
 var _items: Dictionary = {}             ## 道具数据 { id → data }
@@ -671,6 +676,45 @@ func get_fx_config(fx_name: String) -> Dictionary:
 			out["size"] = Vector2i(int((size as Dictionary).get("x", 0)), int((size as Dictionary).get("y", 0)))
 		return out
 	return {}
+
+# ========== 关卡设计接口（LEVEL_DESIGN · LD-A3 2026-08-19 · 规格 LEVEL_DESIGN_SPEC.md） ==========
+
+## 获取固定出生点表（spawn_points.json 平铺 dict——原 enemy_spawner.gd 写死
+## ±200×±120 随机 + min_dist 110 数据化；消费端 enemy_spawner 按点位生成，
+## 表空/未命中回退原随机路径，F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 返回 {point_id: {"type": "edge|anchor|ring", "direction", "x", "y", "radius",
+## "inset", "min_dist_player"}}；数据表缺失或损坏 → 空字典（消费端缺省回退，零崩）。
+func get_spawn_points() -> Dictionary:
+	if _spawn_points.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/spawn_points.json"))
+		if raw is Dictionary and (raw as Dictionary).get("spawn_points") is Dictionary:
+			_spawn_points = (raw as Dictionary)["spawn_points"]
+	return _spawn_points
+
+## 获取某波的出生点组（waves 行 spawn_set/spawn_order——本波按此点位组生成）。
+## 返回 {spawn_set: Array, spawn_order: String}；spawn_set 空/缺失 → 空数组
+## （消费端缺省回退默认边缘均匀组/现随机路径，零行为变化）；spawn_order 缺省 "sequence"
+## （sequence = 队列顺序轮换 / random = 组内随机）。
+func get_spawn_set(wave_number: int) -> Dictionary:
+	var w: Dictionary = _waves.get(wave_number, {})
+	var set_arr: Variant = w.get("spawn_set", [])
+	if not set_arr is Array:
+		set_arr = []
+	return {"spawn_set": set_arr, "spawn_order": str(w.get("spawn_order", "sequence"))}
+
+## 获取某 Boss 的阶段演出事件（boss_phase_events.json 按 boss_id 分组，
+## 组内已按 hp_threshold_percent+seq 升序——LD-A2 导出侧排序）。
+## 返回 [{hp_threshold_percent, seq, event_type, param(Dictionary), once}]；
+## 缺失 boss_id / 数据表缺失损坏 → 空数组（消费端零崩）。
+func get_boss_phase_events(boss_id: String) -> Array:
+	if _boss_phase_events.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_phase_events.json"))
+		if raw is Dictionary and (raw as Dictionary).get("events") is Dictionary:
+			_boss_phase_events = (raw as Dictionary)["events"]
+	var arr: Variant = _boss_phase_events.get(boss_id, null)
+	if arr is Array:
+		return arr
+	return []
 
 # ========== 技能树接口（G-E · 2026-08-14） ==========
 
