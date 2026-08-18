@@ -41,12 +41,12 @@ func take_damage(amount: float, is_crit: bool = false) -> void:
 func die() -> void:
 	_enemy.is_alive = false
 	_enemy.health = 0.0
-	# AUDIO_FEEL（AF-P0-A2/B2 · SPEC F1/F2）：Boss 击杀 → 重顿帧 0.15 + 重震屏；
+	# AUDIO_FEEL（AF-P0-A2/B2 · SPEC F1/F2 + F-45 调小）：Boss 击杀 → 顿帧 0.06 + 重震屏；
 	# 普通怪零顿帧（防节奏碎裂）+ 中震屏；控制器/场景缺失（纯数据探针）→ 零回归
 	var hs: Node = GameManager.hitstop_controller if GameManager else null
 	if _enemy.is_boss and hs != null and is_instance_valid(hs):
 		var feel: Dictionary = DataLoader.get_stats_feel()
-		hs.call("trigger", float(feel.get("hitstop_boss_kill", 0.15)))
+		hs.call("trigger", float(feel.get("hitstop_boss_kill", 0.06)))
 	# ⚠️ get_node_or_null 是 Node 方法（get_tree() 返回 SceneTree 无此方法——踩坑登记）
 	var main_node: Node = _enemy.get_node_or_null("/root/Main")
 	if main_node != null and main_node.has_method("_trigger_camera_shake"):

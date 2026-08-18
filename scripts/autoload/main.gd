@@ -234,21 +234,21 @@ func _equip_starting_weapon(weapon_id: String) -> void:
 func _on_player_hit(_amount: float) -> void:
 	_trigger_camera_shake("light")
 
-## AF-P0-B1（2026-08-18 · SPEC F2 震屏分级）：按级别设置相机震动
-## light=命中·玩家受伤（0.15s/4.0 = F-03 现值零漂移）/ medium=暴击·普通击杀 / heavy=Boss 死亡
+## AF-P0-B1（2026-08-18 · SPEC F2 震屏分级）+ F-45 二次调档（用户 08-18 拍板）：
+## light=玩家受伤（0.05s/1.0，原 F-03 0.15/4 已被用户调小）/ medium=击杀（0.1s/3.0）/ heavy=Boss 死亡（0.2s/5.0）
 ## 参数读 DataLoader.get_stats_feel() 缺键兜底默认（Excel stats_feel 段 → 数据驱动）
 func _trigger_camera_shake(level: String) -> void:
 	var feel: Dictionary = DataLoader.get_stats_feel()
 	match level:
 		"medium":
-			_shake_duration = float(feel.get("shake_medium_duration", 0.2))
-			_shake_magnitude = float(feel.get("shake_medium_magnitude", 6.0))
+			_shake_duration = float(feel.get("shake_medium_duration", 0.1))
+			_shake_magnitude = float(feel.get("shake_medium_magnitude", 3.0))
 		"heavy":
-			_shake_duration = float(feel.get("shake_heavy_duration", 0.3))
-			_shake_magnitude = float(feel.get("shake_heavy_magnitude", 9.0))
+			_shake_duration = float(feel.get("shake_heavy_duration", 0.2))
+			_shake_magnitude = float(feel.get("shake_heavy_magnitude", 5.0))
 		_:  # light 兜底（含未知级别）
-			_shake_duration = float(feel.get("shake_light_duration", 0.15))
-			_shake_magnitude = float(feel.get("shake_light_magnitude", 4.0))
+			_shake_duration = float(feel.get("shake_light_duration", 0.05))
+			_shake_magnitude = float(feel.get("shake_light_magnitude", 1.0))
 	_shake_time = _shake_duration
 
 ## 敌人生成时连接死亡信号

@@ -288,11 +288,11 @@
     "hitstop_ranged": 0.02,
     "hitstop_crit_bonus": 0.02,
     "hitstop_boss_kill": 0.06,
-    "shake_light_duration": 0.15,
-    "shake_light_magnitude": 4,
-    "shake_medium_duration": 0.2,
-    "shake_medium_magnitude": 6,
-    "shake_heavy_duration": 0.3,
-    "shake_heavy_magnitude": 9
+    "shake_light_duration": 0.05,
+    "shake_light_magnitude": 1,
+    "shake_medium_duration": 0.1,
+    "shake_medium_magnitude": 3,
+    "shake_heavy_duration": 0.2,
+    "shake_heavy_magnitude": 5
   }
 }

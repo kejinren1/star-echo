@@ -116,17 +116,17 @@ func _on_body_entered(body: Node) -> void:
 
 # ========== 顿帧（AUDIO_FEEL AF-P0-A2 · 2026-08-18） ==========
 
-## 命中顿帧：近战重 0.15 / 远程轻 0.05（O-2 拍板）；暴击追加 +0.1（取 max 合并）
+## 命中顿帧：近战 0.03 / 远程 0.02（F-45 调小）；暴击 0.02（取 max 合并）
 ## 控制器经 GameManager.hitstop_controller（main._ready 注入；缺失 = 零顿帧零回归）
 func _hitstop_on_hit() -> void:
 	var hs: Node = GameManager.hitstop_controller if GameManager else null
 	if hs == null or not is_instance_valid(hs):
 		return
 	var feel: Dictionary = DataLoader.get_stats_feel()
-	var dur: float = float(feel.get("hitstop_melee", 0.15)) if weapon_type == "melee" \
-		else float(feel.get("hitstop_ranged", 0.05))
+	var dur: float = float(feel.get("hitstop_melee", 0.03)) if weapon_type == "melee" \
+		else float(feel.get("hitstop_ranged", 0.02))
 	if _is_crit_hit():
-		dur = maxf(dur, float(feel.get("hitstop_crit_bonus", 0.1)))
+		dur = maxf(dur, float(feel.get("hitstop_crit_bonus", 0.02)))
 	hs.call("trigger", dur)
 
 ## F-45（2026-08-18 用户拍板）：震屏仅「技能击中」保留——普攻命中不再震屏

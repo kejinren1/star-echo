@@ -95,12 +95,12 @@ const FEEL_DEFAULTS: Dictionary = {
 	"hitstop_ranged": 0.02,          # F-45 远程顿帧（0.05→0.02）
 	"hitstop_crit_bonus": 0.02,      # F-45 暴击追加顿帧（0.1→0.02，不再显著加长）
 	"hitstop_boss_kill": 0.06,       # F-45 Boss 击杀顿帧（0.15→0.06，保留相对重感）
-	"shake_light_duration": 0.15,    # AF-P0-B1 震屏轻档时长（= F-03 现值零漂移）
-	"shake_light_magnitude": 4.0,    # AF-P0-B1 震屏轻档幅度（= F-03 现值零漂移）
-	"shake_medium_duration": 0.2,    # AF-P0-B1 震屏中档时长（暴击/普通击杀）
-	"shake_medium_magnitude": 6.0,   # AF-P0-B1 震屏中档幅度
-	"shake_heavy_duration": 0.3,     # AF-P0-B1 震屏重档时长（Boss 死亡）
-	"shake_heavy_magnitude": 9.0,    # AF-P0-B1 震屏重档幅度
+	"shake_light_duration": 0.05,    # 用户 08-18 二次调档：受伤轻震时长（0.15→0.05）
+	"shake_light_magnitude": 1.0,    # 用户 08-18 二次调档：受伤轻震幅度（4.0→1.0）
+	"shake_medium_duration": 0.1,    # 用户 08-18 二次调档：击杀中震时长（0.2→0.1）
+	"shake_medium_magnitude": 3.0,   # 用户 08-18 二次调档：击杀中震幅度（6.0→3.0）
+	"shake_heavy_duration": 0.2,     # 用户 08-18 二次调档：Boss 重震时长（0.3→0.2）
+	"shake_heavy_magnitude": 5.0,    # 用户 08-18 二次调档：Boss 重震幅度（9.0→5.0）
 }
 
 var _loaded: bool = false               ## 是否已加载

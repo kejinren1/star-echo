@@ -168,20 +168,20 @@ func _part_shake() -> void:
 		return
 	var fake := Node2D.new()
 	fake.set_script(main_script)
-	# a. 三级分层参数（light=F-03 现值零漂移 / medium=0.2,6 / heavy=0.3,9）
+	# a. 三级分层参数（F-45 用户 08-18 二次调档：light=0.05,1 / medium=0.1,3 / heavy=0.2,5）
 	fake.call("_trigger_camera_shake", "light")
-	if absf(float(fake.get("_shake_duration")) - 0.15) <= 0.001 and absf(float(fake.get("_shake_magnitude")) - 4.0) <= 0.001:
-		_pass("震屏 / light=0.15s/4.0（F-03 现值零漂移）")
+	if absf(float(fake.get("_shake_duration")) - 0.05) <= 0.001 and absf(float(fake.get("_shake_magnitude")) - 1.0) <= 0.001:
+		_pass("震屏 / light=0.05s/1.0（玩家受伤·用户二次调档）")
 	else:
 		_fail("震屏: light 档错误 %.2f/%.2f" % [float(fake.get("_shake_duration")), float(fake.get("_shake_magnitude"))])
 	fake.call("_trigger_camera_shake", "medium")
-	if absf(float(fake.get("_shake_duration")) - 0.2) <= 0.001 and absf(float(fake.get("_shake_magnitude")) - 6.0) <= 0.001:
-		_pass("震屏 / medium=0.2s/6.0（暴击·普通击杀）")
+	if absf(float(fake.get("_shake_duration")) - 0.1) <= 0.001 and absf(float(fake.get("_shake_magnitude")) - 3.0) <= 0.001:
+		_pass("震屏 / medium=0.1s/3.0（击杀·用户二次调档）")
 	else:
 		_fail("震屏: medium 档错误 %.2f/%.2f" % [float(fake.get("_shake_duration")), float(fake.get("_shake_magnitude"))])
 	fake.call("_trigger_camera_shake", "heavy")
-	if absf(float(fake.get("_shake_duration")) - 0.3) <= 0.001 and absf(float(fake.get("_shake_magnitude")) - 9.0) <= 0.001:
-		_pass("震屏 / heavy=0.3s/9.0（Boss 死亡重档）")
+	if absf(float(fake.get("_shake_duration")) - 0.2) <= 0.001 and absf(float(fake.get("_shake_magnitude")) - 5.0) <= 0.001:
+		_pass("震屏 / heavy=0.2s/5.0（Boss 死亡·用户二次调档）")
 	else:
 		_fail("震屏: heavy 档错误 %.2f/%.2f" % [float(fake.get("_shake_duration")), float(fake.get("_shake_magnitude"))])
 	# b. _process 衰减归位（0.15s 内 _shake_time → 0；camera null 跳过 offset 无崩）
@@ -194,7 +194,7 @@ func _part_shake() -> void:
 		_fail("震屏: 衰减未归位 _shake_time=%.2f" % float(fake.get("_shake_time")))
 	# c. 玩家受伤 light 路径保留（_on_player_hit → light 档）
 	fake.call("_on_player_hit", 10.0)
-	if absf(float(fake.get("_shake_duration")) - 0.15) <= 0.001:
+	if absf(float(fake.get("_shake_duration")) - 0.05) <= 0.001:
 		_pass("震屏 / 玩家受伤 light 路径保留（_on_player_hit → light 档）")
 	else:
 		_fail("震屏: 玩家受伤路径失效")
@@ -229,8 +229,8 @@ func _part_data_driven() -> void:
 	# b. 缺段兜底：白盒清段 → 返回默认值（FEEL_DEFAULTS）
 	_loader.set("_feel", {})
 	var d: Dictionary = _loader.call("get_stats_feel")
-	if absf(float(d.get("hitstop_melee", -1.0)) - 0.03) <= 0.001 and absf(float(d.get("shake_medium_duration", -1.0)) - 0.2) <= 0.001:
-		_pass("数据 / 缺段兜底：清空 _feel → 返回默认（hitstop 0.03 / shake 0.2）")
+	if absf(float(d.get("hitstop_melee", -1.0)) - 0.03) <= 0.001 and absf(float(d.get("shake_medium_duration", -1.0)) - 0.1) <= 0.001:
+		_pass("数据 / 缺段兜底：清空 _feel → 返回默认（hitstop 0.03 / shake 0.1）")
 	else:
 		_fail("数据: 缺段兜底失败 %s" % str(d))
 	# c. 注入覆盖：白盒注入 → 返回值变化（数据层消费链路）

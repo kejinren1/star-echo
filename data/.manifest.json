@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-18T21:29:11",
-  "fingerprint": "865ce8ac5efaeef3",
+  "generated_at": "2026-08-18T22:15:05",
+  "fingerprint": "6459cf07f2508be7",
   "files": {
     "boss_patterns.json": "5abf9172db00",
     "boss_skills.json": "2615d0b1a757",
@@ -13,8 +13,8 @@
     "routes.json": "e430cbd43c6d",
     "skill_relics.json": "2e6d622aeb6f",
     "skill_unlocks.json": "dd22cdfa8eeb",
-    "stats.json": "59d649c9201e",
-    "waves.json": "edb17bc94f05",
+    "stats.json": "96d77122d3fb",
+    "waves.json": "8ddebc481f78",
     "weapons.json": "a0bfabee7f79"
   }
 }
