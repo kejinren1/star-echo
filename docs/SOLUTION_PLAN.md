@@ -1,3 +1,106 @@
+# 方案计划（2026-08-18 22:4x · 方案师第 31 轮 · RELIC 遗物扩展正式方案（#2 第 61 轮拆解完成兑现）+ F1-E 批四挂账观察）
+
+## 📌 本轮判定（方案师第 31 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #85 · 08-18 22:4x 反馈专员 · F-46 怪物追踪重写+HUD 分数制落地登记）**：无新增待处理反馈（F-01~F-46/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域）；TEST_REPORT #61（22:00 · HEAD=`980aa7d`）= **62/62 全绿 · 1534 断言 · BASELINE CLEAN · 0 阻断 / 0 action item**（F-45 手感三连验证轮）→ **🔴P0 无新增**。
+>
+> **🟠 关键调度输入（本轮兑现上轮承诺）**：`docs/RELIC_EXPANSION_SPEC.md`（08-18 晚用户拍板 · 规格 215 行）已由 **#2 第 61 轮（`f19447c`）完成函数级拆解**——**O-1~O-4 全拍板**（O-1：元素伤害→**魔法伤害** / 工程学→**机械学**，id 零改动；O-2：不做控血 → **玻璃大炮构筑转换**；O-3：affinity 默认不可改 + 开放事件洗点；O-4：流派**不限于移速**）。拆解批次 = RELIC-A（独立先行）→ RELIC-0（数据地基前置）→ RELIC-F / RELIC-E（P0 独立）→ RELIC-B / RELIC-C / RELIC-D（依赖 0）→ RELIC-EXIT；**独立目标日 Day 31+ 不插入 D30 收尾窗口** → **本轮方案师按规格 + 拆解写 RELIC 正式方案（实测复核锚点，见任务 1-8）**。
+>
+> **git 实测**：HEAD=`144b2bb`（反馈专员 #85 · 08-18 22:4x；#2 第 61 轮后 +6 = `f19447c` RELIC 函数级拆解 / `310a412` #1 第 65 轮 / `bdd3ed5` **F-45 手感三连修复**（顿帧四档调小 + 普攻命中零震屏 + 命中特效 scale0.6/alpha0.55/0.25s 渐隐，回归 62/62 1534 全绿）/ `ebdac5e` **F-45 震屏二次调档**（用户直改 Excel：light/medium/heavy 三档整体调小，feel 26/26 + 回归全绿）/ `700f728` F-45 导出补同步 / `5556cb3` **F-46 怪物追踪重写 + HUD 分数制（用户 08-18 直派 · 已落地闭环）**（Aggro Leash 420px 战斗锁链根治怪漂出屏幕判通死锁 + ranged Orbit 收敛环绕 + HUD「已击杀/本关总生成」分数制 + 探针 flee §5 22/22 + day18 §4 17/17 + 回归 62/62 全绿）/ `144b2bb` #85 登记）；**工作区在途 = 仅 `docs/TEST_REPORT.md` M（#4 在途）零游戏代码，红线内不碰**。
+>
+> **结论**：① **RELIC 遗物扩展 = 本轮方案主产出**（拆解完成即解锁，方案师按纪律写正式方案，承接方 = 总指挥/主窗口按 RELIC 编号批推进，勿插入 D30 收尾窗口）；② **F1-E 批四 FX 仍未开工**（git 实测最近 12 提交无 fx_config/get_fx_config/vfx_player 改读）→ 方案锚定维持、挂账观察继续；③ D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域维持（build/ 已补冻，旧观察关闭）；④ **F-46 已由用户直派落地（`5556cb3`）非本岗方案对象**，仅登记确认。**回归硬门槛口径维持 = 62 件套 · 1534 断言**（TEST_REPORT #61 全绿实证）。
+
+## 当前开发日：Day 30 收尾 → 新目标日 Day 31（RELIC 遗物扩展 · 独立目标日 · 拆解 `f19447c` + 规格 `RELIC_EXPANSION_SPEC.md` 唯一事实源）
+
+### 任务1：RELIC-A 属性命名去土豆兄弟化（P1 · 独立低成本先行 · ⭐ 本轮实测复核新增确认）
+
+- **实测复核结论（本轮新增 3 点，供执行者直接使用）**：
+  1. **stats.json 锚点定位** = `.stats.offensive[2]`（`elemental_damage`「元素伤害」base 0）/ `.stats.economy[3]`（`engineering`「工程学」base 0）——确认由 Excel stats sheet 导出（JSON generated 禁手改，走 Excel 两行 name）。
+  2. **⚠️ desc_builder.gd:32-33 硬编码映射实测确认存在**：`"elemental_damage": "元素伤害"` / `"engineering": "工程"`——**注意 desc_builder 现值「工程」2 字与 stats.json「工程学」3 字不一致** → 改名必须两处同步且统一为「机械学」（拆解 RELIC-A2「核对 STAT_CN 是否另有硬编码，有则同步」的实测结论：**确有硬编码，需同步**；顺带消除既有 2/3 字不一致）。
+  3. **引用面 4 脚本实测**：data_loader.gd:371（注释「melee/ranged/elemental/engineering」= 白名单不动）/ attribute_controller.gd:36,42（`orbit_blade_count`/`elemental_damage`/`summon_count` 属性 id 列表 = **不可改**）/ skill_controller.gd:227-236（燃烧 dps 机制 id = **不可改**）——与拆解「属性 id 零改动」一致；数据侧文案残留（characters.json / items.json / weapons.json:485 等）按拆解 A2 grep 替换展示名/描述文案。
+- **改动**：Excel stats sheet 两行 name →「魔法伤害」「机械学」+ desc_builder STAT_CN 两键同步（统一「机械学」）+ 导出 stats.json（仅两 name 变，其余 JSON 零 diff）+ 数据文案替换 + `tools/day31_relic_name_check.gd` 新建（≥8 断言）。
+- **风险**：**低**。属性 id 零改动 = 存档/探针/数据层零连锁；唯二坑 = ① desc_builder「工程」≠ stats「工程学」需先统一 ② 数据侧文案 grep 必须覆盖 characters/items/weapons 三 JSON（漏一处 = 展示残留「元素伤害」）。
+- **验证**：day31_relic_name_check ≥8 + 回归 **62 件套 · 1534 断言** + baseline **BASELINE CLEAN**。可**独立先行**（不依赖 RELIC-0，可直接开工）。
+
+### 任务2：RELIC-0 数据层地基（前置批 · B/C/D 全依赖 · ⭐ 本轮实测复核新增确认）
+
+- **实测复核结论（本轮新增）**：① items.json **54 条 · slot="relic" 仅 2 条**（broken_crown 破碎王冠 / mech_engine 机械引擎，D20 直装先例）——B/C/D 池扩展落点确认；② data_loader.gd:437-438 `get_all_skill_relics()` 范式在位（:441 `get_skill_relics_by_source` 同源，RELIC-0-2 仿此）；③ save_system.gd `_default_meta()` + load 逐键 clean（wins/research_points/research/chars/codex）缺省容错范式在位 → RELIC-0-3 两新键（`relic_affinity`/`relic_codex`）照此办理；④ **skill_relics.json 顶层 = dict（键 `skill_relics`）**——拆解「技能遗物不在本次字段扩展范围」确认正确。
+- **改动**：Excel items sheet relic 条目 +5 列（`rarity` common/uncommon/rare / `tag` 流派打标 / `tier` 1/2/3 / `set_id`+`set_tier`+`set_effects`（Excel 分隔串 → 导出 JSON 数组，**最小实现**）/ `unlock_condition` 字符串表达式）+ 套装 2 套 4 件占位（星骸孤注 / 死线舞者）+ 流派示例 ≥6 件（T1 common ×3 / T2 uncommon ×2 / T3 rare ×1，移速流示例；其余流派同构，方案师按 O-4 自由规划留给执行批 D 扩展）+ data_schema 注册 + excel_export 导出（items.json relic +5 键，其余 JSON 零 diff）+ DataLoader `get_relic_defs()`/`get_relic_set_ids()` + save_system meta 两键（缺省零值容错）。
+- **风险**：**中**。数据面最广（Excel→schema→export→JSON→DataLoader→存档六点）；**硬门槛 = day30_save_compat 14/14 + day27_meta 35/35 零改动**（旧档缺新键零崩）；set_effects 存储格式以「分隔串 + 导出解析数组」定案，禁自由发明格式。
+- **验证**：新建 `tools/day31_relic_data_check.gd`（≥15 断言：字段键齐全 / 套装分组 / 池过滤基础 / 存档兼容 / 回归抽样）+ 回归 62 件套 + baseline CLEAN。
+
+### 任务3：RELIC-F Boss 行为节奏（P0 · 独立可先行 · 承接 BS-A~D 已实装底座）
+
+- **改动**：enemy_boss.gd 行为循环（施法站定态 + 时间分配倒置：追踪 30-40% / 技能+走位 60-70% + 大范围技能权重提升）+ enemy_movement.gd（追踪减速/站定，F4-T1 拆分产物）+ 参数数据化（enemies.json phases 或 boss_pattern 表扩展 `cast_slowdown`/`chase_ratio`/`skill_window` 键，**禁硬编码，数据管线铁律**）。
+- **风险**：**中**（直接改手感，最可能破坏既有 BS 探针）。**硬门槛 = 公平底线公式（BOSS_SKILL_SPEC §2.2 t_w>2r/v+0.4s）零破坏 + day30_boss_skill 49/49 + day18_19_boss_check 48/48 零改动**。**替代方案**：先数据灰度（只调 boss_pattern 权重表 + chase_ratio/skill_window 键，不动代码循环）→ 探针验证节奏变化 → 不足再动站定逻辑（两阶段降风险）。
+- **验证**：新建 `tools/day31_relic_boss_rhythm_check.gd`（≥12 断言：施放期移速下降或站定 / 时间分配比例白盒统计 / 大范围技能次数 > 贴身追击 / 公平底线公式零破坏）+ 回归 + PLAYTEST 主观项登记（走走停停 / 躲技能反打手感，交 #5）。
+
+### 任务4：RELIC-E Boss 宝箱收获 + 通关成就感（P0 · 独立可先行 · G 项并入）
+
+- **改动**：GameManager._on_node_completed 分支（boss 节点 → 收获房间）+ 宝箱开启演出（占位色块/复用 VfxPlayer 特效 + 开启音效 + 光效，美术占位口径）+ 遗物三选一（**复用 enemy_damage.gd :89-104 精英三选一先例**）+ 可停留查看属性 → 手动进入下一层/结算（**可跳过不打断**）+ 结算页增强（GameOverPanel F-23 先例：击杀数/波次/最终 Build 流派标签/收集遗物列表 + 解锁提示联动 relic_codex）+ 新音效（**audio_config sheet 扩键 → audio_map，SFX_MAP 键契约零删改（AUDIO_FEEL 红线 2 先例）+ day24_audio_check 14/14 零改动硬门槛**；商店购买成功 = 音效 + 高亮 + 金币 -N 跳字，现状已有则只补音效）。
+- **风险**：**中**（流程分支改动，最大隐患 = 影响判通链路——**F-39 生成状态复位教训**：宝箱环节必须可跳过、不得阻塞普通关/Boss 关判通）。**方案定案：宝箱环节做成纯叠加层（overlay），不动波次状态机** → 判通零影响；另需明确 **MAX_RELICS=2 满槽时三选一的处理**（替换确认/跳过提示，防静默失败）。
+- **验证**：新建 `tools/day31_relic_harvest_check.gd`（≥12 断言：章 Boss 战后必见宝箱且可三选一 / 可跳过不打断 / 结算页含统计+解锁提示 / 新音效 audio_map 键在位 + SFX_MAP 零删改）+ 回归 62 件套 + PLAYTEST 主观项登记（宝箱收获成就感 / 结算页观感，交 #5）。
+
+### 任务5：RELIC-B 套装遗物（P1 · 依赖 RELIC-0 · O-2 玻璃大炮拍板）
+
+- **改动**：inventory.gd 同 set_id 计数 → 激活 set_tier（1/2 件档位）+ set_effects 应用/移除（装配卸下切换防重复）+ 消费点（attribute_controller/player apply_stat_modifier + take_damage 减伤兜底）+ 装备反馈（HUD 状态图标/颜色 + 音效并入 E3 + 占位纯色视觉）。
+- **风险**：**中**。**⚠️ max_health 削减 = 比例乘法非减法**（防负值/零值崩溃，探针断言边界，拆解已定）；「星骸孤注」单件 -90% 血 + 减伤 40% / 2 件 +100% 伤害 +50% 攻速 + 被摸 2s 减伤再 +30%；「死线舞者」单件 -70% 血 +30% 移速 / 2 件移动叠层停下清零——数值占位可调（规格 §3.1），禁做「特别爆炸」数值。
+- **验证**：day31_relic_data_check +§套装段 ≥10 断言 + 回归 62 件套 + PLAYTEST 主观登记（玻璃大炮手感）。
+
+### 任务6：RELIC-C 遗物图鉴 + 条件解锁（P1 · 依赖 RELIC-0 + R3 图鉴范式）
+
+- **改动**：R3 codex 新增「遗物」分类（relics 列表，record_codex 4 记录点先例，未见条目「？？？」）+ unlock_condition 消费（first_kill_boss:<chapter_id> / fail_count>=N / codex_count>=N / affinity_tag>=N，**解锁判定函数集中一处**（DataLoader 或独立模块）禁散落）+ 掉落池过滤（enemy_damage 精英/Boss 三选一池 + 商店第三池 D20-T4 55 池先例，只含已解锁）+ 池子目标 ≥60 件（items relic 2 件 + 扩展新增，3 档稀有度）；skill_relics 技能遗物顺带纳入「遗物」分类展示（可选，标注不阻塞）。
+- **风险**：**中**。解锁判定集中防散落；掉落池过滤双池同步（漏一处 = 未解锁遗物泄露）。
+- **验证**：day31_relic_data_check +§图鉴段 ≥10 断言（未解锁不掉落不泄露名称 / 达成条件解锁 / 白盒注入 fail_count / 持久化）+ 回归 62 件套。
+
+### 任务7：RELIC-D 流派遗物树 + 动态权重引导（P0 · 核心新机制 · 依赖 RELIC-0 · O-3/O-4 拍板）
+
+- **改动**：end_game 结算钩子按本局实际装配遗物流派打标 → `meta_progress.relic_affinity`（D27-T1 先例）+ `DataLoader.get_relic_pool()` 扩展权重计算（基础权重 ×（1 + 0.15 × affinity 计数），上限钳制 + **双向保护：非主流流派基础权重不归零**；**权重模块收敛数据层，禁散落各调用点**）+ T3 开放条件（流派已解锁 ≥6 件 T1/T2 才开放 T3 概率，与 C 项 affinity_tag>=N 联动）+ 洗点事件（10 事件池新增 1-2 节点：重置/转移亲和，events.json 扩展 + Day 16 事件面板消费）。流派规划：移速流为示例，攻速流/肉坦流（耗死 Boss）/元素流/召唤流同构，由执行批按 O-4 自由规划（池子分层收敛天然规避稀释）。
+- **风险**：**中高**（核心新机制，横切数据/权重/事件/存档多域）。双向保护与上限钳制为必选项（防玩家锁死单一流派 / 防权重单调爆炸）；affinity 默认不可改（选择有重量），仅事件洗点可动。
+- **验证**：新建 `tools/day31_relic_affinity_check.gd`（≥14 断言：白盒注入 affinity 断言权重排序 / 未解锁 T3 时 T3 权重≈0 / 解锁后恢复 / 非主流不掉出池 / 洗点事件在位）+ 回归 + PLAYTEST 主观登记（「选择塑造掉落池」体感）。
+
+### 任务8：RELIC-EXIT 总收口
+
+- **验证**：全批探针全绿（day31_relic_name/data/boss_rhythm/harvest/affinity）+ 全量回归 **62 件套 ≥1534 断言** + baseline **BASELINE CLEAN** + Excel --check-only 通过 + PLAYTEST 主观项登记（套装手感 / 图鉴收集动力 / 流派树体感 / 宝箱成就感 / Boss 节奏，交 #5）+ TECH_DEBT_ISSUES 新债登记（如有）。
+
+### 任务9：F1-E 第四批 FX 表现抽表（F1-E-4-1~4 + EXIT）——方案锚定维持 · 挂账观察
+
+- **现状**：拆解就绪（#2 第 60 轮 `afc5ba6`）+ 方案锚定（方案师第 30 轮实测复核锚点逐一一致）；**本轮 git 实测确认批四仍未开工**（最近 12 提交 = RELIC 拆解 / F-45×3 / F-46 / 各岗 docs，无 fx_config sheet / get_fx_config / vfx_player 改读）→ **挂账观察维持（跨 2 轮）**，承接方 = 🏠 主窗口/总指挥。
+- **硬门槛**（不变）：day23_vfx_check §1 零改动（FX_CONFIG const 兜底）+ 抽表零数值变化 + 回归 **62 件套 · 1534 断言**；EXIT 口径 = day31_presentation ≥286（273+13）+ baseline CLEAN。
+- **验证/承接**：沿用前三批范式（Excel fx_config 10 行 × 6 列 → data_schema 注册 → excel_export 构建 → get_fx_config → vfx_player.set_effect 改读 const 兜底），每任务一收口 commit 带 F1-E-4 编号。
+
+### 任务10：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出）。D30-T3 上传 [ ] = 等 Owner 明确确认（目标资产库 + build/ 替换）；D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘（#61 已在途）+ 最终标记。build/ 已由 `5fd5bda` 补冻，旧观察关闭；**⚠️ F-45/F-46 未进 build/**（pck 仍 08-18 19:56 早于 `bdd3ed5`/`5556cb3` → 手感/追踪验证需最新代码或下次打包，交 Owner/总指挥核实）。
+- **风险**：低（无机器侧开发任务）。**验证**：Owner 确认后由 #3/#4 收口，回归 62 件套 + baseline CLEAN 为发布门禁口径。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| RELIC-A | 低 | id 零改动零连锁；desc_builder「工程」≠stats「工程学」先统一；数据文案三 JSON grep 全覆盖 |
+| RELIC-0 | 中 | 六点数据面最广；day30_save_compat 14/14 + day27_meta 35/35 零改动硬门槛；set_effects 分隔串定案 |
+| RELIC-F | 中 | 公平底线公式 + BS 探针 49/49/48/48 零改动；替代 = 数据灰度先行（权重/比率键）再动站定逻辑 |
+| RELIC-E | 中 | 判通零影响（overlay 叠加层替代，F-39 教训）；MAX_RELICS=2 满槽三选一处理明确；SFX_MAP 零删改红线 |
+| RELIC-B | 中 | max_health 比例乘法防负值；装备反馈不可缺（否则玩家感知不到构筑转换） |
+| RELIC-C | 中 | 解锁判定集中一处；掉落池过滤双池同步防泄露 |
+| RELIC-D | 中高 | 核心新机制横切多域；权重模块收敛 + 双向保护 + 上限钳制必选；替代 = 分两阶段（先权重后事件洗点） |
+| F1-E-4 | 低 | day23_vfx_check 零改动 + 抽表零数值；**唯一风险 = 承接方持续未开工（跨 2 轮挂账观察）** |
+| D30-T3/EXIT | 低 | Owner/#4 域；F-45/F-46 未进 build 交 Owner/总指挥核实 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 批五~七**（SHEET_CONFIG → 初始武器 → 炮台默认）：沿前四批范式 + 各批先例推进，承接方开工时按需拆解。
+- **F-46（怪物追踪重写 + HUD 分数制）**：用户直派已落地（`5556cb3` 闭环：探针 22/22 + 17/17 + 回归 62/62 全绿）——非本岗方案对象；真人回归（Leash 锁链手感 / Orbit 环绕观感 / 分数制 UI）交 #5。
+- **PS-EXIT / E-0 终审完整局 / AF-P0 主观回归 / F-45 手感三面 / F-40~F-46 目视**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-43 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md`（顶部新第 31 轮段，历史段完整保留）+ 在 `docs/TASKS.md` 标注（RELIC 区块「方案已定」+ F1-E-4 第 31 轮观察 + Day 30 标题 + 第 31 轮）。工作区在途 docs/TEST_REPORT.md（#4）不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-18 20:4x · 方案师第 30 轮 · F1-E 批四 FX 方案锚定 + 遗物扩展新规格登记）
 
 ## 📌 本轮判定（方案师第 30 轮）
@@ -225,3 +328,26 @@
 5. **维持登记**：F1-E 批四 FX（F1-E-4-1~4+EXIT）总指挥/主窗口承接（硬门槛 = day23_vfx_check 零改动 + 回归 62 件套 1534 断言）；批五~七（SHEET_CONFIG→初始武器→炮台默认）沿范式推进；RELIC_EXPANSION_SPEC 待 #2 下轮（22:05）优先拆解评估排期（方案师预判独立目标日 Day 31+，A 项 O-1 命名候选待用户拍板）；D30-T3 上传 + D30-EXIT = Owner/#4 域；PS-EXIT/E-0/AF-P0 主观回归交 #5。
 
 **下轮观察点**：① 总指挥/主窗口是否开工 F1-E 批四 FX（git log 出现 fx_config sheet / get_fx_config / vfx_player set_effect 改读 / day31_presentation +§6 fx 段）② #2 第 61 轮（22:05）是否对 RELIC_EXPANSION_SPEC 完成拆解（含 A 项 O-1 两态）③ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口 ④ #4 #61 快照刷新后 runner/day26 锚点是否漂移（62/1534 口径）。
+
+---
+
+# 执行结果（2026-08-18 22:5x · 执行者第 62 轮 · F-46 锚点同步 + 核实确认轮）
+
+## 📌 本轮判定（执行者第 62 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #85 · 22:4x 反馈专员）**：用户 08-18 22:2x 直派四问题 **F-46 已由 `5556cb3` 落地**（Aggro Leash 战斗锁链 >420px + ranged Orbit 收敛环绕 + HUD 分数制「已击杀/本关总生成」+ 精英/Boss 技能频率核查=成熟节奏无需调；探针 flee **22/22**（+§5 leash 4）+ day18 **17/17**（+§4 分数制 3）+ **全量回归 62/62 全绿**）——主观回归面已登记表格行，🔴 **P0 无新增机器可验证项** / 🟠 无新用户拍板调度指令需本岗处理。
+>
+> **三方一致核实（通过）**：方案师第 31 轮（22:4x）**RELIC 方案正式定稿**（实测复核锚点：stats.json .stats.offensive[2]/.stats.economy[3] + desc_builder.gd:32-33 + items relic 2 件 + data_loader:437 范式 + save_system 缺省容错）→ 承接方 = 总指挥/主窗口按执行序推进（**独立目标日 Day 31+，不插入 D30 收尾窗口**）；F1-E 批四 FX **跨 2 轮挂账观察维持**（git 实测 HEAD=`144b2bb` 最近 12 提交无 fx_config/get_fx_config/vfx_player 改读）；D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域（F-45/F-46 未进 build 交 Owner/总指挥核实）；TEST_REPORT #61（22:00）= **62/62 · 1534 断言首跑全绿 · 0 action item**（快照 HEAD=`980aa7d`，其后 F-45×3/F-46/#2/#1/反馈专员提交未覆盖，属 #4 下轮 #62 快照域）。
+>
+> **锚点漂移识别（本轮实质产出）**：F-46（`5556cb3`，5 文件未含 `_regression_run.py`/`day26_integration_check.gd`）使两探针断言数变化但 runner 元数据与 day26 锚点未同步——day31_flee_bound_check 实际 **22**（runner expect=18）/ day18_feedback_check 实际 **17**（runner expect=16）→ 62 项合计实际 1539 vs day26 锚点 1534（软判掩盖、口径失真，第 55/57/59 轮「探针断言数变化必须同步 runner + day26」纪律触发）。
+
+**执行结果：[完成]（纯工具侧锚点同步 · 零游戏代码/零数据改动）**
+
+1. **runner 元数据同步**：`tools/_regression_run.py` day18_feedback_check expect **16→17**（F-46 §4 分数制）+ day31_flee_bound_check expect **18→22**（F-46 §5 Aggro Leash），附注释。
+2. **day26 锚点连锁同步**：`day26_integration_check.gd` 期望断言合计 **1534→1539**（1534 + flee §5 4 + day18 §4 1，62 项不变），注释链同步（历史第 55/57/59 轮先例）。
+3. **验证**：检查点 `36ba86f`（2 文件 +9/-5）→ day26 探针单独 **34/34 CLEAN**（62 项/1539 锚点 PASS）→ **全量回归 62/62 PASS（EXIT=0）**。
+4. **git 护栏**：`excel_export --check-only` EXIT=0（时间戳刷新 manifest/DATA_OVERVIEW/GameData.xlsx 随挂账惯例入库）。
+5. **挂账入库（随收口 commit）**：方案师第 31 轮挂账（SOLUTION_PLAN 顶部新段 + TASKS RELIC「方案已定」标注 + F1-E-4 第 31 轮观察）+ #4 在途 TEST_REPORT §7.61（完整报告非半截）。
+6. **维持登记**：F1-E 批四 FX 挂账（跨 2 轮，承接方 = 总指挥/主窗口按 F1-E-4 拆解推进勿再等）；RELIC 方案已定（承接方 = 总指挥/主窗口，首拆 RELIC-A 属性改名独立低成本批，A 项 O-1 已拍板：元素伤害→魔法伤害/工程学→机械学，id 零改动）；D30-T3 上传 + D30-EXIT = Owner/#4 域（F-45/F-46 未进 build）；PS-EXIT/E-0/AF-P0/F-45/F-46 主观回归交 #5。
+
+**下轮观察点**：① 总指挥/主窗口是否开工 F1-E 批四 FX（git log 出现 fx_config sheet / get_fx_config / vfx_player set_effect 改读 / day31_presentation +§6 fx 段）② 总指挥/主窗口是否开工 RELIC-A（git log 出现 stats sheet 改名「魔法伤害/机械学」/ day31_relic_* 探针）③ Owner 是否确认 D30-T3 上传 + D30-EXIT 收口（含 F-45/F-46 是否进 build）④ #4 #62 快照刷新后 runner/day26 锚点是否漂移（62/1539 新口径）⑤ F-46 主观回归面（Leash 锁链手感 / Orbit 环绕观感 / 分数制 UI）交 #5。

@@ -12,12 +12,12 @@
 
 ## 📌 顶部摘要（滚动 · #6 每轮刷新 · 其他岗位只读本区）
 
-- **最近轮次 #60（08-18 20:25 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1534 断言首跑全绿**（扩容轮：HEAD=afc5ba6 +8 提交含实质游戏代码——F1-E3 BGM/SFX 抽表 + AF-M1 CC0 音乐 + F-44 逃离修复 + build 补冻；#59 间歇 flaky 已根治、两条观察兑现关闭）
+- **最近轮次 #61（08-18 22:00 · 自动化测试）**：✅ PASS · 0 阻断 / 0 功能缺陷；回归 **62/62 · 1534 断言首跑全绿（74s）**（F-45 手感三连修复验证轮：HEAD=980aa7d，bdd3ed5 顿帧调小/震屏收紧/命中特效渐隐，用户 08-18 直派，零回归实证）
 - **基线**：`BASELINE CLEAN` ｜ JSON **16 文件** · **2723 数值字段**零缺陷｜场景 **25/25** ｜ 600帧 EXIT 0、stderr **242B 音频良性**
-- **探针回归**：**62/62（1534 条登记期望）0 FAIL / 0 script_errors**；stderr 全历史口径（presentation 354B 音频波动+1 主动；flee_bound 242B 纯音频首记录；spawner_deadlock 5440B 维持；day24_f13 1220B±1B 波动）
-- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**afc5ba6**（#2 第60轮回执，F1-E 批四 FX 已拆解待执行）
-- **在途 action item（0 项）**：工作区仅 1 个未跟踪 docs 文件（非本岗）；本轮新增 docs/TEST_REPORT.md §7.60（本岗报告未 commit）
-- **观察**：#59 两条观察已由 498a836 兑现关闭（presentation expect 同步 + day5 flaky 根治）；build/ 已补冻（5fd5bda RELEASE OK）；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-01~F-43 全链 + AF-P0 主观面待真人回归
+- **探针回归**：**62/62（1534 条登记期望）0 FAIL / 0 script_errors**；stderr 仅 2 项良性变化（feel 372→130B F-45 同步更干净；day24_f13 1220→860B get_node ERROR 未触发回纯泄漏口径）
+- **数据与运行时**：`qa_validate.py` 报 DATA LAYER CLEAN；39 负值、0 非豁免零伤害、2 个 Boss `-1` 哨兵、crit 越界 0；HEAD=**980aa7d**（F-45 已入库，F1-E 批四 FX 已拆解待执行）
+- **在途 action item（0 项）**：工作区仅 docs/GameData.xlsx（M，F-45 Excel 产物，非本岗）；本轮新增 docs/TEST_REPORT.md §7.61（本岗报告未 commit）
+- **观察**：F1-E 批四 FX 待执行；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-01~F-44 全链 + AF-P0/F-45 主观面待真人回归
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3685,6 +3685,36 @@ stderr 仅 `day7_weapon_data_check.gd` 有 124B WARNING（`[IconAtlas] 索引越
 - 无新增 action item；工作区在途仅 1 个未跟踪 docs 文件 + 本岗报告 docs/TEST_REPORT.md §7.60（历史惯例由后续岗/收口处理）。
 
 **✅ 2026-08-18 20:25 自动化测试轮次 #60：PASS（62/62，0 阻断 / 0 功能缺陷）。** 扩容轮验证：HEAD=afc5ba6（F1-E3 BGM/SFX 抽表 + AF-M1 CC0 + F-44 逃离修复 + build 补冻，+8 提交），16 张数据表（2723 字段）与 25 个场景验证通过，62 件套 1534 条登记断言首跑全绿（#59 间歇 flaky 已根治，两条观察兑现关闭），600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
+
+---
+
+## §7.61 轮次 #61 · 2026-08-18 22:00（自动化测试 · F-45 手感三连修复验证轮）
+
+**验证快照 = HEAD=980aa7d（反馈专员 #83）+ 工作区在途仅 docs/GameData.xlsx（M，F-45 Excel stats_feel 数据驱动产物，非本岗）**。HEAD 链（较 #60 的 afc5ba6 +6 提交，含实质游戏代码）：`d82a4c2`（执行者第 61 轮核实确认：P0 无新增 + 62 件套 1534 断言口径三方一致 + excel_export --check-only 验证）→ `b922200`（#1 进度第 64 轮）→ `a8eee1e`（执行者第 61 轮 SOLUTION_PLAN 挂账）→ `086b27a`（反馈专员 #82：F-44 护栏复跑闭环 + TEST_REPORT #60 核查）→ `bdd3ed5`（**F-45 手感三连修复 · 用户 08-18 直派**：顿帧四档调小 0.15/0.05/0.1/0.15→0.03/0.02/0.02/0.06（Excel stats_feel 数据驱动，低频无感、高频节奏顿挫）+ 震屏条件收紧（普攻命中零震屏，projectile 仅 se_skill 技能弹丸震 / melee_sweep 删命中震屏；击杀 medium/heavy + 玩家受伤 light 保留）+ hit 命中特效手感覆盖（scale 0.6 调小 + alpha 0.55 半透明 + 播完 0.25s 渐隐，FX_FEEL_OVERRIDE 独立配置 FX_CONFIG 10 键零改动）+ day31_feel_check 断言同步）→ `980aa7d`（反馈专员 #83 落地登记）。本轮仅测试与报告，未修改游戏逻辑。
+
+### 1. 结论
+
+**PASS（0 阻断 / 0 功能缺陷 / action item 0 项新增）。** 62 件套回归 **62/62 全 PASS（1534 条登记断言）首跑即全绿（74s）**；**F-45 手感三连修复实证零回归**（day31_feel_check 26/26 断言同步后通过，vfx/attack/presentation/flee 护栏全绿）。游戏本体各检查全绿，stderr 0 游戏侧 SCRIPT ERROR。
+
+### 2. 校验结果
+
+- **Godot baseline**：`tools/baseline_check.py` import/runtime 均 PASS，`BASELINE CLEAN`，退出码 0，stderr 0B/0B。
+- **600 帧深度运行**：退出码 0；stderr **242B** = 音频退出良性泄漏（ObjectDB + 1 resource，历史常态口径）。
+- **数据层**：`data/*.json` **16/16 解析 OK**；`qa_validate.py`：characters=10、weapons=36、items=54、events=10、enemies=23、waves=20，数值字段 **2723**（与 #60 持平零变更——F-45 仅改 stats.json stats_feel 4 值不改字段数；qa_validate 未覆盖 stats_feel 语义但 runner feel 26/26 已行为级收口），39 负值均为既有惩罚/诅咒设计，非豁免零伤害 0，Boss `total_enemies=-1` 哨兵 2，crit 越界 0；`DATA LAYER CLEAN`。
+- **跨引用**：0 硬悬空；characters→weapons 10/10。
+- **场景 smoke**：`scenes/*.tscn` **25/25 load + instantiate 成功**，退出码 0；stderr 242B 良性，**0 SCRIPT ERROR**（临时 smoke 文件 os.remove 清理无残留）。
+- **探针回归**：`tools/_regression_run.py` **62/62 PASS（1534 条登记期望），0 FAIL / 0 script_errors，首跑即全绿（74s）**。
+
+### 3. WARNING / 观察
+
+- **stderr 口径与 #60 基本一致，仅 2 项良性变化，无新增异常**：**day31_feel_check 372B→130B**（F-45 断言同步后更干净：1 主动 hitstop 超限兜底 push_warning 保留、音频叠加消失，26/26 断言全过）；**day24_f13 1220B→860B**（3× C++ get_node 绝对路径 ERROR 本轮未触发——探针实例化路径时序差异，回到 #31 时代 859B+1B 纯泄漏 minor 口径，同方法学已知项非缺陷）；day31_presentation **354B**（1 主动「未知 SFX」兜底 + 音频波动，273 断言维持）；day31_flee_bound 242B 纯音频维持；day31_spawner_deadlock **5440B** 维持；day31_skill_icon 363B=1 主动越界保护；day16 796B=4 主动防御分支；其余全历史口径（day18_fb 626B/day18_fb5 621B/day21_22 564B/day18_fb2 571B/day27_meta 496B/day31_skill_movement 489B/day30_f2_boundary 473B/day26 402B/day11_12 660B/day20 941B/day28_f31 920B/day30_boss_skill 368B/day7 366B/day23_vfx 367B/day10 374B/day14_15 373B/day4 344B/day30_f1d 358B/day18_19 359B/day29_attack 362B/day24_audio 456B/纯音频 242B 组）。
+- **观察项维持**：F1-E 批四 FX 函数级已拆解（afc5ba6）待执行；MainMenu 待真人确认；Day 28 性能段与 PS-D 章末 Boss 映射冲突待决；E-0 终审 + F-01~F-44 全链 + AF-P0 打击感主观面真人回归面待办（不阻塞机器侧）；F-45 手感主观面（顿帧节奏/震屏/渐隐）待真人试玩确认。
+
+### 4. action item（0 项新增）
+
+- 无新增 action item；工作区在途仅 docs/GameData.xlsx（M，F-45 Excel 数据驱动产物，非本岗）+ 本岗报告 docs/TEST_REPORT.md §7.61（历史惯例由后续岗/收口处理）。
+
+**✅ 2026-08-18 22:00 自动化测试轮次 #61：PASS（62/62，0 阻断 / 0 功能缺陷）。** F-45 手感三连修复验证轮：HEAD=980aa7d（较 #60 +6 提交，bdd3ed5 F-45 顿帧/震屏/命中特效三连修复），16 张数据表（2723 字段）与 25 个场景验证通过，62 件套 1534 条登记断言首跑全绿（F-45 零回归实证），600 帧深探 stderr 242B 音频良性，0 游戏侧 SCRIPT ERROR。
 
 ---
 
