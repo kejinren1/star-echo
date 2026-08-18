@@ -233,3 +233,15 @@
 - **#3 执行者**：F1-E-4-2 → 4-3 → 4-4 → EXIT（DataLoader get_fx_config → vfx_player set_effect 消费改读 → day31_presentation_check +§6 fx 段 ≥13 断言 → 回归 62 件套 1534 断言 + baseline + T-019 收口 + F1-E 行 4/7）；RELIC 全批次（A 先行 → 0 → F/E → B/C/D → EXIT）；LEVEL_DESIGN_SPEC（#2 00:05 拆解后）。
 - **#2 拆解**：LEVEL_DESIGN_SPEC 函数级拆解（00:05，D-014 决策点已拍板不阻塞）。
 - **待 Owner**：D30-T3 上传（外部动作）；E-0/PS-EXIT/AF-P0 真人回归；F-45/F-46/F-48 手感与修复验证（build/ 未含最新三连，需复测或下次打包）。
+
+---
+
+## 2026-08-18 23:2x · 第 6 轮续（用户对话指令：build/ 替换常设授权）
+
+### 决策 D-016：build/ 替换 + 旧版本归档 = 常设授权，不再询问（用户 23:2x 拍板）
+
+- **内容**：用户指令「这种 build 保存的，后续你不需要问我。你做出新版本之后，直接把旧版本的保存，然后替换掉就可以了」→ **本地 build/ 替换 + 旧版本归档 = 自主执行常设授权**：
+  1. 每次产出新版本 → 先归档当前 build/ 旧产物（日期命名 `RoguelikeStudio_YYYYMMDD[_HHMM]_archive.exe/.pck`，同日期多版加时间戳防冲突）→ 再导出替换 `RoguelikeStudio.exe/.pck` → verify RELEASE OK → 有需要时同步 build.zip。
+  2. **上传到外部资产库/平台仍留 Owner**（真正的外部世界动作，红线不变）。
+- **本轮立即执行**：F-45/46/47/48 四连修复未进 build/（pck 19:56 早于 `bdd3ed5`/`5556cb3`/`bb0faaf`/`a58d28f`）→ 归档旧版 `RoguelikeStudio_20260818_1956_archive`（md5 与旧版一致已验证）→ `build_release.py --zip` 导出 HEAD=`2aeb717`（含 F-45 手感三连 + F-46 追踪重写 + F-47 第五关卡关 + F-48 最后敌人 + F1-E-4-1 数据侧）→ verify 结果待确认。
+- **结果**：D30-T3「build/ 替换待 Owner 确认」阻塞解除（本地部分）；D30-EXIT 仍待 #4 发布摘要落盘。

@@ -2430,12 +2430,12 @@
 - [x] 产物校验：确认 exe/pck/zip 齐全、Godot 导出无 `script_error`/import 错误、版本号与冻结 commit 一致；运行 `tools/baseline_check.py` 不作为导出成功的唯一依据，必须结合启动检查。（总指挥 22:12 校验：三件齐全 + 导出日志零 addons/零用户参考图 + 启动 EXIT 0 + manifest 记录冻结 commit）
 - [x] 资产清单校验：只校验发布所需文件是否存在、路径大小写与引用一致；不新增美术、不做精修、不将 `ART/RAW` 输入区或 `.workbuddy` 纳入产物。（**发现并修复 2 个打包卫生问题**：① export_presets.cfg `exclude_filter="addons/*, docs/*, tools/*"` 中 `*` 不跨目录 → 改 `**`（addons/godot_mcp 曾被打包）；② 用户参考图目录 `0815立绘风格、画风示例/` 缺 `.gdignore` → 21 个 webp 曾被打包，已补 .gdignore（与 测试立绘/星骸回响_AI美术资产_v2 一致）。复导出清单 400 文件全部为游戏资源：scripts 134/assets 99/scenes 25/data 15 + .godot 导入缓存 124（正常纹理缓存））
 - [x] 生成发布 manifest（commit、构建时间、文件 hash、Godot 版本、兼容矩阵摘要）；manifest 先落临时导出目录，确认后再归档到项目发布记录。（`%TEMP%\star_echo_release_20260817_2210\release_manifest.json` 已生成）
-- [ ] 上传属于外部动作，必须先获得 Owner 明确确认并核对目标资产库；无确认/无连接时只完成本地校验，不上传。（✅ 未上传，等待 Owner 确认——保持 [ ] 待 Owner 拍板）
+- [ ] 上传属于外部动作，必须先获得 Owner 明确确认并核对目标资产库；无确认/无连接时只完成本地校验，不上传。（**上传外部资产库仍保持 [ ] 待 Owner 拍板**——用户 2026-08-18 23:2x 已授权的是**本地 build/ 替换 + 旧版本归档**（D-016），上传属真正外部动作红线不变）
 - **验收证据**：✅ manifest + hash 清单 + 明确"未上传，等待 Owner 确认"；失败回滚点 = 保留本地临时产物，禁止删除现有稳定 `build/`（未触发）。
 
 #### D30-EXIT【W5】发布准备收口
 - [~] 三批次均有证据且无阻断；更新 `docs/TEST_REPORT.md` 发布验证摘要与 `docs/PLAYTEST_CHECKLIST.md` 主观开放项，不将人工试玩项伪装成机器 PASS。（T1/T2/T3 本地部分证据齐备；TEST_REPORT 发布摘要待 #4 下轮或收口轮落盘）
-- [ ] 仅在 Owner 明确确认后，将临时导出产物复制/替换到 `build/` 并执行上传；替换前保留旧 `build/` 可回退副本。（外部动作，等待 Owner 确认）
+- [ ] 仅在 Owner 明确确认后，将临时导出产物复制/替换到 `build/` 并执行上传；替换前保留旧 `build/` 可回退副本。（**✅ 本地 build/ 替换部分已获用户常设授权（2026-08-18 23:2x · D-016）：新版本产出后自动归档旧版（`RoguelikeStudio_YYYYMMDD[_HHMM]_archive`）+ 导出替换，不再询问；上传外部部分仍等 Owner 确认**）
 - [ ] `python tools/baseline_check.py` + 导出产物启动检查 + manifest hash 三者一致后，标记 Day 30 发布准备完成。（本地三项已一致，待 Owner 确认上传后收口）
 
 ---
