@@ -170,16 +170,19 @@ func _create_enemy(enemy_id_raw: String, wave: int, special: Variant) -> Node:
 ## PS（2026-08-17 用户拍板 · 大地图）：原「全视口随机」在玩家远离竞技场中心时会把敌人
 ## 生成到墙外 → 改为以玩家为中心、±半视口矩形内随机，并钳制回竞技场内
 func _get_random_spawn_position() -> Vector2:
-	var viewport_size := get_viewport_rect().size
 	var min_dist: float = 110.0   # 离玩家的最小刷新距离，防止一出生就贴脸
 	var player_pos := Vector2.ZERO
 	if GameManager.player:
 		player_pos = GameManager.player.global_position
-	# 多次尝试既在玩家周围视口内、又离玩家足够远的点
+	# F-48（2026-08-18 用户反馈「最后一个敌人死活不出现」）：生成矩形收紧为 ±200×±120
+	# （原 ±半视口 320×180：玩家站竞技场角落时生成点落在「视口外但 < 原 leash 420」的
+	#  死角 → 玩家找不到 → 打不死 → 关卡卡死）。收紧后生成点必在玩家视野内
+	# （320 半宽 × 180 半高内），配合 Aggro Leash 320 双保险：任何离玩家 >320px 的怪
+	# （生成/被击退/漂移）都强制直追回视野
 	for i in range(40):
 		var pos := Vector2(
-			player_pos.x + randf_range(-viewport_size.x * 0.5, viewport_size.x * 0.5),
-			player_pos.y + randf_range(-viewport_size.y * 0.5, viewport_size.y * 0.5)
+			player_pos.x + randf_range(-200.0, 200.0),
+			player_pos.y + randf_range(-120.0, 120.0)
 		)
 		if pos.distance_to(player_pos) >= min_dist:
 			return _clamp_to_ground(pos)

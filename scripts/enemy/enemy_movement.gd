@@ -20,8 +20,11 @@ extends Node
 const EnemyEnums: GDScript = preload("res://scripts/enemy/enemy_enums.gd")
 
 ## F-46：Aggro Leash 战斗锁链半径（px）——与玩家距离超过此值 → 无视行为强制直追。
-## 420px ≈ 屏幕半宽(320)+余量，保证怪永不出玩家视野可战范围（成熟方案：aggro leash）
-const LEASH_RADIUS: float = 420.0
+## 320px = 视口半宽（640×360 视口）——**怪距玩家 >320 即超出玩家视野**（竞技场 1536×864
+## 比视口大 2.4 倍，场内远端不可见），leash 保证怪永远在玩家可战视野内。
+## 08-18 F-48 修正：原 420px > 视口半宽 → 生成在「视口外但 <420」死角的怪（玩家站竞技场
+## 角落时）玩家找不到 → 「最后一个敌人死活不出现」→ 关卡卡死（成熟方案：aggro leash ≤ 视野）
+const LEASH_RADIUS: float = 320.0
 
 ## 宿主 enemy 实例（enemy._ensure_components 挂载时注入）
 var _enemy: CharacterBody2D = null
