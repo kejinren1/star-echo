@@ -33,7 +33,7 @@
 | T-017 | enemy.gd:32-42 | BEHAVIOR_MAP（行为字符串→枚举） | ✅ 已收口(F1-E 第二批 2026-08-18 执行者 `b410a8b`) | F1 |
 | T-018 | audio_manager.gd:8-23 | BGM_MAP / SFX_MAP | ✅ 已收口(F1-E 第三批 2026-08-18 总指挥) | F1 |
 | T-019 | vfx_player.gd:17-29 | FX_CONFIG（特效帧配置） | ✅ 已收口(F1-E 第四批 2026-08-19 #3 执行：fx_config sheet 10 键 → get_fx_config → set_effect 改读，const 兜底) | F1 |
-| T-020 | icon_atlas.gd:8-24 | SHEET_CONFIG（图标帧数） | F1-E 主窗口承接 | F1 |
+| T-020 | icon_atlas.gd:8-24 | SHEET_CONFIG（图标帧数） | ✅ 已收口(F1-E-5 2026-08-19 · #3 `d990eca`/`057e493`/`3388901`/`5b92fd3`：icon_config 表 3 行 + get_icon_config + _resolve_icon_config 消费改走，const 兜底保留) | F1 |
 | T-021 | player.gd:56-74 | STAT_MAP 17 键 vs items.json 39 键（P0-Bug2 已修收口，余无消费方键另登记） | 已收口(F0) | 已修 |
 | T-022 | hud.gd:240-245 | SKILL_ICON_MAP（技能 id→图标帧索引） | ✅ 已收口(F1-E-6 2026-08-19 · #3 `3b3aff8`/`20b03f9`：skill_icon_map 独立表 5 行 + get_skill_icon_index + hud 消费改走，const 兜底保留) | F1 |
 | T-023 | route_generator.gd:24-40 / base_station.gd:9-13 | 默认参数 + RESEARCH_ITEMS（研究倍率与 game_manager.gd:705-718 重复） | F1-E 主窗口承接 | F1 |
