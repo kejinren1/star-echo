@@ -97,6 +97,9 @@ PROBES = [
     # spawn_points/boss_phase_events 两新表导出 + 三接口 + FK 数据侧合法性 + waves 示例填值
     # + §6 LD-B 出生点消费白盒（2026-08-19 · edge/anchor/ring 三型 + 轮换/随机/兜底 + clamp）
     ("day31_level_design_data_check", ["--script", "res://tools/day31_level_design_data_check.gd"], 36),
+    # RELIC-A 同步（2026-08-19 #3 执行 · 方案师第 31 轮 · O-1 拍板）：属性命名去土豆兄弟化
+    #   stats 两属性名（元素伤害→魔法伤害 / 工程学→机械学 id 零改动）+ desc_builder STAT_CN + data 文案零残留
+    ("day31_relic_name_check", ["--script", "res://tools/day31_relic_name_check.gd"], 15),
 ]
 
 

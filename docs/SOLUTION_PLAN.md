@@ -1,3 +1,61 @@
+# 方案计划（2026-08-19 18:4x · 方案师第 38 轮 · 阶段 F 实测真全闭确认（7/7 🎉 · 第 37 轮「6/7 更正」挂账解除）+ 无新任务需方案化 + RELIC 跨 8 轮 / LD-C·E 跨 4 轮挂账观察 + D-26 回归阻塞/build 观察维持）
+
+## 📌 本轮判定（方案师第 38 轮）
+
+> **高峰检查**：18:37 不在 09-12/14-18 高峰 → 正常执行。
+>
+> **P0 检查（PLAYTEST 追踪区增量 #89 之后无新增量 · 反馈专员 4h 轮 14:38 轮 git 无 #90 提交 = 空转零产出符合 D-018）**：F-45~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域（非机器可执行）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需纳入本轮**。
+>
+> **git 实测**：HEAD=`e31e0bc`（#1 进度分析第 72 轮 · 18:0x；第 37 轮方案后 +5 = `899c526` #2 第 68 轮回执（**F1-E 批五收口确认 + 阶段 F 真全闭 🎉 + T-020 转已收口 + 349/349 + RELIC 跨 7 轮/LD-C·E 挂账维持 + D-26 回归阻塞维持 + 登记无待拆不空转**）+ **#3 执行者 F1-E 批五全收口 5 commits**：`d990eca` 5-1（GameData.xlsx +icon_config sheet 3 行 + data_schema 注册 + excel_export presentation 第 7 键，其余 15 JSON 零 diff）/ `057e493` 5-2（get_icon_config 懒加载 + _icon_map 缓存，仿 get_fx_config 范式）/ `3388901` 5-3（IconAtlas _resolve_icon_config 静态新范式消费改读 + SHEET_CONFIG const 兜底）/ `5b92fd3` 5-4（day31_presentation +§10 icon 段 15 断言 → **334→349/349** + runner expect 334→349 + day26 锚点 1662→**1677**）/ `d03750e` 5-EXIT（**F1-E 行 7/7 批 = 阶段 F 真全闭 🎉 + T-020 转已收口** + SOLUTION_PLAN 底部第 68 轮执行结果：回归 59/64 挂 D-26 零新增 + BASELINE CLEAN））+ `e31e0bc` #1 第 72 轮确认（批五补做全收口确认 + 磁盘实测 7 键齐 + 消费端 5 文件命中 + 阶段 F 实测真全闭🎉 + 第 71 轮 6/7 计数偏差挂账解除））；**工作区在途 = 用户会话美术资产（lain 动画帧 ×8 + art_ai 工具 ×5 + `player_anim.gd`/`sprite_frame_factory.gd` M = **D-26 回归阻塞源** + 人物动画/ 未跟踪目录）+ `docs/TEST_REPORT.md` M（#4 在途）——非本岗改动面，红线内不碰**。
+>
+> **本轮核心产出 = 阶段 F 实测真全闭确认（无新任务需方案化）**：
+> 1. **F1-E 批五 SHEET_CONFIG 收口确认（上轮「名义 7/7 实为 6/7」更正挂账解除）→ 阶段 F 实测真全闭 7/7 🎉**：`d990eca`~`d03750e` 5 commits 全 [x]（icon_config 3 行抽表 + get_icon_config 懒加载 + IconAtlas 消费改读 + §10 探针 15 断言 349/349 + EXIT）；**方案师第 37 轮 5 处锚点更新全部由实际执行兑现**（files dict 第 7 键 / data_schema 注册 :285+ / data_loader _icon_map :41+·get_icon_config :716+ / 探针段号 §10 / 回归 64 件套 1662→1677）；#1 第 72 轮磁盘实测确认（presentation.json 7 键齐 + 消费端 5 文件命中）→ **30 天计划 Day 1-30 客观任务 + 阶段 F 技术债全部客观收口，F1-E 行 7/7 批标记成立**；
+> 2. **回归硬门槛口径更新 = 64 件套 · 1677 锚点**（批五收口 day26 1662→1677；**当前 59/64 5 FAIL = D-26 用户会话在途 `set_frame_offset`（Godot 4.4 API · 4.3 无此方法）误用**，D-020 不代修待收口，TEST_REPORT #68（18:00）确认与 #63~#67 同根因零新增——**所有挂账批次 EXIT 门槛统一挂 D-26 复跑恢复 64/64 后全绿**）；
+> 3. **无新任务需方案化**：F1-E 全 7 批收口无后续批次；RELIC（方案已定第 31 轮）+ LEVEL_DESIGN（方案已定第 32 轮）均为「拆解+方案齐备」状态**不重写**；D30 尾项纯 Owner/#4 域无方案 → **本轮为状态确认轮 + 挂账刷新**（与第 28/29 轮先例一致）。
+
+## 当前开发日：Day 31（RELIC + LEVEL_DESIGN 同窗口 · 承接方 #3 · 方案已定不重写）
+
+### 任务1：RELIC 遗物扩展全批——挂账观察（跨 8 轮）
+
+- **现状**：方案已定（SOLUTION_PLAN 第 31 轮，锚点实测复核：stats.json .stats.offensive[2]/.stats.economy[3] + desc_builder.gd:32-33 硬编码映射 + items relic 2 件 + data_loader:437 范式 + save_system 缺省容错）；**本轮 git 实测确认仍零开工**（HEAD=`e31e0bc` 无 day31_relic_*/stats 改名提交）→ **挂账观察（跨 8 轮）**，承接方 = #3 执行者（D-015 交接 + 用户 08-18 23:1x 拍板「拆解+方案齐备即开工」）。
+- **执行序**（第 31 轮定案不变）：RELIC-A（独立低成本先行）→ RELIC-0（数据地基）→ RELIC-F/E（P0 独立）→ RELIC-B/C/D（依赖 0）→ RELIC-EXIT；⚠️ F-49 传送门+宝箱地基已落地（`4f1e791`），RELIC-E 落地时宝箱奖励升级三选一零重做（#2 第 66 轮已加注 RELIC-E1 行衔接）。
+- **风险**：低-中（方案已定；唯一风险 = 承接方持续未开工——#3 近 8 轮优先推进 LD-A/B + F1-E 批五~七且已全收口，本窗口 RELIC 与 LD-C 均解锁可直接开工，执行序由 #3 排）。
+
+### 任务2：LEVEL_DESIGN LD-C/E/D——挂账观察（LD-C 跨 4 轮）
+
+- **现状**：LD-A（`96e4cd5`）+ LD-B（`b213296`）双收口（LD-A-EXIT/LD-B-EXIT [~] 仅回归挂 D-26）；**LD-C（Boss 演出）/ LD-E（attr）/ LD-D（可选）仍 [ ] 零开工**（git 无 boss_phase_player.gd/attr 分支提交）→ **挂账观察（LD-C 跨 4 轮）**，承接方 = #3 执行者（方案已定 SOLUTION_PLAN 第 32 轮，锚点复核 9 项一致不重写）。
+- **执行序**（第 32 轮定案不变）：LD-C Boss 演出（boss_phase_events 表消费，硬门槛 day18_19 48/48 + day30_boss_skill 49/49 零改动）→ LD-E attr 正向状态（5 旧类型行为零漂移 + attr 纯新增分支）→ LD-D 特殊波可选挂 TECH_DEBT_PLAN（D-014 拍板）。
+- **风险**：中（消费端 + 演出面）；方案已定不重写。
+
+### 任务3：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出）。D30-T3 上传 [ ] = 等 Owner 明确确认（目标资产库，上传属真正外部动作红线不变）；D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘 + 最终标记。
+- ⚠️ **build/ 观察维持**：08-18 23:22 产物（`2aeb717`：含 F-45~48 + F1-E-4-1，**不含其后 F-49 + F1-E-4 消费端 + LD-A/B + 批五/六/七**）→ 传送门/宝箱/批四抽表/LD/批五~七验证需最新代码或下次打包（D-016 授权自动替换已生效，等 #3/总指挥产出新版本后归档重导出，全程不再询问）。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| 阶段 F 全闭确认 | 低 | 7/7 批实测收口（`d990eca`~`d03750e` + 磁盘 7 键齐 + 349/349）；上轮 6/7 更正挂账解除 |
+| RELIC 全批 | 低-中 | 方案已定（第 31 轮）；唯一风险 = 承接方未开工（**跨 8 轮挂账观察**） |
+| LD-C/E/D | 中 | 方案已定（第 32 轮）；唯一风险 = 承接方未开工（**LD-C 跨 4 轮挂账观察**） |
+| D-26 回归阻塞 | 低 | 59/64 5 FAIL 与 #63~#68 同根因（用户会话在途 4.4 API 误用）零新增；D-020 不代修待收口，复跑恢复 64/64 后各批 EXIT 门槛解冻 |
+| D30-T3/EXIT | 低 | Owner/#4 域；build/ 08-18 23:22 不含 F-49 + F1-E-4 消费端 + LD-A/B + 批五~七 交 Owner/总指挥 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 全 7 批**：已收口（批五 `d03750e` EXIT 后阶段 F 真全闭 7/7）——非本岗方案对象。
+- **RELIC / LD-C·E·D 方案**：已定（SOLUTION_PLAN 31/32 轮）不重写，执行按 31/32 轮执行序。
+- **F-49（传送门+宝箱）**：已落地（`4f1e791` 闭环 + day31_portal_check 24/24）——非本岗方案对象；RELIC-E 落地时宝箱奖励升级三选一（本机制为地基）。
+- **F-45~F-49 主观回归面 / E-0 终审完整局 / AF-P0 / PS-EXIT**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-44 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md`（顶部新第 38 轮段，历史段完整保留）+ 在 `docs/TASKS.md` 标注（Day 30 区第 68 轮确认块后补方案师第 38 轮确认块 + F1-E-5 段头补第 38 轮收口确认）。工作区在途用户会话美术资产（lain 帧/AI 美术工具/2 脚本 M = D-26 阻塞源）+ #4 TEST_REPORT.md 不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-19 12:4x · 方案师第 37 轮 · F1-E 批七收口确认（阶段 F 名义全闭更正 6/7）+ 批五 SHEET_CONFIG 方案锚点复核更新（批六/七收口后 5 处漂移修正 · files dict 现 6 根键 → icon_config = 第 7 键）+ RELIC 跨 6 轮/LD-C·E 挂账观察）
 
 ## 📌 本轮判定（方案师第 37 轮）
@@ -1060,3 +1118,19 @@
 - **执行登记 0 处**：批五全程严格按第 33 轮方案 + 第 37 轮锚点执行，无方案未覆盖副作用。
 - **维持登记**：**RELIC 全批**（跨 7 轮挂账，第 31 轮定案）= #3 承接（执行序 RELIC-A→0→F/E→B/C/D→EXIT）；**LD-C（Boss 演出）/ LD-E / LD-D**（第 32 轮定案，LD-B 已收口解锁）= #3 承接；D30-T3 上传 + D30-EXIT = Owner/#4 域。**回归口径更新 = 64 件套 · 1677 断言**（F1-E-5 §10 并入）。**阶段 F 至此真全闭 7/7（批一~批七全收口）**。
 - **下轮观察点**：① 用户会话是否收口 D-26 → 复跑回归恢复 64/64（阶段 F EXIT 门槛解冻）② RELIC-A（stats 改名 + day31_relic_name）是否开工 ③ LD-C（boss_phase_events 消费）是否开工 ④ Owner 是否确认 D30-T3 上传 + D30-EXIT ⑤ #4 快照后 runner/day26 锚点漂移（64/1677 新口径）。
+
+---
+
+# 执行结果（2026-08-19 18:5x · #3 执行者第 69 轮 · RELIC-A 属性命名去土豆兄弟化全收口 = RELIC 批首收口）
+
+**状态：完成 · commit ×2（`765e3bc` A1+A2 数据+展示侧 / `A3+EXIT` 探针+runner+day26 锚点+收口挂账）· push 待执行**
+
+- **高峰检查**：18:37 不在 09-12/14-18 → 正常执行。
+- **P0 检查**：增量 #89 后无新增量（#1 第 72 轮 `e31e0bc` 同口径）→ 无 P0 需执行。
+- **方案核实（三方一致）**：方案师第 31 轮 RELIC 正式方案（任务1 RELIC-A 实测复核锚点）+ TASKS RELIC-A1~A3/EXIT 拆解段 + git HEAD=`e31e0bc`（F1-E 批五已由第 68 轮 `d03750e` 收口 = 阶段 F 真全闭）→ **本轮执行 = RELIC-A（跨 7 轮挂账首收口，执行序 A→0→F/E→B/C/D→EXIT）**。
+- **A1 数据侧 + A2 展示侧（`765e3bc`，9 文件）**：① Excel stats sheet B11「元素伤害」→「魔法伤害」/ B21「工程学」→「机械学」（id 零改动）+ characters 艾琳/诺亚 growth.description 两处 + elements 燃烧/中毒 effect 属性名引用两处 → 导出 stats/characters/elements 三 JSON 仅文案变（id/scaling_attr/base 零改动），其余 16 JSON 零 diff（waves.json `=harvesting_stat` WPS 公式规范化连带 = ebdac5e 先例同构，`harvesting_bonus` 零消费点）② desc_builder.gd STAT_CN 两键同步（elemental_damage→魔法伤害 / engineering→机械学，统一 3 字消除既有「工程」2 字不一致）③ data_schema.py 4 处 column label 同步（成长系数/成长每级 label 含旧属性名 = 工具侧展示一致性，A2 grep 零残留测试点覆盖）④ grep 零残留核对：data/*.json 零展示残留 + scripts 仅 skill_controller.gd:227 注释白名单（方案明示注释除外）。
+- **A3 探针 + runner + day26（本 commit）**：新建 `tools/day31_relic_name_check.gd` **15/15**（§1 stats 两 name 新值 + base 保持 + 全量零残留 / §2 desc_builder STAT_CN / §3 attribute_controller 源码 `"elemental_damage"` id 锚点——**不 preload attribute_controller（引用 Autoload 编译失败 = 探针三坑①，改读源码文本断言**）/ §4 characters 两处 / §5 elements 两处 effect + scaling_attr id 零改动）；runner PROBES +1 → **65 件套**，expect 15；day26 锚点 **1677→1692**（34/34 全绿）。
+- **护栏全绿**：回归 **60/65**（5 FAIL = day2_hero/day3_skill/day5_weapon/day31_charsel/day31_player_model 全部 script_errors=4 根因 = D-26 用户会话在途 `set_frame_offset` 4.4 API 误用，与第 68 轮 FAIL 清单**完全一致零新增**，D-020 不代修待收口）+ day31_relic_name 15/15 + day26 34/34（1692 锚点）+ baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0。
+- **执行登记 2 处（方案未点名面，均先例同构）**：① **elements.json effect 文本属性名引用同步**（方案点名 characters/items/weapons 三 JSON，elements 两处「元素伤害×0.2」为属性名展示残留且「元素反应内部机制名不动」仅指机制名 → 同步为「魔法伤害」，scaling_attr id 零改动）② **data_schema.py column label 同步**（工具侧 DATA_OVERVIEW 中文对照含旧属性名，属 A2「grep 零残留」测试点覆盖）。另登记：weapons.json:485 实为 scaling 键（属性 id 不可改，非文案残留——方案行号标注漂移）；items.json 无展示残留（拆解「多行」已漂移）；waves.json WPS 公式连带（先例）。
+- **维持登记**：**RELIC-0（数据地基）→ RELIC-F/E → RELIC-B/C/D → EXIT**（RELIC-A 收口解锁，下一批 = RELIC-0 数据层地基，前置批 B/C/D 全依赖）= #3 承接；**LD-C（Boss 演出）/ LD-E / LD-D** = #3 承接；D30-T3 上传 + D30-EXIT = Owner/#4 域。**回归口径更新 = 65 件套 · 1692 断言**（RELIC-A +15 并入）。
+- **下轮观察点**：① 用户会话是否收口 D-26 → 复跑回归恢复 65/65（RELIC-A EXIT 门槛解冻）② RELIC-0 数据地基是否开工（items relic +5 列 + 套装/流派占位 + get_relic_defs + meta 两键）③ LD-C 是否开工 ④ Owner 是否确认 D30-T3 上传 + D30-EXIT ⑤ #4 快照后 runner/day26 锚点漂移（65/1692 新口径）。
