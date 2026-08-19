@@ -8,11 +8,18 @@ extends Node2D
 
 const ProjectileScene: PackedScene = preload("res://scenes/Projectile.tscn")
 
+## F1-E-7（2026-08-19 #3 执行 · T-024）：炮台默认值兜底——原 :13-15 字段声明
+## 默认值 + setup() 装载兜底两处散落硬编码的收敛事实源；现值与 weapons 表
+## se_auto_turret 行（damage 5 / cooldown 0.5 / range 220）一致，实际运行时
+## 默认值优先读 Excel turret_config 表（DataLoader.get_turret_config 命中），
+## 未命中/空表/无 DataLoader → 本 const 兜底（F 系列缺省兜底约定）。
+const TURRET_DEFAULTS := {"damage": 5.0, "fire_interval": 0.5, "attack_range": 220.0}
+
 # ========== 属性（setup 时从武器数据装载） ==========
 
-var damage: float = 5.0              ## 单发伤害
-var fire_interval: float = 0.5       ## 开火间隔（= cooldown）
-var attack_range: float = 220.0      ## 射程
+var damage: float = TURRET_DEFAULTS["damage"]              ## 单发伤害
+var fire_interval: float = TURRET_DEFAULTS["fire_interval"] ## 开火间隔（= cooldown）
+var attack_range: float = TURRET_DEFAULTS["attack_range"]   ## 射程
 var duration_left: float = 15.0      ## 存活剩余（技能 duration）
 var duration_max: float = 15.0       ## T-C：初始存活时长（生命周期进度条比例基准）
 var permanent: bool = false          ## D13-T3：常驻模式（duration <= 0，不消亡）
@@ -29,16 +36,29 @@ var _warn_timer: float = 0.0         ## T-C：最后 3 秒闪烁计时
 ## 由 SkillController._cast_deploy_turret 调用：装载数值 + 绘制占位外观
 ## D13-T3：duration <= 0 → 常驻模式（permanent=true，不递减时长不消亡）
 func setup(weapon_data: Dictionary, duration: float, owner_player: Node2D) -> void:
-	damage = float(weapon_data.get("damage", 5.0))
-	var cooldown: float = maxf(float(weapon_data.get("cooldown", 0.5)), 0.01)
+	var defaults: Dictionary = _resolve_turret_defaults()
+	damage = float(weapon_data.get("damage", defaults.get("damage", TURRET_DEFAULTS["damage"])))
+	var cooldown: float = maxf(float(weapon_data.get("cooldown", defaults.get("fire_interval", TURRET_DEFAULTS["fire_interval"]))), 0.01)
 	fire_interval = cooldown
-	attack_range = float(weapon_data.get("range", 220.0))
+	attack_range = float(weapon_data.get("range", defaults.get("attack_range", TURRET_DEFAULTS["attack_range"])))
 	permanent = duration <= 0.0
 	if not permanent:
 		duration_left = maxf(duration, 0.1)
 		duration_max = duration_left
 	player = owner_player
 	_draw_placeholder()
+
+## F1-E-7（2026-08-19 #3 执行 · T-024）：炮台默认值解析——presentation.json
+## turret_config（经 DataLoader.get_turret_config）命中 se_auto_turret 优先；
+## 未命中/空表/无 DataLoader → 回退 TURRET_DEFAULTS const 兜底
+## （F 系列缺省兜底约定，仿 vfx_player._resolve_fx_config 范式）。
+func _resolve_turret_defaults() -> Dictionary:
+	var loader: Node = get_node_or_null("/root/DataLoader")
+	if loader != null and loader.has_method("get_turret_config"):
+		var cfg: Variant = loader.get_turret_config().get("se_auto_turret", null)
+		if cfg is Dictionary and not (cfg as Dictionary).is_empty():
+			return cfg
+	return TURRET_DEFAULTS
 
 ## 运行时绘制占位方块 + 炮管（对齐 projectile._make_bullet_texture 的运行时生成范式）
 func _draw_placeholder() -> void:
