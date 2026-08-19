@@ -39,6 +39,8 @@ var _skill_icon_map: Dictionary = {}    ## F1-E-6：技能图标映射抽表（p
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _turret_map: Dictionary = {}        ## F1-E-7：炮台默认值抽表（presentation.json turret_config，懒加载；
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
+var _icon_map: Dictionary = {}          ## F1-E-5：图标集帧配置抽表（presentation.json icon_config，懒加载；
+                                        ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _spawn_points: Dictionary = {}      ## LEVEL_DESIGN（LD-A3 2026-08-19）：固定出生点表
                                         ## （spawn_points.json，懒加载；空字典 = 未加载/缺失，
                                         ## is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
@@ -712,6 +714,28 @@ func get_turret_config() -> Dictionary:
 		if raw is Dictionary and (raw as Dictionary).get("turret_config") is Dictionary:
 			_turret_map = (raw as Dictionary)["turret_config"]
 	return _turret_map
+
+# ========== 图标集帧配置接口（F1-E-5 第五批 · 2026-08-19 #3 执行） ==========
+
+## 获取图标集帧配置（presentation.json icon_config 优先——原 icon_atlas.gd const
+## SHEET_CONFIG 数据化；未命中/空表由消费端 IconAtlas 回退 const 兜底，
+## F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 命中 → {path, frame_count, frame_size: Vector2i}（frame_size JSON → Vector2i
+## 组装，仿 get_fx_config :670-682 先例）；数据表缺失/损坏或 sheet_name
+## 未命中 → 空字典（消费端 const 兜底，零崩）。
+func get_icon_config(sheet_name: String) -> Dictionary:
+	if _icon_map.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/presentation.json"))
+		if raw is Dictionary and (raw as Dictionary).get("icon_config") is Dictionary:
+			_icon_map = (raw as Dictionary)["icon_config"]
+	var cfg: Variant = _icon_map.get(sheet_name, null)
+	if cfg is Dictionary:
+		var out: Dictionary = (cfg as Dictionary).duplicate()
+		var fsz: Variant = out.get("frame_size", null)
+		if fsz is Dictionary:
+			out["frame_size"] = Vector2i(int((fsz as Dictionary).get("x", 0)), int((fsz as Dictionary).get("y", 0)))
+		return out
+	return {}
 
 # ========== 关卡设计接口（LEVEL_DESIGN · LD-A3 2026-08-19 · 规格 LEVEL_DESIGN_SPEC.md） ==========
 
