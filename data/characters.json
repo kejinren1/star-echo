@@ -156,7 +156,7 @@
           "elemental_damage": 2,
           "fire_damage_percent": 3
         },
-        "description": "火焰伤害成长：每级 +2 元素伤害 / +3% 火焰伤害"
+        "description": "火焰伤害成长：每级 +2 魔法伤害 / +3% 火焰伤害"
       },
       "passive": {
         "elemental_damage": 8,
@@ -194,7 +194,7 @@
       },
       "growth": {
         "type": "summon_count",
-        "description": "召唤数量成长：每 5 级 +1 召唤上限，每级 +2 工程学",
+        "description": "召唤数量成长：每 5 级 +1 召唤上限，每级 +2 机械学",
         "per_level": {
           "engineering": 2
         },

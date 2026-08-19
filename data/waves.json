@@ -490,7 +490,6 @@
   },
   "rewards": {
     "wave_complete_base": "5 + wave * 2",
-    "harvesting_bonus": "=harvesting_stat",
     "kill_bonus": "kill_count * 1 (elite * 3, boss * 50)"
   }
 }

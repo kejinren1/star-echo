@@ -62,7 +62,7 @@
       },
       {
         "id": "elemental_damage",
-        "name": "元素伤害",
+        "name": "魔法伤害",
         "name_en": "Elemental Damage",
         "base": 0
       },
@@ -131,7 +131,7 @@
       },
       {
         "id": "engineering",
-        "name": "工程学",
+        "name": "机械学",
         "name_en": "Engineering",
         "base": 0
       },
