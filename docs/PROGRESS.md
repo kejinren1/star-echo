@@ -9,10 +9,10 @@
 
 ## 📌 顶部摘要（滚动 · #1 每轮刷新 · 其他岗位只读本区）
 
-- **目标开发日**：Day 30+（收尾 & 独立目标日窗口）｜ 实际重心 = **F1-E 批五 SHEET_CONFIG 补做全收口（5 commits）→ 阶段 F 实测真全闭 🎉（7/7 批，跨 4 轮计数偏差解除）** ｜ **整体进度 ≈99.7%**（Day 等效 29.98/30）｜ 超前 ≈22 开发日
-- **阶段完成度**：A/B/C/D 100% ｜ **E ≈90%**（Day 27/28 各 1.0 + Day 29 0.6 待真人 + D30 挂 Owner 域）；**F1-E 7/7 批实测全闭**（`d990eca`~`d03750e` 批五 5 commits：presentation.json 7 键齐含 icon_config + get_icon_config 消费端 5 文件落地，第 71 轮「6/7 偏差」挂账解除）；**LEVEL_DESIGN 批 A `96e4cd5` + 批 B `b213296` 双收口**（批 C/E/D 待 #3 承接）；**RELIC 跨 7 轮挂账**
-- **基线**：⚠️ **回归阻塞挂账（D-020）**——TEST_REPORT #67（12:00）= **64 件套 59/64**（1662 期望，未含批五 1677 新锚点），5 FAIL（day2/day3/day5/charsel/player_model）全由**用户会话在途 D-26 动画改动 set_frame_offset（Godot 4.4 API · 4.3 无此方法）**引入（断言 0 失败仅 SCRIPT ERROR，复跑 ×7 累计稳定）；总指挥拍板**不代修待会话收口复跑**；`BASELINE CLEAN` · JSON **18 文件** · **2846** 数值字段零缺陷 · 场景 25/25
-- **本轮要点**：git 实测 HEAD=`d03750e`（#3 批五补做 EXIT 收口，总 ≈319 提交）——`d990eca`~`d03750e` **5 commits 全收口**（icon_config 抽表 3 行 + get_icon_config 懒加载 + IconAtlas 消费改读 + day31_presentation +§10 icon 段 15 断言 → **探针 349/349 + runner 64 件套 1677 锚点**；回归 59/64 挂 D-26 零新增 + BASELINE CLEAN；`d03750e` 标 **F1-E 7/7 批 = 阶段 F 真全闭🎉** + 方案师第 37 轮 6/7 更正解除）；磁盘实测确认批五落地（7 键齐 + 消费端 5 文件命中）；TEST_REPORT #67（12:00，#4 写盘 M 未提交）= 64 件套 59/64 同根因；⚠️ 工作区**用户会话在途 20 项**（lain 帧 + make_* 工具 + 人物动画//摩托车/ + **2 游戏脚本 M = 5 FAIL 根因，不碰**）+ docs/TEST_REPORT.md M（#4 在途）；build/ 维持 08-18 23:22（缺 F-49+LD+批五~七）；下段推进线 = **RELIC 序 A → LD-C → AUDIO_FEEL P1**；👤 真人回归面 = **E-0 终审 + F-01~F-49 全链 + F-45~49 新五面 + LD-B 出生点 + AF-P0 + PS-EXIT + MainMenu + #73 build/ 复测**（不阻塞机器侧）。
+- **目标开发日**：Day 30+（收尾 & 独立目标日窗口）｜ 实际重心 = **RELIC 遗物扩展批 A 收口（`765e3bc` 属性命名去土豆兄弟化 + `74ad1fd` A3+EXIT）→ 跨 7 轮挂账部分解除** ｜ **整体进度 ≈99.8%**（Day 等效 29.99/30）｜ 超前 ≈22 开发日
+- **阶段完成度**：A/B/C/D 100% ｜ **E ≈90%**（Day 27/28 各 1.0 + Day 29 0.6 待真人 + D30 挂 Owner 域）｜ **F1-E 7/7 批实测全闭**（`d03750e` 批五 SHEET_CONFIG 补做，真全闭）｜ **LEVEL_DESIGN 批 A `96e4cd5` + 批 B `b213296` 双收口**（批 C/E/D 待 #3）｜ **RELIC 批 A 收口**（day31_relic_name_check 15/15 + runner 64→65 件套 + day26 锚点 1677→1692；剩余 0→F/E→B/C/D→EXIT 已拆已定案待 #3）
+- **基线**：⚠️ **回归阻塞挂账（D-020）**——TEST_REPORT #68（18:00，快照 `d03750e`）= **64 件套 59/64**（1677 期望），5 FAIL（day2/day3/day5/charsel/player_model）全由**用户会话在途 D-26 动画 set_frame_offset（Godot 4.4 API · 4.3 无此方法）**引入（断言 0 失败仅 SCRIPT ERROR，复跑累计 ×8 稳定）；总指挥拍板**不代修待会话收口复跑**；`BASELINE CLEAN` · JSON **18 文件** · **2861** 数值字段零缺陷 · 场景 25/25 · 600帧 EXIT 0
+- **本轮要点**：git 实测 HEAD=`74ad1fd`（#3 RELIC-A3+EXIT 收口，总 325 提交）——自第 72 轮 +3 commits（#2 `899c526` 拆解回执 + #3 `765e3bc`/`74ad1fd`）：Excel stats 两行 name 去土豆兄弟化（元素伤害→魔法伤害 / 工程学→机械学，id 零改动）+ characters/elements 文案 + desc_builder STAT_CN + **day31_relic_name_check 15/15** + runner 64→65 件套 + day26 锚点 1677→1692（34/34）+ **回归 60/65**（5 FAIL = D-26 零新增）+ TASKS RELIC-A1~EXIT 全 [x]；⚠️ 工作区**用户会话在途 20 项维持**（lain 帧 + make_* 工具 + 人物动画//摩托车/ + **2 游戏脚本 M = 5 FAIL 根因，不碰**）+ docs/TEST_REPORT.md M（#4 在途）；build/ 维持 08-18 23:22（缺 F-49+LD+RELIC-A）；下段推进线 = **RELIC 批 0 → LD-C → AUDIO_FEEL P1**；👤 真人回归面 = **E-0 终审 + F-01~F-49 全链 + F-45~49 新五面 + LD-B 出生点 + AF-P0 + PS-EXIT + MainMenu + #73 build/ 复测**（不阻塞机器侧）。
 - **历史详情守护者 = #2 拆解岗**：其他岗位不得整篇通读本文件，需要历史细节时按关键词 grep 定位
 
 ---
@@ -3991,3 +3991,15 @@
 #3 是否开 **RELIC-A / LD-C / AUDIO_FEEL P1**；#4 是否 commit #67 + 快照 `d03750e`（1677）；**用户会话是否收口**（→ 回归恢复 64/64，D-020 解除）；build/ 是否重打（D-016 自动）；PLAYTEST 是否有新增量（#90）。⚠️ 5 FAIL 系在途代码非探针缺陷，勿误判为 #3 回归倒退。
 
 > 本轮仅修改进度记录，未修改游戏代码、场景、脚本或数据文件。
+
+---
+
+## 2026-08-19 20:00（第 73 轮 · RELIC 批 A 收口确认 → 遗物扩展挂账部分解除 🎉）
+
+- 20:00 不在高峰，正常执行。HEAD=`74ad1fd`（#3 RELIC-A3+EXIT 收口，18:45，总 325 提交）。自第 72 轮（`e31e0bc`）后 +3 commits：#2 `899c526`（第 68 轮拆解回执）+ #3 `765e3bc`（RELIC-A1+A2）+ `74ad1fd`（RELIC-A3+EXIT）。
+- **RELIC 批 A 全收口（跨 7 轮挂账部分解除🎉）**：① `765e3bc` A1+A2 属性命名去土豆兄弟化——Excel stats 两行 name（元素伤害→魔法伤害 / 工程学→机械学，id 零改动）+ characters/elements 文案同步 + desc_builder STAT_CN 两键同步（统一机械学消除 2/3 字不一致）+ data_schema label 同步 + 导出三 JSON 仅文案变其余零 diff（执行登记：elements effect 文本属性名引用同属展示残留，方案点名三 JSON 实测补一处）；② `74ad1fd` A3+EXIT——day31_relic_name_check 15/15（§1 stats 两 name 新值 + base 保持 + 全量零残留 / §2 desc_builder STAT_CN / §3 attribute_controller 源码 id 锚点（不 preload 引用 Autoload = 探针三坑①）/ §4 characters 两处 / §5 elements effect+scaling_attr id 零改动）+ runner 64→65 件套 expect 15 + day26 锚点 1677→1692（34/34）+ **回归 60/65**（5 FAIL = D-26 用户会话在途零新增）+ TASKS RELIC-A1~EXIT 全 [x] + SOLUTION_PLAN 第 69 轮执行结果。剩余批 0→F/E→B/C/D→EXIT 已拆已定案，待 #3 续推（F-49 宝箱地基已就绪零重做）。
+- 基线：TEST_REPORT #68（18:00，#4 写盘 M 未 commit，快照 `d03750e` 未含 RELIC）= 64 件套 59/64（1677 期望）+ 5 FAIL 同根因（D-26 在途 set_frame_offset 4.4 API，复跑累计 ×8 稳定，断言 0 失败仅 SCRIPT ERROR）· `BASELINE CLEAN` · JSON 18 文件 2861 数值字段零缺陷（批五 icon_config +15）· 场景 25/25 · 600帧 EXIT 0 stderr 0B。
+- 工作区在途 20 项维持（**2 游戏脚本 M = D-26 根因** player_anim.gd / sprite_frame_factory.gd + art_ai 工具 perfect_pixel_noCV2.py M + lain 帧/锚点 json/工具 ?? + 人物动画//摩托车/ 目录，一律不碰）；docs/TEST_REPORT.md M（#4 在途）。
+- 整体 ≈99.8%（29.99/30，RELIC-A 收口微涨），A/B/C/D 100%、E ≈90%、F1-E 7/7 实测全闭、LD 批 A+B 双收口、超前 ≈22 日。
+- 开放项：**回归阻塞 D-020（5 FAIL 挂账，EXIT 门槛统一等用户会话收口复跑，目标 65/65 含 RELIC 新件套）**；RELIC 剩余批 0/F/E/B/C/D/EXIT（批 A 已落地）；LEVEL_DESIGN 批 C/E/D；AUDIO_FEEL P1 批；Owner（D30-T3 上传 / 冻结 HEAD 补冻）；#4 提交 #68 + 下轮快照 `74ad1fd`（65 件套 1692 锚点）；build/ 08-18 23:22 旧包；真人回归面（E-0 最高优先 + F-01~F-49 + F-45~49 + #73 build/ 复测）。
+- 已提交 PROGRESS.md（摘要刷新 + 文末第 73 轮条目）；未修改游戏代码/场景/脚本/数据。下轮复核：#3 是否开 RELIC-0 / LD-C / AUDIO_FEEL P1；#4 是否 commit #68 + 快照 `74ad1fd`（1692）；**用户会话是否收口**（→ 回归恢复 65/65，D-020 解除）；build/ 是否重打（D-016 自动）。⚠️ 5 FAIL 系在途代码非探针缺陷，勿误判为 #3 回归倒退。
