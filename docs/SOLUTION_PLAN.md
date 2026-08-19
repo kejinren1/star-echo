@@ -1,3 +1,88 @@
+# 方案计划（2026-08-19 08:4x · 方案师第 36 轮 · F1-E 批七 炮台默认值方案锚点复核更新（批六收口后 4 处漂移修正 · files dict 现 5 根键 → 批七 = 第 6 键）+ 批六收口确认 + 批五实锤未落地（跨 3 轮）+ RELIC/LD-C·E 挂账观察）
+
+## 📌 本轮判定（方案师第 36 轮）
+
+> **P0 检查（PLAYTEST 追踪区增量 #89 之后无新增量 · 反馈专员 4h 轮：02:38 空转零产出符合 D-018，06:38 轮 git 无 #90/#91 提交 = 同样空转零产出）**：F-45~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域（非机器可执行）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需纳入本轮**。
+>
+> **🟠 关键调度输入（批七方案第 35 轮已入库 · 本轮 = 锚点复核更新）**：`15390de` 已把方案师第 35 轮批七正式方案挂账入库（F1-E-7 段「✅ 方案已定（SOLUTION_PLAN.md 第 35 轮）」）；其后 `9a6fb40` #1 第 70 轮实测修正 **F1-E 批标记 6/7→5/7**（批五 SHEET_CONFIG 未落地：get_icon_config 零命中 / presentation.json 无 icon_config 键）；`6df9f8a` #2 第 66 轮确认批六收口 + 批七已拆已定案待 #3（跨 1 轮挂账）+ RELIC 跨 5 轮/LD-C·E 挂账维持 + F-49 地基衔接加注（RELIC-E1 行）。→ **本轮方案师按纪律对批七方案做批六收口后的锚点复核更新（漂移 4 处修正，方案本身仍以第 35 轮为唯一事实源），供 #3 直接执行**。
+>
+> **git 实测**：HEAD=`6df9f8a`（#2 第 66 轮 · 08:05；第 35 轮方案后 +6 = **#3 执行者 F1-E 批六全收口 6 commits**：`38f7c2e` 6-1 T-004 数据侧（starting_gun 行入表，projectile_speed/lifetime 两键不进表按第 34 轮裁决）/ `80fc19d` 6-2 T-004 消费端（build_weapon_from_data 装配 + 补设 360/1.5 + shop.gd 排除 starting_gun 防商店池 23→24）/ `3b3aff8` 6-3 T-022 skill_icon_map 数据侧（5 行 + data_schema 注册 + files dict 第 6 键）/ `20b03f9` 6-4 T-022 消费端（get_skill_icon_index + hud 改读 const 兜底）/ `c2b5a0e` 6-5 探针（§7 +17 + §8 +13 → **316/316**，runner expect 286→316，**day26 锚点 1614→1644**，day7/day8 豁免占位初始枪）/ `15390de` EXIT（6/7 批标记 + T-004/T-022 转收口 + 第 35 轮方案挂账入库））+ `9a6fb40` #1 第 70 轮（5/7 修正）+ `6df9f8a` #2 第 66 轮）；**工作区在途 = 用户会话美术资产（lain 动画帧 ×8 + art_ai 工具 ×4 + `player_anim.gd`/`sprite_frame_factory.gd` M = **D-26 回归阻塞源**）+ `docs/TEST_REPORT.md` M（#4 在途）——非本岗改动面，红线内不碰**。
+>
+> **锚点实测复核结论（本轮核心产出 · 与第 35 轮方案对照，批六收口后漂移 4 处修正 + 路径 1 处补全）**：
+> 1. **零漂移确认 5 项**：① `scripts/weapons/turret.gd` 字段声明默认值 **:13-15**（damage=5.0 / fire_interval=0.5 / attack_range=220.0）+ `setup()` 装载兜底 **:31-35**（:32 damage / :33 cooldown **`maxf(..., 0.01)` 钳制** / :34 fire_interval=cooldown / :35 range），:3 注释「禁止硬编码」原样 ② `scripts/player/skill_controller.gd` `_cast_deploy_turret` **:243-280**（:245 summon_id 默认 se_auto_turret / :246 get_weapon / :255 duration skill 域 / :268/:277 world.spawn_turret 透传）③ **world.gd 路径补全 = `scripts/world/world.gd`** `spawn_turret` :104-112（第 35 轮方案未带完整路径，:104 声明 / :109-110 setup 透传，一致）④ `tools/day13_build_check.gd` 炮台段 6b **:629-657**（:631 函数体 + :654-657 3 台临时/常驻断言）⑤ weapons se_auto_turret 数值 **damage=5 / cooldown=0.5 / range=220 零漂移**；
+> 2. **漂移修正 4 处（批六落地所致）**：① **weapons.json se_auto_turret 行号 :2668-2673 → :2680-2690**（starting_gun 行插入 +12；id :2680 / damage 5 :2685 / cooldown 0.5 :2686 / range 220 :2687）② **data_schema.py fx_config 注册 :261-262 保持** + **skill_icon_map 注册 :270-271 已落地（批六）** → **turret_config 注册追加在 skill_icon_map 后（现约 :272+）**，按实位追加勿覆盖 ③ **excel_export.py files dict 现于 :525（非 :512）· 现 5 根键** `{"enemy_sprites", "behavior_map", "audio_map", "fx_config", "skill_icon_map"}`（**无 icon_config = 批五未落地实锤**；skill_icon_map 构建段 :513-523 仿写范式）→ **批七 turret_config = 第 6 键（非第 35 轮方案的「第 7 键」——该假设基于批五先落地，实际批五未落地）**；⚠️ 若 #3 在批七前先行补批五（icon_config），files dict 先变 6 键，批七再追加第 7 键，两种顺序均按「追加勿覆盖既有键」执行 ④ **day31_presentation_check 当前 316/316（批六收口后，非 307）** → 批七 +§9 turret 段 ≥8 断言 → **≥324/324**；runner expect 同步 316→324；
+> 3. **回归硬门槛口径更新 = 64 件套 · 1644 锚点**（批六收口 day26 锚点 1614→1644；当前 59/64 5 FAIL = D-26 用户会话在途 `set_frame_offset` Godot 4.4 API 误用，D-020 不代修待收口，批七 EXIT 以 D-26 复跑恢复 64/64 全绿为准）。
+>
+> **结论**：① **F1-E 批七 = 本轮锚点复核更新主产出**（方案唯一事实源 = SOLUTION_PLAN 第 35 轮 + 本轮 4 处漂移修正，承接方 = #3 执行者，执行序 7-1→7-2→7-3→7-4→EXIT 每任务一收口 commit 带 F1-E-7 编号，**批七收口 = 阶段 F 全闭 7/7**）；② **F1-E 批六收口确认**（`38f7c2e..15390de` 6 commits 全 [x]，316/316，T-004/T-022 转已收口）→ 上轮「跨 1 轮挂账」**解除**；③ **F1-E 批五 SHEET_CONFIG 实锤未落地**（#1 第 70 轮修正 5/7 + 本轮 data_schema/excel_export 实测无 icon_config）→ 挂账观察（**跨 3 轮**，自第 33 轮方案起）；④ **RELIC 全批零开工（跨 5 轮）**挂账维持；⑤ **LD-C/E/D 已拆已定案（第 32 轮）待 #3** 维持；⑥ D30-T3 上传 + D30-EXIT = 纯 Owner/#4 域维持；⚠️ **build/ = 08-18 23:22 产物（`2aeb717`：含 F-45~48 + F1-E-4-1，不含其后 F-49 + F1-E-4 消费端 + LD-A/B + 批六）** → 交 Owner/总指挥（传送门/宝箱/批四抽表/LD/批六验证需最新代码或下次打包）。
+
+## 当前开发日：Day 31（LEVEL_DESIGN + RELIC 同窗口 · F1-E 批七承接方 #3 · 拆解 `5981262` F1-E-7 段唯一事实源 · 方案 = 第 35 轮 + 本轮锚点修正）
+
+### 任务1：F1-E-7-1【W2】turret_config 抽表（数据侧）· 风险：低
+
+- **改动**：① `docs/GameData.xlsx` 新增 `turret_config` sheet（**1 行 × id/damage/fire_interval/attack_range 双行表头**：id = se_auto_turret（与 weapons 表炮台武器键一致）；**damage = 5.0 / fire_interval = 0.5 / attack_range = 220.0 与 turret.gd:13-15 现值逐一一致**；⚠️ fire_interval 语义 = cooldown（= 开火间隔），Excel 列名与 TURRET_DEFAULTS const 键一致防消费端映射漂移）② `tools/data_schema.py` 注册 `turret_config`（file: presentation.json / root: "turret_config" / kind: "dict" / key: id / json_cols: []，仿 fx_config 实位 :261-262 先例）——**⚠️ 锚点修正：现 fx_config :261-262 后已有 skill_icon_map 注册 :270-271（批六落地），turret_config 追加在其后（现约 :272+），按实位追加勿覆盖** ③ `tools/excel_export.py` presentation 构建段（skill_icon_map 段 :513-523 后）追加 turret_config 解析（id 主键 → {damage, fire_interval, attack_range} **数值 coerce float**，仿 fx_config 段）——**⚠️ 锚点修正：files dict 现于 :525 且 5 根键（enemy_sprites/behavior_map/audio_map/fx_config/skill_icon_map，无 icon_config = 批五未落地）→ 批七 turret_config = 追加第 6 键（非第 7 键；若先行补批五 icon_config 则第 7 键，追加勿覆盖既有键）** ④ 导出 → presentation.json +turret_config 1 项，**其余 16 JSON 零 diff 断言**（前六批先例）。
+- **风险**：**低**。数据面常规（1 行 sheet + 注册 + 构建三小点）；硬门槛 = turret_config 三键数值与 turret const 现值零漂移 + 其余 16 JSON 零 diff。⚠️ **WPS 锁坑**：Excel 被 WPS 打开时导出写回总览报 PermissionError（F1-G-尾教训），执行者注意。
+- **验证**：excel_export --check-only EXIT=0 + JSON 校验通过 + turret_config 1 键齐 + 三键数值与 turret.gd:13-15 现值一致（零漂移）+ 其余 16 JSON 零 diff。
+
+### 任务2：F1-E-7-2【W1】DataLoader 接口 · 风险：低
+
+- **改动**：`scripts/autoload/data_loader.gd` 新增 `get_turret_config() -> Dictionary`（懒加载 presentation.json turret_config 缓存 + `_turret_map` 空表标记仿缓存字段区（:36 后，**is_empty 重试标记 F3 §4 禁新增 bool**）；命中 → 整表返回 {id: {damage, fire_interval, attack_range}}；未命中/损坏 → 空字典，仿 get_fx_config :661-683 范式）。
+- **风险**：**低**。纯新增接口，无既有消费面。
+- **验证**：白盒读 get_turret_config → "se_auto_turret" 键齐 + 三值正确（5.0/0.5/220.0）；改 Excel fire_interval → 导出 → 返回值变化（端到端双跑，F1-散 §1 先例）→ 强制改回重导出；删表行/损坏 → 空字典零崩。
+
+### 任务3：F1-E-7-3【W1】turret.gd 消费改读 · 风险：低-中
+
+- **改动**：① 新增 `const TURRET_DEFAULTS := {"damage": 5.0, "fire_interval": 0.5, "attack_range": 220.0}`（**收敛 :13-15 字段声明默认值**——字段声明改 `var damage: float = TURRET_DEFAULTS["damage"]` 等 3 处，const 编译期求值合法零行为变化，:16-18 duration/permanent 等零改动）② 新增私有 `_resolve_turret_defaults() -> Dictionary`（`get_node_or_null("/root/DataLoader")` → 非空则 `get_turret_config().get("se_auto_turret", {})` 命中优先返回；未命中/空表/无 DataLoader → `TURRET_DEFAULTS` const 兜底；turret 为实例节点 → 直接引用先例 vfx_player :97，非 IconAtlas static 类无需 Engine.get_main_loop）③ `setup()` :32-35 三处装载兜底改走（`weapon_data.get("damage", _resolve_turret_defaults().get("damage", 5.0))` 或方法顶部一次性取 defaults 局部复用）；**⚠️ :33 `maxf(..., 0.01)` 钳制保留**（防 0 除，行为不变）④ **TURRET_DEFAULTS const 保留为兜底**（→ day13_build_check 炮台段 6b :629-657 零改动硬门槛）⑤ duration_left/duration_max/permanent 逻辑零改动（duration 属 skill 域不拆入本批）。**⚠️ 零行为变化**（仅默认值来源数据化：Excel turret_config 命中 → 用表值；缺表/未导出 → const 现值）。
+- **风险**：**低-中**。唯一新增风险 = turret 装配链行为漂移（炮台是玩家召唤物，数值走 skill_controller → world.spawn_turret → setup 透传链）；硬门槛 = **day13_build_check 炮台段 6b :629-657 零改动**（3 台临时/常驻断言）。**替代方案**：若 _resolve_turret_defaults 实测与 setup 语义冲突（如 DataLoader 时序不可达导致兜底链异常），退回纯 const 现状等价零回归（数据侧 turret_config 表与探针仍保留，抽表价值不损）。
+- **验证**：白盒 turret.setup 空 weapon_data → 三字段 = 现值（5.0/0.5/220.0）；turret_config 清空 → 回退 const 仍可 setup 不崩；改 Excel 值 → 导出 → setup 空 weapon_data 字段变化（端到端双跑）→ 强制改回重导出；三字段声明值 = const（编译期一致）；day13 :631-657 零改动复跑。
+
+### 任务4：F1-E-7-4【W1】探针扩展 · 风险：低
+
+- **改动**：`tools/day31_presentation_check.gd` 尾部（批六 §8 skill_icon 段后）+§9 turret 段 ≥8 断言（仿 ⑥ fx 段模式）：turret_config 1 键齐 / 键集合与 TURRET_DEFAULTS 一致（零多余零缺失）/ 逐键数值与 const 现值逐一一致（抽表零漂移）/ 改 Excel 一例 fire_interval → 导出 → get_turret_config 变化（端到端双跑）/ 空表兜底 const 仍可 setup（白盒）/ 未知武器 id 回退 const / 字段声明值 = const 编译期一致 / day13 炮台段 6b 行为保持复跑。
+- **风险**：**低**。纯探针扩展；**回归硬门槛 = day13_build_check（炮台段 6b）零改动** + 64 件套 1644 锚点 + baseline CLEAN。
+- **验证**：day31_presentation_check **≥324/324**（316+8，**runner expect 同步 316→324**）+ 全量回归（当前 59/64 挂 D-26，EXIT 门槛统一挂等复跑）。
+
+### 任务5：F1-E-7-EXIT【W5】收口 · 风险：低
+
+- **验证**：回归 **64 件套（1644 锚点）**（当前 59/64 5 FAIL 挂 D-26，**收口以 D-26 复跑恢复后全绿为准**）+ day31_presentation ≥324（316+8）+ baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0 + F1-E 行 **7/7 批标记（阶段 F 全闭）** + TECH_DEBT_ISSUES **T-024 转已收口**。
+
+### 任务6：F1-E 批五 + RELIC 全批 + LD-C/E/D——挂账观察（批五跨 3 轮 / RELIC 跨 5 轮）
+
+- **批五**（SHEET_CONFIG/icon_config）：方案已定（SOLUTION_PLAN 第 33 轮）；**本轮 git + 数据面实测双证实未落地**（HEAD 无 icon_config 提交 / data_schema.py 无 icon_config 注册 / excel_export files dict 无 icon_config 键 / get_icon_config 零命中，#1 第 70 轮已修正 5/7）→ **挂账观察（跨 3 轮）**，承接方 = #3 执行者；硬门槛 = day31_items_atlas/skill_icon 直接读 const 零改动 + get_frame_count 三探针行为保持 + 64 件套口径。
+- **RELIC**：方案已定（SOLUTION_PLAN 第 31 轮）；**本轮 git 实测确认仍零开工**（HEAD 无 day31_relic_*/stats 改名提交）→ **挂账观察（跨 5 轮）**，承接方 = #3 执行者；执行序 = RELIC-A（独立低成本先行）→ RELIC-0（数据地基）→ RELIC-F/E → RELIC-B/C/D → EXIT；⚠️ F-49 传送门+宝箱地基已落地（`4f1e791`），RELIC-E 落地时宝箱奖励升级三选一零重做（#2 第 66 轮已加注 RELIC-E1 行衔接）。
+- **LD-C/E/D**：方案已定（SOLUTION_PLAN 第 32 轮）；LD-B 收口（`b213296`）后已解锁，仍 [ ] 待 #3 → 挂账维持；执行序 = LD-C Boss 演出（boss_phase_events 表消费）→ LD-E attr 正向状态 → LD-D 特殊波可选挂 TECH_DEBT_PLAN。
+- **风险提示**：三块均为「拆解+方案齐备」状态，唯一风险 = 承接方持续未开工（#3 第 65/66 轮优先做 LD-B + 批六且已收口，本窗口可连续推进批七→批五→RELIC-A→LD-C，执行序由 #3 排）。
+
+### 任务7：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出）。D30-T3 上传 [ ] = 等 Owner 明确确认（目标资产库）；D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘 + 最终标记。⚠️ **build/ 观察维持：08-18 23:22 产物（`2aeb717`）含 F-45~48 + F1-E-4-1，不含其后 F-49 + F1-E-4 消费端 + LD-A/B + 批六** → 传送门/宝箱/批四抽表/LD/批六验证需最新代码或下次打包（交 Owner/总指挥）。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| F1-E-7-1 turret_config 数据侧 | 低 | 1 行 sheet + 注册 + 构建；**files dict 现 5 根键 → 加第 6 键（非第 7）**；三键零漂移 + 16 JSON 零 diff；WPS 锁坑 |
+| F1-E-7-2 get_turret_config | 低 | 纯新增接口；空表/损坏 → 空字典零崩 |
+| F1-E-7-3 turret 消费改读 | 低-中 | TURRET_DEFAULTS const 兜底 = day13 炮台段 6b 零改动硬门槛；:33 maxf 钳制保留；替代 = 纯 const 现状等价零回归 |
+| F1-E-7-4 探针扩展 | 低 | ≥8 断言 → **≥324/324**（316+8）；runner expect 316→324；day13 零改动 + 64 件套 1644 锚点 |
+| F1-E-7-EXIT | 低 | 7/7 批标记（阶段 F 全闭）+ T-024 转收口；EXIT 挂 D-26 复跑 |
+| 批五 / RELIC / LD-C·E | 低-中 | 方案已定（33/31/32 轮）；唯一风险 = 承接方未开工（批五跨 3 轮实锤 / RELIC 跨 5 轮 / LD-C·E 维持） |
+| D30-T3/EXIT | 低 | Owner/#4 域；build/ 不含 F-49 + F1-E-4 消费端 + LD-A/B + 批六 交 Owner/总指挥核实 |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 批七 EXIT 后**：阶段 F 全闭（7/7 批），无后续批次待拆。
+- **批五/批六/批七方案**：已定（SOLUTION_PLAN 33/34/35 轮），批六已收口；批七按第 35 轮方案 + 本轮锚点修正执行，不重写。
+- **LD-B/C/E/D**：方案已定（SOLUTION_PLAN 第 32 轮）不重写，执行按 32 轮执行序；LD-B 已收口。
+- **F-49（传送门+宝箱）**：已落地（`4f1e791` 闭环 + day31_portal_check 24/24）——非本岗方案对象；RELIC-E 落地时宝箱奖励升级三选一（本机制为地基）。
+- **F-45~F-49 主观回归面 / E-0 终审完整局 / AF-P0 / PS-EXIT**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-44 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md`（顶部新第 36 轮段，历史段完整保留）+ 在 `docs/TASKS.md` 标注（F1-E-7 段「方案已定」标注补第 36 轮锚点修正 + Day 30 区第 66 轮确认块后补方案师第 36 轮确认块）。工作区在途用户会话美术资产（lain 帧/AI 美术工具/2 脚本 M = D-26 阻塞源）+ #4 TEST_REPORT.md 不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-19 06:4x · 方案师第 35 轮 · F1-E 批七 炮台默认值正式方案（#2 第 65 轮拆解完成兑现 · F1-E 最后一批 7/7）+ LD-B 收口确认 + 批五/批六/RELIC 挂账观察）
 
 ## 📌 本轮判定（方案师第 35 轮）
