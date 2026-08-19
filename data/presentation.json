@@ -636,5 +636,12 @@
     "se_skill_blade_burst": 2,
     "se_skill_holy_shield": 3,
     "se_skill_sword_arc": 4
+  },
+  "turret_config": {
+    "se_auto_turret": {
+      "damage": 5.0,
+      "fire_interval": 0.5,
+      "attack_range": 220.0
+    }
   }
 }

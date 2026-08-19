@@ -272,6 +272,17 @@ SHEETS = {
         "key": "id", "category": None, "kind": "dict",
         "json_cols": [], "child": None,
     },
+    # F1-E-7（2026-08-19 第 65 轮拆解 · T-024）：炮台默认值抽表——原 turret.gd
+    # 字段声明默认值 + setup() 装载兜底两处散落（damage 5.0 / cooldown 0.5 / range 220）
+    # 与 weapons 表 se_auto_turret 行重复，抽独立表 1 行（id 主键 dict 形，导出
+    # data/presentation.json turret_config），消费端 DataLoader.get_turret_config 命中优先、
+    # 未命中/空表回退 const TURRET_DEFAULTS（F 系列缺省兜底约定）；
+    # fire_interval 语义 = cooldown（= 开火间隔），列名与 const 键一致防消费端映射漂移
+    "turret_config": {
+        "sheet": "turret_config", "file": "presentation.json", "root": "turret_config",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": [], "child": None,
+    },
     # LEVEL_DESIGN（2026-08-19 LD-A1 · 用户 08-18 22:57 拍板 · 规格 LEVEL_DESIGN_SPEC.md §2）：
     # 固定出生点表——根治 F-48 随机死角（点位固定后可读可控可设计「怪从哪来」演出感）。
     # point_id 主键 dict 形，导出独立文件 data/spawn_points.json（结构同 sheet 平铺）；

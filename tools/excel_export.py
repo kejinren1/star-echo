@@ -522,7 +522,25 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
         if idx is None:
             continue
         sim_map[sid] = int(idx)
-    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map, "fx_config": fx_map, "skill_icon_map": sim_map}
+
+    # turret_config（F1-E-7 第七批 2026-08-19 · 炮台默认值抽表 dict 形
+    # {turret_config: {炮台id: {"damage": 5.0, "fire_interval": 0.5, "attack_range": 220.0}}}；
+    # 消费端 DataLoader.get_turret_config 命中优先，未命中/空表 → turret.gd const
+    # TURRET_DEFAULTS 兜底；fire_interval 语义 = cooldown（= 开火间隔），数值 coerce float）
+    tc_map: dict = {}
+    for r in tables.get("turret_config", []):
+        sid = str(r.get("id", ""))
+        if not sid:
+            continue
+        rec: dict = {}
+        for k in ("damage", "fire_interval", "attack_range"):
+            v = coerce_num(r.get(k))
+            if v is None:
+                continue
+            rec[k] = float(v)
+        if rec:
+            tc_map[sid] = rec
+    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map, "fx_config": fx_map, "skill_icon_map": sim_map, "turret_config": tc_map}
     return files
 
 
