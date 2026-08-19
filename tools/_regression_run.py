@@ -106,6 +106,10 @@ PROBES = [
     #   items relic 字段扩展（tag/tier/set_id/set_tier/set_effects/unlock_condition）+
     #   DataLoader get_relic_defs/get_relic_set_ids + meta_progress relic_affinity/relic_codex 兼容旧档
     ("day31_relic_data_check", ["--script", "res://tools/day31_relic_data_check.gd"], 55),
+    # RELIC-F 同步（2026-08-19 #3 执行 · 方案师第 31 轮 · SPEC §7 Boss 行为节奏批）：
+    #   施法站定态（cast_slowdown）+ 时间分配倒置（chase_ratio/skill_window）+ 大范围权重主导
+    #   + 走走停停（F4 追踪射程即停）+ 公平底线零破坏
+    ("day31_relic_boss_rhythm_check", ["--script", "res://tools/day31_relic_boss_rhythm_check.gd"], 26),
 ]
 
 

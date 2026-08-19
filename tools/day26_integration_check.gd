@@ -583,14 +583,17 @@ func _part_regression() -> void:
 	# RELIC-0 同步（2026-08-19 #3 执行 · 方案师第 31 轮）：runner +day31_relic_data_check(55)
 	#   + day31_items_atlas_check 58→59（占位遗物豁免 +1）
 	#   → 66 项 / 期望 1748（1692 + 55 + 1）
-	if probe_count == 66:
-		_pass("回归 / _regression_run.py PROBES 66 项（65 + RELIC-0 day31_relic_data_check 1）")
+	# RELIC-F 同步（2026-08-19 #3 执行 · 方案师第 31 轮 · SPEC §7 Boss 行为节奏批）：
+	#   runner +day31_relic_boss_rhythm_check(26)
+	#   → 67 项 / 期望 1774（1748 + 26）
+	if probe_count == 67:
+		_pass("回归 / _regression_run.py PROBES 67 项（66 + RELIC-F day31_relic_boss_rhythm_check 1）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 66" % probe_count)
-	if expect_sum == 1748:
-		_pass("回归 / 期望断言合计 1748（1692 + RELIC-0 55 + items_atlas 1）")
+		_fail("回归: PROBES 项数 %d ≠ 67" % probe_count)
+	if expect_sum == 1774:
+		_pass("回归 / 期望断言合计 1774（1748 + RELIC-F 26）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1748" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1774" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",
