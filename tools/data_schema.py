@@ -283,6 +283,16 @@ SHEETS = {
         "key": "id", "category": None, "kind": "dict",
         "json_cols": [], "child": None,
     },
+    # F1-E-5（2026-08-19 第 63 轮拆解 · T-020）：图标集帧配置抽表——原 icon_atlas.gd
+    # SHEET_CONFIG 3 条数据化（id 主键 dict 形，导出 data/presentation.json icon_config），
+    # 消费端 DataLoader.get_icon_config 命中优先、未命中/空表回退 const SHEET_CONFIG
+    # （F 系列缺省兜底约定）；frame_size 拆 frame_size_w/frame_size_h 两列便于策划填写，
+    # 导出时组装 {"x","y"} 供消费端 Vector2i()
+    "icon_config": {
+        "sheet": "icon_config", "file": "presentation.json", "root": "icon_config",
+        "key": "id", "category": None, "kind": "dict",
+        "json_cols": [], "child": None,
+    },
     # LEVEL_DESIGN（2026-08-19 LD-A1 · 用户 08-18 22:57 拍板 · 规格 LEVEL_DESIGN_SPEC.md §2）：
     # 固定出生点表——根治 F-48 随机死角（点位固定后可读可控可设计「怪从哪来」演出感）。
     # point_id 主键 dict 形，导出独立文件 data/spawn_points.json（结构同 sheet 平铺）；

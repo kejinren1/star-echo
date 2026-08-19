@@ -540,7 +540,23 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
             rec[k] = float(v)
         if rec:
             tc_map[sid] = rec
-    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map, "fx_config": fx_map, "skill_icon_map": sim_map, "turret_config": tc_map}
+
+    # icon_config（F1-E-5 第五批 2026-08-19 · 图标集帧配置抽表 dict 形
+    # {icon_config: {图集id: {"path": "res://...", "frame_count": n,
+    # "frame_size": {"x": w, "y": h}}}}；frame_size 由 frame_size_w/frame_size_h
+    # 两列组装；消费端 DataLoader.get_icon_config 命中优先，未命中/空表 →
+    # icon_atlas.gd const SHEET_CONFIG 兜底）
+    ic_map: dict = {}
+    for r in tables.get("icon_config", []):
+        sid = str(r.get("id", ""))
+        if not sid:
+            continue
+        rec = {k: coerce_num(v) for k, v in r.items() if k != "id" and not k.startswith("_")}
+        w = coerce_num(r.get("frame_size_w")); h = coerce_num(r.get("frame_size_h"))
+        if w and h:
+            rec["frame_size"] = {"x": int(w), "y": int(h)}
+        ic_map[sid] = rec
+    files["presentation.json"] = {"enemy_sprites": ps_map, "behavior_map": bm_map, "audio_map": am_map, "fx_config": fx_map, "skill_icon_map": sim_map, "turret_config": tc_map, "icon_config": ic_map}
     return files
 
 

@@ -643,5 +643,37 @@
       "fire_interval": 0.5,
       "attack_range": 220.0
     }
+  },
+  "icon_config": {
+    "weapons": {
+      "path": "res://assets/sprites/ui/weapons.png",
+      "frame_count": 40,
+      "frame_size_w": 32,
+      "frame_size_h": 32,
+      "frame_size": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "items": {
+      "path": "res://assets/sprites/ui/items.png",
+      "frame_count": 54,
+      "frame_size_w": 32,
+      "frame_size_h": 32,
+      "frame_size": {
+        "x": 32,
+        "y": 32
+      }
+    },
+    "skills": {
+      "path": "res://assets/sprites/skills/skills.png",
+      "frame_count": 5,
+      "frame_size_w": 32,
+      "frame_size_h": 32,
+      "frame_size": {
+        "x": 32,
+        "y": 32
+      }
+    }
   }
 }
