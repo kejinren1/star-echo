@@ -58,6 +58,10 @@ KNOWN_EFFECT_KEYS = {
     "fire_damage_percent", "harvesting",
     "miss_chance_percent", "no_weapon_armor_bonus", "reaction_heal",
     "special_enemies_next_wave", "structure_duration_percent",
+    # RELIC-0（2026-08-19 · RELIC_EXPANSION_SPEC §3/§5 · 占位数值可调，消费端 B/C/D 批接线）：
+    # 套装比例键（max_hp_percent 比例乘法，B 批实现）+ 移速流派示例键（D 批消费）
+    "max_hp_percent", "move_speed_to_damage_percent", "distance_trigger",
+    "move_speed_threshold", "projectile_split", "move_stacking_damage",
 }
 
 
@@ -260,6 +264,41 @@ def validate(wb, rep: Report) -> dict[str, list[dict]]:
     return tables
 
 
+# ========== RELIC-0（2026-08-19 · RELIC_EXPANSION_SPEC §3.2 方案定案） ==========
+
+def parse_set_effects(raw: str) -> list[dict]:
+    """套装效果分隔串 → JSON 数组（方案定案：Excel 分隔串 → 导出数组，禁自由发明格式）。
+
+    格式：档位间 '|'，档内 ';'，键值 '='，档位前缀 "tier:"。
+    例：'1:max_hp_percent=-90;damage_taken_percent=-40|2:damage_percent=100;attack_speed_percent=50'
+    → [{"tier": 1, "effects": {"max_hp_percent": -90, "damage_taken_percent": -40}},
+        {"tier": 2, "effects": {"damage_percent": 100, "attack_speed_percent": 50}}]
+    """
+    out: list[dict] = []
+    for seg in str(raw).split("|"):
+        seg = seg.strip()
+        if not seg:
+            continue
+        parts = seg.split(":", 1)
+        if len(parts) != 2:
+            continue  # 非法段跳过（校验段会兜底登记）
+        try:
+            tier = int(parts[0].strip())
+        except ValueError:
+            continue
+        effects: dict[str, object] = {}
+        for kv in parts[1].split(";"):
+            kv = kv.strip()
+            if not kv:
+                continue
+            if "=" in kv:
+                k, v = kv.split("=", 1)
+                effects[k.strip()] = coerce_num(v.strip())
+        if effects:
+            out.append({"tier": tier, "effects": effects})
+    return out
+
+
 # ========== 导出 ==========
 
 def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, object]:
@@ -299,6 +338,10 @@ def build_json_files(tables: dict[str, list[dict]], rep: Report) -> dict[str, ob
     for r in tables.get("items", []):
         rec = {k: coerce_num(v) for k, v in r.items() if not k.startswith("_")}
         rec = unflatten(rec, set(SHEETS["items"]["json_cols"]))
+        # RELIC-0（2026-08-19 · RELIC_EXPANSION_SPEC §3.2 方案定案）：set_effects 分隔串 → JSON 数组
+        # 格式 "1:key=val;key=val|2:key=val"（档位间 |，档内 ;，键值 =；tier 1/2 件触发档位）
+        if rec.get("set_effects"):
+            rec["set_effects"] = parse_set_effects(str(rec["set_effects"]))
         rec.pop("effects", None)
         rec["effects"] = {}
         irows.append(rec)

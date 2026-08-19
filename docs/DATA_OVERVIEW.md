@@ -1,6 +1,6 @@
 # 数据分布总览（DATA_OVERVIEW）
 
-- 生成时间：2026-08-19 18:39
+- 生成时间：2026-08-19 20:44
 - 来源：docs/GameData.xlsx（tools/excel_export.py 导出时自动刷新）
 
 ## weapons（37 行）
@@ -10,10 +10,10 @@
 - 基础 cooldown：min 0.05 / max 2.0 / 均值 0.6
 - 基础 range：min 100.0 / max 400.0 / 均值 213.5
 
-## items（54 行）
-- 稀有度分布：{'common': 15, 'uncommon': 12, 'rare': 12, 'legendary': 13, 'epic': 2}
-- 效果键 Top（共 36 种）：damage_percent×14, max_hp×8, attack_speed_percent×7, armor×7, speed_percent×7, dodge_percent×6, elemental_damage×6, melee_damage×6
-- price：min 0.0 / max 120.0 / 均值 57.2
+## items（64 行）
+- 稀有度分布：{'common': 18, 'uncommon': 14, 'rare': 17, 'legendary': 13, 'epic': 2}
+- 效果键 Top（共 40 种）：damage_percent×14, speed_percent×10, armor×8, max_hp×8, attack_speed_percent×7, dodge_percent×7, elemental_damage×6, melee_damage×6
+- price：min 0.0 / max 120.0 / 均值 48.3
 
 ## enemies（23 行）
 - 分类分布：{'regular': 15, 'elite': 6, 'boss': 2}
@@ -35,4 +35,4 @@
 ## routes（1 行）
 
 ## 关注项
-- 无消费方效果键 17 个（T-050 已裁决：保留待 F2+/删数据）：attack_speed_per_different_weapon_percent, auto_turret_per_wave, burn_duration_percent, damage_reduction_on_hit_percent, dodge_heal_amount, dodge_heal_chance, element_duration_percent, element_reaction_damage_percent, engineering, fire_damage_percent, harvesting, miss_chance_percent, no_weapon_armor_bonus, range, reaction_heal, special_enemies_next_wave, structure_duration_percent
+- 无消费方效果键 23 个（T-050 已裁决：保留待 F2+/删数据）：attack_speed_per_different_weapon_percent, auto_turret_per_wave, burn_duration_percent, damage_reduction_on_hit_percent, distance_trigger, dodge_heal_amount, dodge_heal_chance, element_duration_percent, element_reaction_damage_percent, engineering, fire_damage_percent, harvesting, max_hp_percent, miss_chance_percent, move_speed_threshold, move_speed_to_damage_percent, move_stacking_damage, no_weapon_armor_bonus, projectile_split, range, reaction_heal, special_enemies_next_wave, structure_duration_percent

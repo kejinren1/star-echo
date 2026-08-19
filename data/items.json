@@ -813,6 +813,8 @@
       ],
       "slot": "relic",
       "icon_index": 49,
+      "tag": "damage",
+      "tier": 3,
       "effects": {
         "damage_percent": 50,
         "damage_taken_percent": 30
@@ -829,6 +831,8 @@
       ],
       "slot": "relic",
       "icon_index": 50,
+      "tag": "engineering",
+      "tier": 3,
       "effects": {
         "structure_damage_percent": 100
       }
@@ -889,6 +893,250 @@
         "speed_mult": 1.2
       },
       "effects": {}
+    },
+    {
+      "id": "relic_starbound_heart",
+      "name": "星骸之心",
+      "rarity": "rare",
+      "price": 0,
+      "tags": [
+        "relic",
+        "offense"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "offense",
+      "tier": 2,
+      "set_id": "starbound_gamble",
+      "set_tier": 2,
+      "set_effects": [
+        {
+          "tier": 1,
+          "effects": {
+            "max_hp_percent": -90,
+            "damage_taken_percent": -40
+          }
+        },
+        {
+          "tier": 2,
+          "effects": {
+            "damage_percent": 100,
+            "attack_speed_percent": 50,
+            "damage_taken_percent": -30
+          }
+        }
+      ],
+      "unlock_condition": "first_kill_boss:1",
+      "effects": {}
+    },
+    {
+      "id": "relic_starbound_core",
+      "name": "星骸核心",
+      "rarity": "rare",
+      "price": 0,
+      "tags": [
+        "relic",
+        "offense"
+      ],
+      "slot": "relic",
+      "icon_index": 50,
+      "tag": "offense",
+      "tier": 2,
+      "set_id": "starbound_gamble",
+      "set_tier": 2,
+      "set_effects": [
+        {
+          "tier": 1,
+          "effects": {
+            "max_hp_percent": -90,
+            "damage_taken_percent": -40
+          }
+        },
+        {
+          "tier": 2,
+          "effects": {
+            "damage_percent": 100,
+            "attack_speed_percent": 50,
+            "damage_taken_percent": -30
+          }
+        }
+      ],
+      "unlock_condition": "first_kill_boss:1",
+      "effects": {}
+    },
+    {
+      "id": "relic_deadline_boots",
+      "name": "死线舞靴",
+      "rarity": "rare",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "speed",
+      "tier": 2,
+      "set_id": "deadline_dancer",
+      "set_tier": 2,
+      "set_effects": [
+        {
+          "tier": 1,
+          "effects": {
+            "max_hp_percent": -70,
+            "speed_percent": 30
+          }
+        },
+        {
+          "tier": 2,
+          "effects": {
+            "move_stacking_damage": 1
+          }
+        }
+      ],
+      "unlock_condition": "first_kill_boss:2",
+      "effects": {}
+    },
+    {
+      "id": "relic_deadline_heels",
+      "name": "死线舞跟",
+      "rarity": "rare",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 50,
+      "tag": "speed",
+      "tier": 2,
+      "set_id": "deadline_dancer",
+      "set_tier": 2,
+      "set_effects": [
+        {
+          "tier": 1,
+          "effects": {
+            "max_hp_percent": -70,
+            "speed_percent": 30
+          }
+        },
+        {
+          "tier": 2,
+          "effects": {
+            "move_stacking_damage": 1
+          }
+        }
+      ],
+      "unlock_condition": "first_kill_boss:2",
+      "effects": {}
+    },
+    {
+      "id": "relic_swift_feet",
+      "name": "疾行靴",
+      "rarity": "common",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "speed",
+      "tier": 1,
+      "effects": {
+        "speed_percent": 10
+      }
+    },
+    {
+      "id": "relic_swift_trade",
+      "name": "轻装契约",
+      "rarity": "common",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "speed",
+      "tier": 1,
+      "effects": {
+        "speed_percent": 15,
+        "armor": -3
+      }
+    },
+    {
+      "id": "relic_swift_dodge",
+      "name": "残影步",
+      "rarity": "common",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "speed",
+      "tier": 1,
+      "effects": {
+        "speed_percent": 5,
+        "dodge_percent": 5
+      }
+    },
+    {
+      "id": "relic_swift_kinetic",
+      "name": "动能转化",
+      "rarity": "uncommon",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "speed",
+      "tier": 2,
+      "unlock_condition": "fail_count>=3",
+      "effects": {
+        "move_speed_to_damage_percent": 10
+      }
+    },
+    {
+      "id": "relic_swift_rush",
+      "name": "冲刺余波",
+      "rarity": "uncommon",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "speed",
+      "tier": 2,
+      "unlock_condition": "codex_count>=10",
+      "effects": {
+        "distance_trigger": 3000
+      }
+    },
+    {
+      "id": "relic_swift_split",
+      "name": "音速分裂",
+      "rarity": "rare",
+      "price": 0,
+      "tags": [
+        "relic",
+        "speed"
+      ],
+      "slot": "relic",
+      "icon_index": 49,
+      "tag": "speed",
+      "tier": 3,
+      "unlock_condition": "affinity_tag>=3",
+      "effects": {
+        "move_speed_threshold": 450,
+        "projectile_split": 1
+      }
     }
   ]
 }
