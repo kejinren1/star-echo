@@ -429,3 +429,71 @@ func _run() -> void:
 	_check(is_equal_approx(float(turret11.get("damage")), 9.0), "weapon_data.damage 9.0 未优先")
 	_check(is_equal_approx(float(turret11.get("fire_interval")), 0.3), "weapon_data.cooldown 0.3 未优先")
 	_check(is_equal_approx(float(turret11.get("attack_range")), 150.0), "weapon_data.range 150 未优先")
+
+	# ⑩ icon_config（F1-E-5 第五批 2026-08-19 #3 执行：图标集帧配置抽表，
+	#    原 icon_atlas.gd const SHEET_CONFIG 数据化 → presentation.json icon_config；
+	#    path/frame_count/frame_size 与 const 现值逐一一致（抽表零漂移）；消费端
+	#    DataLoader.get_icon_config + IconAtlas._resolve_icon_config（命中优先/
+	#    空表回退 const/未知 sheet push_warning 保留）；SHEET_CONFIG const 保留兜底
+	#    = day31_items_atlas_check/day31_skill_icon_check 直读 const 零改动硬门槛）
+	var ic_map: Dictionary = {}
+	if raw is Dictionary and (raw as Dictionary).get("icon_config") is Dictionary:
+		ic_map = (raw as Dictionary)["icon_config"]
+	var icon_script5: GDScript = load("res://scripts/utils/icon_atlas.gd")
+	var ic_const: Dictionary = icon_script5.SHEET_CONFIG
+	_check(ic_map.size() == ic_const.size(), "icon_config 条数 %d != const SHEET_CONFIG %d" % [ic_map.size(), ic_const.size()])
+	var ic_missing := []
+	for k in ic_const.keys():
+		if not ic_map.has(k):
+			ic_missing.append(k)
+	_check(ic_missing.is_empty(), "icon_config 缺 const 键: %s" % str(ic_missing))
+	var ic_extra := []
+	for k in ic_map.keys():
+		if not ic_const.has(k):
+			ic_extra.append(k)
+	_check(ic_extra.is_empty(), "icon_config 多余键: %s" % str(ic_extra))
+	# 逐键 path/frame_count/frame_size 与 const 现值逐一一致（抽表零漂移）
+	var ic_drift := []
+	for k in ic_const.keys():
+		var c: Dictionary = ic_const[k]
+		var p: Dictionary = ic_map.get(k, {})
+		if str(p.get("path", "")) != str(c.get("path", "")):
+			ic_drift.append("%s/path" % k)
+		if int(p.get("frame_count", -1)) != int(c.get("frame_count", -1)):
+			ic_drift.append("%s/frame_count" % k)
+		var pfs: Variant = p.get("frame_size", null)
+		var cfs: Vector2i = c.get("frame_size")
+		if not (pfs is Dictionary and int(pfs.get("x", -1)) == cfs.x and int(pfs.get("y", -1)) == cfs.y):
+			ic_drift.append("%s/frame_size" % k)
+	_check(ic_drift.is_empty(), "icon_config 与 const 漂移: %s" % str(ic_drift))
+	# 消费接口：get_icon_config 命中 → {path, frame_count, frame_size: Vector2i} 组装
+	if loader != null:
+		var ic_hit: Dictionary = loader.call("get_icon_config", "items")
+		_check(ic_hit.size() >= 3, "get_icon_config('items') 键不齐: %s" % str(ic_hit))
+		_check(str(ic_hit.get("path", "")) == "res://assets/sprites/ui/items.png", "get_icon_config items path 错误")
+		_check(int(ic_hit.get("frame_count", -1)) == 54, "get_icon_config items frame_count 错误: %s" % str(ic_hit.get("frame_count")))
+		_check(ic_hit.get("frame_size") is Vector2i and ic_hit["frame_size"] == Vector2i(32, 32), \
+			"get_icon_config items frame_size 非 Vector2i(32,32): %s" % str(ic_hit.get("frame_size")))
+		_check(loader.call("get_icon_config", "no_such_sheet").is_empty(), "未知名 get_icon_config 应返回空字典")
+		# 端到端双跑（白盒等价）：_icon_map 注入改值 → 返回值变化 → 还原
+		var ic_orig: Dictionary = loader.get("_icon_map")
+		var ic_mut: Dictionary = (ic_orig.duplicate(true))
+		var items_cfg: Dictionary = (ic_mut.get("items", {}) as Dictionary).duplicate()
+		items_cfg["frame_count"] = 99
+		ic_mut["items"] = items_cfg
+		loader.set("_icon_map", ic_mut)
+		_check(int(loader.call("get_icon_config", "items").get("frame_count", -1)) == 99, "白盒改 frame_count 未生效（端到端双跑失败）")
+		loader.set("_icon_map", ic_orig)  # 还原缓存防污染
+		# 空表兜底：_icon_map 清空 → IconAtlas 回退 const 仍可 get_icon（load 不崩）
+		loader.set("_icon_map", {})
+		IconAtlas.clear_cache()
+		var ic_at: AtlasTexture = IconAtlas.get_icon("items", 0)
+		_check(ic_at != null, "空表兜底 get_icon('items',0) 应回退 const 非空")
+		loader.set("_icon_map", ic_orig)  # 还原缓存防污染
+		# 未知 sheet push_warning 保留（get_icon 未知名返回 null）
+		var ic_unknown: AtlasTexture = IconAtlas.get_icon("no_such_sheet", 0)
+		_check(ic_unknown == null, "未知 sheet get_icon 应返回 null（push_warning 保留）")
+		# get_frame_count 行为一致（抽表命中 = const 现值）
+		_check(IconAtlas.get_frame_count("items") == 54, "get_frame_count('items') != 54")
+		_check(IconAtlas.get_frame_count("skills") == 5, "get_frame_count('skills') != 5")
+		_check(IconAtlas.get_frame_count("no_such_sheet") == 0, "get_frame_count 未知 sheet != 0")

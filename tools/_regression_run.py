@@ -80,8 +80,8 @@ PROBES = [
     ("day31_player_model_check", ["--script", "res://tools/day31_player_model_check.gd"], 6),
     ("day31_items_atlas_check", ["--script", "res://tools/day31_items_atlas_check.gd"], 58),
     # 总指挥 2026-08-18 F1-E 第一批：敌人精灵表现抽表闭环（presentation.json ↔ const 一致性 + DataLoader 消费）
-    # expect 334 = 2026-08-19 #3 执行 F1-E-7 第七批 turret_config（316 + 18：§9 turret 段，元数据同步）
-    ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 334),
+    # expect 349 = 2026-08-19 #3 执行 F1-E-5 第五批 icon_config（334 + 15：§10 icon 段，批五落地补）
+    ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 349),
     # 总指挥 2026-08-18：技能图标映射闭环（skills.png 5 帧 + SKILL_ICON_MAP 全量覆盖 + 越界防护）
     ("day31_skill_icon_check", ["--script", "res://tools/day31_skill_icon_check.gd"], 22),
     # AUDIO_FEEL（2026-08-18 AF-P0 批 A-C）：hitstop 顿帧 + 震屏分级 + 音画同步（day31_feel_check）

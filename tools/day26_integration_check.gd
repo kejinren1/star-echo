@@ -576,14 +576,16 @@ func _part_regression() -> void:
 	#   → 64 项 / 期望 1644（1614 + 30）
 	# F1-E-7 同步（2026-08-19 #3 执行）：day31_presentation expect 316→334（+18，§9 turret 段）
 	#   → 64 项 / 期望 1662（1644 + 18）
+	# F1-E-5 同步（2026-08-19 #3 执行 · 批五补落地）：day31_presentation expect 334→349（+15，§10 icon 段）
+	#   → 64 项 / 期望 1677（1662 + 15）
 	if probe_count == 64:
 		_pass("回归 / _regression_run.py PROBES 64 项（63 + LD-A day31_level_design_data_check 1）")
 	else:
 		_fail("回归: PROBES 项数 %d ≠ 64" % probe_count)
-	if expect_sum == 1662:
-		_pass("回归 / 期望断言合计 1662（1644 + F1-E-7 §9 18）")
+	if expect_sum == 1677:
+		_pass("回归 / 期望断言合计 1677（1662 + F1-E-5 §10 icon 15）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1662" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1677" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",
