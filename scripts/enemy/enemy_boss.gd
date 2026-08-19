@@ -181,14 +181,25 @@ func _process_boss_attacks(delta: float) -> void:
 ## 权重随机 + 保底（同技能不连续 2 次）+ phase 解锁（100/66/33 阈值）+ 四拍子执行器复用
 ## 数据门控：_patterns 空 → 完全旧路径（_process_boss_attacks）
 
-## pattern 主循环：执行器运行 → 推进；冷却 → 递减；就绪 → 挑技能施放
+## pattern 主循环：执行器运行 → 推进；走位期 → 递减；冷却（追踪）期 → 递减；就绪 → 挑技能施放
+## RELIC-F2（2026-08-19）：时间分配倒置——三段态 = 施放（executor 站定）→ 走位（skill_window
+## 慢速游走）→ 追踪（冷却 × chase_ratio，短而明确）→ 施放。缺省 rhythm 键 → 与原行为等价
 func _process_boss_patterns(delta: float) -> void:
 	if _enemy._active_executor != null and is_instance_valid(_enemy._active_executor):
 		_enemy._active_executor.call("tick", delta, {"player": _enemy.target})
 		if bool(_enemy._active_executor.call("is_done")):
 			_enemy._active_executor.queue_free()
 			_enemy._active_executor = null
-			_enemy._pattern_cooldown = _enemy._pattern_cooldown_total
+			# RELIC-F2：追踪段 = 原冷却 × chase_ratio（默认 1.0 → 原行为零变化）；
+			# 走位段 = skill_window 秒（施放后游走调整站位，不施放不追踪）
+			var rhythm: Dictionary = _enemy._pattern_rhythm
+			_enemy._pattern_cooldown = maxf(
+				_enemy._pattern_cooldown_total * float(rhythm.get("chase_ratio", 1.0)), 0.0)
+			_enemy._pattern_window_timer = float(rhythm.get("skill_window", 0.0))
+		return
+	# 走位期推进（RELIC-F2：窗口内不 pick；倒计时归零 → 进入追踪冷却期）
+	if _enemy._pattern_window_timer > 0.0:
+		_enemy._pattern_window_timer -= delta
 		return
 	if _enemy._pattern_cooldown > 0.0:
 		_enemy._pattern_cooldown -= delta
@@ -249,6 +260,15 @@ func _pick_and_cast() -> void:
 		float(picked.get("min_interval", 0.0)))
 	_enemy._pattern_cooldown_total = cd
 	_enemy._pattern_cooldown = 0.0
+	# RELIC-F1（2026-08-19 · RELIC_EXPANSION_SPEC §7）：当前 pattern 节奏键缓存——
+	# 施放期移速倍率 / 追踪段系数 / 走位时长 / 技能射程（F4 射程即停）。
+	# 缺省兜底 1.0/1.0/0.0/0.0 = 旧数据零变化（施放期满速、原冷却、无走位、无射程钳制）
+	_enemy._pattern_rhythm = {
+		"cast_slowdown": float(picked.get("cast_slowdown", 1.0)),
+		"chase_ratio": float(picked.get("chase_ratio", 1.0)),
+		"skill_window": float(picked.get("skill_window", 0.0)),
+		"range": float(params.get("radius", 0.0)),
+	}
 
 ## 阶段解锁池：pattern.phase ≥ 当前阶段阈值（P1=100 / P2=66 / P3=33）
 func _active_pattern_pool() -> Array:

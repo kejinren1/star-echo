@@ -70,12 +70,29 @@ func _update_behavior(delta: float) -> void:
 	if _enemy.is_boss and not _enemy.phases.is_empty():
 		if not _enemy._patterns.is_empty():
 			_enemy._boss_ctrl._process_boss_patterns(delta)
+			# RELIC-F（2026-08-19 · RELIC_EXPANSION_SPEC §7）：节奏分态移动——
+			# 施放期站定/减速（cast_slowdown）→ 走位期慢速游走（skill_window）→
+			# 追踪期短距逼近（冷却 × chase_ratio，F4 逼近射程即停）
+			if _enemy._active_executor != null and is_instance_valid(_enemy._active_executor):
+				_move_boss_cast(delta)
+			elif _enemy._pattern_window_timer > 0.0:
+				_move_boss_window(delta)
+			elif _enemy._boss_charge:
+				_move_charge(delta)
+			else:
+				# F4：移动段短而明确——逼近当前技能射程即停（走走停停节奏，防追脸贴脸）
+				var cast_range: float = float(_enemy._pattern_rhythm.get("range", 0.0))
+				if cast_range > 0.0 and _enemy.is_target_valid() and (
+						_enemy.global_position.distance_to(_enemy.target.global_position) <= cast_range * 0.9):
+					_enemy.velocity = Vector2.ZERO
+				else:
+					_move_chase(delta)
 		else:
 			_enemy._boss_ctrl._process_boss_attacks(delta)
-		if _enemy._boss_charge:
-			_move_charge(delta)
-		else:
-			_move_chase(delta)
+			if _enemy._boss_charge:
+				_move_charge(delta)
+			else:
+				_move_chase(delta)
 		return
 	match int(_enemy.behavior):
 		EnemyEnums.Behavior.CHASE:
@@ -105,6 +122,30 @@ func _update_behavior(delta: float) -> void:
 func _move_chase(_delta: float) -> void:
 	var direction := _enemy.global_position.direction_to(_enemy.target.global_position)
 	_enemy.velocity = direction * _enemy.move_speed
+	_enemy.move_and_slide()
+
+## RELIC-F1（2026-08-19 · RELIC_EXPANSION_SPEC §7）：施放期移动——cast_slowdown 参数化
+## （0.0 = 站定（circle 系预警结算四拍子期间不追人）；0<x<1 = 减速逼近；
+##   缺省 1.0 = 满速旧行为零变化）。给玩家「躲技能 → 反打」窗口
+func _move_boss_cast(_delta: float) -> void:
+	var slow: float = float(_enemy._pattern_rhythm.get("cast_slowdown", 1.0))
+	if slow <= 0.001:
+		_enemy.velocity = Vector2.ZERO
+		return
+	if not _enemy.is_target_valid():
+		return
+	var direction := _enemy.global_position.direction_to(_enemy.target.global_position)
+	_enemy.velocity = direction * _enemy.move_speed * slow
+	_enemy.move_and_slide()
+
+## RELIC-F2/F4（2026-08-19）：施放后走位期——慢速横向游走（调整站位不施压，
+## 后摇结束再决定下一步；节奏感 = 走走停停）
+func _move_boss_window(_delta: float) -> void:
+	if not _enemy.is_target_valid():
+		return
+	var direction := _enemy.global_position.direction_to(_enemy.target.global_position)
+	var perp := Vector2(-direction.y, direction.x)
+	_enemy.velocity = perp * _enemy.move_speed * 0.3
 	_enemy.move_and_slide()
 
 ## 冲锋：周期性蓄力后高速冲向玩家

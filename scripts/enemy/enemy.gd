@@ -117,6 +117,11 @@ var _pattern_cooldown: float = 0.0           ## pattern 释放冷却（min_inter
 var _pattern_cooldown_total: float = 0.0     ## 本次冷却总量（探针观测用）
 var _last_pattern_skill: String = ""         ## 保底：同技能不连续 2 次
 var _active_executor: Node = null            ## 当前四拍子执行器（boss_skill_factory 创建）
+## RELIC-F（2026-08-19 · RELIC_EXPANSION_SPEC §7）：Boss 行为节奏键缓存
+## （cast_slowdown 施放期移速倍率 0=站定 / chase_ratio 追踪段系数=冷却×系数 /
+##   skill_window 施放后走位秒数 / range 当前技能射程——F4 追踪射程即停）
+var _pattern_rhythm: Dictionary = {}
+var _pattern_window_timer: float = 0.0       ## 走位期倒计时（>0 = 施放后走位中，不施放不追踪）
 
 # ========== F4-A 拆分组件（2026-08-14 · T-047） ==========
 ## 三域组件（movement/boss/damage）_ensure_components 挂载；宿主 load() 创建
