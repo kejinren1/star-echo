@@ -326,3 +326,33 @@
 
 - 自动化 **7/7 ACTIVE**；反馈专员 4h 节奏生效（02:38 零产出=规则内）；无 PAUSED 需恢复。
 - 夜间自检四项：近 3h 8 提交 ✅ / PROGRESS 摘要滞后 1 轮（正常时差）✅ / TEST_REPORT #63 ↔ #3 登记口径一致 ✅ / baseline 未崩（5 FAIL 全 script_errors 非断言，引擎正常）✅ → **心跳已追加 LOOP_HEALTH 第 15 条，循环健康，无需重建进度快照**。
+
+---
+
+## 2026-08-19 21:0x · 第 8 轮（决策 + 审批轮 · RELIC-A/0 双批收口确认）
+
+### 决策 D-021：RELIC 下一卡点 = RELIC-F/E；build 重打挂账（等 D-26 收口）
+
+- **事实**：#3 近 6h 连续收口两大批——**RELIC-A**（`765e3bc` 18:40 属性命名去土豆兄弟化 + `74ad1fd` 18:45 A3+EXIT，day31_relic_name_check 15/15，runner 64→65）→ **RELIC-0**（`01a27c7` 20:44 数据侧 items +6 新列/套装 2 套 4 件/移速流派 6 件 + `6c54857` 20:48 get_relic_defs/get_relic_set_ids 懒加载 + save_system meta 两键 + day31_relic_data_check 55/55 + runner 65→66 + `55fcc5a` 20:56 day18_feedback2 flaky 根治 + 锚点同步 + `be647b4` 20:58 收口挂账）。HEAD=`be647b4`，RELIC 剩余 **F/E→B/C/D→EXIT**。
+- **决策**：① 执行序第 31 轮定案不变——**RELIC-F/E（P0 独立）→ RELIC-B/C/D（依赖 0 地基）→ RELIC-EXIT**，下一卡点 = RELIC-F（Boss 行为节奏）/ RELIC-E（Boss 宝箱收获，F-49 传送门+宝箱地基已就绪，落地即三选一升级零重做），承接方 #3 直接执行不重复拆解；② **LD-C（跨 4 轮挂账）/LD-E/LD-D 由 #3 穿插推进**（方案第 32 轮执行序 LD-C→LD-E→LD-D 不变，RELIC 优先属正常调度）；③ **build/ 重打挂账**——当前工作区含用户会话在途 D-26 代码（player_anim.gd/sprite_frame_factory.gd M = 4.4 API 误用），**若现在导出会打进 build 导致产物内角色动画 SCRIPT ERROR**，D-016 授权「新版本健康」前提不成立 → 等 D-26 收口后 #3 统一重打（自动归档+替换，全程不再询问），届时含 F-49/LD-A/B/批五~七/RELIC-A/0 全功能。
+- **影响与应对**：回归硬门槛 = 66 件套 1748 锚点（RELIC-0 扩容）；当前 61/66 5 FAIL = D-26 零新增（D-020 维持不代修），各批 EXIT 统一挂「D-26 收口复跑 66/66 后全绿」。
+
+### 审批（近 6h 提交 · 10 个）
+
+| 提交 | 岗位 | 判定 | 说明 |
+|---|---|---|---|
+| `765e3bc`+`74ad1fd` #3 RELIC-A 收口 | #3 | ✅ **实质·高质** | Excel stats 两行 name 去土豆兄弟化（id 零改动）+ 消费点同步 + day31_relic_name_check 15/15 + runner 64→65 |
+| `01a27c7` #3 RELIC-0-1 数据侧 | #3 | ✅ **实质·高质** | items +6 新列 + 套装 2 套 4 件占位（price=0 不进商店池）+ 移速流派 6 件 + items_effects 子表 9 行 + excel_export set_effects 解析（档:键=值;\|）+ KNOWN_EFFECT_KEYS +6，其余 16 JSON 零 diff |
+| `6c54857` #3 RELIC-0-2/0-3+EXIT | #3 | ✅ **实质·高质** | get_relic_defs/get_relic_set_ids 懒加载 + save 两键缺省容错零崩 + day31_relic_data_check 55/55 五段 + runner 65→66 + day26 锚点 1692→1748 |
+| `55fcc5a` #3 RELIC-0 回归同步 | #3 | ✅ **实质** | day18_feedback2 flaky 根治（探针点击前跳过 anvil 服务卡，零游戏逻辑改动）+ day23/24 items 54→64 锚点同步 + f3 白名单登记 |
+| `be647b4` #3 RELIC-0 收口挂账 | #3 | ✅ **收口** | TASKS RELIC-0-1~EXIT 全 [x] + 执行登记 3 处 + SOLUTION_PLAN 第 70 轮结果 |
+| `e31e0bc`/`7aa89fa` #1 第 72/73 轮 | #1 | 🟡 状态回执（职责内） | 进度分析本职（F1-E 真全闭确认 / RELIC-A 收口确认 + 摘要刷新），数值实质更新 |
+| `899c526`/`39662ba` #2 第 68/69 轮 | #2 | 🟡 状态回执（职责内） | 拆解回执 + 「登记无待拆不空转」，符合 D-018 空转纪律 |
+
+- **复用审查**：RELIC-0 数据侧仿 F1-E 批四 fx_config 懒加载先例 + items_effects 子表先例 + desc_builder 范式，**未发现未检索即重写**。
+- **结论**：近轮零伪产出；#3 连续 2 轮（RELIC-A/0）实质高质产出，token 价值高；#1/#2 行为符合职责设计；#4 TEST_REPORT.md 在途（20:00 #69 产出未 commit）= 收口节奏，下轮自然入库。
+
+### 调度与收尾
+
+- 自动化 **7/7 ACTIVE** 无 PAUSED；反馈专员下一轮 22:38（4h 节奏，D-018 内）。
+- 需用户拍板项（红线类仅 3 项，无新增）：D30-T3 上传（外部动作）/ 冻结 HEAD 补冻 / D-26 会话收口后修 4.4 API → 4.3 兼容 + 复跑 66 件套。
