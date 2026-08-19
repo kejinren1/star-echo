@@ -37,6 +37,8 @@ var _fx_map: Dictionary = {}            ## F1-E-4：特效帧配置抽表（pres
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _skill_icon_map: Dictionary = {}    ## F1-E-6：技能图标映射抽表（presentation.json skill_icon_map，懒加载；
                                         ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
+var _turret_map: Dictionary = {}        ## F1-E-7：炮台默认值抽表（presentation.json turret_config，懒加载；
+                                        ## 空字典 = 未加载/缺失，is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
 var _spawn_points: Dictionary = {}      ## LEVEL_DESIGN（LD-A3 2026-08-19）：固定出生点表
                                         ## （spawn_points.json，懒加载；空字典 = 未加载/缺失，
                                         ## is_empty() 即重试标记——F3 §4 禁新增 bool 行为标志）
@@ -695,6 +697,21 @@ func get_skill_icon_index(skill_id: String) -> int:
 	if typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT:
 		return int(v)
 	return -1
+
+# ========== 炮台默认值接口（F1-E-7 第七批 · 2026-08-19 #3 执行） ==========
+
+## 获取炮台默认值表（presentation.json turret_config——原 turret.gd 字段声明
+## 默认值 + setup() 装载兜底两处散落数据化；消费端 turret 命中优先，
+## 未命中/空表回退 const TURRET_DEFAULTS 兜底，F 系列缺省兜底约定，
+## 抽表后旧值仍可启动）。
+## 返回整表 {炮台id: {"damage": float, "fire_interval": float, "attack_range": float}}；
+## 数据表缺失/损坏 → 空字典（消费端 const 兜底，零崩）。
+func get_turret_config() -> Dictionary:
+	if _turret_map.is_empty():
+		var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/presentation.json"))
+		if raw is Dictionary and (raw as Dictionary).get("turret_config") is Dictionary:
+			_turret_map = (raw as Dictionary)["turret_config"]
+	return _turret_map
 
 # ========== 关卡设计接口（LEVEL_DESIGN · LD-A3 2026-08-19 · 规格 LEVEL_DESIGN_SPEC.md） ==========
 
