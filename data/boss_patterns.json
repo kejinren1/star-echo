@@ -6,7 +6,10 @@
       "weight": 1,
       "phase": 100,
       "override": {},
-      "min_interval": 4
+      "min_interval": 4,
+      "cast_slowdown": 0,
+      "chase_ratio": 0.2,
+      "skill_window": 1
     },
     {
       "boss_id": "invoker",
@@ -16,7 +19,10 @@
       "override": {
         "radius": 160
       },
-      "min_interval": 6
+      "min_interval": 6,
+      "cast_slowdown": 0,
+      "chase_ratio": 0.2,
+      "skill_window": 1
     },
     {
       "boss_id": "predator",
@@ -26,7 +32,10 @@
       "override": {
         "damage": 25
       },
-      "min_interval": 4
+      "min_interval": 4,
+      "cast_slowdown": 0,
+      "chase_ratio": 0.2,
+      "skill_window": 1
     }
   ]
 }
