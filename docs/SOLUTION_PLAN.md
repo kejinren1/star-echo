@@ -1,3 +1,61 @@
+# 方案计划（2026-08-19 22:4x · 方案师第 40 轮 · RELIC-0 数据地基收口确认（RELIC 双批 A/0 落地 · 遗物扩展 2/7 🎉 · 上轮挂账解除）+ 无新任务需方案化 + RELIC 剩余 6 批 / LD-C 跨 5 轮挂账观察 + 回归硬门槛 66 件套 1748 锚点）
+
+## 📌 本轮判定（方案师第 40 轮）
+
+> **高峰检查**：22:37 不在 09-12/14-18 高峰 → 正常执行。
+>
+> **P0 检查（PLAYTEST 追踪区增量 #89 之后无新增量 · 反馈专员 4h 轮 18:38 空转零产出符合 D-018，22:38 轮未到，git 无 #90 提交）**：F-45~F-49/AF-P0 全 🟢 已修复·待真人回归；🟡 仅 H-05 家族主观审阅域（非机器可执行）→ **🔴P0 无新增 / 🟠 无用户拍板调度指令 → 无新机器可验证 P0 需纳入本轮**。
+>
+> **git 实测**：HEAD=`60ab765`（#2 第 70 轮拆解回执 · 22:00；第 39 轮方案后 +7 = **#3 执行者第 70 轮 RELIC-0 数据地基全收口 4 commits**：`01a27c7` 0-1 数据侧（**items relic 类条目 +6 新列 tag/tier/set_id/set_tier/set_effects/unlock_condition** + 套装 2 套 4 件占位——星骸孤注/死线舞者 price=0 不进商店池 + 移速流派示例 6 件 T1×3/T2×2/T3×1 + items_effects 子表 +9 行 + excel_export set_effects 分隔串→JSON 数组解析（第 31 轮方案「档:键=值;|」定案兑现）+ KNOWN_EFFECT_KEYS +6 新键，**其余 16 JSON 零 diff**）+ `6c54857` 0-2/0-3+EXIT 探针（**DataLoader get_relic_defs/get_relic_set_ids 懒加载接口** + save_system meta 两键 relic_affinity/relic_codex 缺省容错旧档零崩 + **day31_relic_data_check 55/55** + **runner 65→66 件套** + **day26 锚点 1692→1748** + items_atlas 58→59 占位豁免 + day20 54→64 同步）+ `55fcc5a` 回归同步（**day18_feedback2 flaky 根治**：点击前跳过 anvil 服务卡=无可升级武器购买被拒源，零游戏逻辑改动 + day23/day24 items 条数 54→64 锚点同步 + f3_compliance bool 白名单 + 回归 **61/66** 5 FAIL 全 D-26 零新增）+ `be647b4` 0 收口挂账（TASKS RELIC-0-1~EXIT 全 [x] + SOLUTION_PLAN 第 70 轮执行结果 61/66 66 件套 1748 锚点））+ `de0f563` 总指挥第 8 轮（**D-021：RELIC-F/E 下一卡点 + build 重打挂账等 D-26 收口** + 审批近 6h 10 提交 RELIC-A/0 双批收口 = 实质高质 + 7/7 ACTIVE）+ `98b806d` #1 进度分析第 74 轮（RELIC 批 0 收口确认 + 遗物扩展 2/7 批落地 + 摘要刷新）+ `60ab765` #2 第 70 轮回执（**RELIC-0 收口确认 = RELIC 双批 A/0 落地** + 剩余 F/E/B/C/D/EXIT 与 LD-C/E/D 已拆已定案待 #3 + 登记无待拆不空转 + 回归硬门槛 66 件套 1748 锚点））；**工作区在途 = 用户会话美术资产（lain 动画帧 / bg 背景图 / art_ai 工具 / `player_anim.gd` + `sprite_frame_factory.gd` M = **D-26 回归阻塞源** + 人物动画/ 摩托车/ 未跟踪目录）+ `docs/TEST_REPORT.md` M（#4 在途）——非本岗改动面，红线内不碰**。
+>
+> **本轮核心产出 = RELIC-0 收口确认（RELIC 双批 A/0 落地 · 遗物扩展 2/7）+ 无新任务需方案化 + 挂账刷新**：
+> 1. **RELIC-0 收口确认（上轮「RELIC 剩余 7 批」挂账部分解除）**：RELIC-0-1/0-2/0-3/EXIT 全 [x]（`01a27c7`+`6c54857`+`55fcc5a`+`be647b4`）——items relic 类条目 +6 新列全键齐全 + 套装 2 套 4 件 + 流派 6 件占位（price=0 天然排除商店池防半成品泄漏）+ get_relic_defs/get_relic_set_ids 懒加载接口 + meta 两键缺省容错 + day31_relic_data_check **55/55**（§1 字段键齐全 / §2 套装分组 / §3 池过滤 / §4 存档源码锚点 / §5 回归抽样）+ **runner 66 件套 · day26 锚点 1748** + 回归 61/66 挂 D-26 零新增 → **第 31 轮方案 RELIC-0 部分兑现**（方案锚点：save_compat 14/14 + day27_meta 35/35 零改动硬门槛 + set_effects 分隔串定案 + price=0 防泄漏 + f3 白名单登记全部按方案执行）；**RELIC 双批（A/0）落地 = 遗物扩展 2/7 批**；
+> 2. **回归硬门槛口径更新 = 66 件套 · 1748 锚点**（RELIC-0-EXIT runner 扩容；**当前 61/66 5 FAIL = D-26 用户会话在途 `set_frame_offset`（Godot 4.4 API · 4.3 无此方法）误用**，D-020 不代修待收口，与 #63~#69 同根因零新增——**所有挂账批次 EXIT 门槛统一挂 D-26 复跑恢复 66/66 后全绿**）；
+> 3. **无新任务需方案化**：RELIC 剩余 6 批（F/E/B/C/D/EXIT）+ LEVEL_DESIGN LD-C/E/D 均为「拆解+方案齐备」状态**不重写**；阶段 F 真全闭（7/7）无后续批次；D30 尾项纯 Owner/#4 域无方案 → **本轮为状态确认轮 + 挂账刷新**（与第 28/29/38/39 轮先例一致）。
+
+## 当前开发日：Day 31（RELIC + LEVEL_DESIGN 同窗口 · 承接方 #3 · 方案已定不重写）
+
+### 任务1：RELIC 遗物扩展——RELIC-A/0 双批已收口 · 剩余 6 批挂账观察
+
+- **现状**：RELIC-A（第 69 轮）+ **RELIC-0（第 70 轮）双批全 [x]** → **遗物扩展 2/7 批落地，跨 8 轮零开工挂账大幅解除**；**剩余 RELIC-F（Boss 行为节奏）/ E（Boss 宝箱收获）/ B（套装遗物）/ C（遗物图鉴+条件解锁）/ D（流派遗物树+动态权重）/ EXIT 仍 [ ] 待执行**（全部已拆已定案，承接方 = #3 执行者直接执行，方案 = SOLUTION_PLAN 第 31 轮不重写）。
+- **执行序**（第 31 轮定案不变）：RELIC-F/E（P0 独立，**总指挥 D-021 已标下一卡点**）→ RELIC-B/C/D（依赖 0 已就绪）→ RELIC-EXIT；⚠️ F-49 传送门+宝箱地基已落地（`4f1e791`），RELIC-E 落地时宝箱奖励升级三选一零重做（RELIC-E1 行已加注衔接）。
+- **风险**：低-中（方案已定；RELIC-A/0 连续两轮收口证明 #3 正稳步推进本窗口，剩余批按执行序推进即可，唯一变数 = 执行排期节奏 + D-26 收口时点）。
+
+### 任务2：LEVEL_DESIGN LD-C/E/D——挂账观察（LD-C 跨 5 轮）
+
+- **现状**：LD-A（`96e4cd5`）+ LD-B（`b213296`）双收口；**LD-C（Boss 演出）/ LD-E（attr）/ LD-D（可选）仍 [ ] 零开工**（git 无 boss_phase_player.gd/attr 分支提交）→ **挂账观察（LD-C 跨 5 轮）**，承接方 = #3 执行者（方案已定 SOLUTION_PLAN 第 32 轮，锚点复核 9 项一致不重写）。
+- **执行序**（第 32 轮定案不变）：LD-C Boss 演出（boss_phase_events 表消费，硬门槛 day18_19 48/48 + day30_boss_skill 49/49 零改动）→ LD-E attr 正向状态（5 旧类型行为零漂移 + attr 纯新增分支）→ LD-D 特殊波可选挂 TECH_DEBT_PLAN（D-014 拍板）。
+- **风险**：中（消费端 + 演出面）；方案已定不重写；RELIC 执行序排前时 LD-C 顺延属正常调度（#3 第 70 轮优先执行 RELIC-0 已实证）。
+
+### 任务3：D30-T3 上传 + D30-EXIT 发布收口——纯 Owner/#4 域，无需方案
+
+- **改动**：无（本岗红线：外部动作 + 测试岗产出）。D30-T3 上传 [ ] = 等 Owner 明确确认（目标资产库，上传属真正外部动作红线不变）；D30-EXIT [~]/[ ] = TEST_REPORT 发布摘要待 #4 落盘 + 最终标记。
+- ⚠️ **build/ 观察维持**：08-18 23:22 产物（`2aeb717`：含 F-45~48 + F1-E-4-1，**不含其后 F-49 + F1-E-4 消费端 + LD-A/B + 批五/六/七 + RELIC-A/0**）→ **总指挥 D-021 已登记 build 重打挂账（等 D-26 收口后统一重打）**，D-016 授权自动替换已生效，全程不再询问。
+
+### 风险总表（本轮）
+
+| 任务 | 风险 | 说明 / 替代方案 |
+|---|---|---|
+| RELIC-0 收口确认 | 低 | `01a27c7`+`6c54857`+`55fcc5a`+`be647b4` 全 [x]（55/55 + 66 件套 1748 锚点 + 回归 61/66 挂 D-26 零新增）；RELIC 双批 A/0 落地，上轮挂账部分解除 |
+| RELIC 剩余 6 批 | 低-中 | 方案已定（第 31 轮）；执行序 F/E（P0 独立·D-021 下一卡点）→ B/C/D → EXIT，承接方 #3 |
+| LD-C/E/D | 中 | 方案已定（第 32 轮）；唯一风险 = 承接方未开工（**LD-C 跨 5 轮挂账观察**） |
+| D-26 回归阻塞 | 低 | 61/66 5 FAIL 与 #63~#69 同根因（用户会话在途 4.4 API 误用）零新增；D-020 不代修待收口，复跑恢复 66/66 后各批 EXIT 门槛解冻 |
+| D30-T3/EXIT | 低 | Owner/#4 域；build/ 08-18 23:22 不含 F-49 + F1-E-4 消费端 + LD-A/B + 批五~七 + RELIC-A/0（D-021 重打挂账等 D-26 收口） |
+
+### 维持已定方案边界（不重复写）
+
+- **F1-E 全 7 批**：已收口（阶段 F 真全闭 7/7）——非本岗方案对象。
+- **RELIC / LD-C·E·D 方案**：已定（SOLUTION_PLAN 31/32 轮）不重写，执行按 31/32 轮执行序。
+- **F-49（传送门+宝箱）**：已落地（`4f1e791`）——非本岗方案对象；RELIC-E 落地时宝箱奖励升级三选一（本机制为地基）。
+- **F-45~F-49 主观回归面 / E-0 终审完整局 / AF-P0 / PS-EXIT**：交 #5 真人（主观项不阻塞机器侧）。
+- **F-16~F-44 真人回归 / MainMenu 待真人确认 / Day 28 性能段 / 章节 Boss 映射（已拍板三 Boss [6,10,14]）**：开放项清单维持（见 PLAYTEST 追踪区）。
+
+## 🔴 红线遵守（本轮）
+
+不写代码、不改 `.gd/.tscn/.tres/.json` 游戏文件、不 git commit、不跑探针。仅覆盖写 `docs/SOLUTION_PLAN.md`（顶部新第 40 轮段，历史段完整保留）+ 在 `docs/TASKS.md` 标注（Day 30 区第 70 轮确认块后补方案师第 40 轮确认块，RELIC 区块头「0 批已收口」标注已由 #2 第 70 轮落位不重复）。工作区在途用户会话美术资产（lain 帧/bg 背景图/AI 美术工具/2 脚本 M = D-26 阻塞源）+ #4 TEST_REPORT.md 不碰（本轮仅 SOLUTION_PLAN/TASKS 两 docs 挂账，交下一岗入库）。
+
+---
+
 # 方案计划（2026-08-19 20:4x · 方案师第 39 轮 · RELIC-A 收口确认（RELIC 首批落地 · 跨 8 轮挂账部分解除）+ 无新任务需方案化 + RELIC 剩余 7 批 / LD-C 跨 4 轮挂账观察 + 回归硬门槛 65 件套 1692 锚点）
 
 ## 📌 本轮判定（方案师第 39 轮）
@@ -1210,3 +1268,20 @@
 - **⭐ 执行登记 3 处（方案未点名面，均先例同构/必要护栏）**：① **新 10 件 price=0 不进商店池**（resonant_shard 先例，防 RELIC-C 解锁前半成品泄漏 = 商店行为零变化）② **day31_items_atlas_check 占位豁免 58→59**（items 64 条 + 占位 icon_index 49/50 复用，基础 54 帧断言不变 = 批六 day7/day8 豁免先例）+ day20 54→64 条数同步 ③ **day18_feedback2 flaky 根治**（随机池首卡=anvil 服务无武器可升级购买被拒 = 历史 flaky 源，探针点击前跳过 anvil 卡，**零游戏逻辑改动**；8 次连跑全绿验证）+ day23/day24 items 条数同步 + f3_compliance bool 白名单 +`_relic_defs_loaded`（懒加载标记非行为分支开关）。
 - **维持登记**：**RELIC-F/E（P0 独立）→ RELIC-B/C/D（依赖 0 已就绪）→ EXIT** = #3 承接（数据地基就绪解锁全部后续批）；**LD-C（Boss 演出）/ LD-E / LD-D** = #3 承接；D30-T3 上传 + D30-EXIT = Owner/#4 域。**回归口径更新 = 66 件套 · 1748 断言**（RELIC-0 +55 + items_atlas +1 并入）。
 - **下轮观察点**：① 用户会话是否收口 D-26 → 复跑回归恢复 66/66（RELIC-0 EXIT 门槛解冻）② RELIC-F（Boss 行为节奏 P0 独立）或 RELIC-E（宝箱收获 P0 独立）是否开工（F-49 传送门+宝箱地基已就绪，E1 零重做）③ LD-C 是否开工 ④ Owner 是否确认 D30-T3 上传 + D30-EXIT ⑤ #4 快照后 runner/day26 锚点漂移（66/1748 新口径）。
+
+---
+
+# 执行结果（2026-08-19 22:5x · #3 执行者第 71 轮 · RELIC-F Boss 行为节奏全收口 = P0 批落地 · RELIC 3/8 批）
+
+**状态：完成 · commit ×3（`fb9442b` F1 数据侧 / `25f4e2f` F2 消费端 / `4f35211` F3 探针+回归）· push 待执行**
+
+- **高峰检查**：22:37 不在 09-12/14-18 → 正常执行。
+- **P0 检查**：PLAYTEST 追踪区最新增量 = #89（F-49 落地），无新增 🔴 机器可验证项（方案师第 39 轮同口径）→ 无 P0 需执行。
+- **方案核实（三方一致）**：方案师第 31 轮 RELIC 正式方案（任务3 RELIC-F Boss 行为节奏，替代方案「数据灰度先行」）+ TASKS RELIC-F1~F4/EXIT 拆解段 + git HEAD=`60ab765`（#2 第 70 轮回执确认 RELIC-0 收口）→ **本轮执行 = RELIC-F（执行序 A→0→F/E→B/C/D→EXIT 第三批，P0 独立可先行）**。
+- **RELIC-F1 数据侧（`fb9442b`，4 文件）**：Excel boss_pattern 表追加 **3 新列** G~I（cast_slowdown 施放期移速倍率 / chase_ratio 追踪段时长系数=冷却×系数 / skill_window 施放后走位秒数）+ 3 行 circle 系数据全填 **0.0 / 0.2 / 1.0**（circle 系施放站定；追踪段 35% 达成）→ excel_export 导出 boss_patterns.json 3 行带新键（**其余 16 JSON 零 diff**）+ check-only EXIT=0。
+- **RELIC-F2 消费端（`25f4e2f`，3 文件）**：① enemy.gd +2 字段（`_pattern_rhythm` 节奏键缓存 / `_pattern_window_timer` 走位倒计时）② enemy_boss.gd `_pick_and_cast` 记录 rhythm（cast_slowdown/chase_ratio/skill_window/range 四键，**缺省兜底 1.0/1.0/0.0/0.0 = 旧数据零变化**）+ `_process_boss_patterns` 改造为**三段态**：施放（executor 运行）→ 走位（window 内不 pick 不追踪）→ 追踪（冷却 × chase_ratio）→ 施放 ③ enemy_movement.gd Boss 分支**三态移动分派**：`_move_boss_cast`（施放期 cast_slowdown，0.0=站定）/ `_move_boss_window`（走位期慢速横向游走 ×0.3）/ 追踪期 `_move_chase` + **F4 逼近射程即停**（dist ≤ 当前技能 radius×0.9 → velocity ZERO）；charge 分支与旧 attacks 降级路径原样保留。
+- **RELIC-F3 探针+回归（`4f35211`，3 文件）**：新建 `tools/day31_relic_boss_rhythm_check.gd` **26/26** 六段（§1 数据键 3 行全含 + 数值范围 + circle_aoe 锚点 0.0/0.2/1.0 / §2 真实 Boss pick → movement tick → 施放期 velocity==ZERO + rhythm 空缺省满速兜底 / §3 时间分配白盒统计：circle_aoe 追踪 1.6s vs 施放 2.0s + 走位 1.0s = **占比 35% ∈[30,40]** + 3 行全部追踪段 < 技能+走位段（倒置）/ §4 大范围 circle 权重 100% > 贴身追击 0% / §5 公平底线 fair_telegraph(120,300)≥1.2 + 每技能 telegraph ≥ 底线 + 难度×2 钳制 / §6 状态机：done → cooldown=8×0.2=1.6 + window=1.0 入位、走位期递减不 pick、归零后补帧新 pick、P2 双池保底不连续）+ runner PROBES +1 → **67 件套** + day26 锚点 **1748→1774**（+26）。
+- **护栏全绿**：回归 **59/67** = **8 FAIL 全挂外部在途零引入**——5 个 = D-26 用户会话在途 `set_frame_offset` 4.4 API（day2/day3/day5/day31_charsel/day31_player_model，与第 69/70 轮同根因零新增）+ **3 个 = 用户会话在途美术 PNG 替换**（assets/sprites/ui/weapons.png/items.png/skills.png 均 M 状态，AI 美术资产 v2 实装期新 PNG (0,0) 非透明键 → day8/day10/day11_12 图集透明键断言失败，RELIC-F 零关联）+ day30_boss_skill **49/49** + day18_19 **48/48**（两硬门槛复跑全绿）+ day31_relic_boss_rhythm 26/26 + baseline **BASELINE CLEAN** + excel_export --check-only EXIT=0。
+- **⭐ 执行登记 2 处（方案未点名面，均先例同构/必要护栏）**：① **F3 现状核实**：boss_pattern 表现 3 行全 circle 系（无 fan/beam/charge 行）→ 大范围权重已 100% > 贴身追击 0%，零权重表改动（探针 §4 断言成立）② **探针自身 3 处修正**（`%%` Godot 格式不支持改裸数字 / cooldown 恰好归零帧 return 不 pick 需补一帧驱动 / 保底断言须 P2 双技能池——P1 单技能池保底不生效），均探针侧零游戏逻辑改动。
+- **维持登记**：**RELIC-E（Boss 宝箱收获 P0 独立 · F-49 传送门+宝箱地基零重做）→ RELIC-B/C/D（依赖 0 已就绪）→ EXIT** = #3 承接；**LD-C（Boss 演出）/ LD-E / LD-D** = #3 承接；D30-T3 上传 + D30-EXIT = Owner/#4 域。**回归口径更新 = 67 件套 · 1774 断言**（RELIC-F +26 并入）。
+- **下轮观察点**：① 用户会话是否收口 D-26 + 美术 PNG 透明键（两在途面）→ 复跑回归恢复 67/67（RELIC-F EXIT 门槛解冻）② RELIC-E（宝箱三选一 + 结算页增强 + 新音效）是否开工 ③ LD-C 是否开工 ④ Owner 是否确认 D30-T3 上传 + D30-EXIT ⑤ #4 快照后 runner/day26 锚点漂移（67/1774 新口径）。
