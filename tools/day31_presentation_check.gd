@@ -355,3 +355,77 @@ func _run() -> void:
 	sc5.set("skills", [{"id": "relic_dash"}])
 	hud5.call("_apply_skill_slot_icon", sc5, 0)
 	_check(slots5[0].get("slot").texture == null, "掉落技能未映射 → 灰显不变（texture null）")
+
+	# ⑨ turret_config（F1-E-7 第七批 2026-08-19 #3 执行：炮台默认值抽表，
+	#    原 turret.gd 字段声明默认值 + setup() 装载兜底两处散落数据化 →
+	#    presentation.json turret_config；三键数值与 const TURRET_DEFAULTS
+	#    现值逐一一致（抽表零漂移）；消费端 DataLoader.get_turret_config +
+	#    turret._resolve_turret_defaults（命中优先/空表回退 const/weapon_data 优先）；
+	#    TURRET_DEFAULTS const 保留兜底 = day13 炮台段 6b 零改动硬门槛）
+	var tc_map: Dictionary = {}
+	if raw is Dictionary and (raw as Dictionary).get("turret_config") is Dictionary:
+		tc_map = (raw as Dictionary)["turret_config"]
+	var turret_script9: GDScript = load("res://scripts/weapons/turret.gd")
+	var tc_const: Dictionary = turret_script9.TURRET_DEFAULTS
+	# 外层 1 键齐（se_auto_turret = 唯一炮台武器键）
+	_check(tc_map.size() == 1 and tc_map.has("se_auto_turret"), \
+		"turret_config 外层应恰 1 键 se_auto_turret: %s" % str(tc_map.keys()))
+	var tc_cfg: Dictionary = tc_map.get("se_auto_turret", {})
+	# 内层键集合与 TURRET_DEFAULTS 一致（零多余零缺失）
+	var tc_missing := []
+	for k in tc_const.keys():
+		if not tc_cfg.has(k):
+			tc_missing.append(k)
+	_check(tc_missing.is_empty(), "se_auto_turret 缺 const 键: %s" % str(tc_missing))
+	var tc_extra := []
+	for k in tc_cfg.keys():
+		if not tc_const.has(k):
+			tc_extra.append(k)
+	_check(tc_extra.is_empty(), "se_auto_turret 多余键: %s" % str(tc_extra))
+	# 三键数值与 const 逐一一致（抽表零漂移）
+	var tc_drift := []
+	for k in tc_const.keys():
+		if not is_equal_approx(float(tc_cfg.get(k, -1.0)), float(tc_const[k])):
+			tc_drift.append("%s/%s" % ["se_auto_turret", k])
+	_check(tc_drift.is_empty(), "turret_config 与 const 漂移: %s" % str(tc_drift))
+	_check(tc_cfg.size() == tc_const.size(), "se_auto_turret 三键不齐: %s" % str(tc_cfg))
+	# 消费接口白盒：get_turret_config 命中 → 整表返回 + 三值正确
+	_check(loader.call("get_turret_config").has("se_auto_turret"), "get_turret_config 缺 se_auto_turret")
+	_check(is_equal_approx(float(loader.call("get_turret_config").get("se_auto_turret", {}).get("fire_interval", -1.0)), 0.5), \
+		"get_turret_config fire_interval != 0.5")
+	# 端到端双跑（白盒等价）：_turret_map 注入改值 → 返回值变化 → 还原
+	var tc_orig: Dictionary = loader.get("_turret_map")
+	var tc_mut: Dictionary = (tc_orig.duplicate(true))
+	var tc_cfg_mut: Dictionary = (tc_mut.get("se_auto_turret", {}) as Dictionary).duplicate()
+	tc_cfg_mut["fire_interval"] = 0.9
+	tc_mut["se_auto_turret"] = tc_cfg_mut
+	loader.set("_turret_map", tc_mut)
+	_check(is_equal_approx(float(loader.call("get_turret_config").get("se_auto_turret", {}).get("fire_interval", -1.0)), 0.9), \
+		"白盒改 fire_interval 未生效（端到端双跑失败）")
+	loader.set("_turret_map", tc_orig)  # 还原缓存防污染
+	# 空表兜底：_turret_map 清空重载 → turret.setup 空 weapon_data 回退 const 现值仍可跑不崩
+	var turret9: Node = turret_script9.new()
+	root.add_child(turret9)
+	loader.set("_turret_map", {})
+	turret9.call("setup", {}, 5.0, null)
+	_check(is_equal_approx(float(turret9.get("damage")), 5.0), "空表兜底 setup damage != 5.0")
+	_check(is_equal_approx(float(turret9.get("fire_interval")), 0.5), "空表兜底 setup fire_interval != 0.5")
+	_check(is_equal_approx(float(turret9.get("attack_range")), 220.0), "空表兜底 setup attack_range != 220.0")
+	loader.set("_turret_map", tc_orig)  # 还原缓存防污染
+	# 未知武器 id 回退 const（表内无该武器键 → _resolve_turret_defaults 回退 TURRET_DEFAULTS）
+	loader.set("_turret_map", {"no_such_turret": {"damage": 1.0}})
+	var d9: Dictionary = turret9.call("_resolve_turret_defaults")
+	_check(is_equal_approx(float(d9.get("damage", -1.0)), 5.0), "未知武器 id 未回退 const: %s" % str(d9))
+	loader.set("_turret_map", tc_orig)  # 还原缓存防污染
+	# 字段声明值 = const（编译期一致）
+	var turret10: Node = turret_script9.new()
+	_check(is_equal_approx(float(turret10.get("damage")), float(tc_const["damage"])), "字段声明 damage != const")
+	_check(is_equal_approx(float(turret10.get("fire_interval")), float(tc_const["fire_interval"])), "字段声明 fire_interval != const")
+	_check(is_equal_approx(float(turret10.get("attack_range")), float(tc_const["attack_range"])), "字段声明 attack_range != const")
+	# weapon_data 优先（表值被 setup 传入数据覆盖）
+	var turret11: Node = turret_script9.new()
+	root.add_child(turret11)
+	turret11.call("setup", {"damage": 9.0, "cooldown": 0.3, "range": 150.0}, 5.0, null)
+	_check(is_equal_approx(float(turret11.get("damage")), 9.0), "weapon_data.damage 9.0 未优先")
+	_check(is_equal_approx(float(turret11.get("fire_interval")), 0.3), "weapon_data.cooldown 0.3 未优先")
+	_check(is_equal_approx(float(turret11.get("attack_range")), 150.0), "weapon_data.range 150 未优先")
