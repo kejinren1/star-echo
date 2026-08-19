@@ -118,10 +118,10 @@ func _advance(sub: int) -> int:
 func _part_data() -> void:
 	# 54 项 / 23 被动
 	var all_ids: Array = _loader.call("get_all_item_ids")
-	if all_ids.size() != 54:
-		_fail("数据: items.json 应 54 项, 实得 %d" % all_ids.size())
+	if all_ids.size() != 64:
+		_fail("数据: items.json 应 64 项（54 基础 + 10 RELIC-0 占位遗物）, 实得 %d" % all_ids.size())
 	else:
-		_pass("数据 / items.json 54 项（51 + 3 机制型）")
+		_pass("数据 / items.json 64 项（54 基础 + 10 RELIC-0 占位遗物）")
 	var passive_count: int = 0
 	for iid in all_ids:
 		var it: Dictionary = _loader.call("get_item", iid)

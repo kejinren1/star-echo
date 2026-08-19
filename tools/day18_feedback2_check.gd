@@ -272,7 +272,21 @@ func _part5_click_purchase() -> void:
 	if container.get_child_count() < 1:
 		_fail("无卡片可点")
 		return
-	var card: Control = container.get_child(0)
+	# 2026-08-19（RELIC-0 轮）：随机池洗牌后首卡可能是 anvil 服务（无武器可升级时购买被拒
+	# = 历史 flaky 源）→ 遍历选一张非 anvil 卡点击，保证稳定可买（零游戏逻辑改动）
+	var card: Control = null
+	var shop_items: Array = _shop.get("shop_items")
+	for i in container.get_child_count():
+		var c: Control = container.get_child(i)
+		if i < shop_items.size():
+			var it: Resource = shop_items[i]
+			var sb: Variant = it.get("stat_bonuses")
+			if sb is Dictionary and bool((sb as Dictionary).get("shop_weapon_upgrade", false)):
+				continue
+		card = c
+		break
+	if card == null:
+		card = container.get_child(0)
 	var center: Vector2 = card.get_global_rect().get_center()
 	# push_input 同步派发 → 先记录点击前状态
 	var coins_before: int = int(_gm.get("economy").get("coins"))

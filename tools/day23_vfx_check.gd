@@ -344,10 +344,10 @@ func _part_regression() -> void:
 		_pass("回归 / VfxPlayer.spawn 静态接口 intact")
 	# baseline 数据锚点
 	var items: Array = _loader.call("get_all_item_ids")
-	if items.size() != 54:
-		_fail("回归: items.json 应 54 项（D24-F13 +3 机制型）, 实得 %d" % items.size())
+	if items.size() != 64:
+		_fail("回归: items.json 应 64 项（54 基础 + 10 RELIC-0 占位遗物）, 实得 %d" % items.size())
 	else:
-		_pass("回归 / items.json 54 项 intact")
+		_pass("回归 / items.json 64 项 intact（54 基础 + 10 RELIC-0 占位遗物）")
 	var wave: Dictionary = _loader.call("get_wave", 2)
 	if wave.is_empty():
 		_fail("回归: waves.json wave2 数据 intact 缺失")

@@ -15,7 +15,8 @@
 extends SceneTree
 
 const BOOL_WHITELIST: Dictionary = {
-	"scripts/autoload/data_loader.gd": ["_loaded"],
+	# RELIC-0（2026-08-19 · SPEC §3.2）：get_relic_defs 懒加载标记（一次性构建缓存，非行为分支开关）
+	"scripts/autoload/data_loader.gd": ["_loaded", "_relic_defs_loaded"],
 	"scripts/autoload/game_manager.gd": ["_shop_from_battle", "debug_cheat", "is_boss_wave", "route_enabled"],
 	"scripts/autoload/main.gd": ["_debug_keys_prev"],
 	"scripts/enemy/enemy.gd": ["_boss_charge", "_is_charging", "is_alive", "stunned"],
