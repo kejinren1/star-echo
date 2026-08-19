@@ -78,7 +78,9 @@ PROBES = [
     ("day31_enemy_richness_check", ["--script", "res://tools/day31_enemy_richness_check.gd"], 5),
     ("day31_melee_sweep_check", ["--script", "res://tools/day31_melee_sweep_check.gd"], 9),
     ("day31_player_model_check", ["--script", "res://tools/day31_player_model_check.gd"], 6),
-    ("day31_items_atlas_check", ["--script", "res://tools/day31_items_atlas_check.gd"], 58),
+    # RELIC-0 同步（2026-08-19 #3 执行）：items 图集占位遗物豁免——基础 54 帧断言不变，
+    #   新增 10 占位遗物 icon_index 复用 49/50 帧（美术占位口径）→ 58→59
+    ("day31_items_atlas_check", ["--script", "res://tools/day31_items_atlas_check.gd"], 59),
     # 总指挥 2026-08-18 F1-E 第一批：敌人精灵表现抽表闭环（presentation.json ↔ const 一致性 + DataLoader 消费）
     # expect 349 = 2026-08-19 #3 执行 F1-E-5 第五批 icon_config（334 + 15：§10 icon 段，批五落地补）
     ("day31_presentation_check", ["--script", "res://tools/day31_presentation_check.gd"], 349),
@@ -100,6 +102,10 @@ PROBES = [
     # RELIC-A 同步（2026-08-19 #3 执行 · 方案师第 31 轮 · O-1 拍板）：属性命名去土豆兄弟化
     #   stats 两属性名（元素伤害→魔法伤害 / 工程学→机械学 id 零改动）+ desc_builder STAT_CN + data 文案零残留
     ("day31_relic_name_check", ["--script", "res://tools/day31_relic_name_check.gd"], 15),
+    # RELIC-0 同步（2026-08-19 #3 执行 · 方案师第 31 轮 · SPEC §3/§4/§5.3 数据地基批）：
+    #   items relic 字段扩展（tag/tier/set_id/set_tier/set_effects/unlock_condition）+
+    #   DataLoader get_relic_defs/get_relic_set_ids + meta_progress relic_affinity/relic_codex 兼容旧档
+    ("day31_relic_data_check", ["--script", "res://tools/day31_relic_data_check.gd"], 55),
 ]
 
 

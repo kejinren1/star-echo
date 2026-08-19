@@ -49,6 +49,11 @@ var _boss_phase_events: Dictionary = {} ## LEVEL_DESIGN（LD-A3 2026-08-19）：
 var _enemy_scaling: Dictionary = {}     ## 敌人成长公式参数
 var _weapons: Dictionary = {}           ## 武器数据 { id → data } (含 category 标记)
 var _items: Dictionary = {}             ## 道具数据 { id → data }
+## RELIC-0（2026-08-19 · RELIC_EXPANSION_SPEC §3.2）：全量属性遗物懒加载缓存
+## （items.json slot=="relic" 过滤；条目含 rarity/tag/tier/set_id/set_tier/set_effects/
+##  unlock_condition 字段透传，RELIC-B/C/D 消费端可读；缺失 → 空表零崩）
+var _relic_defs: Array = []
+var _relic_defs_loaded: bool = false
 var _characters: Dictionary = {}        ## 角色数据 { id → data }
 var _waves: Dictionary = {}             ## 波次数据 { wave_number → data }
 var _wave_generation: Dictionary = {}   ## 波次生成规则
@@ -415,6 +420,34 @@ func get_item_ids_by_rarity(rarity: String) -> Array:
 		if _items[id].get("rarity") == rarity:
 			result.append(id)
 	return result
+
+## RELIC-0（2026-08-19 · RELIC_EXPANSION_SPEC §3.2）：全量属性遗物 = items.json
+## slot=="relic" 过滤（懒加载缓存一次，后续直接返回；缺失 → 空表零崩）
+func get_relic_defs() -> Array:
+	if not _relic_defs_loaded:
+		_relic_defs_loaded = true
+		for id in _items:
+			if str(_items[id].get("slot", "")) == "relic":
+				_relic_defs.append(_items[id])
+	return _relic_defs
+
+## RELIC-0：套装分组（set_id → {count 件数, set_tier 触发档, set_effects 档位效果表}，
+## B 项套装激活用；无套装条目不参与）。set_effects 数组 = [{tier, effects}]（Excel 分隔串导出，
+## 消费端按持有件数激活对应 tier：count>=tier 档即应用该档 effects）
+func get_relic_set_ids() -> Dictionary:
+	var out: Dictionary = {}
+	for relic in get_relic_defs():
+		var sid: String = str(relic.get("set_id", ""))
+		if sid.is_empty():
+			continue
+		if not out.has(sid):
+			out[sid] = {
+				"count": 0,
+				"set_tier": int(relic.get("set_tier", 1)),
+				"set_effects": relic.get("set_effects", []),
+			}
+		out[sid]["count"] = int(out[sid]["count"]) + 1
+	return out
 
 # ========== 角色接口 ==========
 

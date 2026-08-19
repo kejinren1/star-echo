@@ -6,23 +6,33 @@ var _checked := 0
 var _failures := 0
 
 func _init() -> void:
-	# 数据层：items.json 54 项 icon_index 0-53 连续
+	# 数据层：基础 items.json 54 项 icon_index 0-53 连续 + RELIC-0 占位遗物 10 项
+	# （2026-08-19：新增遗物 icon_index 复用 49/50 帧 = 美术占位口径，图集未烘焙新帧前不越界即可）
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/items.json"))
 	var arr: Array = data["items"]
 	_checked += 1
-	if arr.size() != 54:
+	if arr.size() != 64:
 		_failures += 1
-		print("XX items.json 条目数 %d != 54" % arr.size())
+		print("XX items.json 条目数 %d != 64（54 基础 + 10 RELIC-0 占位遗物）" % arr.size())
 	var idxs := []
+	var extra_bad := false
 	for it in arr:
-		idxs.append(int(it.get("icon_index", -1)))
+		var ix := int(it.get("icon_index", -1))
+		idxs.append(ix)
+		if ix < 0 or ix >= 54:
+			extra_bad = true
 	var expect := []
 	for i in range(54):
 		expect.append(i)
+	# 基础 54 条（icon_index 0-53 前 54 个）= 连续；新增条目 icon_index 必须在 0-53 图集界内
 	_checked += 1
-	if idxs != expect:
+	if idxs.slice(0, 54) != expect:
 		_failures += 1
-		print("XX icon_index 非 0-53 连续: %s" % str(idxs))
+		print("XX 基础 54 条 icon_index 非 0-53 连续: %s" % str(idxs.slice(0, 54)))
+	_checked += 1
+	if extra_bad:
+		_failures += 1
+		print("XX RELIC-0 占位遗物 icon_index 越出 0-53 图集界: %s" % str(idxs.slice(54)))
 	# IconAtlas 层：54 帧全部可加载且非空
 	var cfg: Dictionary = IconAtlas.SHEET_CONFIG["items"]
 	var tex: Texture2D = load(cfg["path"])

@@ -18,6 +18,9 @@ func _default_meta() -> Dictionary:
 		"research_points": 0,
 		"research": {"attack": 0, "hp": 0, "luck": 0},
 		"chars": {},
+		# RELIC-0（2026-08-19 · RELIC_EXPANSION_SPEC §5.3）：流派亲和计数 + 遗物图鉴已见列表
+		"relic_affinity": {},
+		"relic_codex": [],
 	}
 
 ## 加载局外存档：缺文件/打开失败/非 Dictionary → 默认零值 + push_warning 容错不崩；
@@ -79,6 +82,20 @@ func load_meta() -> void:
 						clean_list.append(si)
 			clean_slots[str(cid)] = clean_list
 		_gm.meta_progress["skill_slots"] = clean_slots
+	# RELIC-0（2026-08-19 · RELIC_EXPANSION_SPEC §5.3）：relic_affinity/relic_codex 扩展键
+	# （缺省空兼容旧档：旧档缺键 → 空字典/空数组零崩，day30_save_compat 14/14 范式）
+	var aff_data: Variant = data.get("relic_affinity", {})
+	var clean_aff: Dictionary = {}
+	if aff_data is Dictionary:
+		for tag in aff_data.keys():
+			clean_aff[str(tag)] = int(aff_data[tag])
+	_gm.meta_progress["relic_affinity"] = clean_aff
+	var rlx_data: Variant = data.get("relic_codex", [])
+	var clean_rlx: Array = []
+	if rlx_data is Array:
+		for rid in rlx_data:
+			clean_rlx.append(str(rid))
+	_gm.meta_progress["relic_codex"] = clean_rlx
 
 ## 保存局外存档（每次结算/研究升级后调用）
 func save_meta() -> void:

@@ -119,10 +119,10 @@ func _advance(sub: int) -> int:
 
 func _part_data() -> void:
 	var items: Array = _loader.call("get_all_item_ids")
-	if items.size() != 54:
-		_fail("数据: items.json 应 54 项, 实得 %d" % items.size())
+	if items.size() != 64:
+		_fail("数据: items.json 应 64 项（54 基础 + 10 RELIC-0 占位遗物）, 实得 %d" % items.size())
 	else:
-		_pass("数据 / items.json 54 项（49 + 2 遗物 + 3 机制型被动）")
+		_pass("数据 / items.json 64 项（49 被动 + 2 既有遗物 + 3 机制型被动 + 10 RELIC-0 占位遗物）")
 
 	# 2 遗物：slot=="relic" + icon_index 49/50 唯一（2026-08-15 图集重建：items.json 全 54 道具按序，遗物排 49/50）+ price>0 + effects 键白名单
 	var relic_found: Dictionary = {}

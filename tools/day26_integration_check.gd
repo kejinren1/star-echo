@@ -462,17 +462,17 @@ func _part_lore() -> void:
 # ========== §5 数据交叉引用（T3） ==========
 
 func _part_data_crossref() -> void:
-	# items.json 54 项
+	# items.json 64 项（54 基础 + RELIC-0 2026-08-19 10 占位遗物）
 	var items_ok: bool = false
 	if FileAccess.file_exists("res://data/items.json"):
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/items.json"))
 		if parsed is Dictionary and (parsed as Dictionary).has("items"):
 			var arr: Array = (parsed as Dictionary)["items"]
-			items_ok = arr.size() == 54
+			items_ok = arr.size() == 64
 	if items_ok:
-		_pass("T3 / items.json 54 项（含 F-13 三机制被动）")
+		_pass("T3 / items.json 64 项（54 基础 + 10 RELIC-0 占位遗物）")
 	else:
-		_fail("T3: items.json 项数 ≠ 54")
+		_fail("T3: items.json 项数 ≠ 64")
 	# weapons.json 嵌套累加 37（D36 口径 36 + F1-E-6 2026-08-19 starting_gun 抽表 1：勿扁平 len）
 	var w_total: int = -1
 	if FileAccess.file_exists("res://data/weapons.json"):
@@ -580,14 +580,17 @@ func _part_regression() -> void:
 	#   → 64 项 / 期望 1677（1662 + 15）
 	# RELIC-A 同步（2026-08-19 #3 执行 · 方案师第 31 轮）：runner +day31_relic_name_check(15)
 	#   → 65 项 / 期望 1692（1677 + 15）
-	if probe_count == 65:
-		_pass("回归 / _regression_run.py PROBES 65 项（64 + RELIC-A day31_relic_name_check 1）")
+	# RELIC-0 同步（2026-08-19 #3 执行 · 方案师第 31 轮）：runner +day31_relic_data_check(55)
+	#   + day31_items_atlas_check 58→59（占位遗物豁免 +1）
+	#   → 66 项 / 期望 1748（1692 + 55 + 1）
+	if probe_count == 66:
+		_pass("回归 / _regression_run.py PROBES 66 项（65 + RELIC-0 day31_relic_data_check 1）")
 	else:
-		_fail("回归: PROBES 项数 %d ≠ 65" % probe_count)
-	if expect_sum == 1692:
-		_pass("回归 / 期望断言合计 1692（1677 + RELIC-A 15）")
+		_fail("回归: PROBES 项数 %d ≠ 66" % probe_count)
+	if expect_sum == 1748:
+		_pass("回归 / 期望断言合计 1748（1692 + RELIC-0 55 + items_atlas 1）")
 	else:
-		_fail("回归: 期望合计 %d ≠ 1692" % expect_sum)
+		_fail("回归: 期望合计 %d ≠ 1748" % expect_sum)
 	# 关键探针 load 抽样
 	var load_ok: bool = true
 	for p in ["res://tools/day18_19_boss_check.gd", "res://tools/day21_22_art_check.gd",
