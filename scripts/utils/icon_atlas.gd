@@ -28,6 +28,21 @@ static var _texture_cache: Dictionary = {}
 ## 缓存已创建的 AtlasTexture，避免重复创建
 static var _atlas_cache: Dictionary = {}
 
+## 解析图标集配置（presentation.json icon_config 优先——F1-E-5 第五批抽表，
+## 原 SHEET_CONFIG const 数据化；DataLoader 命中优先，未命中/空表/无 DataLoader
+## 回退 const SHEET_CONFIG 兜底，F 系列缺省兜底约定，抽表后旧值仍可启动）。
+## 静态类无法用实例节点路径 → Engine.get_main_loop().root.get_node_or_null("DataLoader")
+## （--script 探针环境主循环不可达返回 null → 回退 const 天然兼容）。
+static func _resolve_icon_config(sheet_name: String) -> Dictionary:
+	var loader: Node = null
+	if Engine.get_main_loop() != null and Engine.get_main_loop().root != null:
+		loader = Engine.get_main_loop().root.get_node_or_null("DataLoader")
+	if loader != null:
+		var cfg: Dictionary = loader.call("get_icon_config", sheet_name)
+		if not cfg.is_empty() and cfg.has("path") and cfg.has("frame_count") and cfg.has("frame_size"):
+			return cfg
+	return SHEET_CONFIG.get(sheet_name, {})
+
 ## 获取指定图集指定索引的图标 AtlasTexture
 static func get_icon(sheet_name: String, index: int) -> AtlasTexture:
 	var cache_key := "%s_%d" % [sheet_name, index]
@@ -38,7 +53,7 @@ static func get_icon(sheet_name: String, index: int) -> AtlasTexture:
 		push_warning("[IconAtlas] 未知图集: %s" % sheet_name)
 		return null
 
-	var config: Dictionary = SHEET_CONFIG[sheet_name]
+	var config: Dictionary = _resolve_icon_config(sheet_name)
 	var tex: Texture2D = _get_texture(sheet_name, config["path"])
 	if not tex:
 		return null
@@ -70,7 +85,7 @@ static func _get_texture(sheet_name: String, path: String) -> Texture2D:
 ## 获取图集中图标的总帧数
 static func get_frame_count(sheet_name: String) -> int:
 	if SHEET_CONFIG.has(sheet_name):
-		return SHEET_CONFIG[sheet_name]["frame_count"]
+		return _resolve_icon_config(sheet_name).get("frame_count", 0)
 	return 0
 
 ## 清除缓存 (场景切换时可选调用)
