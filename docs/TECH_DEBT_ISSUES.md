@@ -37,7 +37,7 @@
 | T-021 | player.gd:56-74 | STAT_MAP 17 键 vs items.json 39 键（P0-Bug2 已修收口，余无消费方键另登记） | 已收口(F0) | 已修 |
 | T-022 | hud.gd:240-245 | SKILL_ICON_MAP（技能 id→图标帧索引） | ✅ 已收口(F1-E-6 2026-08-19 · #3 `3b3aff8`/`20b03f9`：skill_icon_map 独立表 5 行 + get_skill_icon_index + hud 消费改走，const 兜底保留) | F1 |
 | T-023 | route_generator.gd:24-40 / base_station.gd:9-13 | 默认参数 + RESEARCH_ITEMS（研究倍率与 game_manager.gd:705-718 重复） | F1-E 主窗口承接 | F1 |
-| T-024 | turret.gd:13-15 | 炮台默认值与 se_auto_turret 数据重复 | F1-E 主窗口承接 | F1 |
+| T-024 | turret.gd:13-15 | 炮台默认值与 se_auto_turret 数据重复 | ✅ 已收口(F1-E-7 2026-08-19 · #3 `8f6ecff`/`c0606e1`/`c8ad1b7`：turret_config 表 1 行 + get_turret_config + TURRET_DEFAULTS const 兜底 + setup 改读，day13 炮台段 6b 零改动) | F1 |
 
 ## 硬编码字符串（业务 id/路径/组名）
 
